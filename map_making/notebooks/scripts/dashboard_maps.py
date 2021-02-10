@@ -4,13 +4,10 @@
 # In[1]:
 
 
-import json
 import sys
 
 import folium
 import pandas as pd
-import plotly.express as px
-import requests
 
 sys.path.append('/Users/ansm/Documents/GitHub/datamed')
 
@@ -160,14 +157,30 @@ voies = ['orale', 'intraveineuse', 'cutanée', 'sous-cutanée', 'ophtalmique']
 # In[15]:
 
 
-df['atc2'] = df.atc.apply(lambda x: x[:3] if x else None)
-df['voie'] = df.voie_admin.apply(lambda x: 'autre' if x not in voies else x)
-
-df_atc_voie = df.groupby(['atc2', 'voie']).agg({c: 'sum' for c in countries}).reset_index()
-df_atc_voie.head(2)
+df.head(1)
 
 
 # In[16]:
+
+
+df['atc2'] = df.atc.apply(lambda x: x[:3] if x else None)
+df['voie'] = df.voie_admin.apply(lambda x: 'autre' if x not in voies else x)
+
+
+# In[17]:
+
+
+df_by_cis = df.groupby(['atc2', 'voie', 'cis']).sum().reset_index()
+for country in countries:
+    df_by_cis[country] = df_by_cis[country].apply(lambda x: 1 if x > 1 else x)
+    
+df_atc_voie = df_by_cis.groupby(['atc2', 'voie']).agg({c: 'sum' for c in countries}).reset_index()
+df_atc_voie.head(2)
+    
+# df[df.cis == '60781361']
+
+
+# In[18]:
 
 
 country_en_list = df_pays.to_dict(orient='records')
@@ -190,17 +203,11 @@ df_api_by_country = pd.DataFrame(api_by_country_atc_voie)
 df_api_by_country.head(3)
 
 
-# In[27]:
-
-
-import choropleth
-
-
-# In[44]:
+# In[19]:
 
 
 atc2 = 'L01'
-voie = 'intraveineuse'
+voie = 'orale'
 
 state_geo = 'world-countries.json'
 
@@ -220,7 +227,7 @@ folium.Choropleth(
     nan_fill_opacity=0,
     reset=True,
     highlight = True,
-    legend_name='ATC {} - voie : {} - Nb de substance actives fabriquees par pays'.format(atc2, voie),
+    legend_name='ATC {} - voie : {} - Nb de spe ayant au moins un site de fab dans le pays'.format(atc2, voie),
     tooltip=folium.features.GeoJsonTooltip(
         fields=['country','nb_substances'],
         aliases=['Country: ','Nb substances produced'],
@@ -256,10 +263,73 @@ folium.LayerControl().add_to(m)
 m
 
 
+# # Par substance active
+
+# In[20]:
+
+
+df.substance_active_id = df.substance_active_id.apply(lambda x: 4751 if x == 4748 else x)
+
+
 # In[ ]:
 
 
+df_nb_sites = df.groupby(['substance_active_id', 'sites_fabrication_substance_active']).sum().reset_index()
 
+country_by_api = [
+    {
+        'substance_active_id': sa_id,
+        'country': country,
+        'nb_fabricants': df_nb_sites[df_nb_sites.substance_active_id == sa_id][country].sum()
+    }
+    for country in countries for sa_id in df_nb_sites.substance_active_id.unique()
+    if df_nb_sites[df_nb_sites.substance_active_id == sa_id][country].sum() > 0
+]
+
+
+# In[ ]:
+
+
+df_api = pd.DataFrame(country_by_api)
+df_api.country = df_api.country.apply(lambda x: country_en_dict[x])
+df_api.head()
+
+
+# In[ ]:
+
+
+# df[(df.substance_active_id == 4751) & (df.chine == 1)]
+
+
+# In[ ]:
+
+
+sa_id = 4751
+
+state_geo = 'world-countries.json'
+
+m = folium.Map(location=[48, 2], zoom_start=4)
+
+# Add the color for the chloropleth:
+folium.Choropleth(
+    geo_data=state_geo,
+    name='choropleth',
+    data=df_api[df_api.substance_active_id == sa_id],
+    columns=['country', 'nb_fabricants'],
+    key_on='feature.properties.name',
+    fill_color='YlOrRd',
+    fill_opacity=0.7,
+    line_opacity=0.4,
+    nan_fill_color=0,
+    nan_fill_opacity=0,
+    reset=True,
+    highlight = True,
+    legend_name='Nombre de sites fabriquant du Paracetamol par pays',
+).add_to(m)
+
+folium.LayerControl().add_to(m)
+
+m
 
 
 # In[ ]:
