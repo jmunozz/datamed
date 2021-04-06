@@ -2,7 +2,7 @@ from os import path
 
 P_ROOT = "/Users/ansm/Documents/GitHub/datamed/create_database/data/"
 
-P_CIS_SPE_PROD = path.join(P_ROOT, "corresp_cis_spe_prod.xlsx")
+P_CIS_SPE_PROD = path.join(P_ROOT, "corresp_cis_spe_prod_utf8.xlsx")
 P_VENTES_2017 = path.join(P_ROOT, "OCTAVE/Octave_2017_ATC_voie.xls")
 P_VENTES_2018 = path.join(P_ROOT, "OCTAVE/Octave_2018_ATC_voie.xls")
 P_VENTES_2019 = path.join(P_ROOT, "OCTAVE/Octave_2019_ATC_voie.xls")
