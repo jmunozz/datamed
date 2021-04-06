@@ -602,12 +602,12 @@ def PatientsTraites(selected_med: str) -> Component:
                 className="section-title",
                 id="Pop",
             ),
-            Indicateur(
-                patients_traites,
-                "patients/an",
-                "Nombre moyen de patients traités par an sur la période 2014/2018",
-                "box f-content d-block",
-            ),
+            # Indicateur(
+            #     patients_traites,
+            #     "patients/an",
+            #     "Nombre moyen de patients traités par an sur la période 2014/2018",
+            #     "box f-content d-block",
+            # ),
             Div(
                 [
                     Div(
