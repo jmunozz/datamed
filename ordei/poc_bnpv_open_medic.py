@@ -19,6 +19,7 @@ bnpv_notif_sa_codex_open = pd.read_sql('bnpv_notif_sa_codex_open', connection)
 # 2.2 Préparation
 # corresp prod_subs
 corresp_prod_subs = pd.read_sql('corresp_spe_prod', connection)
+
 #corresp_prod_subs <- corresp_spe_prod_subs %>%
 #  group_by(PRODUIT_CODEX, SUBSTANCE_CODEX_UNIQUE) %>%
 #  summarise(n_prod_subs=n()) %>%
@@ -27,14 +28,14 @@ corresp_prod_subs = pd.read_sql('corresp_spe_prod', connection)
 #corresp_prod_subs<-na.omit(corresp_prod_subs) # 2 pdts sans substance
 
 # Liste ? produits/substances ? afficher
-list_prod = pd.DataFrame(bnpv_open_medic1418_prod_codex.produit_codex.unique(), columns=['medicament'])
+list_prod = pd.DataFrame(bnpv_open_medic1418_prod_codex.PRODUIT_CODEX.unique(), columns=['medicament'])
 list_prod['typ_medicament'] = 'Produit'
 #list_prod <- as.data.frame(as.character(unique(bnpv_open_medic1418_prod_codex$PRODUIT_CODEX)))
 #list_prod$TYP_MEDICAMENT <- 'Produit'
 #names(list_prod)[1] <- 'MEDICAMENT'
 #list_prod$MEDICAMENT<-as.character(list_prod$MEDICAMENT)
 
-list_sa = pd.DataFrame(bnpv_open_medic1418_sa_codex.substance_codex_unique.unique(), columns=['medicament'])
+list_sa = pd.DataFrame(bnpv_open_medic1418_sa_codex.SUBSTANCE_CODEX_UNIQUE.unique(), columns=['medicament'])
 list_sa['typ_medicament'] = 'Substance'
 #list_sa <- as.data.frame(as.character(unique(bnpv_open_medic1418_sa_codex$SUBSTANCE_CODEX_UNIQUE)))
 #list_sa$TYP_MEDICAMENT <- 'Substance'
@@ -56,17 +57,17 @@ strat < - input$select_strat
 
 # 4.2 Sélection des données en fonction des paramètres utilisateur (Produit/Substance)
 if typ_med == 'Substance':
-  data = bnpv_open_medic1418_sa_codex[bnpv_open_medic1418_sa_codex.substance_codex_unique == med]
-  data_soclong = bnpv_eff_soclong_sa_codex_open[bnpv_eff_soclong_sa_codex_open.substance_codex_unique == med]
-  data_notif = bnpv_notif_sa_codex_open[bnpv_notif_sa_codex_open.substance_codex_unique == med]
-  data_soclong = data_soclong.rename(columns={'substance_codex_unique': 'medicament'})
-  data_notif = data_notif.rename(columns={'substance_codex_unique': 'medicament'})
+  data = bnpv_open_medic1418_sa_codex[bnpv_open_medic1418_sa_codex.SUBSTANCE_CODEX_UNIQUE == med]
+  data_soclong = bnpv_eff_soclong_sa_codex_open[bnpv_eff_soclong_sa_codex_open.SUBSTANCE_CODEX_UNIQUE == med]
+  data_notif = bnpv_notif_sa_codex_open[bnpv_notif_sa_codex_open.SUBSTANCE_CODEX_UNIQUE == med]
+  data_soclong = data_soclong.rename(columns={'SUBSTANCE_CODEX_UNIQUE': 'medicament'})
+  data_notif = data_notif.rename(columns={'SUBSTANCE_CODEX_UNIQUE': 'medicament'})
 else:
-  data = bnpv_open_medic1418_prod_codex[bnpv_open_medic1418_prod_codex.produit_codex == med]
-  data_soclong = bnpv_eff_soclong_prod_codex_open[bnpv_eff_soclong_prod_codex_open.produit_codex == med]
-  data_notif = bnpv_notif_prod_codex_open[bnpv_notif_prod_codex_open.produit_codex == med]
-  data_soclong = data_soclong.rename(columns={'produit_codex': 'medicament'})
-  data_notif = data_notif.rename(columns={'produit_codex': 'medicament'})
+  data = bnpv_open_medic1418_prod_codex[bnpv_open_medic1418_prod_codex.PRODUIT_CODEX == med]
+  data_soclong = bnpv_eff_soclong_prod_codex_open[bnpv_eff_soclong_prod_codex_open.PRODUIT_CODEX == med]
+  data_notif = bnpv_notif_prod_codex_open[bnpv_notif_prod_codex_open.PRODUIT_CODEX == med]
+  data_soclong = data_soclong.rename(columns={'PRODUIT_CODEX': 'medicament'})
+  data_notif = data_notif.rename(columns={'PRODUIT_CODEX': 'medicament'})
 #if (typ_med == "Substance"){
 #data < - bnpv_open_medic1418_sa_codex[bnpv_open_medic1418_sa_codex$SUBSTANCE_CODEX_UNIQUE == med, ]
 #data_soclong < - bnpv_eff_soclong_sa_codex_open[bnpv_eff_soclong_sa_codex_open$SUBSTANCE_CODEX_UNIQUE == med, ]
@@ -130,12 +131,12 @@ data_notif = data_notif[data_notif[strat_dict[strat]['field']] == strat_dict[str
 #}
 
 # Consolidation effets soclong
-temp = data_soclong.groupby(['medicament', 'soc_long']).agg({'n_decla_eff': 'sum'}).reset_index()
+temp = data_soclong.groupby(['medicament', 'SOC_LONG']).agg({'n_decla_eff': 'sum'}).reset_index()
 #temp < - data_soclong % > %
 #group_by(MEDICAMENT, SOC_LONG) % > %
 #summarise(n_decla_eff=sum(n_decla_eff))
 
-temp2 = data_soclong.drop_duplicates(subset=['medicament', 'age', 'sexe', 'n_cas']).groupby('medicament').agg(
+temp2 = data_soclong.drop_duplicates(subset=['medicament', 'AGE', 'SEXE', 'n_cas']).groupby('medicament').agg(
   {'n_cas': 'sum'}).reset_index()
 #temp2 < - data_soclong % > %
 #distinct(MEDICAMENT, AGE, SEXE, n_cas) % > %
@@ -195,11 +196,11 @@ strat < - input$select_strat
 
 # Données HLT
 if typ_med == 'Substance':
-  data_hlt = bnpv_eff_hlt_sa_codex_open[bnpv_eff_hlt_sa_codex_open.substance_codex_unique == med]
-  data_hlt = data_hlt.rename(columns={'substance_codex_unique': 'medicament'})
+  data_hlt = bnpv_eff_hlt_sa_codex_open[bnpv_eff_hlt_sa_codex_open.SUBSTANCE_CODEX_UNIQUE == med]
+  data_hlt = data_hlt.rename(columns={'SUBSTANCE_CODEX_UNIQUE': 'medicament'})
 else:
-  data_hlt = bnpv_eff_hlt_prod_codex_open[bnpv_eff_hlt_prod_codex_open.produit_codex == med]
-  data_hlt = data_hlt.rename(columns={'produit_codex': 'medicament'})
+  data_hlt = bnpv_eff_hlt_prod_codex_open[bnpv_eff_hlt_prod_codex_open.PRODUIT_CODEX == med]
+  data_hlt = data_hlt.rename(columns={'PRODUIT_CODEX': 'medicament'})
 #if (typ_med == "Substance"){
 #data_hlt < - bnpv_eff_hlt_sa_codex_open[bnpv_eff_hlt_sa_codex_open$SUBSTANCE_CODEX_UNIQUE == med, ]
 #} else {
@@ -224,14 +225,14 @@ data_hlt = data_hlt[data_hlt[strat_dict[strat]['field']] == strat_dict[strat_dic
 #}
 
 # Consolidation effets hlt
-data_hlt = data_hlt.groupby(['medicament', 'effet_hlt', 'soc_long']).agg({'n_decla_eff_hlt': 'sum'}).reset_index()
+data_hlt = data_hlt.groupby(['medicament', 'effet_hlt', 'SOC_LONG']).agg({'n_decla_eff_hlt': 'sum'}).reset_index()
 
 #data_hlt < - data_hlt % > %
 #group_by(MEDICAMENT, EFFET_HLT, SOC_LONG) % > %
 #summarise(n_decla_eff_hlt=sum(n_decla_eff_hlt))
 
 # Sélection des données pour le SOC_LONG sur lequel l'utilisateur a cliqué
-data_soclong_select = data_hlt[data_hlt.soc_long == soc_long_select.y]
+data_soclong_select = data_hlt[data_hlt.SOC_LONG == soc_long_select.y]
 #data_soclong_select < - data_hlt[as.character(data_hlt$SOC_LONG) == soc_long_select$y,]
 
 # Stockage de la sortie (liste des HLT correspondants au SOC_LONG) dans une même chaîne
