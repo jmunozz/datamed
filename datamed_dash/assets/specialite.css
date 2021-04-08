@@ -1,0 +1,86 @@
+ @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css");
+
+.description {
+    margin-left: 20px;
+    padding: 30px;
+    background: #fff;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.24);
+    text-align: left;
+}
+
+.section-title {
+    margin: 0 20px 20px 20px;
+}
+
+.f-content {
+    width: fit-content;
+}
+
+.box {
+    box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.24);
+    border-radius: 3px;
+    background-color: #FAFAFA;
+    margin: 0 20px 30px 20px;
+    padding: 1rem;
+}
+
+.box-highlight {
+    color: #00B3CC!important;
+    margin-bottom: .5rem;
+}
+
+.img-card {
+    margin-top: 1rem;
+}
+
+.topic-section {
+    margin-bottom: 12.5rem;
+}
+
+.topic-section .heading-4{
+    color: #323232;
+}
+
+.topic-section .caption-text{
+    color: #323232;
+}
+
+.topic-section .small-text-bold{
+    margin-bottom: 1rem;
+    margin-top: 2.5rem;
+}
+
+.topic-section .link{
+    color: #EF7D00;
+    text-decoration: underline;
+}
+
+.input-group-content {
+    flex: 1 1 auto;
+    width: 1%;
+}
+
+.patients-traites-jumbotron {
+    margin: 0 20px 20px 20px;
+}
+
+#refresh-substances a {
+    color: #FFF;
+    background-color: #252525;
+    text-decoration: none;
+    border-bottom: white solid 1px;
+    padding: 15px;
+}
+#refresh-substances a:hover {
+    color: #FFF;
+    background-color: #252525;
+    border-bottom: red solid 1px;
+}
+
+#substance-specialite-table {
+    margin-bottom: 32px;
+}
+
+#substance-specialite-table tr {
+    cursor: pointer;
+}

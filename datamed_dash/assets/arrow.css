@@ -1,0 +1,12 @@
+.arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    flex-direction: column;
+}
+
+.arrow:link, .arrow:visited {
+    text-decoration: inherit;
+    color: inherit;
+ }
