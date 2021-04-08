@@ -12,6 +12,7 @@ from .models import (
     BnpvEffSoclongSaCodexOpen,
     BnpvEffHltSaCodexOpen,
     BnpvNotifSaCodexOpen,
+    BnpvOpenMedic1418SpeCodex,
 )
 
 engine = connect_db()  # establish connection
@@ -273,5 +274,27 @@ def save_to_database_orm(session):
     bnpv_notif_sa_codex_open_list = bnpv_notif_sa_codex_open.to_dict(orient="records")
     for bnpv_notif_sa_codex_open_dict in bnpv_notif_sa_codex_open_list:
         line = BnpvNotifSaCodexOpen(**bnpv_notif_sa_codex_open_dict)
+        session.add(line)
+        session.commit()
+
+    bnpv_open_medic1418_spe_agg = pd.read_csv(
+        "data/open_medic2014_2018_cis_agg.csv", sep=";"
+    )
+    bnpv_open_medic1418_spe_agg = bnpv_open_medic1418_spe_agg.drop(
+        ["Unnamed: 0", "sexe"], axis=1
+    )
+    bnpv_open_medic1418_spe_agg = bnpv_open_medic1418_spe_agg.rename(
+        columns={
+            "codeCIS": "cis",
+            "AGE": "age",
+            "n_conso_14_18": "n_conso",
+            "SEXE": "sexe",
+        }
+    )
+    bnpv_open_medic1418_spe_agg_list = bnpv_open_medic1418_spe_agg.to_dict(
+        orient="records"
+    )
+    for bnpv_open_medic1418_spe_agg_dict in bnpv_open_medic1418_spe_agg_list:
+        line = BnpvOpenMedic1418SpeCodex(**bnpv_open_medic1418_spe_agg_dict)
         session.add(line)
         session.commit()
