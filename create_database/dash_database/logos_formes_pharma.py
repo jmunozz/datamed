@@ -63,7 +63,7 @@ def get_specialite_logo(spe: str) -> str:
         return specialite_logos[0]
 
 
-def get_data():
+def affect_logo_to_spe():
     df = upload_cis_from_rsp(paths.P_CIS_RSP)
 
     df["logo"] = df.forme_pharma.apply(lambda x: get_specialite_logo(x))
