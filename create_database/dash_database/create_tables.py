@@ -54,6 +54,7 @@ def upload_cis_from_rsp(path: str) -> pd.DataFrame:
         "type_amm",
         "etat_commercialisation",
         "code_doc",
+        "v",
     ]
     df = pd.read_csv(
         path,
@@ -142,6 +143,15 @@ def get_specialite() -> List[Dict]:
     Table specialite, listing all possible CIS codes
     """
     df_cis = upload_cis_from_rsp(paths.P_CIS_RSP)
+
+    pd.DataFrame(df_cis.forme_pharma.value_counts()).reset_index().rename(
+        columns={"index": "forme_pharma", "forme_pharma": "occurences"}
+    ).to_csv(
+        "~/Desktop/formes_pharma.csv",
+        index=False,
+        sep=";",
+        encoding="utf-8",
+    )
 
     # Add atc class to df_cis dataframe
     df_atc = pd.read_excel(
