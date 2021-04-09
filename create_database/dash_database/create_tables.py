@@ -287,6 +287,143 @@ def get_presentation() -> List[Dict]:
     ]
 
 
+def get_substance_data() -> pd.DataFrame:
+    df = pd.read_csv(
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_open_medic1418_sa_codex.csv",
+        encoding="ISO-8859-1",
+        sep=";",
+        dtype={"codeSubstance": str},
+    )
+    df = df.drop("Unnamed: 0", axis=1)
+
+    return df.rename(
+        columns={
+            "ANNEE": "annee",
+            "SEXE": "sexe",
+            "AGE": "age",
+            "SUBSTANCE_CODEX_UNIQUE": "substance_codex_unique",
+            "codeSubstance": "code",
+        }
+    )
+
+
+def get_substance_annee():
+    df_sa_patients = get_substance_data()
+
+    df_annee = (
+        df_sa_patients.groupby(["code", "annee"])
+        .agg({"n_conso": "sum", "n_cas": "sum"})
+        .reset_index()
+    )
+    df_annee["n_conso_annee"] = df_annee.n_conso.apply(lambda x: x if x > 10 else None)
+    df_annee["n_cas_annee"] = df_annee.n_cas.apply(lambda x: x if x > 10 else None)
+    df_annee = df_annee.drop(["n_conso", "n_cas"], axis=1)
+
+    df = (
+        df_sa_patients.groupby(["code", "annee"])
+        .agg({"n_conso": "sum", "n_cas": "sum"})
+        .groupby("code")
+        .agg({"n_conso": "sum", "n_cas": "sum"})
+        .reset_index()
+    )
+    df.n_cas = df.n_cas.apply(lambda x: x if x >= 10 else None)
+    df["taux_cas"] = df.apply(
+        lambda x: x.n_cas * 100000 / x.n_conso if x.n_cas >= 10 else None, axis=1
+    )
+
+    return df.merge(df_annee, on="code", how="left")
+
+
+def compute_pourcentage(df: pd.DataFrame, substance: pd.Series, field: str) -> float:
+    return substance[field] / df[df.code == substance.code][field].sum()
+
+def get_patients_sexe():
+    df = get_substance_data()
+
+    df_sexe = (
+        df.groupby(["code", "annee", "sexe"])
+        .agg({"n_conso": "sum"})
+        .groupby(["code", "sexe"])
+        .agg({"n_conso": "sum"})
+        .reset_index()
+    )
+    df_sexe["pourcentage_patients"] = df_sexe.apply(
+        lambda x: compute_pourcentage(df_sexe, x, "n_conso") if x.n_conso > 10 else None, axis=1
+    )
+    return df_sexe[["code", "sexe", "pourcentage_patients"]]
+
+
+def get_patients_age():
+    df = get_substance_data()
+
+    df_age = (
+        df.groupby(["code", "annee", "age"])
+        .agg({"n_conso": "sum"})
+        .groupby(["code", "age"])
+        .agg({"n_conso": "sum"})
+        .reset_index()
+    )
+    df_age["pourcentage_patients"] = df_age.apply(
+        lambda x: compute_pourcentage(df_age, x, "n_conso") if x.n_conso > 10, axis=1
+    )
+    return df_age[["code", "age", "pourcentage_patients"]]
+
+
+def get_cas_sexe():
+    df = get_substance_data()
+
+    df_sexe = (
+        df.groupby(["code", "annee", "sexe"])
+        .agg({"n_cas": "sum"})
+        .groupby(["code", "sexe"])
+        .agg({"n_cas": "sum"})
+        .reset_index()
+    )
+    df_sexe["pourcentage_cas"] = df_sexe.apply(
+        lambda x: compute_pourcentage(df_sexe, x, "n_cas") if x.n_cas > 10 else None, axis=1
+    )
+    return df_sexe[["code", "sexe", "pourcentage_cas"]]
+
+
+def get_cas_age():
+    df = get_substance_data()
+
+    df_age = (
+        df.groupby(["code", "annee", "age"])
+            .agg({"n_cas": "sum"})
+            .groupby(["code", "age"])
+            .agg({"n_cas": "sum"})
+            .reset_index()
+    )
+    df_age["pourcentage_cas"] = df_age.apply(
+        lambda x: compute_pourcentage(df_age, x, "n_cas") if x.n_cas > 10 else None, axis=1
+    )
+    return df_age[["code", "age", "pourcentage_cas"]]
+
+
+def get_notificateurs():
+    df = pd.read_csv(
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_notif_sa_codex_open.csv",
+        encoding="ISO-8859-1",
+        sep=";",
+        dtype={"codeSubstance": str},
+    )
+    df = df.drop("Unnamed: 0", axis=1)
+
+    df = df.rename(
+        columns={
+            "TYP_NOTIF": "notificateur",
+            "SEXE": "sexe",
+            "AGE": "age",
+            "SUBSTANCE_CODEX_UNIQUE": "substance_codex_unique",
+            "codeSubstance": "code",
+        }
+    )
+
+    df_notif = df.groupby(["code", "notificateur"]).agg({"n_decla": "sum"}).reset_index()
+    df_notif.n_decla = df_notif.n_decla.apply(lambda x: x if x >= 10 else None)
+    return
+
 engine = connect_db()  # establish connection
 connection = engine.connect()
 Session = sessionmaker(bind=engine)
