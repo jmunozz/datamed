@@ -4,11 +4,12 @@ from sqlalchemy.dialects.mysql import LONGTEXT, YEAR
 from create_database.models import connect_db, Base
 
 
-class CorrespProdSub(Base):
+class CorrespCisSub(Base):
     __tablename__ = "corresp_prod_sub"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    produit_codex = Column(LONGTEXT, nullable=False)
+    cis = Column(String(120), primary_key=True, autoincrement=True)
+    specialite_codex = Column(LONGTEXT, nullable=False)
     substance_codex_unique = Column(LONGTEXT, nullable=False)
     code = Column(String(255), nullable=False)
 
@@ -125,7 +126,7 @@ class BnpvOpenMedic1418SpeCodex(Base):
 
 
 engine = connect_db()
-CorrespProdSub.__table__.create(bind=engine, checkfirst=True)
+CorrespCisSub.__table__.create(bind=engine, checkfirst=True)
 BnpvOpenMedic1418ProdCodex.__table__.create(bind=engine, checkfirst=True)
 BnpvEffSoclongProdCodexOpen.__table__.create(bind=engine, checkfirst=True)
 BnpvEffHltProdCodexOpen.__table__.create(bind=engine, checkfirst=True)
