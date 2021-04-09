@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from create_database.models import connect_db
 from .models import (
-    CorrespProdSub,
+    CorrespCisSub,
     BnpvOpenMedic1418ProdCodex,
     BnpvEffSoclongProdCodexOpen,
     BnpvEffHltProdCodexOpen,
@@ -23,16 +23,16 @@ session = Session()
 
 def save_to_database_orm(session):
     # Création table Corresp_spe_prod
-    corresp_spe_prod_subs = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/corresp_spe_prod_subs.csv",
+    corresp_cis_subs = pd.read_csv(
+        "~/Documents/GitHub/datamed/ordei/data/corresp_cis_spe_prod_subs_utf8.csv",
         encoding="ISO-8859-1",
         sep=";",
-        dtype={"codeSubstance": str},
+        dtype={"codeCIS": str, "codeSubstance": str},
     )
-    corresp_spe_prod_subs = corresp_spe_prod_subs.drop("Unnamed: 0", axis=1)
 
-    corresp_spe_prod_subs = corresp_spe_prod_subs.rename(
+    corresp_cis_subs = corresp_cis_subs.rename(
         columns={
+            "codeCIS": "cis",
             "SPECIALITE_CODEX": "specialite_codex",
             "PRODUIT_CODEX": "produit_codex",
             "SUBSTANCE_CODEX_UNIQUE": "substance_codex_unique",
@@ -40,28 +40,31 @@ def save_to_database_orm(session):
         }
     )
 
-    corresp_spe_prod_subs = corresp_spe_prod_subs.where(
-        pd.notnull(corresp_spe_prod_subs), None
+    corresp_cis_subs = corresp_cis_subs.where(
+        pd.notnull(corresp_cis_subs), None
     )
-    corresp_prod_subs = corresp_spe_prod_subs.drop_duplicates(
-        subset=["produit_codex", "substance_codex_unique"]
+    corresp_cis_subs = corresp_cis_subs.drop_duplicates(
+        subset=["cis", "substance_codex_unique"]
     )
-    corresp_prod_subs = corresp_prod_subs[
-        ["produit_codex", "substance_codex_unique", "code"]
-    ].sort_values(by=["produit_codex"])
-    corresp_prod_subs = corresp_prod_subs.dropna()
-    corresp_prod_subs.produit_codex = corresp_prod_subs.produit_codex.apply(
-        lambda x: " ".join(x.split())
+
+    corresp_cis_subs = corresp_cis_subs[
+        ["cis", "specialite_codex", "substance_codex_unique", "code"]
+    ].sort_values(by=["specialite_codex"])
+
+    corresp_cis_subs = corresp_cis_subs.dropna()
+    corresp_cis_subs.specialite_codex = (
+        corresp_cis_subs.specialite_codex.apply(lambda x: " ".join(x.split()))
     )
-    corresp_prod_subs_list = corresp_prod_subs.to_dict(orient="records")
-    for corresp_prod_subs_dict in corresp_prod_subs_list:
-        line = CorrespProdSub(**corresp_prod_subs_dict)
+
+    corresp_cis_subs_list = corresp_cis_subs.to_dict(orient="records")
+    for corresp_cis_subs_dict in corresp_cis_subs_list:
+        line = CorrespCisSub(**corresp_cis_subs_dict)
         session.add(line)
         session.commit()
 
     # Création table Bnpv_open_medic1418_prod_codex
     bnpv_open_medic1418_prod_codex = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/bnpv_open_medic1418_prod_codex.csv",
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_open_medic1418_prod_codex.csv",
         encoding="ISO-8859-1",
         sep=";",
     )
@@ -88,7 +91,7 @@ def save_to_database_orm(session):
 
     # Création table Bnpv_eff_soclong_prod_codex_open
     bnpv_eff_soclong_prod_codex_open = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/bnpv_eff_soclong_prod_codex_open.csv",
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_soclong_prod_codex_open.csv",
         encoding="ISO-8859-1",
         sep=";",
     )
@@ -115,7 +118,7 @@ def save_to_database_orm(session):
 
     # Création table Bnpv_eff_hlt_prod_codex_open
     bnpv_eff_hlt_prod_codex_open = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/bnpv_eff_hlt_soclong_prod_codex_open.csv",
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_hlt_soclong_prod_codex_open.csv",
         encoding="ISO-8859-1",
         sep=";",
     )
@@ -143,7 +146,7 @@ def save_to_database_orm(session):
 
     # Création table Bnpv_notif_prod_codex_open
     bnpv_notif_prod_codex_open = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/bnpv_notif_prod_codex_open.csv",
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_notif_prod_codex_open.csv",
         encoding="ISO-8859-1",
         sep=";",
     )
@@ -168,7 +171,7 @@ def save_to_database_orm(session):
 
     # Création table Bnpv_open_medic1418_sa_codex
     bnpv_open_medic1418_sa_codex = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/bnpv_open_medic1418_sa_codex.csv",
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_open_medic1418_sa_codex.csv",
         encoding="ISO-8859-1",
         sep=";",
         dtype={"codeSubstance": str},
@@ -197,7 +200,7 @@ def save_to_database_orm(session):
 
     # Création table Bnpv_eff_soclong_sa_codex_open
     bnpv_eff_soclong_sa_codex_open = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/bnpv_eff_soclong_sa_codex_open.csv",
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_soclong_sa_codex_open.csv",
         encoding="ISO-8859-1",
         sep=";",
         dtype={"codeSubstance": str},
@@ -226,7 +229,7 @@ def save_to_database_orm(session):
 
     # Création table Bnpv_eff_hlt_sa_codex_open
     bnpv_eff_hlt_sa_codex_open = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/bnpv_eff_hlt_soclong_sa_codex_open.csv",
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_hlt_soclong_sa_codex_open.csv",
         encoding="ISO-8859-1",
         sep=";",
         dtype={"codeSubstance": str},
@@ -254,7 +257,7 @@ def save_to_database_orm(session):
 
     # Création table Bnpv_notif_sa_codex_open
     bnpv_notif_sa_codex_open = pd.read_csv(
-        "/Users/ansm/Documents/GitHub/datamed/ordei/data/bnpv_notif_sa_codex_open.csv",
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_notif_sa_codex_open.csv",
         encoding="ISO-8859-1",
         sep=";",
         dtype={"codeSubstance": str},
