@@ -1,3 +1,5 @@
+import pandas as pd
+
 import paths
 from create_tables import upload_cis_from_rsp
 
@@ -67,6 +69,15 @@ def affect_logo_to_spe():
     df = upload_cis_from_rsp(paths.P_CIS_RSP)
 
     df["logo"] = df.forme_pharma.apply(lambda x: get_specialite_logo(x))
+
+    pd.DataFrame(df.forme_pharma.value_counts()).reset_index().rename(
+        columns={"index": "forme_pharma", "forme_pharma": "occurences"}
+    ).to_csv(
+        "~/Desktop/formes_pharma.csv",
+        index=False,
+        sep=";",
+        encoding="utf-8",
+    )
 
     df[["cis", "nom_spe_pharma", "forme_pharma", "logo"]].to_csv(
         "~/Desktop/logos_spécialités.csv", index=False, sep=";"

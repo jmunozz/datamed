@@ -144,15 +144,6 @@ def get_specialite() -> List[Dict]:
     """
     df_cis = upload_cis_from_rsp(paths.P_CIS_RSP)
 
-    pd.DataFrame(df_cis.forme_pharma.value_counts()).reset_index().rename(
-        columns={"index": "forme_pharma", "forme_pharma": "occurences"}
-    ).to_csv(
-        "~/Desktop/formes_pharma.csv",
-        index=False,
-        sep=";",
-        encoding="utf-8",
-    )
-
     # Add atc class to df_cis dataframe
     df_atc = pd.read_excel(
         paths.P_CIS_ATC, names=["cis", "atc", "nom_atc"], header=0, dtype={"cis": str}
