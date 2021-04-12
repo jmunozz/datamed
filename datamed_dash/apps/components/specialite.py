@@ -808,17 +808,19 @@ def Specialite(selected_med: str) -> Component:
                 ],
                 className="side-menu",
             ),
-            SearchDiv(),
-            Div(
-                [
-                    DescriptionSpecialite(selected_med),
-                    PatientsTraites(selected_med),
-                    CasDeclares(selected_med),
-                    Organes(selected_med),
-                ]
-            ),
+            Div([
+                SearchDiv(),
+                Div(
+                    [
+                        DescriptionSpecialite(selected_med),
+                        PatientsTraites(selected_med),
+                        CasDeclares(selected_med),
+                        Organes(selected_med),
+                    ]
+                ),
+            ], className="container")
         ],
-        className="side-menu-container",
+        className="side-menu-container"
     )
 
 
