@@ -5,29 +5,21 @@ from typing import List, Dict
 
 import pandas as pd
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.types import Integer, Text, String, Float
 
 import paths
-from models import (
-    connect_db,
-    Specialite,
-    Substance,
-    SpecialiteSubstance,
-    Presentation,
-    Produit,
-    Notice,
-)
-
-with zipfile.ZipFile(paths.P_MED, "r") as z:
-    filename = z.namelist()[0]
-    with z.open(filename) as f:
-        data = f.read()
-        MED_DICT = json.loads(data.decode("utf-8"))
+from models import connect_db
 
 with zipfile.ZipFile(paths.P_NOTICE, "r") as z:
     filename = z.namelist()[0]
     with z.open(filename) as f:
         data = f.read()
         NOTICE = json.loads(data.decode("utf-8"))
+
+engine = connect_db()  # establish connection
+connection = engine.connect()
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
 def clean_columns(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
@@ -79,7 +71,7 @@ def upload_compo_from_rsp(path: str) -> pd.DataFrame:
     col_names = [
         "cis",
         "elem_pharma",
-        "code_substance",
+        "code",
         "substance_active",
         "dosage",
         "ref_dosage",
@@ -93,7 +85,7 @@ def upload_compo_from_rsp(path: str) -> pd.DataFrame:
         encoding="latin1",
         names=col_names,
         header=None,
-        dtype={"cis": str, "code_substance": str},
+        dtype={"cis": str, "code": str},
     )
     df = df[~df.substance_active.isna()]
     # Put substance_active field in lower case
@@ -125,7 +117,14 @@ def upload_cis_cip_from_bdpm(path: str) -> pd.DataFrame:
         "chelou_2",
         "indications_remboursement",
     ]
-    df = pd.read_csv(path, sep="\t", encoding="latin1", names=col_names, header=None)
+    df = pd.read_csv(
+        path,
+        sep="\t",
+        encoding="latin1",
+        names=col_names,
+        header=None,
+        dtype={"cis": str, "cip13": str},
+    )
     # Retirer les 4 dernières colonnes
     df = df.drop(
         ["prix_medicament_euro", "chelou_1", "chelou_2", "indications_remboursement"],
@@ -138,7 +137,7 @@ def upload_cis_cip_from_bdpm(path: str) -> pd.DataFrame:
     return df
 
 
-def get_specialite() -> List[Dict]:
+def get_specialite():
     """
     Table specialite, listing all possible CIS codes
     """
@@ -148,119 +147,87 @@ def get_specialite() -> List[Dict]:
     df_atc = pd.read_excel(
         paths.P_CIS_ATC, names=["cis", "atc", "nom_atc"], header=0, dtype={"cis": str}
     )
-    df_atc = df_atc.drop_duplicates()
+    df_atc.nom_atc = df_atc.nom_atc.str.lower()
 
     df_cis = df_cis.merge(df_atc, on="cis", how="left")
-    df_atc.nom_atc = df_atc.nom_atc.str.lower()
     df_cis = df_cis.where(pd.notnull(df_cis), None)
+    df_cis = df_cis.rename(columns={"nom_spe_pharma": "nom"})
 
-    records = df_cis.to_dict("records")
-
-    values_list = [
-        {
-            k: str(v) if v else None
-            for k, v in zip(
-                (
-                    "cis",
-                    "name",
-                    "forme_pharma",
-                    "voie_admin",
-                    "atc",
-                    "nom_atc",
-                    "type_amm",
-                    "etat_commercialisation",
-                ),
-                (
-                    r["cis"],
-                    r["nom_spe_pharma"],
-                    r["forme_pharma"],
-                    r["voie_admin"],
-                    r["atc"],
-                    r["nom_atc"],
-                    r["type_amm"],
-                    r["etat_commercialisation"],
-                ),
-            )
-        }
-        for r in records
-    ]
-    return values_list
+    df_cis.to_sql(
+        "specialite",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "cis": String(120),
+            "nom": Text,
+            "forme_pharma": Text,
+            "voie_admin": Text,
+            "atc": Text,
+            "nom_atc": Text,
+            "statut_amm": Text,
+            "type_amm": Text,
+            "etat_commercialisation": Text,
+        },
+    )
 
 
-def get_substance() -> List[Dict]:
+def get_substance():
     """
     Table substance_active
     """
     df_api = upload_compo_from_rsp(paths.P_COMPO_RSP)
+    df_api = df_api[df_api.nature_composant == "SA"]
+    df_api = df_api.rename(columns={"substance_active": "nom"})
+    df_api = df_api[["code", "nom"]]
+    df_api = df_api.drop_duplicates(["code"], keep="last")
 
-    api_list = [
-        {"name": r["substance_active"], "code": r["code_substance"]}
-        for idx, r in df_api.iterrows()
-    ]
-    api_list = [dict(t) for t in {tuple(d.items()) for d in api_list}]
-    return sorted(api_list, key=lambda k: k["name"])
+    df_api.to_sql(
+        "substance",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "id": Integer,
+            "code": String(120),
+            "nom": Text,
+        },
+    )
 
 
-def get_spe_substance() -> List[Dict]:
+def get_spe_substance():
     """
     Table specialite_substance
     """
     df = upload_compo_from_rsp(paths.P_COMPO_RSP)
-    df_api = pd.read_sql_table("substance", connection)
-    df = df.merge(
-        df_api,
-        left_on=["code_substance", "substance_active"],
-        right_on=["code", "name"],
-        how="left",
+    df = df[df.nature_composant == "SA"]
+    df = df[["cis", "code", "elem_pharma", "dosage", "ref_dosage"]]
+    df = df.rename(columns={"code": "code_substance"})
+    df = df.drop_duplicates()
+
+    df.to_sql(
+        "specialite_substance",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "cis": String(120),
+            "code_substance": Text,
+            "elem_pharma": Text,
+            "dosage": Text,
+            "ref_dosage": Text,
+        },
     )
-    df = df[
-        [
-            "cis",
-            "elem_pharma",
-            "id",
-            "dosage",
-            "ref_dosage",
-            "nature_composant",
-            "num_lien",
-        ]
-    ]
-    df = df.rename(columns={"id": "substance_id"})
-    df = df.where(pd.notnull(df), None)
-    cis_api_list = df.to_dict(orient="records")
-    return sorted(cis_api_list, key=lambda k: k["cis"])
-
-
-def get_produit() -> List[Dict]:
-    df_cis = pd.read_csv(
-        "data/corresp_cis_spe_prod_subs_utf8.csv",
-        sep=";",
-        dtype={"codeCIS": str, "codeSubstance": str},
-    )
-    df_cis = df_cis.where(pd.notnull(df_cis), None)
-
-    df_cis.SPECIALITE_CODEX = df_cis.SPECIALITE_CODEX.str.lower()
-    df_cis.PRODUIT_CODEX = df_cis.PRODUIT_CODEX.str.lower()
-
-    df_cis = df_cis.rename(
-        columns={
-            "codeCIS": "cis",
-            "SPECIALITE_CODEX": "specialite",
-            "PRODUIT_CODEX": "produit",
-        }
-    )
-
-    df_produit = df_cis[["cis", "specialite", "produit"]].drop_duplicates()
-    values_list = df_produit.to_dict(orient="records")
-
-    keys_ok = [med.lower() for med in MED_DICT.keys()]
-    return [v for v in values_list if v["produit"] in keys_ok]
 
 
 def get_notice() -> List[Dict]:
     return NOTICE
 
 
-def get_presentation() -> List[Dict]:
+def get_presentation():
     """
     Table listing all possible presentations (CIP13), with corresponding CIS code
     From BDPM
@@ -268,26 +235,128 @@ def get_presentation() -> List[Dict]:
     """
     df = upload_cis_cip_from_bdpm(paths.P_CIS_CIP_BDPM)
     df = df.where(pd.notnull(df), None)
-    records = df.to_dict("records")
 
-    return [
-        {
-            k: str(v)
-            for k, v in zip(
-                ("cis", "cip13", "libelle", "taux_remboursement"),
-                (
-                    r["cis"],
-                    r["cip13"],
-                    r["libelle_presentation"],
-                    r["taux_remboursement"],
-                ),
-            )
+    df.to_sql(
+        "presentation",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "cis": String(120),
+            "cip13": String(120),
+            "nom": Text,
+            "taux_remboursement": Text,
+        },
+    )
+
+
+def compute_pourcentage(
+    df: pd.DataFrame, substance: pd.Series, key: str, field: str
+) -> float:
+    return substance[field] / df[df[key] == substance[key]][field].sum() * 100
+
+
+def get_spe_ordei_dataframe() -> pd.DataFrame:
+    df = pd.read_csv(
+        "~/Documents/GitHub/datamed/ordei/data/open_medic2014_2018_cis_agg.csv",
+        sep=";",
+        dtype={"codeCIS": str},
+    )
+    df = df.drop(["Unnamed: 0", "sexe"], axis=1)
+    return df.rename(
+        columns={
+            "codeCIS": "cis",
+            "AGE": "age",
+            "n_conso_14_18": "conso",
+            "SEXE": "sexe",
         }
-        for r in records
-    ]
+    )
 
 
-def get_substance_data() -> pd.DataFrame:
+def get_spe_conso_ordei():
+    df = get_spe_ordei_dataframe()
+
+    df = df.groupby("cis")["conso"].sum().reset_index()
+
+    df.to_sql(
+        "specialite_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "cis": String(120),
+            "conso": Integer,
+        },
+    )
+
+
+def get_spe_patients_sexe():
+    df = get_spe_ordei_dataframe()
+
+    df_sexe = (
+        df.groupby(["cis", "sexe"])
+        .agg({"conso": "sum"})
+        .groupby(["cis", "sexe"])
+        .agg({"conso": "sum"})
+        .reset_index()
+    )
+    df_sexe["pourcentage_patients"] = df_sexe.apply(
+        lambda x: compute_pourcentage(df_sexe, x, "cis", "conso")
+        if x.conso >= 10
+        else None,
+        axis=1,
+    )
+
+    df.to_sql(
+        "specialite_patient_sexe_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "cis": String(120),
+            "sexe": String(120),
+            "conso": Integer,
+            "pourcentage_patients": Float,
+        },
+    )
+
+
+def get_spe_patients_age():
+    df = get_spe_ordei_dataframe()
+
+    df_age = (
+        df.groupby(["cis", "age"])
+        .agg({"conso": "sum"})
+        .groupby(["cis", "age"])
+        .agg({"conso": "sum"})
+        .reset_index()
+    )
+    df_age["pourcentage_patients"] = df_age.apply(
+        lambda x: compute_pourcentage(df_age, x, "cis", "conso")
+        if x.conso >= 10
+        else None,
+        axis=1,
+    )
+
+    df.to_sql(
+        "specialite_patient_age_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "cis": String(120),
+            "age": String(120),
+            "conso": Integer,
+            "pourcentage_patients": Float,
+        },
+    )
+
+
+def get_substance_dataframe() -> pd.DataFrame:
     df = pd.read_csv(
         "~/Documents/GitHub/datamed/ordei/data/bnpv_open_medic1418_sa_codex.csv",
         encoding="ISO-8859-1",
@@ -301,104 +370,190 @@ def get_substance_data() -> pd.DataFrame:
             "ANNEE": "annee",
             "SEXE": "sexe",
             "AGE": "age",
-            "SUBSTANCE_CODEX_UNIQUE": "substance_codex_unique",
+            "SUBSTANCE_CODEX_UNIQUE": "substance",
             "codeSubstance": "code",
+            "n_conso": "conso",
+            "n_cas": "cas",
         }
     )
 
 
 def get_substance_annee():
-    df_sa_patients = get_substance_data()
+    df_sa_patients = get_substance_dataframe()
 
     df_annee = (
         df_sa_patients.groupby(["code", "annee"])
-        .agg({"n_conso": "sum", "n_cas": "sum"})
+        .agg({"conso": "sum", "cas": "sum"})
         .reset_index()
     )
-    df_annee["n_conso_annee"] = df_annee.n_conso.apply(lambda x: x if x > 10 else None)
-    df_annee["n_cas_annee"] = df_annee.n_cas.apply(lambda x: x if x > 10 else None)
-    df_annee = df_annee.drop(["n_conso", "n_cas"], axis=1)
+    df_annee["conso_annee"] = df_annee.conso.apply(lambda x: x if x >= 10 else None)
+    df_annee["cas_annee"] = df_annee.cas.apply(lambda x: x if x >= 10 else None)
+    df_annee = df_annee.drop(["conso", "cas"], axis=1)
 
     df = (
         df_sa_patients.groupby(["code", "annee"])
-        .agg({"n_conso": "sum", "n_cas": "sum"})
+        .agg({"conso": "sum", "cas": "sum"})
         .groupby("code")
-        .agg({"n_conso": "sum", "n_cas": "sum"})
+        .agg({"conso": "sum", "cas": "sum"})
         .reset_index()
     )
-    df.n_cas = df.n_cas.apply(lambda x: x if x >= 10 else None)
+    df.cas = df.cas.apply(lambda x: x if x >= 10 else None)
     df["taux_cas"] = df.apply(
-        lambda x: x.n_cas * 100000 / x.n_conso if x.n_cas >= 10 else None, axis=1
+        lambda x: x.cas * 100000 / x.conso if x.cas >= 10 else None, axis=1
     )
 
-    return df.merge(df_annee, on="code", how="left")
+    df = df.merge(df_annee, on="code", how="left")
+
+    df.to_sql(
+        "substance_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "code": String(120),
+            "conso": Integer,
+            "cas": Integer,
+            "taux_cas": Float,
+            "annee": Integer,
+            "conso_annee": Integer,
+            "cas_annee": Integer,
+        },
+    )
 
 
-def compute_pourcentage(df: pd.DataFrame, substance: pd.Series, field: str) -> float:
-    return substance[field] / df[df.code == substance.code][field].sum()
-
-def get_patients_sexe():
-    df = get_substance_data()
+def get_substance_patients_sexe():
+    df = get_substance_dataframe()
 
     df_sexe = (
         df.groupby(["code", "annee", "sexe"])
-        .agg({"n_conso": "sum"})
+        .agg({"conso": "sum"})
         .groupby(["code", "sexe"])
-        .agg({"n_conso": "sum"})
+        .agg({"conso": "sum"})
         .reset_index()
     )
     df_sexe["pourcentage_patients"] = df_sexe.apply(
-        lambda x: compute_pourcentage(df_sexe, x, "n_conso") if x.n_conso > 10 else None, axis=1
+        lambda x: compute_pourcentage(df_sexe, x, "code", "conso")
+        if x.conso >= 10
+        else None,
+        axis=1,
     )
-    return df_sexe[["code", "sexe", "pourcentage_patients"]]
+
+    df_sexe = df_sexe[["code", "sexe", "pourcentage_patients"]]
+
+    df_sexe.to_sql(
+        "substance_patient_sexe_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "code": String(120),
+            "sexe": String(120),
+            "conso": Integer,
+            "pourcentage_patients": Float,
+        },
+    )
 
 
-def get_patients_age():
-    df = get_substance_data()
+def get_substance_patients_age():
+    df = get_substance_dataframe()
 
     df_age = (
         df.groupby(["code", "annee", "age"])
-        .agg({"n_conso": "sum"})
+        .agg({"conso": "sum"})
         .groupby(["code", "age"])
-        .agg({"n_conso": "sum"})
+        .agg({"conso": "sum"})
         .reset_index()
     )
     df_age["pourcentage_patients"] = df_age.apply(
-        lambda x: compute_pourcentage(df_age, x, "n_conso") if x.n_conso > 10, axis=1
+        lambda x: compute_pourcentage(df_age, x, "code", "conso")
+        if x.conso > 10
+        else None,
+        axis=1,
     )
-    return df_age[["code", "age", "pourcentage_patients"]]
+    df_age = df_age[["code", "age", "pourcentage_patients"]]
+
+    df_age.to_sql(
+        "substance_patient_age_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "code": String(120),
+            "age": String(120),
+            "conso": Integer,
+            "pourcentage_patients": Float,
+        },
+    )
 
 
-def get_cas_sexe():
-    df = get_substance_data()
+def get_substance_cas_sexe():
+    df = get_substance_dataframe()
 
     df_sexe = (
         df.groupby(["code", "annee", "sexe"])
-        .agg({"n_cas": "sum"})
+        .agg({"cas": "sum"})
         .groupby(["code", "sexe"])
-        .agg({"n_cas": "sum"})
+        .agg({"cas": "sum"})
         .reset_index()
     )
     df_sexe["pourcentage_cas"] = df_sexe.apply(
-        lambda x: compute_pourcentage(df_sexe, x, "n_cas") if x.n_cas > 10 else None, axis=1
+        lambda x: compute_pourcentage(df_sexe, x, "code", "cas")
+        if x.cas > 10
+        else None,
+        axis=1,
     )
-    return df_sexe[["code", "sexe", "pourcentage_cas"]]
+
+    df_sexe = df_sexe[["code", "sexe", "pourcentage_cas"]]
+
+    df_sexe.to_sql(
+        "substance_cas_sexe_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "code": String(120),
+            "sexe": String(120),
+            "cas": Integer,
+            "pourcentage_cas": Float,
+        },
+    )
 
 
-def get_cas_age():
-    df = get_substance_data()
+def get_substance_cas_age():
+    df = get_substance_dataframe()
 
     df_age = (
         df.groupby(["code", "annee", "age"])
-            .agg({"n_cas": "sum"})
-            .groupby(["code", "age"])
-            .agg({"n_cas": "sum"})
-            .reset_index()
+        .agg({"cas": "sum"})
+        .groupby(["code", "age"])
+        .agg({"cas": "sum"})
+        .reset_index()
     )
     df_age["pourcentage_cas"] = df_age.apply(
-        lambda x: compute_pourcentage(df_age, x, "n_cas") if x.n_cas > 10 else None, axis=1
+        lambda x: compute_pourcentage(df_age, x, "code", "cas")
+        if x.cas >= 10
+        else None,
+        axis=1,
     )
-    return df_age[["code", "age", "pourcentage_cas"]]
+    df_age = df_age[["code", "age", "pourcentage_cas"]]
+
+    df_age.to_sql(
+        "substance_cas_age_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "code": String(120),
+            "age": String(120),
+            "cas": Integer,
+            "pourcentage_cas": Float,
+        },
+    )
 
 
 def get_notificateurs():
@@ -415,61 +570,110 @@ def get_notificateurs():
             "TYP_NOTIF": "notificateur",
             "SEXE": "sexe",
             "AGE": "age",
-            "SUBSTANCE_CODEX_UNIQUE": "substance_codex_unique",
+            "SUBSTANCE_CODEX_UNIQUE": "substance_active",
             "codeSubstance": "code",
         }
     )
 
-    df_notif = df.groupby(["code", "notificateur"]).agg({"n_decla": "sum"}).reset_index()
-    df_notif.n_decla = df_notif.n_decla.apply(lambda x: x if x >= 10 else None)
-    return
+    df_notif = (
+        df.groupby(["code", "notificateur"]).agg({"n_decla": "sum"}).reset_index()
+    )
+    df_notif["pourcentage_notif"] = df_notif.apply(
+        lambda x: compute_pourcentage(df_notif, x, "code", "n_decla")
+        if x.n_decla >= 10
+        else None,
+        axis=1,
+    )
+    df_notif = df_notif[["code", "notificateur", "pourcentage_notif"]]
 
-engine = connect_db()  # establish connection
-connection = engine.connect()
-Session = sessionmaker(bind=engine)
-session = Session()
+    df_notif.to_sql(
+        "substance_notif_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "code": String(120),
+            "notificateur": Text,
+            "pourcentage_notif": Float,
+        },
+    )
 
 
-def save_to_database_orm(session):
+def get_substance_soclong_dataframe() -> pd.DataFrame:
+    df = pd.read_csv(
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_soclong_sa_codex_open.csv",
+        encoding="ISO-8859-1",
+        sep=";",
+        dtype={"codeSubstance": str},
+    )
+    df = df.drop("Unnamed: 0", axis=1)
 
-    # Création table Specialite
-    cis_list = get_specialite()
-    for cis_dict in cis_list:
-        spe = Specialite(**cis_dict)
-        session.add(spe)
-        session.commit()
+    df = df.rename(
+        columns={
+            "SEXE": "sexe",
+            "AGE": "age",
+            "SOC_LONG": "soc_long",
+            "SUBSTANCE_CODEX_UNIQUE": "substance_active",
+            "codeSubstance": "code",
+        }
+    )
 
-    # Création table Substance
-    api_list = get_substance()
-    for api_dict in api_list:
-        api = Substance(**api_dict)
-        session.add(api)
-        session.commit()
+    temp = df.groupby(["code", "soc_long"]).agg({"n_decla_eff": "sum"}).reset_index()
+    temp2 = (
+        df.drop_duplicates(subset=["code", "age", "sexe", "n_cas"])
+        .groupby("code")
+        .agg({"n_cas": "sum"})
+        .reset_index()
+    )
 
-    # Création table SpecialiteSubstance
-    spe_api_list = get_spe_substance()
-    for spe_api_dict in spe_api_list:
-        spe_api = SpecialiteSubstance(**spe_api_dict)
-        session.add(spe_api)
-        session.commit()
+    return temp.merge(temp2, on="code", how="left")
 
-    # Création table Presentation
-    pres_list = get_presentation()
-    for pres_dict in pres_list:
-        pres = Presentation(**pres_dict)
-        session.add(pres)
-        session.commit()
 
-    # Création table Produit
-    produit_list = get_produit()
-    for produit_dict in produit_list:
-        produit = Produit(**produit_dict)
-        session.add(produit)
-        session.commit()
+def get_substance_soclong():
+    df = get_substance_soclong_dataframe()
+    df["pourcentage_cas"] = (df.n_decla_eff / df.n_cas) * 100
+    df.pourcentage_cas = df.apply(
+        lambda x: x.pourcentage_cas if x.n_decla_eff >= 10 else None, axis=1
+    )
+    return df[["code", "soc_long", "pourcentage_cas"]].sort_values(
+        by=["pourcentage_cas"], ascending=False
+    )
 
-    # Création table Notice
-    notice_list = get_notice()
-    for notice_dict in notice_list:
-        notice = Notice(**notice_dict)
-        session.add(notice)
-        session.commit()
+
+def get_hlt():
+    df_soclong = get_substance_soclong_dataframe()
+    df = pd.read_csv(
+        "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_hlt_soclong_sa_codex_open.csv",
+        encoding="ISO-8859-1",
+        sep=";",
+        dtype={"codeSubstance": str},
+    )
+    df = df.drop("Unnamed: 0", axis=1)
+
+    df = df.rename(
+        columns={
+            "SEXE": "sexe",
+            "AGE": "age",
+            "EFFET_HLT": "effet_hlt",
+            "SOC_LONG": "soc_long",
+            "SUBSTANCE_CODEX_UNIQUE": "substance_active",
+            "codeSubstance": "code",
+        }
+    )
+
+    df = (
+        df.groupby(["code", "effet_hlt", "soc_long"])
+        .agg({"n_decla_eff_hlt": "sum"})
+        .reset_index()
+        .sort_values(by="n_decla_eff_hlt", ascending=False)
+    )
+    df = df.merge(
+        df_soclong[["code", "soc_long", "n_cas"]], on=["code", "soc_long"], how="left"
+    )
+
+    df["pourcentage_cas"] = (df.n_decla_eff_hlt / df.n_cas) * 100
+    df.pourcentage_cas = df.apply(
+        lambda x: x.pourcentage_cas if x.n_decla_eff_hlt >= 10 else None, axis=1
+    )
+    return df[["code", "soc_long", "effet_hlt", "pourcentage_cas"]]

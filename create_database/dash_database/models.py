@@ -1,6 +1,13 @@
 import os
 
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKeyConstraint
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Float,
+    ForeignKeyConstraint,
+)
 from sqlalchemy.dialects.mysql import LONGTEXT, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -40,35 +47,23 @@ class Specialite(Base):
 class Substance(Base):
     __tablename__ = "substance"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(255), primary_key=True)
     name = Column(String(255), nullable=False)
-    code = Column(String(255), nullable=True)
 
 
 class SpecialiteSubstance(Base):
     __tablename__ = "specialite_substance"
     __table_args__ = (
         ForeignKeyConstraint(["cis"], ["specialite.cis"]),
-        ForeignKeyConstraint(["substance_id"], ["substance.id"]),
+        ForeignKeyConstraint(["code_substance"], ["substance.code"]),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     cis = Column(String(120), nullable=False)
+    code_substance = Column(Integer, nullable=False)
     elem_pharma = Column(LONGTEXT, nullable=False)
-    substance_id = Column(Integer, nullable=False)
     dosage = Column(LONGTEXT, nullable=True)
     ref_dosage = Column(LONGTEXT, nullable=True)
-    nature_composant = Column(LONGTEXT, nullable=False)
-    num_lien = Column(Integer, nullable=False)
-
-
-class Produit(Base):
-    __tablename__ = "produit"
-    __table_args__ = (ForeignKeyConstraint(["cis"], ["specialite.cis"]),)
-
-    cis = Column(String(120), primary_key=True)
-    specialite = Column(LONGTEXT, nullable=False)
-    produit = Column(LONGTEXT, nullable=False)
 
 
 class Notice(Base):
@@ -85,15 +80,108 @@ class Presentation(Base):
     __table_args__ = (ForeignKeyConstraint(["cis"], ["specialite.cis"]),)
 
     cip13 = Column(String(13), primary_key=True)
-    libelle = Column(LONGTEXT, nullable=True)
+    nom = Column(LONGTEXT, nullable=False)
     cis = Column(String(8), nullable=False)
     taux_remboursement = Column(String(13), nullable=True)
+
+
+class SpecialiteOrdei(Base):
+    __tablename__ = "specialite_ordei"
+    __table_args__ = (ForeignKeyConstraint(["cis"], ["specialite.cis"]),)
+
+    cis = Column(String(120), primary_key=True)
+    conso = Column(Integer, nullable=True)
+
+
+class SpecialitePatientSexeOrdei(Base):
+    __tablename__ = "specialite_patient_sexe_ordei"
+    __table_args__ = (ForeignKeyConstraint(["cis"], ["specialite.cis"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    cis = Column(String(120), nullable=False)
+    sexe = Column(String(120), nullable=False)
+    conso = Column(Integer, nullable=False)
+    pourcentage_patients = Column(Float, nullable=False)
+
+
+class SpecialitePatientAgeOrdei(Base):
+    __tablename__ = "specialite_patient_age_ordei"
+    __table_args__ = (ForeignKeyConstraint(["cis"], ["specialite.cis"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    cis = Column(String(120), nullable=False)
+    age = Column(String(120), nullable=False)
+    conso = Column(Integer, nullable=False)
+    pourcentage_patients = Column(Float, nullable=False)
+
+
+class SubstanceOrdei(Base):
+    __tablename__ = "substance_ordei"
+    __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(120), nullable=False)
+    conso = Column(Integer, nullable=False)
+    cas = Column(Integer, nullable=False)
+    taux_cas = Column(Float, nullable=False)
+    annee = Column(Integer, nullable=False)
+    conso_annee = Column(Integer, nullable=False)
+    cas_annee = Column(Integer, nullable=False)
+
+
+class SubstancePatientSexeOrdei(Base):
+    __tablename__ = "substance_patient_sexe_ordei"
+    __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(120), nullable=False)
+    sexe = Column(String(120), nullable=False)
+    pourcentage_patients = Column(Float, nullable=False)
+
+
+class SubstancePatientAgeOrdei(Base):
+    __tablename__ = "substance_patient_age_ordei"
+    __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(120), nullable=False)
+    age = Column(String(120), nullable=False)
+    pourcentage_patients = Column(Float, nullable=False)
+
+
+class SubstanceCasSexeOrdei(Base):
+    __tablename__ = "substance_cas_sexe_ordei"
+    __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(120), nullable=False)
+    sexe = Column(String(120), nullable=False)
+    pourcentage_cas = Column(Float, nullable=False)
+
+
+class SubstanceCasAgeOrdei(Base):
+    __tablename__ = "substance_cas_age_ordei"
+    __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(120), nullable=False)
+    age = Column(String(120), nullable=False)
+    pourcentage_cas = Column(Float, nullable=False)
+
+
+class SubstanceNotifOrdei(Base):
+    __tablename__ = "substance_notif_ordei"
+    __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(120), nullable=False)
+    notificateur = Column(LONGTEXT, nullable=False)
+    pourcentage_notif = Column(Float, nullable=True)
 
 
 engine = connect_db()
 Specialite.__table__.create(bind=engine, checkfirst=True)
 Substance.__table__.create(bind=engine, checkfirst=True)
 SpecialiteSubstance.__table__.create(bind=engine, checkfirst=True)
-Produit.__table__.create(bind=engine, checkfirst=True)
 Notice.__table__.create(bind=engine, checkfirst=True)
 Presentation.__table__.create(bind=engine, checkfirst=True)
