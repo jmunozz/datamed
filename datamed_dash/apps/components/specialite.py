@@ -67,7 +67,7 @@ def get_bdpm_links(selected_med: str, link: str) -> str:
 
 
 def SearchDiv() -> Component:
-    return Div(
+    return Div(Div(
         Div(
             [
                 SearchBar("input-group-content mr-3 pl-0", "specialite-search-bar"),
@@ -87,11 +87,11 @@ def SearchDiv() -> Component:
                     className="input-group-append",
                 ),
             ],
-            className="input-group col-xl-8",
+            className="input-group col-md-12",
         ),
-        style={"padding-left": "20px", "margin-top": "2rem"},
         className="row",
-        id="Desc",
+    ),
+    className="col-12"
     )
 
 
@@ -140,7 +140,7 @@ def SpecialiteDiv(selected_med: str, substances_list) -> Component:
         ),
     )
 
-    return Div(
+    return Div(Div(
         Div(
             Div(
                 [
@@ -224,8 +224,8 @@ def SpecialiteDiv(selected_med: str, substances_list) -> Component:
             ),
             className="col-xl-8",
         ),
-        style={"margin-top": "31.5px"},
-        className="topic-section row no-gutters",
+        className="row"),
+    className="col-12"
     )
 
 
@@ -233,81 +233,82 @@ def SubstanceDiv(selected_med: str, spe_dataframe: pd.DataFrame) -> Component:
     return Div(
         Div(
             Div(
-                [
-                    Div(
-                        I(
-                            className="bi bi-book d-flex justify-content-center pt-3",
-                            style={"font-size": "3rem"},
+                Div(
+                    [
+                        Div(
+                            I(
+                                className="bi bi-book d-flex justify-content-center pt-3",
+                                style={"font-size": "3rem"},
+                            ),
+                            className="position-absolute",
                         ),
-                        className="position-absolute",
-                    ),
-                    Div(
-                        [
-                            Div(
-                                selected_med,
-                                className="heading-4",
-                            ),
-                            Div(
-                                [
-                                    Div(
-                                        "SUBSTANCE ACTIVE",
-                                        className="caption-text d-inline-block",
-                                    ),
-                                    I(
-                                        className="info-icon bi bi-info-circle d-inline-block",
-                                        id="substance-info-icon",
-                                    ),
-                                    Tooltip(
-                                        "Composant d'une spécialité pharmaceutique reconnu "
-                                        "comme possédant des propriétés thérapeutiques.",
-                                        target="substance-info-icon",
-                                        placement="right",
-                                    ),
-                                ]
-                            ),
-                            Div(
-                                "Spécialités de médicaments contenant : {}".format(
-                                    selected_med
+                        Div(
+                            [
+                                Div(
+                                    selected_med,
+                                    className="heading-4",
                                 ),
-                                className="medium-text mt-5",
-                            ),
-                            Div(
-                                "{} médicaments identifiés".format(len(spe_dataframe)),
-                                className="normal-text mt-3",
-                                style={"color": "#33C2D6"},
-                            ),
-                            dash_table.DataTable(
-                                id="substance-specialite-table",
-                                columns=[
-                                    {"name": i, "id": i} for i in spe_dataframe.columns
-                                ],
-                                data=spe_dataframe.to_dict("records"),
-                                page_size=10,
-                                style_as_list_view=True,
-                                style_table={"overflowX": "auto"},
-                                style_cell={
-                                    "height": "40px",
-                                },
-                                style_data={
-                                    "fontSize": "12px",
-                                    "fontWeight": "400",
-                                    "font-family": "Roboto",
-                                    "lineHeight": "16px",
-                                    "textAlign": "left",
-                                },
-                                style_header={"display": "none"},
-                            ),
-                        ],
-                        className="pr-5",
-                        style={"padding-left": "70px"},
-                    ),
-                ],
-                className="description",
+                                Div(
+                                    [
+                                        Div(
+                                            "SUBSTANCE ACTIVE",
+                                            className="caption-text d-inline-block",
+                                        ),
+                                        I(
+                                            className="info-icon bi bi-info-circle d-inline-block",
+                                            id="substance-info-icon",
+                                        ),
+                                        Tooltip(
+                                            "Composant d'une spécialité pharmaceutique reconnu "
+                                            "comme possédant des propriétés thérapeutiques.",
+                                            target="substance-info-icon",
+                                            placement="right",
+                                        ),
+                                    ]
+                                ),
+                                Div(
+                                    "Spécialités de médicaments contenant : {}".format(
+                                        selected_med
+                                    ),
+                                    className="medium-text mt-5",
+                                ),
+                                Div(
+                                    "{} médicaments identifiés".format(len(spe_dataframe)),
+                                    className="normal-text mt-3",
+                                    style={"color": "#33C2D6"},
+                                ),
+                                dash_table.DataTable(
+                                    id="substance-specialite-table",
+                                    columns=[
+                                        {"name": i, "id": i} for i in spe_dataframe.columns
+                                    ],
+                                    data=spe_dataframe.to_dict("records"),
+                                    page_size=10,
+                                    style_as_list_view=True,
+                                    style_table={"overflowX": "auto"},
+                                    style_cell={
+                                        "height": "40px",
+                                    },
+                                    style_data={
+                                        "fontSize": "12px",
+                                        "fontWeight": "400",
+                                        "font-family": "Roboto",
+                                        "lineHeight": "16px",
+                                        "textAlign": "left",
+                                    },
+                                    style_header={"display": "none"},
+                                ),
+                            ],
+                            className="pr-5",
+                            style={"padding-left": "70px"},
+                        ),
+                    ],
+                    className="description",
+                ),
+                className="col-xl-8",
             ),
-            className="col-xl-8",
-        ),
-        style={"margin-top": "31.5px"},
-        className="topic-section row no-gutters",
+        className="row"),
+    className="col-12"
     )
 
 
@@ -499,23 +500,26 @@ def HltModal() -> Modal:
 
 
 def SectionTitle(
-    title: str, icon_id: str, tooltip_text: str, side_menu_id: str
+    title: str, icon_id: str, tooltip_text: str
 ) -> Component:
     return Div(
         [
-            Div(
-                title,
-                className="heading-4 d-inline-block",
-            ),
-            I(className="info-icon bi bi-info-circle d-inline-block", id=icon_id),
-            Tooltip(
-                tooltip_text,
-                target=icon_id,
-                placement="right",
-            ),
+            Div([
+                Div(
+                    title,
+                    className="heading-4 d-inline-block",
+                ),
+                I(className="info-icon bi bi-info-circle d-inline-block", id=icon_id),
+                Tooltip(
+                    tooltip_text,
+                    target=icon_id,
+                    placement="right",
+                ),
+            ], 
+            className="col-12")
+
         ],
-        className="section-title nav-title",
-        id=side_menu_id,
+        className="section-title row",
     )
 
 
@@ -538,15 +542,15 @@ def Indicateur(
             ),
         ],
         className=class_name,
-        style={"max-width": "390px"},
     )
 
 
 def PatientsTraites(selected_med: str) -> Component:
     if SPE_SA_DICT[selected_med] == "spécialité":
         medicament = SUBSTANCE_BY_SPECIALITE[selected_med]["produit"]
-        jumbotron = Div(
-            Jumbotron(
+        disclaimer = Div(
+            [Div([
+                Jumbotron(
                 [
                     Div("Note d'attention", className="medium-text"),
                     Div(
@@ -557,13 +561,14 @@ def PatientsTraites(selected_med: str) -> Component:
                         className="normal-text mt-3",
                     ),
                 ],
-                className="col-xl-8 p-3 mb-2",
+                className="p-3 mb-2",
             ),
-            className="row patients-traites-jumbotron",
+            ], className="col-xl-8")],
+            className="row patients-traites-jumbotron"
         )
     else:
         medicament = selected_med
-        jumbotron = []
+        disclaimer = []
 
     df = pd.DataFrame(MED_DICT[medicament]["annee"])
     patients_traites = round(df.n_conso.mean())
@@ -580,36 +585,8 @@ def PatientsTraites(selected_med: str) -> Component:
         "médicaments."
     )
 
-    return Div(
-        [
-            jumbotron,
-            Div(
-                [
-                    Div(
-                        "Patients traités",
-                        className="heading-4 d-inline-block",
-                    ),
-                    I(
-                        className="info-icon bi bi-info-circle d-inline-block",
-                        id="patients-traites-info-icon",
-                    ),
-                    Tooltip(
-                        tooltip_text,
-                        target="patients-traites-info-icon",
-                        placement="right",
-                    ),
-                ],
-                className="section-title",
-                id="Pop",
-            ),
-            # Indicateur(
-            #     patients_traites,
-            #     "patients/an",
-            #     "Nombre moyen de patients traités par an sur la période 2014/2018",
-            #     "box f-content d-block",
-            # ),
-            Div(
-                [
+
+    content = Div([
                     Div(
                         Div(
                             [
@@ -637,12 +614,37 @@ def PatientsTraites(selected_med: str) -> Component:
                         className="col-xl-4 col-lg-5",
                     ),
                 ],
-                className="row no-gutters",
-            ),
+                className="row")
+
+    return Div(
+        [
+            Div([
+                SectionTitle("Patients traités", "patients-traites-info-icon", tooltip_text),
+                disclaimer,
+                content], 
+            className="col-12"
+            )
+            # Indicateur(
+            #     patients_traites,
+            #     "patients/an",
+            #     "Nombre moyen de patients traités par an sur la période 2014/2018",
+            #     "box f-content d-block",
+            # ),
+
         ],
-        className="topic-section",
+        className="topic-section row",
+        id="Pop"
     )
 
+
+def EffetsIndesirables(selected_med: str) -> Component:
+    return Div([
+        CasDeclares(selected_med),
+        Organes(selected_med)
+    ], 
+    className="topic-section row",
+    id="Effets"
+    )
 
 def CasDeclares(selected_med: str) -> Component:
     if SPE_SA_DICT[selected_med] == "spécialité":
@@ -670,89 +672,96 @@ def CasDeclares(selected_med: str) -> Component:
         "(environ 20% des observations)."
     )
 
-    return Div(
-        [
-            SectionTitle(
-                "Cas déclarés d'effets indésirables",
-                "cas-declares-info-icon",
-                tooltip_text,
-                "Effets",
-            ),
-            Indicateur(
-                cas_an,
-                "cas/an",
-                "Taux de déclaration pour 100 000 patients traités sur la période 2014/2018",
-                "box d-inline-block",
-            ),
-            Indicateur(
-                cas_declares,
-                "cas déclarés",
-                "Nombre de cas déclarés sur la période 2014/2018",
-                "box d-inline-block",
-            ),
-            Div(
-                Div(
-                    Div(
-                        [
-                            Div(
-                                "Nombre de cas déclarés d'effets indésirables et patients traités par année",
-                                className="normal-text",
-                            ),
-                            Div([CourbesAnnees(medicament)], style={"height": "450px"})
-                        ],
-                        className="box",
-                    ),
-                    className="col-xl-8",
+    return Div([
+                SectionTitle(
+                    "Cas déclarés d'effets indésirables",
+                    "cas-declares-info-icon",
+                    tooltip_text,
                 ),
-                className="row",
-            ),
-            Div(
-                [
-                    Div(
-                        Div(
-                            [
-                                Div(
-                                    "Répartition par sexe des cas déclarés",
-                                    className="normal-text",
-                                ),
-                                Div([PieChart(medicament, "sexe", "n_cas")], style={"height":"450px"})
-                            ],
-                            className="box",
-                        ),
-                        className="col-xl-4 col-lg-5",
-                    ),
-                    Div(
-                        Div(
-                            [
-                                Div(
-                                    "Répartition par âge des cas déclarés",
-                                    className="normal-text",
-                                ),
-                                Div([PieChart(medicament, "age", "n_cas")], style={"height": "450px"})
-                            ],
-                            className="box",
-                        ),
-                        className="col-xl-4 col-lg-5",
-                    ),
-                    Div(
-                        Div(
-                            [
-                                Div(
-                                    "Répartition par type de notificateur",
-                                    className="normal-text",
-                                ),
-                                BarNotif(medicament),
-                            ],
-                            className="box",
-                        ),
-                        className="col-xl-8",
-                    ),
-                ],
-                className="row",
-            ),
-        ],
-        className="topic-section",
-    )
+                Div([
+                    Div([
+                        Indicateur(
+                            cas_an,
+                            "cas/an",
+                            "Taux de déclaration pour 100 000 patients traités sur la période 2014/2018",
+                            "box",
+                        )
+                    ], 
+                    className="col-md-6 col-sm-12"),
+                    Div([
+                        Indicateur(
+                            cas_declares,
+                            "cas déclarés",
+                            "Nombre de cas déclarés sur la période 2014/2018",
+                            "box",
+                        )
+                    ], 
+                    className="col-md-6 col-sm_12")
+
+                ], 
+                className="row")
+            ], 
+            className="col-12")
+            # Div(
+            #     Div(
+            #         Div(
+            #             [
+            #                 Div(
+            #                     "Nombre de cas déclarés d'effets indésirables et patients traités par année",
+            #                     className="normal-text",
+            #                 ),
+            #                 Div([CourbesAnnees(medicament)], style={"height": "450px"})
+            #             ],
+            #             className="box",
+            #         ),
+            #         className="col-xl-8",
+            #     ),
+            #     className="row",
+            # ),
+            # Div(
+            #     [
+            #         Div(
+            #             Div(
+            #                 [
+            #                     Div(
+            #                         "Répartition par sexe des cas déclarés",
+            #                         className="normal-text",
+            #                     ),
+            #                     Div([PieChart(medicament, "sexe", "n_cas")], style={"height":"450px"})
+            #                 ],
+            #                 className="box",
+            #             ),
+            #             className="col-xl-4 col-lg-5",
+            #         ),
+            #         Div(
+            #             Div(
+            #                 [
+            #                     Div(
+            #                         "Répartition par âge des cas déclarés",
+            #                         className="normal-text",
+            #                     ),
+            #                     Div([PieChart(medicament, "age", "n_cas")], style={"height": "450px"})
+            #                 ],
+            #                 className="box",
+            #             ),
+            #             className="col-xl-4 col-lg-5",
+            #         ),
+            #         Div(
+            #             Div(
+            #                 [
+            #                     Div(
+            #                         "Répartition par type de notificateur",
+            #                         className="normal-text",
+            #                     ),
+            #                     BarNotif(medicament),
+            #                 ],
+            #                 className="box",
+            #             ),
+            #             className="col-xl-8",
+            #         ),
+            #     ],
+            #     className="row",
+            # ),
 
 
 def Organes(selected_med: str) -> Component:
@@ -773,7 +782,6 @@ def Organes(selected_med: str) -> Component:
                 "Effets indésirables par système d'organes",
                 "organes-info-icon",
                 tooltip_text,
-                "",
             ),
             Div(
                 Div(
@@ -787,18 +795,30 @@ def Organes(selected_med: str) -> Component:
                         ],
                         className="box",
                     ),
-                    className="col-xl-8",
+                    className="col-md-12",
                 ),
                 className="row",
             ),
         ],
-        className="topic-section",
+        className="col-12",
     )
 
+
+def FirstSection(selected_med:str) -> Component:
+    return Div([
+        SearchDiv(),
+        DescriptionSpecialite(selected_med),
+    ],
+    className="topic-section row",
+    id="Desc"
+    )
 
 def Specialite(selected_med: str) -> Component:
     return Div(
         [
+                    Div(
+            className="header-space"
+        ),
             SideMenu(
                 id="side-menu",
                 items=[
@@ -809,16 +829,10 @@ def Specialite(selected_med: str) -> Component:
                 className="side-menu",
             ),
             Div([
-                SearchDiv(),
-                Div(
-                    [
-                        DescriptionSpecialite(selected_med),
-                        PatientsTraites(selected_med),
-                        CasDeclares(selected_med),
-                        Organes(selected_med),
-                    ]
-                ),
-            ], className="container")
+                FirstSection(selected_med),
+                PatientsTraites(selected_med),
+                EffetsIndesirables(selected_med),
+            ], className="container-fluid")
         ],
         className="side-menu-container"
     )

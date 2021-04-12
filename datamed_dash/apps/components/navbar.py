@@ -51,5 +51,5 @@ def Navbar() -> Component:
                 className="navbar-span",
             ),
         ],
-        className="navbar-layout container-fluid d-flex sticky-top",
+        className="navbar-layout container-fluid d-flex fixed-top",
     )
