@@ -4,11 +4,12 @@ from sqlalchemy.dialects.mysql import LONGTEXT, YEAR
 from create_database.models import connect_db, Base
 
 
-class CorrespProdSub(Base):
+class CorrespCisSub(Base):
     __tablename__ = "corresp_prod_sub"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    produit_codex = Column(LONGTEXT, nullable=False)
+    cis = Column(String(120), primary_key=True, autoincrement=True)
+    specialite_codex = Column(LONGTEXT, nullable=False)
     substance_codex_unique = Column(LONGTEXT, nullable=False)
     code = Column(String(255), nullable=False)
 
@@ -113,8 +114,19 @@ class BnpvNotifSaCodexOpen(Base):
     n_decla = Column(Integer, nullable=False)
 
 
+class BnpvOpenMedic1418SpeCodex(Base):
+    __tablename__ = "bnpv_open_medic1418_spe_codex"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    cis = Column(String(120), nullable=False)
+    sexe = Column(LONGTEXT, nullable=False)
+    age = Column(LONGTEXT, nullable=False)
+    n_conso = Column(Integer, nullable=False)
+    n_conso_an = Column(Integer, nullable=False)
+
+
 engine = connect_db()
-CorrespProdSub.__table__.create(bind=engine, checkfirst=True)
+CorrespCisSub.__table__.create(bind=engine, checkfirst=True)
 BnpvOpenMedic1418ProdCodex.__table__.create(bind=engine, checkfirst=True)
 BnpvEffSoclongProdCodexOpen.__table__.create(bind=engine, checkfirst=True)
 BnpvEffHltProdCodexOpen.__table__.create(bind=engine, checkfirst=True)
@@ -123,3 +135,4 @@ BnpvOpenMedic1418SaCodex.__table__.create(bind=engine, checkfirst=True)
 BnpvEffSoclongSaCodexOpen.__table__.create(bind=engine, checkfirst=True)
 BnpvEffHltSaCodexOpen.__table__.create(bind=engine, checkfirst=True)
 BnpvNotifSaCodexOpen.__table__.create(bind=engine, checkfirst=True)
+BnpvOpenMedic1418SpeCodex.__table__.create(bind=engine, checkfirst=True)

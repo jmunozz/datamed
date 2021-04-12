@@ -1,6 +1,6 @@
 from os import path
 
-P_ROOT = "/Users/ansm/Documents/GitHub/datamed/create_database/data/"
+P_ROOT = "~/Documents/GitHub/datamed/create_database/data/"
 
 P_CIS_SPE_PROD = path.join(P_ROOT, "corresp_cis_spe_prod.xlsx")
 P_VENTES_2017 = path.join(P_ROOT, "OCTAVE/Octave_2017_ATC_voie.xls")
