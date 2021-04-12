@@ -217,7 +217,7 @@ def save_to_database_orm(session):
             "SUBSTANCE_CODEX_UNIQUE": "substance_codex_unique",
             "codeSubstance": "code",
         }
-    )
+)
 
     bnpv_eff_soclong_sa_codex_open_list = bnpv_eff_soclong_sa_codex_open.to_dict(
         orient="records"
