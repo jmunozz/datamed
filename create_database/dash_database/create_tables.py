@@ -6,7 +6,7 @@ from sqlalchemy.types import Integer, Text, String, Float
 
 import paths
 from models import connect_db
-from bdpm_scrapper import create_notice_table
+from bdpm_scrapper import create_description_table
 
 engine = connect_db()
 connection = engine.connect()
@@ -257,7 +257,7 @@ def create_presentation_table():
     )
 
 
-def compute_pourcentage(
+def compute_percentage(
     df: pd.DataFrame, substance: pd.Series, key: str, field: str
 ) -> float:
     return substance[field] / df[df[key] == substance[key]][field].sum() * 100
@@ -265,7 +265,7 @@ def compute_pourcentage(
 
 def get_spe_ordei_dataframe() -> pd.DataFrame:
     df = pd.read_csv(
-        "~/Documents/GitHub/datamed/ordei/data/open_medic2014_2018_cis_agg.csv",
+        paths.P_ORDEI_SPECIALITE,
         sep=";",
         dtype={"codeCIS": str},
     )
@@ -306,7 +306,7 @@ def create_spe_patients_sexe_table():
     df_sexe = df.groupby(["cis", "sexe"]).agg({"conso": "sum"}).reset_index()
 
     df_sexe["pourcentage_patients"] = df_sexe.apply(
-        lambda x: compute_pourcentage(df_sexe, x, "cis", "conso")
+        lambda x: compute_percentage(df_sexe, x, "cis", "conso")
         if x.conso >= 10
         else None,
         axis=1,
@@ -330,7 +330,7 @@ def create_spe_patients_age_table():
     df_age = df.groupby(["cis", "age"]).agg({"conso": "sum"}).reset_index()
 
     df_age["pourcentage_patients"] = df_age.apply(
-        lambda x: compute_pourcentage(df_age, x, "cis", "conso")
+        lambda x: compute_percentage(df_age, x, "cis", "conso")
         if x.conso >= 10
         else None,
         axis=1,
@@ -349,8 +349,7 @@ def create_spe_patients_age_table():
 
 
 def get_substance_dataframe() -> pd.DataFrame:
-    df = pd.read_csv(
-        "~/Documents/GitHub/datamed/ordei/data/bnpv_open_medic1418_sa_codex.csv",
+    df = pd.read_csv(paths.P_ORDEI_SUBSTANCE,
         encoding="ISO-8859-1",
         sep=";",
         dtype={"codeSubstance": str},
@@ -424,7 +423,7 @@ def create_substance_patients_sexe_table():
     df_sexe = df.groupby(["code", "sexe"]).agg({"conso": "sum"}).reset_index()
 
     df_sexe["pourcentage_patients"] = df_sexe.apply(
-        lambda x: compute_pourcentage(df_sexe, x, "code", "conso")
+        lambda x: compute_percentage(df_sexe, x, "code", "conso")
         if x.conso >= 10
         else None,
         axis=1,
@@ -450,7 +449,7 @@ def create_substance_patients_age_table():
     df_age = df.groupby(["code", "age"]).agg({"conso": "sum"}).reset_index()
 
     df_age["pourcentage_patients"] = df_age.apply(
-        lambda x: compute_pourcentage(df_age, x, "code", "conso")
+        lambda x: compute_percentage(df_age, x, "code", "conso")
         if x.conso >= 10
         else None,
         axis=1,
@@ -475,7 +474,7 @@ def create_substance_cas_sexe_table():
     df_sexe = df.groupby(["code", "sexe"]).agg({"cas": "sum"}).reset_index()
 
     df_sexe["pourcentage_cas"] = df_sexe.apply(
-        lambda x: compute_pourcentage(df_sexe, x, "code", "cas")
+        lambda x: compute_percentage(df_sexe, x, "code", "cas")
         if x.cas >= 10
         else None,
         axis=1,
@@ -501,9 +500,7 @@ def create_substance_cas_age_table():
     df_age = df.groupby(["code", "age"]).agg({"cas": "sum"}).reset_index()
 
     df_age["pourcentage_cas"] = df_age.apply(
-        lambda x: compute_pourcentage(df_age, x, "code", "cas")
-        if x.cas >= 10
-        else None,
+        lambda x: compute_percentage(df_age, x, "code", "cas") if x.cas >= 10 else None,
         axis=1,
     )
     df_age = df_age[["code", "age", "pourcentage_cas"]]
@@ -522,7 +519,7 @@ def create_substance_cas_age_table():
 
 def create_notificateurs_table():
     df = pd.read_csv(
-        "~/Documents/GitHub/datamed/ordei/data/bnpv_notif_sa_codex_open.csv",
+        paths.P_ORDEI_NOTIF,
         encoding="ISO-8859-1",
         sep=";",
         dtype={"codeSubstance": str},
@@ -543,7 +540,7 @@ def create_notificateurs_table():
         df.groupby(["code", "notificateur"]).agg({"n_decla": "sum"}).reset_index()
     )
     df_notif["pourcentage_notif"] = df_notif.apply(
-        lambda x: compute_pourcentage(df_notif, x, "code", "n_decla")
+        lambda x: compute_percentage(df_notif, x, "code", "n_decla")
         if x.n_decla >= 10
         else None,
         axis=1,
@@ -563,7 +560,7 @@ def create_notificateurs_table():
 
 def get_substance_soclong_dataframe() -> pd.DataFrame:
     df = pd.read_csv(
-        "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_soclong_sa_codex_open.csv",
+        paths.P_ORDEI_SOCLONG,
         encoding="ISO-8859-1",
         sep=";",
         dtype={"codeSubstance": str},
@@ -615,8 +612,9 @@ def create_substance_soclong_table():
 
 def create_hlt_table():
     df_soclong = get_substance_soclong_dataframe()
+
     df = pd.read_csv(
-        "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_hlt_soclong_sa_codex_open.csv",
+        paths.P_ORDEI_HLT,
         encoding="ISO-8859-1",
         sep=";",
         dtype={"codeSubstance": str},
