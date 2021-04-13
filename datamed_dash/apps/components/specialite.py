@@ -222,7 +222,7 @@ def SpecialiteDiv(selected_med: str, substances_list) -> Component:
                 ],
                 className="description",
             ),
-            className="col-xl-8",
+            className="col-md-12",
         ),
         className="row"),
     className="col-12"
@@ -305,7 +305,7 @@ def SubstanceDiv(selected_med: str, spe_dataframe: pd.DataFrame) -> Component:
                     ],
                     className="description",
                 ),
-                className="col-xl-8",
+                className="col-md-12",
             ),
         className="row"),
     className="col-12"
@@ -563,7 +563,7 @@ def PatientsTraites(selected_med: str) -> Component:
                 ],
                 className="p-3 mb-2",
             ),
-            ], className="col-xl-8")],
+            ], className="col-md-12")],
             className="row patients-traites-jumbotron"
         )
     else:
@@ -598,7 +598,7 @@ def PatientsTraites(selected_med: str) -> Component:
                             ],
                             className="box",
                         ),
-                        className="col-xl-4 col-lg-5",
+                        className="col-md-6 col-sm-12",
                     ),
                     Div(
                         Div(
@@ -611,7 +611,7 @@ def PatientsTraites(selected_med: str) -> Component:
                             ],
                             className="box",
                         ),
-                        className="col-xl-4 col-lg-5",
+                        className="col-md-6 col-sm-12",
                     ),
                 ],
                 className="row")

@@ -45,6 +45,7 @@
 .topic-section {
   margin-bottom: 120px;
   scroll-margin-top: 112px;
+  max-width: 1000px;
 }
 
 .topic-section:nth-of-type(1) {
