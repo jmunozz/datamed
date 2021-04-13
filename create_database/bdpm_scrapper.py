@@ -1,31 +1,33 @@
 import json
 from collections import defaultdict
-from typing import List, Dict, Union
+from typing import List, Dict, Tuple
 
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-file_liste_spe = open("./datamed_dash/data/liste_specialites.json", "r")
-SPE_DICT = json.loads(file_liste_spe.read())
+import paths
+from dash_database.create_tables import upload_cis_from_rsp
 
 
 def get_cis_list() -> List:
-    cis_list = []
-    for k, v in SPE_DICT.items():
-        cis_list.extend(v)
-    return list(set(cis_list))
+    df_cis = upload_cis_from_rsp(paths.P_CIS_RSP)
+
+    # Add atc class to df_cis dataframe
+    df_atc = pd.read_excel(
+        paths.P_CIS_ATC, names=["cis", "atc", "nom_atc"], header=0, dtype={"cis": str}
+    )
+    df_atc.nom_atc = df_atc.nom_atc.str.lower()
+
+    df_cis = df_cis.merge(df_atc, on="cis", how="left")
+    df_cis = df_cis.where(pd.notnull(df_cis), None)
+    df_cis = df_cis.rename(columns={"nom_spe_pharma": "nom"})
+
+    return df_cis.cis.unique()
 
 
-def get_spe_by_cis():
-    spe_by_cis = defaultdict()
-    for k, values in SPE_DICT.items():
-        for v in values:
-            spe_by_cis[v] = k
-    return spe_by_cis
-
-
-def scrap_bdpm(cis_list: List, spe_by_cis: Dict) -> Union[Dict, List[Dict]]:
+def scrap_bdpm(cis_list: List) -> Tuple[Dict, List[Dict]]:
     notice_dict = defaultdict()
     notices = []
     for cis in tqdm(cis_list):
@@ -39,6 +41,17 @@ def scrap_bdpm(cis_list: List, spe_by_cis: Dict) -> Union[Dict, List[Dict]]:
         soup = BeautifulSoup(page.content, "html.parser")
         # print(soup.prettify())
 
+        if soup.body.findAll(
+            text="Le document demandé n'est pas disponible pour ce médicament"
+        ):
+            print(cis)
+            page = requests.get(
+                "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}".format(
+                    cis
+                )
+            )
+            soup = BeautifulSoup(page.content, "html.parser")
+
         notice_elements = soup.find_all("p", {"class": "AmmCorpsTexte"})
         notice = ""
         for ele in notice_elements:
@@ -51,16 +64,15 @@ def scrap_bdpm(cis_list: List, spe_by_cis: Dict) -> Union[Dict, List[Dict]]:
                 continue
             else:
                 notice += ele.text.replace("\n", " ").strip().lower().capitalize() + " "
-        notice_dict[spe_by_cis[cis]] = notice
-        notices.append({"cis": cis, "specialite": spe_by_cis[cis], "notice": notice})
+        notice_dict[cis] = notice
+        notices.append({"cis": cis, "notice": notice})
     return notice_dict, notices
 
 
 def __main__():
     cis_list = get_cis_list()
-    spe_by_cis = get_spe_by_cis()
-    notice_dict, notices = scrap_bdpm(cis_list, spe_by_cis)
-    with open("./datamed_dash/data/notice_by_spe.json", "w") as outfile:
+    notice_dict, notices = scrap_bdpm(cis_list)
+    with open("./datamed_dash/data/notice_by_cis.json", "w") as outfile:
         json.dump(notice_dict, outfile)
     with open("./datamed_dash/data/notices.json", "w") as outfile:
         json.dump(notices, outfile)
