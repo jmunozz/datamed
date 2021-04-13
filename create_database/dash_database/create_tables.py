@@ -1,25 +1,20 @@
-import json
-import zipfile
 from datetime import datetime as dt
-from typing import List, Dict
+from typing import Dict
 
 import pandas as pd
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.types import Integer, Text, String, Float
 
 import paths
 from models import connect_db
+from bdpm_scrapper import create_notice_table
 
-with zipfile.ZipFile(paths.P_NOTICE, "r") as z:
-    filename = z.namelist()[0]
-    with z.open(filename) as f:
-        data = f.read()
-        NOTICE = json.loads(data.decode("utf-8"))
-
-engine = connect_db()  # establish connection
+engine = connect_db()
 connection = engine.connect()
-Session = sessionmaker(bind=engine)
-session = Session()
+
+EXPOSITION = {
+    "spécialité": {1000: 1, 5000: 2, 15000: 3, 50000: 4},
+    "substance": {5000: 1, 25000: 2, 100000: 3, 500000: 4},
+}
 
 
 def clean_columns(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
@@ -137,7 +132,21 @@ def upload_cis_cip_from_bdpm(path: str) -> pd.DataFrame:
     return df
 
 
-def get_specialite():
+def push_to_table(df: pd.DataFrame, table_name: str, dtypes_dict: Dict):
+    """
+    Push dataframe to table
+    """
+    df.to_sql(
+        table_name,
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype=dtypes_dict,
+    )
+
+
+def create_specialite_table():
     """
     Table specialite, listing all possible CIS codes
     """
@@ -152,15 +161,25 @@ def get_specialite():
     df_cis = df_cis.merge(df_atc, on="cis", how="left")
     df_cis = df_cis.where(pd.notnull(df_cis), None)
     df_cis = df_cis.rename(columns={"nom_spe_pharma": "nom"})
+    df_cis = df_cis[
+        [
+            "cis",
+            "nom",
+            "forme_pharma",
+            "voie_admin",
+            "atc",
+            "nom_atc",
+            "statut_amm",
+            "type_amm",
+            "etat_commercialisation",
+        ]
+    ]
 
-    df_cis.to_sql(
-        "specialite",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "cis": String(120),
+    push_to_table(
+        df_cis,
+        "substance",
+        {
+            "cis": Text,
             "nom": Text,
             "forme_pharma": Text,
             "voie_admin": Text,
@@ -173,7 +192,7 @@ def get_specialite():
     )
 
 
-def get_substance():
+def create_substance_table():
     """
     Table substance_active
     """
@@ -183,21 +202,18 @@ def get_substance():
     df_api = df_api[["code", "nom"]]
     df_api = df_api.drop_duplicates(["code"], keep="last")
 
-    df_api.to_sql(
+    push_to_table(
+        df_api,
         "substance",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
+        {
             "id": Integer,
-            "code": String(120),
+            "code": Text,
             "nom": Text,
         },
     )
 
 
-def get_spe_substance():
+def create_spe_substance_table():
     """
     Table specialite_substance
     """
@@ -207,14 +223,11 @@ def get_spe_substance():
     df = df.rename(columns={"code": "code_substance"})
     df = df.drop_duplicates()
 
-    df.to_sql(
+    push_to_table(
+        df,
         "specialite_substance",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "cis": String(120),
+        {
+            "cis": Text,
             "code_substance": Text,
             "elem_pharma": Text,
             "dosage": Text,
@@ -223,11 +236,7 @@ def get_spe_substance():
     )
 
 
-def get_notice() -> List[Dict]:
-    return NOTICE
-
-
-def get_presentation():
+def create_presentation_table():
     """
     Table listing all possible presentations (CIP13), with corresponding CIS code
     From BDPM
@@ -236,15 +245,12 @@ def get_presentation():
     df = upload_cis_cip_from_bdpm(paths.P_CIS_CIP_BDPM)
     df = df.where(pd.notnull(df), None)
 
-    df.to_sql(
+    push_to_table(
+        df,
         "presentation",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "cis": String(120),
-            "cip13": String(120),
+        {
+            "cis": Text,
+            "cip13": Text,
             "nom": Text,
             "taux_remboursement": Text,
         },
@@ -274,34 +280,31 @@ def get_spe_ordei_dataframe() -> pd.DataFrame:
     )
 
 
-def get_spe_conso_ordei():
+def create_spe_conso_ordei_table():
     df = get_spe_ordei_dataframe()
 
     df = df.groupby("cis")["conso"].sum().reset_index()
+    df["exposition"] = df.conso.apply(
+        lambda x: max(EXPOSITION["spécialité"].items(), key=lambda y: x <= y[0])[1]
+        if x <= 50000
+        else 5
+    )
 
-    df.to_sql(
+    push_to_table(
+        df,
         "specialite_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "cis": String(120),
-            "conso": Integer,
+        {
+            "cis": Text,
+            "exposition": Integer,
         },
     )
 
 
-def get_spe_patients_sexe():
+def create_spe_patients_sexe_table():
     df = get_spe_ordei_dataframe()
 
-    df_sexe = (
-        df.groupby(["cis", "sexe"])
-        .agg({"conso": "sum"})
-        .groupby(["cis", "sexe"])
-        .agg({"conso": "sum"})
-        .reset_index()
-    )
+    df_sexe = df.groupby(["cis", "sexe"]).agg({"conso": "sum"}).reset_index()
+
     df_sexe["pourcentage_patients"] = df_sexe.apply(
         lambda x: compute_pourcentage(df_sexe, x, "cis", "conso")
         if x.conso >= 10
@@ -309,31 +312,23 @@ def get_spe_patients_sexe():
         axis=1,
     )
 
-    df.to_sql(
+    push_to_table(
+        df_sexe,
         "specialite_patient_sexe_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "cis": String(120),
-            "sexe": String(120),
+        {
+            "cis": Text,
+            "sexe": Text,
             "conso": Integer,
             "pourcentage_patients": Float,
         },
     )
 
 
-def get_spe_patients_age():
+def create_spe_patients_age_table():
     df = get_spe_ordei_dataframe()
 
-    df_age = (
-        df.groupby(["cis", "age"])
-        .agg({"conso": "sum"})
-        .groupby(["cis", "age"])
-        .agg({"conso": "sum"})
-        .reset_index()
-    )
+    df_age = df.groupby(["cis", "age"]).agg({"conso": "sum"}).reset_index()
+
     df_age["pourcentage_patients"] = df_age.apply(
         lambda x: compute_pourcentage(df_age, x, "cis", "conso")
         if x.conso >= 10
@@ -341,15 +336,12 @@ def get_spe_patients_age():
         axis=1,
     )
 
-    df.to_sql(
+    push_to_table(
+        df_age,
         "specialite_patient_age_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "cis": String(120),
-            "age": String(120),
+        {
+            "cis": Text,
+            "age": Text,
             "conso": Integer,
             "pourcentage_patients": Float,
         },
@@ -378,7 +370,7 @@ def get_substance_dataframe() -> pd.DataFrame:
     )
 
 
-def get_substance_annee():
+def create_substance_ordei_table():
     df_sa_patients = get_substance_dataframe()
 
     df_annee = (
@@ -386,6 +378,7 @@ def get_substance_annee():
         .agg({"conso": "sum", "cas": "sum"})
         .reset_index()
     )
+
     df_annee["conso_annee"] = df_annee.conso.apply(lambda x: x if x >= 10 else None)
     df_annee["cas_annee"] = df_annee.cas.apply(lambda x: x if x >= 10 else None)
     df_annee = df_annee.drop(["conso", "cas"], axis=1)
@@ -397,6 +390,12 @@ def get_substance_annee():
         .agg({"conso": "sum", "cas": "sum"})
         .reset_index()
     )
+    df["exposition"] = df.conso.apply(
+        lambda x: max(EXPOSITION["substance"].items(), key=lambda y: x <= y[0])[1]
+        if x <= 500000
+        else 5
+    )
+
     df.cas = df.cas.apply(lambda x: x if x >= 10 else None)
     df["taux_cas"] = df.apply(
         lambda x: x.cas * 100000 / x.conso if x.cas >= 10 else None, axis=1
@@ -404,15 +403,12 @@ def get_substance_annee():
 
     df = df.merge(df_annee, on="code", how="left")
 
-    df.to_sql(
+    push_to_table(
+        df,
         "substance_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "code": String(120),
-            "conso": Integer,
+        {
+            "code": Text,
+            "exposition": Integer,
             "cas": Integer,
             "taux_cas": Float,
             "annee": Integer,
@@ -422,16 +418,11 @@ def get_substance_annee():
     )
 
 
-def get_substance_patients_sexe():
+def create_substance_patients_sexe_table():
     df = get_substance_dataframe()
 
-    df_sexe = (
-        df.groupby(["code", "annee", "sexe"])
-        .agg({"conso": "sum"})
-        .groupby(["code", "sexe"])
-        .agg({"conso": "sum"})
-        .reset_index()
-    )
+    df_sexe = df.groupby(["code", "sexe"]).agg({"conso": "sum"}).reset_index()
+
     df_sexe["pourcentage_patients"] = df_sexe.apply(
         lambda x: compute_pourcentage(df_sexe, x, "code", "conso")
         if x.conso >= 10
@@ -441,98 +432,74 @@ def get_substance_patients_sexe():
 
     df_sexe = df_sexe[["code", "sexe", "pourcentage_patients"]]
 
-    df_sexe.to_sql(
+    push_to_table(
+        df_sexe,
         "substance_patient_sexe_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "code": String(120),
-            "sexe": String(120),
+        {
+            "code": Text,
+            "sexe": Text,
             "conso": Integer,
             "pourcentage_patients": Float,
         },
     )
 
 
-def get_substance_patients_age():
+def create_substance_patients_age_table():
     df = get_substance_dataframe()
 
-    df_age = (
-        df.groupby(["code", "annee", "age"])
-        .agg({"conso": "sum"})
-        .groupby(["code", "age"])
-        .agg({"conso": "sum"})
-        .reset_index()
-    )
+    df_age = df.groupby(["code", "age"]).agg({"conso": "sum"}).reset_index()
+
     df_age["pourcentage_patients"] = df_age.apply(
         lambda x: compute_pourcentage(df_age, x, "code", "conso")
-        if x.conso > 10
+        if x.conso >= 10
         else None,
         axis=1,
     )
     df_age = df_age[["code", "age", "pourcentage_patients"]]
 
-    df_age.to_sql(
+    push_to_table(
+        df_age,
         "substance_patient_age_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "code": String(120),
-            "age": String(120),
+        {
+            "code": Text,
+            "age": Text,
             "conso": Integer,
             "pourcentage_patients": Float,
         },
     )
 
 
-def get_substance_cas_sexe():
+def create_substance_cas_sexe_table():
     df = get_substance_dataframe()
 
-    df_sexe = (
-        df.groupby(["code", "annee", "sexe"])
-        .agg({"cas": "sum"})
-        .groupby(["code", "sexe"])
-        .agg({"cas": "sum"})
-        .reset_index()
-    )
+    df_sexe = df.groupby(["code", "sexe"]).agg({"cas": "sum"}).reset_index()
+
     df_sexe["pourcentage_cas"] = df_sexe.apply(
         lambda x: compute_pourcentage(df_sexe, x, "code", "cas")
-        if x.cas > 10
+        if x.cas >= 10
         else None,
         axis=1,
     )
 
     df_sexe = df_sexe[["code", "sexe", "pourcentage_cas"]]
 
-    df_sexe.to_sql(
+    push_to_table(
+        df_sexe,
         "substance_cas_sexe_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "code": String(120),
-            "sexe": String(120),
+        {
+            "code": Text,
+            "sexe": Text,
             "cas": Integer,
             "pourcentage_cas": Float,
         },
     )
 
 
-def get_substance_cas_age():
+def create_substance_cas_age_table():
     df = get_substance_dataframe()
 
-    df_age = (
-        df.groupby(["code", "annee", "age"])
-        .agg({"cas": "sum"})
-        .groupby(["code", "age"])
-        .agg({"cas": "sum"})
-        .reset_index()
-    )
+    df_age = df.groupby(["code", "age"]).agg({"cas": "sum"}).reset_index()
+
     df_age["pourcentage_cas"] = df_age.apply(
         lambda x: compute_pourcentage(df_age, x, "code", "cas")
         if x.cas >= 10
@@ -541,22 +508,19 @@ def get_substance_cas_age():
     )
     df_age = df_age[["code", "age", "pourcentage_cas"]]
 
-    df_age.to_sql(
+    push_to_table(
+        df_age,
         "substance_cas_age_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "code": String(120),
-            "age": String(120),
+        {
+            "code": Text,
+            "age": Text,
             "cas": Integer,
             "pourcentage_cas": Float,
         },
     )
 
 
-def get_notificateurs():
+def create_notificateurs_table():
     df = pd.read_csv(
         "~/Documents/GitHub/datamed/ordei/data/bnpv_notif_sa_codex_open.csv",
         encoding="ISO-8859-1",
@@ -586,14 +550,11 @@ def get_notificateurs():
     )
     df_notif = df_notif[["code", "notificateur", "pourcentage_notif"]]
 
-    df_notif.to_sql(
+    push_to_table(
+        df_notif,
         "substance_notif_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "code": String(120),
+        {
+            "code": Text,
             "notificateur": Text,
             "pourcentage_notif": Float,
         },
@@ -630,7 +591,7 @@ def get_substance_soclong_dataframe() -> pd.DataFrame:
     return temp.merge(temp2, on="code", how="left")
 
 
-def get_substance_soclong():
+def create_substance_soclong_table():
     df = get_substance_soclong_dataframe()
     df["pourcentage_cas"] = (df.n_decla_eff / df.n_cas) * 100
     df.pourcentage_cas = df.apply(
@@ -652,7 +613,7 @@ def get_substance_soclong():
     )
 
 
-def get_hlt():
+def create_hlt_table():
     df_soclong = get_substance_soclong_dataframe()
     df = pd.read_csv(
         "~/Documents/GitHub/datamed/ordei/data/bnpv_eff_hlt_soclong_sa_codex_open.csv",
@@ -689,16 +650,48 @@ def get_hlt():
     )
     df = df[["code", "soc_long", "effet_hlt", "pourcentage_cas"]]
 
-    df.to_sql(
+    push_to_table(
+        df,
         "substance_hlt_ordei",
-        engine,
-        if_exists="replace",
-        index=False,
-        chunksize=500,
-        dtype={
-            "code": String(120),
+        {
+            "code": Text,
             "soc_long": Text,
             "effet_hlt": Text,
             "pourcentage_cas": Float,
         },
     )
+
+
+def save_to_database():
+    """
+    Push data into database tables
+    """
+    create_specialite_table()
+
+    create_substance_table()
+
+    create_spe_substance_table()
+
+    create_presentation_table()
+
+    create_spe_conso_ordei_table()
+
+    create_spe_patients_sexe_table()
+
+    create_spe_patients_age_table()
+
+    create_substance_ordei_table()
+
+    create_substance_patients_sexe_table()
+
+    create_substance_patients_age_table()
+
+    create_substance_cas_sexe_table()
+
+    create_substance_cas_age_table()
+
+    create_notificateurs_table()
+
+    create_substance_soclong_table()
+
+    create_hlt_table()
