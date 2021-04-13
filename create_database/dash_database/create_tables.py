@@ -636,8 +636,19 @@ def get_substance_soclong():
     df.pourcentage_cas = df.apply(
         lambda x: x.pourcentage_cas if x.n_decla_eff >= 10 else None, axis=1
     )
-    return df[["code", "soc_long", "pourcentage_cas"]].sort_values(
-        by=["pourcentage_cas"], ascending=False
+    df = df[["code", "soc_long", "pourcentage_cas"]].sort_values(by=["code"])
+
+    df.to_sql(
+        "substance_soclong_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "code": String(120),
+            "soc_long": Text,
+            "pourcentage_cas": Float,
+        },
     )
 
 
@@ -676,4 +687,18 @@ def get_hlt():
     df.pourcentage_cas = df.apply(
         lambda x: x.pourcentage_cas if x.n_decla_eff_hlt >= 10 else None, axis=1
     )
-    return df[["code", "soc_long", "effet_hlt", "pourcentage_cas"]]
+    df = df[["code", "soc_long", "effet_hlt", "pourcentage_cas"]]
+
+    df.to_sql(
+        "substance_hlt_ordei",
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype={
+            "code": String(120),
+            "soc_long": Text,
+            "effet_hlt": Text,
+            "pourcentage_cas": Float,
+        },
+    )

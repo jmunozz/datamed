@@ -122,11 +122,11 @@ class SubstanceOrdei(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(120), nullable=False)
     conso = Column(Integer, nullable=False)
-    cas = Column(Integer, nullable=False)
-    taux_cas = Column(Float, nullable=False)
+    cas = Column(Integer, nullable=True)
+    taux_cas = Column(Float, nullable=True)
     annee = Column(Integer, nullable=False)
-    conso_annee = Column(Integer, nullable=False)
-    cas_annee = Column(Integer, nullable=False)
+    conso_annee = Column(Integer, nullable=True)
+    cas_annee = Column(Integer, nullable=True)
 
 
 class SubstancePatientSexeOrdei(Base):
@@ -136,7 +136,7 @@ class SubstancePatientSexeOrdei(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(120), nullable=False)
     sexe = Column(String(120), nullable=False)
-    pourcentage_patients = Column(Float, nullable=False)
+    pourcentage_patients = Column(Float, nullable=True)
 
 
 class SubstancePatientAgeOrdei(Base):
@@ -146,7 +146,7 @@ class SubstancePatientAgeOrdei(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(120), nullable=False)
     age = Column(String(120), nullable=False)
-    pourcentage_patients = Column(Float, nullable=False)
+    pourcentage_patients = Column(Float, nullable=True)
 
 
 class SubstanceCasSexeOrdei(Base):
@@ -156,7 +156,7 @@ class SubstanceCasSexeOrdei(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(120), nullable=False)
     sexe = Column(String(120), nullable=False)
-    pourcentage_cas = Column(Float, nullable=False)
+    pourcentage_cas = Column(Float, nullable=True)
 
 
 class SubstanceCasAgeOrdei(Base):
@@ -177,6 +177,27 @@ class SubstanceNotifOrdei(Base):
     code = Column(String(120), nullable=False)
     notificateur = Column(LONGTEXT, nullable=False)
     pourcentage_notif = Column(Float, nullable=True)
+
+
+class SubstanceSoclongOrdei(Base):
+    __tablename__ = "substance_soclong_ordei"
+    __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(120), nullable=False)
+    soc_long = Column(LONGTEXT, nullable=False)
+    pourcentage_cas = Column(Float, nullable=True)
+
+
+class SubstanceHltOrdei(Base):
+    __tablename__ = "substance_soclong_ordei"
+    __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(120), nullable=False)
+    soc_long = Column(LONGTEXT, nullable=False)
+    effet_hlt = Column(LONGTEXT, nullable=False)
+    pourcentage_cas = Column(Float, nullable=True)
 
 
 engine = connect_db()
