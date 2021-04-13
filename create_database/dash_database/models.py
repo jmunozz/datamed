@@ -66,12 +66,12 @@ class SpecialiteSubstance(Base):
     ref_dosage = Column(TEXT, nullable=True)
 
 
-class Notice(Base):
-    __tablename__ = "notice"
+class Description(Base):
+    __tablename__ = "description"
     __table_args__ = (ForeignKeyConstraint(["cis"], ["specialite.cis"]),)
 
     cis = Column(TEXT, primary_key=True)
-    notice = Column(LONGTEXT, nullable=True)
+    description = Column(LONGTEXT, nullable=True)
 
 
 class Presentation(Base):
@@ -204,7 +204,7 @@ Specialite.__table__.create(bind=engine, checkfirst=True)
 Substance.__table__.create(bind=engine, checkfirst=True)
 SpecialiteSubstance.__table__.create(bind=engine, checkfirst=True)
 Presentation.__table__.create(bind=engine, checkfirst=True)
-Notice.__table__.create(bind=engine, checkfirst=True)
+Description.__table__.create(bind=engine, checkfirst=True)
 SpecialiteOrdei.__table__.create(bind=engine, checkfirst=True)
 SpecialitePatientSexeOrdei.__table__.create(bind=engine, checkfirst=True)
 SpecialitePatientAgeOrdei.__table__.create(bind=engine, checkfirst=True)
