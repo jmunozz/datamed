@@ -5,8 +5,8 @@ from sqlalchemy.types import Integer, Text, Date
 
 import paths
 from models import connect_db
-from ordei_tables import Ordei
-from utils_load import upload_cis_from_bdpm, upload_compo_from_rsp, upload_cis_cip_from_bdpm
+from ordei import Ordei
+from utils import upload_cis_from_bdpm, upload_compo_from_rsp, upload_cis_cip_from_bdpm
 
 engine = connect_db()
 connection = engine.connect()
