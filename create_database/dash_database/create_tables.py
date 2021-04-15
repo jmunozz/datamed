@@ -2,7 +2,7 @@ from datetime import datetime as dt
 from typing import Dict
 
 import pandas as pd
-from sqlalchemy.types import Integer, Text, String, Float
+from sqlalchemy.types import Integer, Text, String, Float, Date
 
 import paths
 from models import connect_db
@@ -25,7 +25,7 @@ def clean_columns(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     return df
 
 
-def upload_cis_from_rsp(path: str) -> pd.DataFrame:
+def upload_cis_from_bdpm(path: str) -> pd.DataFrame:
     """
     Upload RSP CIS table
     In http://agence-prd.ansm.sante.fr/php/ecodex/telecharger/telecharger.php
@@ -34,14 +34,17 @@ def upload_cis_from_rsp(path: str) -> pd.DataFrame:
     # Read CIS_RSP.txt file and put in dataframe
     col_names = [
         "cis",
-        "nom_spe_pharma",
+        "nom",
         "forme_pharma",
         "voie_admin",
         "statut_amm",
         "type_amm",
         "etat_commercialisation",
-        "code_doc",
-        "v",
+        "date_amm",
+        "statut_bdpm",
+        "num_autorisation",
+        "titulaires",
+        "surveillance_renforcee"
     ]
     df = pd.read_csv(
         path,
@@ -52,7 +55,7 @@ def upload_cis_from_rsp(path: str) -> pd.DataFrame:
         dtype={"cis": str},
     )
     # Put substance_active field in lower case
-    df = clean_columns(df, "nom_spe_pharma")
+    df = clean_columns(df, "nom")
     return df
 
 
@@ -150,7 +153,7 @@ def create_specialite_table():
     """
     Table specialite, listing all possible CIS codes
     """
-    df_cis = upload_cis_from_rsp(paths.P_CIS_RSP)
+    df_cis = upload_cis_from_bdpm(paths.P_CIS_BDPM)
 
     # Add atc class to df_cis dataframe
     df_atc = pd.read_excel(
@@ -160,20 +163,6 @@ def create_specialite_table():
 
     df_cis = df_cis.merge(df_atc, on="cis", how="left")
     df_cis = df_cis.where(pd.notnull(df_cis), None)
-    df_cis = df_cis.rename(columns={"nom_spe_pharma": "nom"})
-    df_cis = df_cis[
-        [
-            "cis",
-            "nom",
-            "forme_pharma",
-            "voie_admin",
-            "atc",
-            "nom_atc",
-            "statut_amm",
-            "type_amm",
-            "etat_commercialisation",
-        ]
-    ]
 
     push_to_table(
         df_cis,
@@ -188,6 +177,11 @@ def create_specialite_table():
             "statut_amm": Text,
             "type_amm": Text,
             "etat_commercialisation": Text,
+            "date_amm": Date,
+            "statut_bdpm": Text,
+            "num_autorisation": Text,
+            "titulaires": Text,
+            "surveillance_renforcee": Text,
         },
     )
 

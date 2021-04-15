@@ -10,6 +10,7 @@ P_CIS_HAS_SMR = path.join(P_ROOT, "CIS_HAS_SMR_bdpm.txt")
 P_CIS_HAS_ASMR = path.join(P_ROOT, "CIS_HAS_ASMR_bdpm.txt")
 
 P_CIS_RSP = path.join(P_ROOT, "RSP/CIS_RSP.txt")
+P_CIS_BDPM = path.join(P_ROOT, "BDPM/CIS_bdpm.txt")
 P_COMPO_RSP = path.join(P_ROOT, "RSP/COMPO_RSP.txt")
 P_CIS_CIP_BDPM = path.join(P_ROOT, "BDPM/CIS_CIP_bdpm.txt")
 P_CIS_ATC = path.join(P_ROOT, "CIS-ATC_2021-01-04.xlsx")
