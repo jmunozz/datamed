@@ -18,8 +18,8 @@ P_RUPTURES = "analysis/data/decret_stock/ruptures.csv"
 
 P_NOTICE = "./data/notices.json.zip"
 
-P_ORDEI_SPECIALITE = "ORDEI/open_medic2014_2018_cis_agg.csv"
-P_ORDEI_SUBSTANCE = "ORDEI/bnpv_open_medic1418_sa_codex.csv"
-P_ORDEI_NOTIF = "ORDEI/bnpv_notif_sa_codex_open.csv"
-P_ORDEI_SOCLONG = "ORDEI/bnpv_eff_soclong_sa_codex_open.csv"
-P_ORDEI_HLT = "ORDEI/bnpv_eff_hlt_soclong_sa_codex_open.csv"
+P_ORDEI_SPECIALITE = path.join(P_ROOT, "ORDEI/open_medic2014_2018_cis_agg.csv")
+P_ORDEI_SUBSTANCE = path.join(P_ROOT, "ORDEI/bnpv_open_medic1418_sa_codex.csv")
+P_ORDEI_NOTIF = path.join(P_ROOT, "ORDEI/bnpv_notif_sa_codex_open.csv")
+P_ORDEI_SOCLONG = path.join(P_ROOT, "ORDEI/bnpv_eff_soclong_sa_codex_open.csv")
+P_ORDEI_HLT = path.join(P_ROOT, "ORDEI/bnpv_eff_hlt_soclong_sa_codex_open.csv")

@@ -189,7 +189,7 @@ class SubstanceSoclongOrdei(Base):
 
 
 class SubstanceHltOrdei(Base):
-    __tablename__ = "substance_soclong_ordei"
+    __tablename__ = "substance_hlt_ordei"
     __table_args__ = (ForeignKeyConstraint(["code"], ["substance.code"]),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
