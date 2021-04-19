@@ -6,6 +6,7 @@ from sqlalchemy import (
     Integer,
     Float,
     ForeignKeyConstraint,
+    Date
 )
 from sqlalchemy.dialects.mysql import TEXT, LONGTEXT
 from sqlalchemy.ext.declarative import declarative_base
@@ -42,13 +43,18 @@ class Specialite(Base):
     statut_amm = Column(TEXT, nullable=False)
     type_amm = Column(TEXT, nullable=False)
     etat_commercialisation = Column(TEXT, nullable=False)
+    date_amm = Column(Date, nullable=True)
+    statut_bdpm = Column(TEXT, nullable=True)
+    num_autorisation = Column(TEXT, nullable=True)
+    titulaires = Column(TEXT, nullable=True)
+    surveillance_renforcee = Column(TEXT, nullable=True)
 
 
 class Substance(Base):
     __tablename__ = "substance"
 
     code = Column(TEXT, primary_key=True)
-    name = Column(TEXT, nullable=False)
+    nom = Column(TEXT, nullable=False)
 
 
 class SpecialiteSubstance(Base):
