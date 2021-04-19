@@ -27,6 +27,8 @@ bnpv_eff_hlt_sa_codex_open = pd.read_sql("bnpv_eff_hlt_sa_codex_open", connectio
 bnpv_notif_prod_codex_open = pd.read_sql("bnpv_notif_prod_codex_open", connection)
 bnpv_notif_sa_codex_open = pd.read_sql("bnpv_notif_sa_codex_open", connection)
 
+bnpv_open_medic1418_spe_codex = pd.read_csv("data/open_medic2014_2018_cis_agg.csv", sep=";")
+
 corresp_prod_subs = pd.read_sql("corresp_spe_prod", connection)
 
 # Un dict pour la dataframe data
