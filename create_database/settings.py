@@ -1,26 +1,30 @@
 from decouple import config
-from sqlalchemy.sql.sqltypes import VARCHAR
-from sqlalchemy.sql.type_api import INDEXABLE
-from sqlalchemy.types import Integer, Text, Date, String
+from sqlalchemy.types import Text, Date, String
 
 
 ENV = config("ENV", default="staging")
-BDPM_CIS_URL = config("BDPM_CIS_URL", "https://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=CIS_bdpm.txt")
-RSP_COMPO_URL = config("RSP_COMPO_URL", "http://agence-prd.ansm.sante.fr/php/ecodex/telecharger/lirecomp.php")
+BDPM_CIS_URL = config(
+    "BDPM_CIS_URL",
+    "https://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=CIS_bdpm.txt",
+)
+RSP_COMPO_URL = config(
+    "RSP_COMPO_URL",
+    "http://agence-prd.ansm.sante.fr/php/ecodex/telecharger/lirecomp.php",
+)
 TMP_FOLDER = config("TMP_FOLDER", "/tmp")
 DATA_FOLDER = config("DATA_FOLDER", "./data")
-DBHOSTNAME= config("DBHOSTNAME")
-DBUSERNAME= config("DBUSERNAME")
-DBPWD= config("DBPWD")
-DBNAME= config("DBNAME")
+DBHOSTNAME = config("DBHOSTNAME")
+DBUSERNAME = config("DBUSERNAME")
+DBPWD = config("DBPWD")
+DBNAME = config("DBNAME")
 
 
 files = {
     "bdpm_cis": {
         "read_csv": {
-            "sep":"\t",
-            "encoding":"latin1",
-            "names":[
+            "sep": "\t",
+            "encoding": "latin1",
+            "names": [
                 "cis",
                 "nom",
                 "forme_pharma",
@@ -32,12 +36,12 @@ files = {
                 "statut_bdpm",
                 "num_autorisation",
                 "titulaires",
-                "surveillance_renforcee"
+                "surveillance_renforcee",
             ],
             "header": None,
             "index_col": "cis",
-            "parse_dates":["date_amm"],
-            "dtype":{"cis": str},    
+            "parse_dates": ["date_amm"],
+            "dtype": {"cis": str},
         },
         "to_sql": {
             "name": "specialite",
@@ -56,14 +60,14 @@ files = {
                 "num_autorisation": Text,
                 "titulaires": Text,
                 "surveillance_renforcee": Text,
-            }
-        }
+            },
+        },
     },
     "rsp_compo": {
         "read_csv": {
-            "sep":"\t",
-            "encoding":"latin1",
-            "names":[
+            "sep": "\t",
+            "encoding": "latin1",
+            "names": [
                 "cis",
                 "elem_pharma",
                 "code",
@@ -76,7 +80,7 @@ files = {
             ],
             "header": None,
             "index_col": 2,
-            "dtype":{"cis": str, "code": str},    
+            "dtype": {"cis": str, "code": str},
         },
         "to_sql": {
             "name": "substance",
@@ -85,18 +89,16 @@ files = {
             "dtype": {
                 "code": String(16),
                 "nom": Text,
-            }
-        }
+            },
+        },
     },
     "atc": {
-        "source": {
-            "pattern": "atc_names.json"
-        },
+        "source": {"pattern": "atc_names.json"},
         "to_sql": {
             "name": "classes_atc",
             "if_exists": "replace",
             "index": True,
-            "dtype": {"code_atc": String(16)}
-        }
-    }
+            "dtype": {"code_atc": String(16)},
+        },
+    },
 }
