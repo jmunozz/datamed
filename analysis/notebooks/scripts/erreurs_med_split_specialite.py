@@ -327,6 +327,7 @@ fig = go.Figure(
         marker_colors=PIE_COLORS,    #px.colors.qualitative.Set3,
     )
 ).update_layout(PIE_LAYOUT)
+fig.update_layout(title="Nature de l'erreur", title_x=0, title_y=0.5)
 
 fig.show()
 
@@ -357,11 +358,38 @@ fig = go.Figure(
 fig.show()
 
 
+# #### Gravité
+
+# In[21]:
+
+
+df_gravite = df.groupby('gravite').id.count().reset_index()
+#df_gravite.id = df_gravite.apply(lambda x: x.id / df_gravite.id.sum() * 100, axis=1)
+df_gravite = df_gravite.rename(columns={'id': 'number'})
+df_gravite = df_gravite.sort_values(by=['number'], ascending=False)
+
+
+# In[22]:
+
+
+fig = go.Figure(
+    go.Pie(
+        labels=df_gravite.gravite,
+        values=df_gravite.number,
+        name="",
+        marker_colors=PIE_COLORS,    #px.colors.qualitative.Set3,
+    )
+).update_layout(PIE_LAYOUT)
+fig.update_layout(title="Gravité du cas", title_x=0, title_y=0.5)
+
+fig.show()
+
+
 # ### Sunburst
 
 # #### Gravité
 
-# In[36]:
+# In[23]:
 
 
 df_cause_gravite = df.groupby(['cause_erreur', 'gravite']).id.count().reset_index()
@@ -370,13 +398,13 @@ df_cause_gravite = df_cause_gravite.rename(columns={'id': 'pourcentage'})
 df_cause_gravite = df_cause_gravite.sort_values(by=['cause_erreur'], ascending=False)
 
 
-# In[37]:
+# In[24]:
 
 
 df_cause_gravite
 
 
-# In[43]:
+# In[25]:
 
 
 import plotly.express as px
@@ -388,19 +416,19 @@ fig.update_layout(hovermode="x unified")
 fig.show()
 
 
-# In[33]:
+# In[26]:
 
 
 df_cause_gravite.gravite.tolist()
 
 
-# In[34]:
+# In[27]:
 
 
 df_cause_gravite.cause_erreur.tolist()
 
 
-# In[35]:
+# In[28]:
 
 
 fig2 =go.Figure(
@@ -415,7 +443,7 @@ fig2.update_layout(margin = dict(t=0, l=0, r=0, b=0))
 fig2.show()
 
 
-# In[26]:
+# In[29]:
 
 
 fig2 =go.Figure(
@@ -428,6 +456,43 @@ fig2 =go.Figure(
 
 fig2.update_layout(margin = dict(t=0, l=0, r=0, b=0))
 fig2.show()
+
+
+# ### Stacked bar chart
+
+# In[30]:
+
+
+STACKED_BAR_CHART_LAYOUT = {
+    "xaxis": dict(
+        showgrid=False,
+        showline=False,
+        zeroline=False,
+    ),
+    "yaxis": dict(
+        showgrid=False,
+        showline=False,
+        zeroline=False,
+        ticks="outside",
+        tickcolor="white",
+        ticklen=1,
+    ),
+    "plot_bgcolor": "#FAFAFA",
+    "paper_bgcolor": "#FAFAFA",
+    "margin": dict(l=0, r=0, t=0, b=0),
+    "font": {"size": 12, "color": "black"},
+}
+
+
+# In[31]:
+
+
+fig = px.bar(df_cause_gravite, x="cause_erreur", y="pourcentage", color="gravite",
+             labels={'pourcentage':'Proportion (%)', 'cause_erreur': "Cause de l'erreur médicamenteuse"},
+             color_discrete_sequence=PIE_COLORS)
+fig.update_layout(STACKED_BAR_CHART_LAYOUT)
+
+fig.show()
 
 
 # In[ ]:
