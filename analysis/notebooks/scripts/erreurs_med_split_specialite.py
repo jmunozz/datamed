@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[45]:
+# In[1]:
 
 
-import sys
 from os import path
 
 import pandas as pd
-from nltk.corpus import stopwords
 import plotly.graph_objects as go
+from nltk.corpus import stopwords
 
 STOPWORDS = stopwords.words("french")
 
@@ -23,7 +22,7 @@ NOMS_LIEUX = {
 }
 
 
-# In[59]:
+# In[2]:
 
 
 def get_mesusage_dataframe() -> pd.DataFrame:
@@ -65,6 +64,7 @@ def get_mesusage_dataframe() -> pd.DataFrame:
         lambda x: "Non renseigné" if not x or x == "NR" else x
     )
     df = df.where(pd.notnull(df), None)
+    df.gravite = df.gravite.apply(lambda x: 'Non renseigné' if not x else x)
     return df
 
 
@@ -132,31 +132,31 @@ def get_denom_linked_to_specialite(df: pd.DataFrame, specialite: str) -> pd.Data
 
 # # Choix de la spécialité
 
-# In[60]:
+# In[3]:
 
 
 specialite = "valium roche 2 mg, comprimé sécable"
 
 
-# In[61]:
+# In[4]:
 
 
 df_mesusage = get_mesusage_dataframe()
 
 
-# In[62]:
+# In[5]:
 
 
 df_spe = get_specialite_dataframe()
 
 
-# In[93]:
+# In[6]:
 
 
 df = get_denom_linked_to_specialite(df_mesusage, specialite)
 
 
-# In[138]:
+# In[7]:
 
 
 list(df.denomination.unique())
@@ -166,7 +166,7 @@ list(df.denomination.unique())
 
 # ##
 
-# In[15]:
+# In[8]:
 
 
 BAR_CHART_COLORS = [
@@ -208,7 +208,7 @@ BAR_LAYOUT = {
 }
 
 
-# In[14]:
+# In[9]:
 
 
 df.iloc[0]
@@ -216,7 +216,7 @@ df.iloc[0]
 
 # ### Lieu
 
-# In[89]:
+# In[10]:
 
 
 df_lieu = df.groupby('lieu_erreur').id.count().reset_index()
@@ -225,7 +225,7 @@ df_lieu = df_lieu.rename(columns={'id': 'number'})
 df_lieu = df_lieu.sort_values(by=['number'], ascending=False)
 
 
-# In[90]:
+# In[11]:
 
 
 fig = go.Figure(
@@ -241,7 +241,7 @@ fig.update_layout(BAR_LAYOUT)
 
 # ### Population
 
-# In[141]:
+# In[12]:
 
 
 df_pop = df.groupby('population_erreur').id.count().reset_index()
@@ -250,7 +250,7 @@ df_pop = df_pop.rename(columns={'id': 'number'})
 df_pop = df_pop.sort_values(by=['number'], ascending=False)
 
 
-# In[142]:
+# In[13]:
 
 
 fig = go.Figure(
@@ -266,7 +266,7 @@ fig.update_layout(BAR_LAYOUT)
 
 # ### Camemberts
 
-# In[131]:
+# In[14]:
 
 
 PIE_COLORS = ["#DFD4E5", "#BFAACB", "#5E2A7E"]
@@ -281,7 +281,7 @@ PIE_LAYOUT = {
 
 # #### Cause
 
-# In[133]:
+# In[15]:
 
 
 df_cause = df.groupby('cause_erreur').id.count().reset_index()
@@ -290,7 +290,7 @@ df_cause = df_cause.rename(columns={'id': 'number'})
 df_cause = df_cause.sort_values(by=['number'], ascending=False)
 
 
-# In[134]:
+# In[16]:
 
 
 fig = go.Figure(
@@ -307,7 +307,7 @@ fig.show()
 
 # #### Nature
 
-# In[135]:
+# In[17]:
 
 
 df_nature = df.groupby('nature_erreur').id.count().reset_index()
@@ -316,7 +316,7 @@ df_nature = df_nature.rename(columns={'id': 'number'})
 df_nature = df_nature.sort_values(by=['number'], ascending=False)
 
 
-# In[136]:
+# In[18]:
 
 
 fig = go.Figure(
@@ -333,7 +333,7 @@ fig.show()
 
 # #### Initial 
 
-# In[146]:
+# In[19]:
 
 
 df_init = df.groupby('initial_erreur').id.count().reset_index()
@@ -342,7 +342,7 @@ df_init = df_init.rename(columns={'id': 'number'})
 df_init = df_init.sort_values(by=['number'], ascending=False)
 
 
-# In[147]:
+# In[20]:
 
 
 fig = go.Figure(
@@ -359,23 +359,74 @@ fig.show()
 
 # ### Sunburst
 
-# In[124]:
+# #### Gravité
+
+# In[36]:
+
+
+df_cause_gravite = df.groupby(['cause_erreur', 'gravite']).id.count().reset_index()
+df_cause_gravite.id = df_cause_gravite.apply(lambda x: x.id / df_cause_gravite.id.sum() * 100, axis=1)
+df_cause_gravite = df_cause_gravite.rename(columns={'id': 'pourcentage'})
+df_cause_gravite = df_cause_gravite.sort_values(by=['cause_erreur'], ascending=False)
+
+
+# In[37]:
+
+
+df_cause_gravite
+
+
+# In[43]:
 
 
 import plotly.express as px
 
-fig = px.sunburst(df, path=['cause_erreur', 'lieu_erreur'])
+fig = px.sunburst(df_cause_gravite, path=['cause_erreur', 'gravite'],
+                  values='pourcentage', branchvalues='total')
+fig.update_layout(hovermode="x unified")
+
 fig.show()
 
 
-# In[125]:
+# In[33]:
 
 
-fig2 =go.Figure(go.Sunburst(
-                labels=fig['data'][0]['labels'].tolist(),
-                parents=fig['data'][0]['parents'].tolist(),
-                textinfo='label+percent entry'
-))
+df_cause_gravite.gravite.tolist()
+
+
+# In[34]:
+
+
+df_cause_gravite.cause_erreur.tolist()
+
+
+# In[35]:
+
+
+fig2 =go.Figure(
+    go.Sunburst(
+        labels=df_cause_gravite.gravite.tolist(),
+        parents=df_cause_gravite.cause_erreur.tolist(),
+        values=df_cause_gravite.pourcentage.tolist(),
+    )
+)
+
+fig2.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+fig2.show()
+
+
+# In[26]:
+
+
+fig2 =go.Figure(
+    go.Sunburst(
+        labels=fig['data'][0]['labels'].tolist(),
+        parents=fig['data'][0]['parents'].tolist(),
+        textinfo='label+percent entry',
+    )
+)
+
+fig2.update_layout(margin = dict(t=0, l=0, r=0, b=0))
 fig2.show()
 
 
