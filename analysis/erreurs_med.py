@@ -1,6 +1,8 @@
 from os import path
+from typing import List, Dict
 
 import pandas as pd
+import unidecode
 from nltk.corpus import stopwords
 
 STOPWORDS = stopwords.words("french")
@@ -53,10 +55,36 @@ def get_mesusage_dataframe() -> pd.DataFrame:
     df = df[~df.denomination.isna()]
     df.denomination = df.denomination.apply(lambda x: x.lower().strip() if x else None)
     df.lieu_erreur = df.lieu_erreur.apply(lambda x: NOMS_LIEUX.get(x, x))
+
+    cols_no_info = [
+        "population_erreur",
+        "initial_erreur",
+        "nature_erreur",
+        "cause_erreur",
+        "gravite",
+        "effet_indesirable",
+    ]
+    df[cols_no_info] = df[cols_no_info].where(pd.notnull(df), "Non renseigné")
+
     df.population_erreur = df.population_erreur.apply(
-        lambda x: "Non renseigné" if not x or x == "NR" else x
+        lambda x: "Non renseigné" if x == "NR" else x
     )
+    df.lieu_erreur = df.lieu_erreur.apply(lambda x: "Non renseigné" if x == "NR" else x)
+    df.effet_indesirable = df.effet_indesirable.apply(
+        lambda x: "Non renseigné" if x == "NR" else x
+    )
+    df.initial_erreur = df.initial_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+    df.nature_erreur = df.nature_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+    df.cause_erreur = df.cause_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+
     df = df.where(pd.notnull(df), None)
+
     return df
 
 
@@ -106,17 +134,74 @@ def get_specialite_dataframe() -> pd.DataFrame:
     df = upload_cis_from_bdpm(P_CIS_BDPM)
     df = df.where(pd.notnull(df), None)
     df = df[["cis", "nom"]]
+    df = df.set_index("cis")
     return df
 
 
+def get_produit_denom(denomination: str) -> str:
+    denomination = unidecode.unidecode(denomination)
+    return denomination.split()[0]
+
+
+def get_forme_denom(denomination: str) -> str:
+    denomination = unidecode.unidecode(denomination)
+    return denomination.split()[-1]
+
+
 def get_denom_linked_to_specialite(df: pd.DataFrame, specialite: str) -> pd.DataFrame:
-    produit_specialite = specialite.split()[0]
-    forme_specialite = specialite.split()[-1]
+    specialite = unidecode.unidecode(specialite)
+    produit_specialite = specialite.split()[0].replace(",", "")
+    forme_specialite = specialite.split()[-1].replace(",", "").replace(")", "").replace("(", "")
 
     # Return dataframe containing denominations that contain:
     # 1) product name (eg: doliprane)
     # 2) pharmaceutical form (eg: comprimé)
     return df[
-        (df.denomination.str.startswith(produit_specialite))
-        & (df.denomination.str.contains(forme_specialite))
+        (df.produit_denom == produit_specialite)
+        & (df.forme_denom.str.contains(forme_specialite))
     ]
+    #return df[
+    #    (df.denomination.apply(unidecode.unidecode).str.startswith(produit_specialite))
+    #    & (df.denomination.apply(unidecode.unidecode).str.contains(forme_specialite))
+    #]
+
+
+def get_dataframe(df_base: pd.DataFrame, cis: str, fields: List[str]) -> pd.DataFrame:
+    df = df_base.groupby(fields).id.count().reset_index()
+    df.id = df.apply(lambda x: x.id / df.id.sum() * 100, axis=1)
+    df = df.rename(columns={"id": "pourcentage"})
+    df["cis"] = cis
+    return df.sort_values(by=["pourcentage"], ascending=False)
+
+
+def main():
+    df_mesusage = get_mesusage_dataframe()
+    df_mesusage["produit_denom"] = df_mesusage.denomination.apply(get_produit_denom)
+    df_mesusage["forme_denom"] = df_mesusage.denomination.apply(get_forme_denom)
+    df_spe = get_specialite_dataframe()
+
+    frames_lieu = []
+    frames_population = []
+    frames_initial = []
+    frames_nature = []
+    frames_cause = []
+
+    for cis in tqdm(list(df_spe.index.values)):
+        specialite = df_spe.loc[cis].nom
+        df_erreurs = get_denom_linked_to_specialite(df_mesusage, specialite)
+
+        if not df_erreurs.empty:
+            print(specialite)
+            frames_lieu.append(get_dataframe(df_erreurs, cis, ["lieu_erreur"]))
+            frames_population.append(get_dataframe(df_erreurs, cis, ["population_erreur"]))
+            frames_initial.append(
+                get_dataframe(df_erreurs, cis, ["initial_erreur", "gravite"])
+            )
+            frames_nature.append(get_dataframe(df_erreurs, cis, ["nature_erreur", "gravite"]))
+            frames_cause.append(get_dataframe(df_erreurs, cis, ["cause_erreur", "gravite"]))
+
+    df_lieu = pd.concat(frames_lieu)
+    df_population = pd.concat(frames_population)
+    df_initial = pd.concat(frames_initial)
+    df_nature = pd.concat(frames_nature)
+    df_cause = pd.concat(frames_cause)
