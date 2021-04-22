@@ -31,8 +31,7 @@ def get_denom_linked_to_specialite(df: pd.DataFrame, specialite: str) -> pd.Data
     produit_specialite = specialite.split()[0]
     forme_specialite = specialite.split()[-1]
     return df[
-        (df.produit_denom == produit_specialite)
-        & (df.forme_denom.str.contains(forme_specialite))
+        (df.produit_denom == produit_specialite) & (df.forme_denom == forme_specialite)
     ]
 
 
