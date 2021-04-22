@@ -18,7 +18,6 @@ DBUSERNAME = config("DBUSERNAME")
 DBPWD = config("DBPWD")
 DBNAME = config("DBNAME")
 
-
 files = {
     "bdpm_cis": {
         "read_csv": {
@@ -99,6 +98,50 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {"code_atc": String(16)},
+        },
+    },
+    "erreurs_med": {
+        "source": {"pattern": "RqHackathon_20190911.xlsx"},
+        "read_excel": {
+            "usecols": "F:M,O:R",
+            "names": [
+                "lieu_erreur",
+                "initial_erreur",
+                "nature_erreur",
+                "cause_erreur",
+                "population_erreur",
+                "qualif_erreur",
+                "effet_indesirable",
+                "gravite",
+                "denomination",
+                "dci",
+                "atc",
+                "voie",
+            ],
+        },
+        "noms_lieux": {
+            "ES": "Établissement de santé",
+            "EMS": "Établissement médico-social",
+            "HAD": "Domicile",
+        },
+        "no_info": [
+            "population_erreur",
+            "initial_erreur",
+            "nature_erreur",
+            "cause_erreur",
+            "gravite",
+            "effet_indesirable",
+        ],
+        "tables": {
+            "lieu": ["lieu_erreur"],
+            "population": ["population_erreur"],
+            "initial": ["initial_erreur", "gravite"],
+            "nature": ["nature_erreur", "gravite"],
+            "cause": ["cause_erreur", "gravite"],
+        },
+        "to_sql": {
+            "if_exists": "replace",
+            "index": True,
         },
     },
 }
