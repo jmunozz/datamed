@@ -95,6 +95,7 @@ def load_to_df_emed(fpath, settings) -> pd.DataFrame:
     df.population_erreur = df.population_erreur.apply(lambda x: "Non renseigné" if x == "NR" else x)
     df.lieu_erreur = df.lieu_erreur.apply(lambda x: "Non renseigné" if x == "NR" else x)
     df.effet_indesirable = df.effet_indesirable.apply(lambda x: "Non renseigné" if x == "NR" else x)
+    df.gravite = df.gravite.apply(lambda x: "Non renseigné" if x == "NR" else x)
     df.initial_erreur = df.initial_erreur.apply(lambda x: "Non renseigné" if x == "NI" else x)
     df.nature_erreur = df.nature_erreur.apply(lambda x: "Non renseigné" if x == "NI" else x)
     df.cause_erreur = df.cause_erreur.apply(lambda x: "Non renseigné" if x == "NI" else x)
