@@ -353,5 +353,22 @@ files = {
             "index": True,
             "dtype": {"code": String(16), "soc_long": String(255), "effet_hlt": String(255), "pourcentage_cas": Float}
         }
+    },
+    "cis_atc": {
+        "source": {
+            "pattern": "CIS-ATC_2021-01-04.xlsx"
+        },
+        "read_excel": {
+            "dtype": { "cis": str },
+            "index_col": "cis",
+            "usecols": ["cis", "atc", "nom_atc"],
+            "names": ["cis", "atc", "nom_atc"]
+        },
+        "to_sql": {
+            "name": "specialite_atc",
+            "index": True,
+            "if_exists": "replace",
+            "dtype": { "cis": String(16)}
+        }
     }
 }

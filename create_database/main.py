@@ -7,6 +7,31 @@ import helpers
 import settings
 
 
+
+
+def load_excel_to_df(_settings):
+    fpath = helpers.find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
+    # fix bug in pandas when setting type for index (see https://github.com/pandas-dev/pandas/issues/35816)
+    read_excel_settings = _settings["read_excel"]
+    index_col = read_excel_settings.get("index_col")
+    dtype = read_excel_settings.get("dtype")
+    cast_str_index = False
+    if index_col and dtype and dtype[index_col] == str:
+        cast_str_index = True
+    if cast_str_index:
+        del read_excel_settings["index_col"]
+    args = {**{ "io": fpath}, **read_excel_settings}
+    df = pd.read_excel(**args)
+    if cast_str_index:
+        df.set_index(index_col, drop=True, inplace=True)
+    return df
+
+
+def create_table_cis_atc(_settings):
+    df = load_excel_to_df(_settings)
+    db.create_table_from_df(df, _settings["to_sql"])
+
+
 def create_table_bdpm_cis(settings):
     bdpm_cis_path = download_bdpm_cis()
     df = load_to_df_bdpm_cis(bdpm_cis_path, settings["read_csv"])
@@ -231,13 +256,14 @@ def create_hlt_table(_settings_soclong, _settings):
 # create_tables_rsp_compo(settings.files["rsp_compo"])
 # create_table_atc(settings.files["atc"])
 # create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+create_table_cis_atc(settings.files["cis_atc"])
 
 
 
 # create_spe_conso_ordei_table(settings.files["ordei_specialite"])
 # create_spe_patients_sexe_table(settings.files["ordei_specialite"])
 # create_spe_patients_age_table(settings.files["ordei_specialite"])
-create_substance_ordei_table(settings.files["ordei_substance"])
+# create_substance_ordei_table(settings.files["ordei_substance"])
 # create_substance_patients_sexe_table(settings.files["ordei_substance"])
 # create_substance_patients_age_table(settings.files["ordei_substance"])
 # create_substance_cas_sexe_table(settings.files["ordei_substance"])
