@@ -11,20 +11,20 @@ EXPOSITION = {
 
 
 class Ordei:
-
     @staticmethod
     def compute_percentage(
-            df: pd.DataFrame, substance: pd.Series, key: str, field: str
+        df: pd.DataFrame, substance: pd.Series, key: str, field: str
     ) -> float:
         return substance[field] / df[df[key] == substance[key]][field].sum() * 100
 
     @staticmethod
     def get_substance_dataframe() -> pd.DataFrame:
-        df = pd.read_csv(paths.P_ORDEI_SUBSTANCE,
-                         encoding="ISO-8859-1",
-                         sep=";",
-                         dtype={"codeSubstance": str},
-                         )
+        df = pd.read_csv(
+            paths.P_ORDEI_SUBSTANCE,
+            encoding="ISO-8859-1",
+            sep=";",
+            dtype={"codeSubstance": str},
+        )
         df = df.drop("Unnamed: 0", axis=1)
 
         return df.rename(
@@ -59,12 +59,14 @@ class Ordei:
             }
         )
 
-        temp = df.groupby(["code", "soc_long"]).agg({"n_decla_eff": "sum"}).reset_index()
+        temp = (
+            df.groupby(["code", "soc_long"]).agg({"n_decla_eff": "sum"}).reset_index()
+        )
         temp2 = (
             df.drop_duplicates(subset=["code", "age", "sexe", "n_cas"])
-                .groupby("code")
-                .agg({"n_cas": "sum"})
-                .reset_index()
+            .groupby("code")
+            .agg({"n_cas": "sum"})
+            .reset_index()
         )
 
         return temp.merge(temp2, on="code", how="left")
@@ -155,8 +157,8 @@ class Ordei:
 
         df_annee = (
             df_sa_patients.groupby(["code", "annee"])
-                .agg({"conso": "sum", "cas": "sum"})
-                .reset_index()
+            .agg({"conso": "sum", "cas": "sum"})
+            .reset_index()
         )
 
         df_annee["conso_annee"] = df_annee.conso.apply(lambda x: x if x >= 10 else None)
@@ -165,10 +167,10 @@ class Ordei:
 
         df = (
             df_sa_patients.groupby(["code", "annee"])
-                .agg({"conso": "sum", "cas": "sum"})
-                .groupby("code")
-                .agg({"conso": "sum", "cas": "sum"})
-                .reset_index()
+            .agg({"conso": "sum", "cas": "sum"})
+            .groupby("code")
+            .agg({"conso": "sum", "cas": "sum"})
+            .reset_index()
         )
         df["exposition"] = df.conso.apply(
             lambda x: max(EXPOSITION["substance"].items(), key=lambda y: x <= y[0])[1]
@@ -277,7 +279,9 @@ class Ordei:
         df_age = df.groupby(["code", "age"]).agg({"cas": "sum"}).reset_index()
 
         df_age["pourcentage_cas"] = df_age.apply(
-            lambda x: self.compute_percentage(df_age, x, "code", "cas") if x.cas >= 10 else None,
+            lambda x: self.compute_percentage(df_age, x, "code", "cas")
+            if x.cas >= 10
+            else None,
             axis=1,
         )
         df_age = df_age[["code", "age", "pourcentage_cas"]]
@@ -341,11 +345,15 @@ class Ordei:
         )
         df = df[["code", "soc_long", "pourcentage_cas"]].sort_values(by=["code"])
 
-        push_to_table(df, "substance_soclong_ordei", {
+        push_to_table(
+            df,
+            "substance_soclong_ordei",
+            {
                 "code": Text,
                 "soc_long": Text,
                 "pourcentage_cas": Float,
-            })
+            },
+        )
 
     def create_hlt_table(self):
         df_soclong = self.get_substance_soclong_dataframe()
@@ -371,12 +379,14 @@ class Ordei:
 
         df = (
             df.groupby(["code", "effet_hlt", "soc_long"])
-                .agg({"n_decla_eff_hlt": "sum"})
-                .reset_index()
-                .sort_values(by="n_decla_eff_hlt", ascending=False)
+            .agg({"n_decla_eff_hlt": "sum"})
+            .reset_index()
+            .sort_values(by="n_decla_eff_hlt", ascending=False)
         )
         df = df.merge(
-            df_soclong[["code", "soc_long", "n_cas"]], on=["code", "soc_long"], how="left"
+            df_soclong[["code", "soc_long", "n_cas"]],
+            on=["code", "soc_long"],
+            how="left",
         )
 
         df["pourcentage_cas"] = (df.n_decla_eff_hlt / df.n_cas) * 100
