@@ -96,10 +96,21 @@ def get_pres_dataframe() -> pd.DataFrame:
     return pd.read_sql("presentation", engine)
 
 
-def get_atc_dataframe() -> pd.DataFrame:
-    return pd.read_sql("classes_atc", engine)
+def get_cis_atc_df() -> pd.DataFrame:
+    df = pd.read_excel("data/CIS-ATC_2021-01-04.xlsx", dtype={"cis": "str"})
+    return df.drop(columns=["nom_atc"])
 
 
-def get_spe_atc(df: pd.DataFrame, df_spe: pd.DataFrame):
-    atc_list = df.atc.unique()
+def get_spe_atc():
+    # Get ruptures dataframe
+    df = get_ruptures_df()
+    df = clean_data(df)
+
+    # Get atc dataframe (cis -> atc)
+    df_atc = get_cis_atc_df()
+
+    # Get specialite dataframe
+    df_spe = get_spe_dataframe()
+    # Affect atc to cis using df_atc
+    df_spe = df_spe.merge(df_atc, on="cis", how="left")
 
