@@ -1,21 +1,27 @@
 from os import walk
 from pathlib import Path
+from typing import List
 from urllib.request import urlretrieve
-from typing import List, Dict
 
 import pandas as pd
 
 import settings
 
-def remove_file(path): 
+def remove_file(path):
     Path(path).unlink()
+
 
 def download_file_from_url(url, path):
     urlretrieve(url, path)
 
+
 def list_files(dirpath, pattern="*"):
-    _,_, filenames = next(walk(dirpath))
-    files =  [Path(dirpath).joinpath(filename) for filename in filenames if Path(dirpath).joinpath(filename).match(pattern)]
+    _, _, filenames = next(walk(dirpath))
+    files = [
+        Path(dirpath).joinpath(filename)
+        for filename in filenames
+        if Path(dirpath).joinpath(filename).match(pattern)
+    ]
     files.sort(key=(lambda x: -(x.stat().st_mtime)))
     return files
 

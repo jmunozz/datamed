@@ -1,25 +1,28 @@
-from sqlalchemy import create_engine
-from typing import List, Dict
-
 import pandas as pd
+from sqlalchemy import create_engine
 
 import settings
 
 engine = None
 
+
 def connect_db():
     global engine
     if not engine:
         engine = create_engine(
-        "mysql+pymysql://{user}:{pwd}@{host}/{db}".format(
-            host=settings.DBHOSTNAME, db=settings.DBNAME, user=settings.DBUSERNAME, pwd=settings.DBPWD
-        ),
-        echo=False,
-    )
+            "mysql+pymysql://{user}:{pwd}@{host}/{db}".format(
+                host=settings.DBHOSTNAME,
+                db=settings.DBNAME,
+                user=settings.DBUSERNAME,
+                pwd=settings.DBPWD,
+            ),
+            echo=False,
+        )
     return engine
 
+
 def create_table_from_df(df: pd.DataFrame, settings):
-   engine = connect_db()
-   args = {**{"con": engine}, **settings }
-   print(args)
-   df.to_sql(**args)
+    engine = connect_db()
+    args = {**{"con": engine}, **settings}
+    print(args)
+    df.to_sql(**args)
