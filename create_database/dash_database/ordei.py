@@ -384,15 +384,23 @@ class Ordei:
             .sort_values(by="n_decla_eff_hlt", ascending=False)
         )
         df = df.merge(
-            df_soclong[["code", "soc_long", "n_cas"]],
+            df_soclong[["code", "soc_long", "n_decla_eff"]],
             on=["code", "soc_long"],
             how="left",
         )
 
-        df["pourcentage_cas"] = (df.n_decla_eff_hlt / df.n_cas) * 100
+        # Compute the total number of EI declarations for each substance and each soclong
+        df_soclong_total = df.groupby(["code", "soc_long"]).n_decla_eff_hlt.sum().reset_index()
+        df_soclong_total = df_soclong_total.rename(columns={"n_decla_eff_hlt": "n_decla_eff_soclong"})
+        df = df.merge(df_soclong_total, on=["code", "soc_long"], how="left")
+
+        # Compute percentage of HLT EI belonging to the soclong
+        # nb_cas(HLT) / nb_cas(SOC_LONG)
+        df["pourcentage_cas"] = (df.n_decla_eff_hlt / df.n_decla_eff_soclong) * 100
         df.pourcentage_cas = df.apply(
             lambda x: x.pourcentage_cas if x.n_decla_eff_hlt >= 10 else None, axis=1
         )
+
         df = df[["code", "soc_long", "effet_hlt", "pourcentage_cas"]]
 
         push_to_table(
