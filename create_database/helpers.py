@@ -41,3 +41,8 @@ def get_exposition_level(nb, **kwargs):
 
 def print_row(x): 
     print(x)
+
+
+def mapSexeToCode(x): 
+    m = { "Hommes": 1, "Femmes": 2}
+    return m[x]

@@ -183,7 +183,7 @@ files = {
         },
         "read_csv": {
             "sep":";",
-            "dtype":{"codeCIS": str},
+            "dtype":{"cis": str},
             "usecols": ["cis", "age", "conso", "n_conso_an", "sexe"],
             "index_col": "cis",
             "header": 0,
@@ -213,7 +213,7 @@ files = {
         }
     }
     ],
-    "ordei_substance": {
+    "ordei_substance": [{
         "source": {
             "pattern": "bnpv_open_medic1418_sa_codex.csv"
         },
@@ -240,6 +240,118 @@ files = {
                 "cas_annee": Integer,
             }
         }
+    },
+    {
+        "to_sql": {
+            "name": "substance_patient_sexe_ordei",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "code": String(16),
+                "sexe": Integer,
+                "conso": Integer,
+                "pourcentage_patients": Float,
+            } 
+        }
+    },
+    {
+        "to_sql": {
+            "name": "substance_patient_age_ordei",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "code": String(16),
+                "age": Text,
+                "conso": Integer,
+                "pourcentage_patients": Float,
+            } 
+        }
+    },
+    {
+        "to_sql": {
+            "name": "substance_cas_sexe_ordei",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "code": String(16),
+                "sexe": Integer,
+                "cas": Integer,
+                "pourcentage_cas": Float,
+            } 
+        }
+    },
+       {
+        "to_sql": {
+            "name": "substance_cas_age_ordei",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "code": String(16),
+                "age": Text,
+                "cas": Integer,
+                "pourcentage_cas": Float,
+            } 
+        }
     }
-    
+    ],
+    "ordei_notificateurs": {
+        "source": {
+            "pattern": "bnpv_notif_sa_codex_open.csv"
+        },
+        "read_csv": {
+            "encoding": "ISO-8859-1",
+            "sep":";",
+            "dtype":{"code": str},
+            "usecols": ["notificateur","substance_active","code","age","sexe","n_decla","n_cas"],
+            "index_col": "code",
+            "header": 0,
+            "names": ["index","notificateur","substance_active","code","age","sexe","n_decla","n_cas"]
+        },
+        "to_sql": {
+            "name": "substance_notif_ordei",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {"code": String(16), "notificateur": Text, "pourcentage_decla": Float}
+        }
+    },
+    "ordei_soclong": {
+        "source": {
+            "pattern": "bnpv_eff_soclong_sa_codex_open.csv"
+        },
+        "read_csv": {
+            "encoding": "ISO-8859-1",
+            "sep":";",
+            "dtype":{"code": str},
+            "usecols": ["substance_active","code","soc_long","age","sexe","n_decla_eff","n_cas"],
+            "index_col": "code",
+            "header": 0,
+            "names": ["index","substance_active","code","soc_long","age","sexe","n_decla_eff","n_cas"]
+        },
+        "to_sql": {
+            "name": "substance_notif_ordei",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {"code": String(16), "soc_long": Text, "pourcentage_cas": Float}
+        }
+    },
+    "ordei_soclong_hlt": {
+        "source": {
+            "pattern": "bnpv_eff_hlt_soclong_sa_codex_open.csv"
+        },
+        "read_csv": {
+            "encoding": "ISO-8859-1",
+            "sep":";",
+            "dtype": { "code": str } ,
+            "usecols": ["subtance_active","code","age","sexe","effet_hlt","soc_long","n_decla_eff_hlt"],
+            "index_col": "code",
+            "header": 0,
+            "names": ["index","subtance_active","code","age","sexe","effet_hlt","soc_long","n_decla_eff_hlt"]
+        },
+        "to_sql": {
+            "name": "substance_hlt_ordei",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {"code": String(16), "soc_long": String(255), "effet_hlt": String(255), "pourcentage_cas": Float}
+        }
+    }
 }
