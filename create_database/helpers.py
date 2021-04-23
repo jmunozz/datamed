@@ -7,6 +7,7 @@ import pandas as pd
 
 import settings
 
+
 def remove_file(path):
     Path(path).unlink()
 
@@ -27,22 +28,29 @@ def list_files(dirpath, pattern="*"):
 
 
 def serie_to_lowercase(df: pd.DataFrame, cols: List[str]):
-    for col in cols: 
-        df[col] = df[col].apply(lambda x: x.lower().strip() if isinstance(x, str) else x)
+    for col in cols:
+        df[col] = df[col].apply(
+            lambda x: x.lower().strip() if isinstance(x, str) else x
+        )
 
 
 def find_file(folder, pattern):
     return list_files(folder, pattern)[0]
 
 
-def get_exposition_level(nb, **kwargs): 
-    type=kwargs["type"]
-    return max(settings.EXPOSITION[type].items(), key=lambda y: nb <= y[0])[1] if nb <= list(settings.EXPOSITION[type])[-1] else 5
+def get_exposition_level(nb, **kwargs):
+    type = kwargs["type"]
+    return (
+        max(settings.EXPOSITION[type].items(), key=lambda y: nb <= y[0])[1]
+        if nb <= list(settings.EXPOSITION[type])[-1]
+        else 5
+    )
 
-def print_row(x): 
+
+def print_row(x):
     print(x)
 
 
-def mapSexeToCode(x): 
-    m = { "Hommes": 1, "Femmes": 2}
+def mapSexeToCode(x):
+    m = {"Hommes": 1, "Femmes": 2}
     return m[x]
