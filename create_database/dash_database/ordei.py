@@ -96,6 +96,7 @@ class Ordei:
             if x <= 50000
             else 5
         )
+        df = df[["cis", "exposition"]]
 
         push_to_table(
             df,
@@ -184,6 +185,7 @@ class Ordei:
         )
 
         df = df.merge(df_annee, on="code", how="left")
+        df = df[["code", "exposition", "cas", "taux_cas", "annee", "conso_annee", "cas_annee"]]
 
         push_to_table(
             df,
