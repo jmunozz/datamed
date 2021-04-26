@@ -14,15 +14,15 @@ def create_table_cis_atc(_settings):
 
 def create_table_bdpm_cis(_settings):
     fpath = helpers.download_file_from_url(settings.BDPM_CIS_URL, path.join(settings.TMP_FOLDER, "BDPM_CIS.txt"))
-    df = helpers.load_csv_to_df(fpath, _settings["read_csv"])
+    df = helpers.load_csv_to_df(_settings, path=fpath)
     # cleaning
-    helpers.serie_to_lowercase(df, _settings["names"][1:])
+    helpers.serie_to_lowercase(df, _settings["read_csv"]["names"][1:])
     db.create_table_from_df(df, _settings["to_sql"])
 
 def create_tables_rsp_compo(_settings):
     fpath = helpers.download_file_from_url(settings.RSP_COMPO_URL, path.join(settings.TMP_FOLDER, "RSP_COMPO.txt"))
     # table substance
-    df = helpers.load_csv_to_df(fpath, _settings[0]["read_csv"])
+    df = helpers.load_csv_to_df(_settings[0], path=fpath)
     # cleaning
     df = df[df.nature_composant == "SA"]
     df = df.rename(columns={"substance_active": "nom"})
@@ -31,7 +31,7 @@ def create_tables_rsp_compo(_settings):
     helpers.serie_to_lowercase(df, ["nom"])
     db.create_table_from_df(df, _settings[0]["to_sql"])
     # table specialite_substance
-    df = helpers.load_csv_to_df(fpath, _settings[1]["read_csv"])
+    df = helpers.load_csv_to_df(_settings[1], path=fpath)
     # cleaning
     df = df[df.nature_composant == "SA"]
     df = df[["code", "elem_pharma", "dosage", "ref_dosage"]]
@@ -53,8 +53,7 @@ def load_to_df_atc(fpath):
     return df
 
 def create_table_cis_cip_bdpm(_settings):
-    fpath = helpers.find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
-    df = helpers.load_csv_to_df(fpath, _settings["read_csv"])
+    df = helpers.load_csv_to_df(_settings)
     # cleaning
     df = df.drop(
         ["prix_medicament_euro", "chelou_1", "chelou_2", "indications_remboursement"],
@@ -104,7 +103,7 @@ def create_substance_ordei_table(_settings):
     df_by_years["exposition_annee"] = df_by_years["conso_annee"].apply(helpers.get_exposition_level, type="substance")
     df_by_code = df_by_years.groupby("code").agg(conso=("conso_annee", "sum"), cas=("cas_annee", "sum"), taux_exposition=("conso_annee", helpers.get_total_exposition_level))
     final_df = df_by_years.join(df_by_code, on=["code"])
-    final_df = helpers.filter_low_values(final_df, ["cas", "cas_annee"])
+    final_df = helpers.filter_df_on_low_values(final_df, ["cas", "cas_annee"])
     final_df["taux_cas"] = final_df.apply(axis=1, func=lambda x: x.cas * 100000 / x.conso if x.cas >= 10 else None)
     final_df.reset_index(inplace=True, level=["annee"])
     db.create_table_from_df(final_df, _settings[0]["to_sql"])
@@ -208,19 +207,19 @@ def create_hlt_table(_settings_soclong, _settings):
 
 
 create_table_bdpm_cis(settings.files["bdpm_cis"])
-# create_tables_rsp_compo(settings.files["rsp_compo"])
-# create_table_atc(settings.files["atc"])
-# create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
-# create_table_cis_atc(settings.files["cis_atc"])
+create_tables_rsp_compo(settings.files["rsp_compo"])
+create_table_atc(settings.files["atc"])
+create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+create_table_cis_atc(settings.files["cis_atc"])
 # # Ordei
-# create_spe_conso_ordei_table(settings.files["ordei_specialite"])
-# create_spe_patients_sexe_table(settings.files["ordei_specialite"])
-# create_spe_patients_age_table(settings.files["ordei_specialite"])
-# create_substance_ordei_table(settings.files["ordei_substance"])
-# create_substance_patients_sexe_table(settings.files["ordei_substance"])
-# create_substance_patients_age_table(settings.files["ordei_substance"])
-# create_substance_cas_sexe_table(settings.files["ordei_substance"])
-# create_substance_cas_age_table(settings.files["ordei_substance"])
-# create_notificateurs_table(settings.files["ordei_notificateurs"])
-# create_substance_soclong_table(settings.files["ordei_soclong"])
-# create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+create_spe_patients_sexe_table(settings.files["ordei_specialite"])
+create_spe_patients_age_table(settings.files["ordei_specialite"])
+create_substance_ordei_table(settings.files["ordei_substance"])
+create_substance_patients_sexe_table(settings.files["ordei_substance"])
+create_substance_patients_age_table(settings.files["ordei_substance"])
+create_substance_cas_sexe_table(settings.files["ordei_substance"])
+create_substance_cas_age_table(settings.files["ordei_substance"])
+create_notificateurs_table(settings.files["ordei_notificateurs"])
+create_substance_soclong_table(settings.files["ordei_soclong"])
+create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])

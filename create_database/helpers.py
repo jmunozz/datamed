@@ -59,8 +59,8 @@ def mapSexeToCode(x):
     m = { "Hommes": 1, "Femmes": 2}
     return m[x]
 
-def load_excel_to_df(_settings):
-    fpath = find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
+def load_excel_to_df(_settings, path=None):
+    fpath = find_file(settings.DATA_FOLDER, _settings["source"]["pattern"]) if path is None else path
     # fix bug in pandas when setting type for index (see https://github.com/pandas-dev/pandas/issues/35816)
     read_excel_settings = _settings["read_excel"]
     index_col = read_excel_settings.get("index_col")
@@ -76,8 +76,8 @@ def load_excel_to_df(_settings):
         df.set_index(index_col, drop=True, inplace=True)
     return df
 
-def load_csv_to_df(_settings):
-    fpath = find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
+def load_csv_to_df(_settings, path=None):
+    fpath = find_file(settings.DATA_FOLDER, _settings["source"]["pattern"]) if path is None else path
     # fix bug in pandas when setting type for index (see https://github.com/pandas-dev/pandas/issues/35816)
     read_csv_settings = _settings["read_csv"]
     index_col = read_csv_settings.get("index_col")

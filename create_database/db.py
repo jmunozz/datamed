@@ -8,7 +8,7 @@ engine = None
 
 def connect_db():
     global engine
-    url = settings.DB_URL or "mysql+pymysql://{user}:{pwd}@{host}/{db}".format(
+    url = settings.DBURL or "mysql+pymysql://{user}:{pwd}@{host}/{db}".format(
                 host=settings.DBHOSTNAME,
                 db=settings.DBNAME,
                 user=settings.DBUSERNAME,
