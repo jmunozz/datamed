@@ -17,6 +17,7 @@ DBHOSTNAME = config("DBHOSTNAME")
 DBUSERNAME = config("DBUSERNAME")
 DBPWD = config("DBPWD")
 DBNAME = config("DBNAME")
+DBURL= config("DBURL")
 FILTER_THREESHOLD = config("FILTER_THREESHOLD", default=10, cast=int)
 
 EXPOSITION = {
@@ -86,7 +87,7 @@ files = {
                     "v",
                 ],
                 "header": None,
-                "index_col": 2,
+                "index_col": "code",
                 "dtype": {"cis": str, "code": str},
             },
             "to_sql": {
@@ -115,7 +116,7 @@ files = {
                     "v",
                 ],
                 "header": None,
-                "index_col": 0,
+                "index_col": "cis",
                 "dtype": {"cis": str, "code": str},
             },
             "to_sql": {

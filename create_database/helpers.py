@@ -106,5 +106,5 @@ def filter_df_on_low_values(df, cols):
 def filter_serie_on_low_values(serie): 
     return serie.transform(lambda x: x if x >= settings.FILTER_THREESHOLD else None)
 
-def get_total_exposition_level(serie):
-    return get_exposition_level(serie.sum() / serie.size, type="substance")
+def get_total_exposition_level(serie, type):
+    return get_exposition_level(serie.sum() / serie.size, type=type)

@@ -80,6 +80,7 @@ def create_spe_patients_sexe_table(_settings):
         .rename("pourcentage_patients")
     )
     final_df = pd.merge(conso, conso_pct, on=["cis", "sexe"])
+    final_df.drop(["conso"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["sexe"])
     db.create_table_from_df(final_df, _settings[1]["to_sql"])
 
@@ -93,6 +94,7 @@ def create_spe_patients_age_table(_settings):
         .rename("pourcentage_patients")
     )
     final_df = pd.merge(conso, conso_pct, on=["cis", "age"])
+    final_df.drop(["conso"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["age"])
     db.create_table_from_df(final_df, _settings[2]["to_sql"])
 
@@ -100,11 +102,11 @@ def create_spe_patients_age_table(_settings):
 def create_substance_ordei_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     df_by_years = df.groupby(["code", "annee"]).agg(conso_annee=("conso", "sum"), cas_annee=("cas", "sum"))
-    df_by_years["exposition_annee"] = df_by_years["conso_annee"].apply(helpers.get_exposition_level, type="substance")
-    df_by_code = df_by_years.groupby("code").agg(conso=("conso_annee", "sum"), cas=("cas_annee", "sum"), taux_exposition=("conso_annee", helpers.get_total_exposition_level))
+    df_by_code = df_by_years.groupby("code").agg(conso=("conso_annee", "sum"), cas=("cas_annee", "sum"), taux_exposition=("conso_annee", lambda x: helpers.get_total_exposition_level(x, "substance")))
     final_df = df_by_years.join(df_by_code, on=["code"])
     final_df = helpers.filter_df_on_low_values(final_df, ["cas", "cas_annee"])
     final_df["taux_cas"] = final_df.apply(axis=1, func=lambda x: x.cas * 100000 / x.conso if x.cas >= 10 else None)
+    final_df.drop(["conso"], inplace=True, axis=1)
     final_df.reset_index(inplace=True, level=["annee"])
     db.create_table_from_df(final_df, _settings[0]["to_sql"])
 
@@ -113,22 +115,24 @@ def create_substance_patients_sexe_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     df["sexe"] = df["sexe"].apply(lambda x: helpers.mapSexeToCode(x))
     conso = df.groupby(["code", "sexe"])["conso"].sum().rename("conso")
+    conso = helpers.filter_serie_on_low_values(conso)
     conso_pct = (
         conso.groupby(level=0)
-        .apply(lambda x: 100 * x / float(x.sum()))
+        .apply(lambda x: 100 * x / float(x.sum()) if x is not None else None)
         .rename("pourcentage_patients")
     )
     final_df = pd.merge(conso, conso_pct, on=["code", "sexe"])
-    final_df.reset_index(inplace=True, level=["sexe"])
     final_df.drop(["conso"], inplace=True, axis=1)
+    final_df.reset_index(inplace=True, level=["sexe"])
     db.create_table_from_df(final_df, _settings[1]["to_sql"])
 
 def create_substance_patients_age_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     conso = df.groupby(["code", "age"])["conso"].sum().rename("conso")
+    conso = helpers.filter_serie_on_low_values(conso)
     conso_pct = (
         conso.groupby(level=0)
-        .apply(lambda x: 100 * x / float(x.sum()))
+        .apply(lambda x: 100 * x / float(x.sum()) if x is not None else None)
         .rename("pourcentage_patients")
     )
     final_df = pd.merge(conso, conso_pct, on=["code", "age"])
@@ -168,9 +172,10 @@ def create_substance_cas_age_table(_settings):
 def create_notificateurs_table(_settings):
     df = helpers.load_csv_to_df(_settings)
     decla = df.groupby(["code", "notificateur"])["n_decla"].sum().rename("decla")
+    decla = helpers.filter_serie_on_low_values(decla)
     decla_pct = (
         decla.groupby(level=0)
-        .apply(lambda x: 100 * x / float(x.sum()))
+        .apply(lambda x: 100 * x / float(x.sum()) if x is not None else None)
         .rename("pourcentage_decla")
     )
     final_df = pd.merge(decla, decla_pct, on=["code", "notificateur"])
@@ -187,7 +192,7 @@ def create_substance_soclong_table(_settings):
     final_df["pourcentage_cas"] = final_df.apply(
         lambda x: float(x.n_decla_eff * 100 / x.n_cas) if x.n_decla_eff is not None and x.n_cas is not None else None, axis=1, result_type="expand"
     )
-    final_df.drop(["n_cas"], inplace=True, axis=1)
+    final_df.drop(["n_cas", "n_decla_eff"], inplace=True, axis=1)
     db.create_table_from_df(final_df, _settings["to_sql"])
 
 
