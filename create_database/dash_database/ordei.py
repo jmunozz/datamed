@@ -93,7 +93,7 @@ class Ordei:
         df = df.groupby("cis")["conso"].sum().reset_index()
         df["exposition"] = df.conso.apply(
             lambda x: max(EXPOSITION["spécialité"].items(), key=lambda y: x / 5 <= y[0])[1]
-            if x <= 50000
+            if x / 5 <= 50000
             else 5
         )
         df = df.drop(columns=["conso"])
@@ -175,7 +175,7 @@ class Ordei:
         )
         df["exposition"] = df.conso.apply(
             lambda x: max(EXPOSITION["substance"].items(), key=lambda y: x / 5 <= y[0])[1]
-            if x <= 500000
+            if x / 5 <= 500000
             else 5
         )
 
