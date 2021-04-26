@@ -1,5 +1,3 @@
-from typing import List
-
 import pandas as pd
 import unidecode
 from nltk.corpus import stopwords
@@ -35,8 +33,8 @@ def get_denom_linked_to_specialite(df: pd.DataFrame, specialite: str) -> pd.Data
     ]
 
 
-def get_erreur_df(df_base: pd.DataFrame, cis: str, fields: List[str]) -> pd.DataFrame:
-    df = df_base.groupby(fields).denomination.count().reset_index()
+def get_erreur_df(df_base: pd.DataFrame, cis: str, col: str) -> pd.DataFrame:
+    df = df_base.groupby(col).denomination.count().reset_index()
     df["pourcentage"] = df.apply(
         lambda x: round(x.denomination / df.denomination.sum() * 100, 2), axis=1
     )
@@ -60,15 +58,14 @@ def get_corresp_df(df: pd.DataFrame, df_spe: pd.DataFrame) -> pd.DataFrame():
     return pd.concat(frames).reset_index(drop=True)
 
 
-def get_table_df(
-    df: pd.DataFrame, df_spe: pd.DataFrame, cols: List[str]
-) -> pd.DataFrame:
+def get_table_df(df: pd.DataFrame, df_spe: pd.DataFrame, col: str) -> pd.DataFrame:
     frames = []
     for cis in tqdm(list(df_spe.index.values)):
         specialite = df_spe.loc[cis].nom
         df_erreurs = get_denom_linked_to_specialite(df, specialite)
+        df_erreurs = df_erreurs[df_erreurs[col] != "Non renseigné"]
 
         if not df_erreurs.empty:
-            frames.append(get_erreur_df(df_erreurs, cis, cols))
+            frames.append(get_erreur_df(df_erreurs, cis, col))
 
     return pd.concat(frames).reset_index(drop=True)

@@ -133,11 +133,12 @@ files = {
             "effet_indesirable",
         ],
         "tables": {
-            "lieu": ["lieu_erreur"],
-            "population": ["population_erreur"],
-            "initial": ["initial_erreur", "gravite"],
-            "nature": ["nature_erreur", "gravite"],
-            "cause": ["cause_erreur", "gravite"],
+            "lieu": "lieu_erreur",
+            "population": "population_erreur",
+            "initial": "initial_erreur",
+            "nature": "nature_erreur",
+            "cause": "cause_erreur",
+            "effet_indesirable": "effet_indesirable",
         },
         "to_sql": {
             "if_exists": "replace",

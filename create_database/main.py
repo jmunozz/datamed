@@ -128,9 +128,9 @@ def create_table_emed(_settings):
         args = {**{"name": "cis_erreurs_med_corresp"}, **_settings["to_sql"]}
         db.create_table_from_df(df_corresp, args)
 
-        for table_name, table_columns in tqdm(_settings["tables"].items()):
+        for table_name, table_column in tqdm(_settings["tables"].items()):
             print("{} table creation".format(table_name))
-            df_table = em.get_table_df(df, df_spe, table_columns)
+            df_table = em.get_table_df(df, df_spe, table_column)
             args = {
                 **{"name": "erreur_med_{}".format(table_name)},
                 **_settings["to_sql"],
