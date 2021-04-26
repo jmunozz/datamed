@@ -2,6 +2,7 @@ from os import walk
 from pathlib import Path
 from typing import List
 from urllib.request import urlretrieve
+from typing import Dict
 
 import pandas as pd
 
@@ -61,7 +62,7 @@ def mapSexeToCode(x):
     return m[x]
 
 
-def load_excel_to_df(_settings, path=None):
+def load_excel_to_df(_settings: Dict, path=None):
     fpath = (
         find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
         if path is None
@@ -83,7 +84,7 @@ def load_excel_to_df(_settings, path=None):
     return df
 
 
-def load_csv_to_df(_settings, path=None):
+def load_csv_to_df(_settings: Dict, path=None):
     fpath = (
         find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
         if path is None
@@ -113,7 +114,7 @@ def filter_row_low_value(row, **kwargs):
     return row
 
 
-def filter_df_on_low_values(df, cols):
+def filter_df_on_low_values(df: pd.DataFrame, cols: List):
     return df.apply(axis=1, func=filter_row_low_value, cols=cols)
 
 

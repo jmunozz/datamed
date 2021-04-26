@@ -1,4 +1,5 @@
 from os import path
+from typing import Dict
 
 import pandas as pd
 
@@ -7,12 +8,12 @@ import helpers
 import settings
 
 
-def create_table_cis_atc(_settings):
+def create_table_cis_atc(_settings: Dict):
     df = helpers.load_excel_to_df(_settings)
     db.create_table_from_df(df, _settings["to_sql"])
 
 
-def create_table_bdpm_cis(_settings):
+def create_table_bdpm_cis(_settings: Dict):
     fpath = helpers.download_file_from_url(
         settings.BDPM_CIS_URL, path.join(settings.TMP_FOLDER, "BDPM_CIS.txt")
     )
@@ -22,7 +23,7 @@ def create_table_bdpm_cis(_settings):
     db.create_table_from_df(df, _settings["to_sql"])
 
 
-def create_tables_rsp_compo(_settings):
+def create_tables_rsp_compo(_settings: Dict):
     fpath = helpers.download_file_from_url(
         settings.RSP_COMPO_URL, path.join(settings.TMP_FOLDER, "RSP_COMPO.txt")
     )
@@ -44,7 +45,7 @@ def create_tables_rsp_compo(_settings):
     db.create_table_from_df(df, _settings[1]["to_sql"])
 
 
-def create_table_atc(_settings):
+def create_table_atc(_settings: Dict):
     fpath = helpers.find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
     if fpath.exists():
         df = load_to_df_atc(fpath)
@@ -58,7 +59,7 @@ def load_to_df_atc(fpath):
     return df
 
 
-def create_table_cis_cip_bdpm(_settings):
+def create_table_cis_cip_bdpm(_settings: Dict):
     df = helpers.load_csv_to_df(_settings)
     # cleaning
     df = df.drop(
@@ -72,7 +73,7 @@ def create_table_cis_cip_bdpm(_settings):
 # ORDEI
 
 
-def create_spe_conso_ordei_table(_settings):
+def create_spe_conso_ordei_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df = df.groupby("cis").agg(n_conso_an=("n_conso_an", "sum"), conso=("conso", "sum"))
     df["exposition"] = df["n_conso_an"].apply(
@@ -82,7 +83,7 @@ def create_spe_conso_ordei_table(_settings):
     db.create_table_from_df(df, _settings[0]["to_sql"])
 
 
-def create_spe_patients_sexe_table(_settings):
+def create_spe_patients_sexe_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     conso = df.groupby(["cis", "sexe"])["conso"].sum().rename("conso")
     conso_pct = (
@@ -96,7 +97,7 @@ def create_spe_patients_sexe_table(_settings):
     db.create_table_from_df(final_df, _settings[1]["to_sql"])
 
 
-def create_spe_patients_age_table(_settings):
+def create_spe_patients_age_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     conso = df.groupby(["cis", "age"])["conso"].sum().rename("conso")
     conso_pct = (
@@ -110,7 +111,7 @@ def create_spe_patients_age_table(_settings):
     db.create_table_from_df(final_df, _settings[2]["to_sql"])
 
 
-def create_substance_ordei_table(_settings):
+def create_substance_ordei_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df_by_years = df.groupby(["code", "annee"]).agg(
         conso_annee=("conso", "sum"), cas_annee=("cas", "sum")
@@ -133,7 +134,7 @@ def create_substance_ordei_table(_settings):
     db.create_table_from_df(final_df, _settings[0]["to_sql"])
 
 
-def create_substance_patients_sexe_table(_settings):
+def create_substance_patients_sexe_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df["sexe"] = df["sexe"].apply(lambda x: helpers.mapSexeToCode(x))
     conso = df.groupby(["code", "sexe"])["conso"].sum().rename("conso")
@@ -155,7 +156,7 @@ def create_substance_patients_sexe_table(_settings):
     db.create_table_from_df(final_df, _settings[1]["to_sql"])
 
 
-def create_substance_patients_age_table(_settings):
+def create_substance_patients_age_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     conso = df.groupby(["code", "age"])["conso"].sum().rename("conso")
     conso = helpers.filter_serie_on_low_values(conso)
@@ -176,7 +177,7 @@ def create_substance_patients_age_table(_settings):
     db.create_table_from_df(final_df, _settings[2]["to_sql"])
 
 
-def create_substance_cas_sexe_table(_settings):
+def create_substance_cas_sexe_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df["sexe"] = df["sexe"].apply(lambda x: helpers.mapSexeToCode(x))
     cas = df.groupby(["code", "sexe"])["cas"].sum().rename("cas")
@@ -198,7 +199,7 @@ def create_substance_cas_sexe_table(_settings):
     db.create_table_from_df(final_df, _settings[3]["to_sql"])
 
 
-def create_substance_cas_age_table(_settings):
+def create_substance_cas_age_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     cas = df.groupby(["code", "age"])["cas"].sum().rename("cas")
     cas = helpers.filter_serie_on_low_values(cas)
@@ -219,7 +220,7 @@ def create_substance_cas_age_table(_settings):
     db.create_table_from_df(final_df, _settings[4]["to_sql"])
 
 
-def create_notificateurs_table(_settings):
+def create_notificateurs_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings)
     decla = df.groupby(["code", "notificateur"])["n_decla"].sum().rename("decla")
     decla = helpers.filter_serie_on_low_values(decla)
@@ -233,7 +234,7 @@ def create_notificateurs_table(_settings):
     db.create_table_from_df(final_df, _settings["to_sql"])
 
 
-def create_substance_soclong_table(_settings):
+def create_substance_soclong_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings)
     total_case_per_sex_and_age = df.groupby(["code", "sexe", "age"]).agg(
         {"n_cas": "max"}
@@ -257,7 +258,7 @@ def create_substance_soclong_table(_settings):
     db.create_table_from_df(final_df, _settings["to_sql"])
 
 
-def create_hlt_table(_settings_soclong, _settings):
+def create_hlt_table(_settings_soclong: Dict, _settings: Dict):
     df = helpers.load_csv_to_df(_settings)
     soclong_df = helpers.load_csv_to_df(_settings_soclong)
     decla_eff = soclong_df.groupby(["code", "soc_long"]).agg({"n_decla_eff": "sum"})
@@ -288,20 +289,20 @@ def create_hlt_table(_settings_soclong, _settings):
     db.create_table_from_df(final_df, _settings["to_sql"])
 
 
-create_table_bdpm_cis(settings.files["bdpm_cis"])
-create_tables_rsp_compo(settings.files["rsp_compo"])
-create_table_atc(settings.files["atc"])
-create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
-create_table_cis_atc(settings.files["cis_atc"])
-# Ordei
-create_spe_conso_ordei_table(settings.files["ordei_specialite"])
-create_spe_patients_sexe_table(settings.files["ordei_specialite"])
-create_spe_patients_age_table(settings.files["ordei_specialite"])
-create_substance_ordei_table(settings.files["ordei_substance"])
-create_substance_patients_sexe_table(settings.files["ordei_substance"])
-create_substance_patients_age_table(settings.files["ordei_substance"])
-create_substance_cas_sexe_table(settings.files["ordei_substance"])
-create_substance_cas_age_table(settings.files["ordei_substance"])
-create_notificateurs_table(settings.files["ordei_notificateurs"])
-create_substance_soclong_table(settings.files["ordei_soclong"])
-create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+# create_table_bdpm_cis(settings.files["bdpm_cis"])
+# create_tables_rsp_compo(settings.files["rsp_compo"])
+# create_table_atc(settings.files["atc"])
+# create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+# create_table_cis_atc(settings.files["cis_atc"])
+# # Ordei
+# create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+# create_spe_patients_sexe_table(settings.files["ordei_specialite"])
+# create_spe_patients_age_table(settings.files["ordei_specialite"])
+# create_substance_ordei_table(settings.files["ordei_substance"])
+# create_substance_patients_sexe_table(settings.files["ordei_substance"])
+# create_substance_patients_age_table(settings.files["ordei_substance"])
+# create_substance_cas_sexe_table(settings.files["ordei_substance"])
+# create_substance_cas_age_table(settings.files["ordei_substance"])
+# create_notificateurs_table(settings.files["ordei_notificateurs"])
+# create_substance_soclong_table(settings.files["ordei_soclong"])
+# create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
