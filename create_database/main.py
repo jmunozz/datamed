@@ -12,39 +12,39 @@ def create_table_cis_atc(_settings):
     df = helpers.load_excel_to_df(_settings)
     db.create_table_from_df(df, _settings["to_sql"])
 
-def create_table_bdpm_cis(settings):
+def create_table_bdpm_cis(_settings):
     fpath = helpers.download_file_from_url(settings.BDPM_CIS_URL, path.join(settings.TMP_FOLDER, "BDPM_CIS.txt"))
-    df = helpers.load_csv_to_df(fpath, settings["read_csv"])
+    df = helpers.load_csv_to_df(fpath, _settings["read_csv"])
     # cleaning
-    helpers.serie_to_lowercase(df, settings["names"][1:])
-    db.create_table_from_df(df, settings["to_sql"])
+    helpers.serie_to_lowercase(df, _settings["names"][1:])
+    db.create_table_from_df(df, _settings["to_sql"])
 
-def create_tables_rsp_compo(settings):
+def create_tables_rsp_compo(_settings):
     fpath = helpers.download_file_from_url(settings.RSP_COMPO_URL, path.join(settings.TMP_FOLDER, "RSP_COMPO.txt"))
     # table substance
-    df = helpers.load_csv_to_df(fpath, settings[0]["read_csv"])
+    df = helpers.load_csv_to_df(fpath, _settings[0]["read_csv"])
     # cleaning
     df = df[df.nature_composant == "SA"]
     df = df.rename(columns={"substance_active": "nom"})
     df = df[["nom"]]
     df = df[~df.index.duplicated(keep="first")]
     helpers.serie_to_lowercase(df, ["nom"])
-    db.create_table_from_df(df, settings[0]["to_sql"])
+    db.create_table_from_df(df, _settings[0]["to_sql"])
     # table specialite_substance
-    df = helpers.load_csv_to_df(fpath, settings[1]["read_csv"])
+    df = helpers.load_csv_to_df(fpath, _settings[1]["read_csv"])
     # cleaning
     df = df[df.nature_composant == "SA"]
     df = df[["code", "elem_pharma", "dosage", "ref_dosage"]]
     df = df.rename(columns={"code": "code_substance"})
-    db.create_table_from_df(df, settings[1]["to_sql"])
+    db.create_table_from_df(df, _settings[1]["to_sql"])
 
 
 
-def create_table_atc(settings):
-    fpath = helpers.find_file(settings.DATA_FOLDER, settings["source"]["pattern"])
+def create_table_atc(_settings):
+    fpath = helpers.find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
     if fpath.exists():
         df = load_to_df_atc(fpath)
-        db.create_table_from_df(df, settings["to_sql"])
+        db.create_table_from_df(df, _settings["to_sql"])
 
 def load_to_df_atc(fpath):
     serie = pd.read_json(fpath, typ="series")
@@ -52,16 +52,16 @@ def load_to_df_atc(fpath):
     df.index.set_names(names="code_atc", inplace=True)
     return df
 
-def create_table_cis_cip_bdpm(settings):
-    fpath = helpers.find_file(settings.settings.DATA_FOLDER, settings["source"]["pattern"])
-    df = helpers.load_csv_to_df(fpath, settings["read_csv"])
+def create_table_cis_cip_bdpm(_settings):
+    fpath = helpers.find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
+    df = helpers.load_csv_to_df(fpath, _settings["read_csv"])
     # cleaning
     df = df.drop(
         ["prix_medicament_euro", "chelou_1", "chelou_2", "indications_remboursement"],
         axis=1,
     )
     df = df.where(pd.notnull(df), None)
-    db.create_table_from_df(df, settings["to_sql"])
+    db.create_table_from_df(df, _settings["to_sql"])
 
 ## ORDEI
 
@@ -208,19 +208,19 @@ def create_hlt_table(_settings_soclong, _settings):
 
 
 create_table_bdpm_cis(settings.files["bdpm_cis"])
-create_tables_rsp_compo(settings.files["rsp_compo"])
-create_table_atc(settings.files["atc"])
-create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
-create_table_cis_atc(settings.files["cis_atc"])
-# Ordei
-create_spe_conso_ordei_table(settings.files["ordei_specialite"])
-create_spe_patients_sexe_table(settings.files["ordei_specialite"])
-create_spe_patients_age_table(settings.files["ordei_specialite"])
-create_substance_ordei_table(settings.files["ordei_substance"])
-create_substance_patients_sexe_table(settings.files["ordei_substance"])
-create_substance_patients_age_table(settings.files["ordei_substance"])
-create_substance_cas_sexe_table(settings.files["ordei_substance"])
-create_substance_cas_age_table(settings.files["ordei_substance"])
-create_notificateurs_table(settings.files["ordei_notificateurs"])
-create_substance_soclong_table(settings.files["ordei_soclong"])
-create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+# create_tables_rsp_compo(settings.files["rsp_compo"])
+# create_table_atc(settings.files["atc"])
+# create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+# create_table_cis_atc(settings.files["cis_atc"])
+# # Ordei
+# create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+# create_spe_patients_sexe_table(settings.files["ordei_specialite"])
+# create_spe_patients_age_table(settings.files["ordei_specialite"])
+# create_substance_ordei_table(settings.files["ordei_substance"])
+# create_substance_patients_sexe_table(settings.files["ordei_substance"])
+# create_substance_patients_age_table(settings.files["ordei_substance"])
+# create_substance_cas_sexe_table(settings.files["ordei_substance"])
+# create_substance_cas_age_table(settings.files["ordei_substance"])
+# create_notificateurs_table(settings.files["ordei_notificateurs"])
+# create_substance_soclong_table(settings.files["ordei_soclong"])
+# create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
