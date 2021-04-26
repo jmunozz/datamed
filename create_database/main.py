@@ -39,6 +39,7 @@ def create_tables_rsp_compo(settings):
     db.create_table_from_df(df, settings[1]["to_sql"])
 
 
+
 def create_table_atc(settings):
     fpath = helpers.find_file(settings.DATA_FOLDER, settings["source"]["pattern"])
     if fpath.exists():
@@ -56,8 +57,9 @@ def create_table_cis_cip_bdpm(settings):
     df = helpers.load_csv_to_df(fpath, settings["read_csv"])
     # cleaning
     df = df.drop(
-    ["prix_medicament_euro", "chelou_1", "chelou_2", "indications_remboursement"],
-    axis=1)
+        ["prix_medicament_euro", "chelou_1", "chelou_2", "indications_remboursement"],
+        axis=1,
+    )
     df = df.where(pd.notnull(df), None)
     db.create_table_from_df(df, settings["to_sql"])
 
@@ -73,18 +75,28 @@ def create_spe_conso_ordei_table(_settings):
 def create_spe_patients_sexe_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     conso = df.groupby(["cis", "sexe"])["conso"].sum().rename("conso")
-    conso_pct = conso.groupby(level=0).apply(lambda x: 100 * x/ float(x.sum())).rename("pourcentage_patients")
-    final_df = pd.merge(conso, conso_pct, on=["cis","sexe"])
+    conso_pct = (
+        conso.groupby(level=0)
+        .apply(lambda x: 100 * x / float(x.sum()))
+        .rename("pourcentage_patients")
+    )
+    final_df = pd.merge(conso, conso_pct, on=["cis", "sexe"])
     final_df.reset_index(inplace=True, level=["sexe"])
     db.create_table_from_df(final_df, _settings[1]["to_sql"])
+
 
 def create_spe_patients_age_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     conso = df.groupby(["cis", "age"])["conso"].sum().rename("conso")
-    conso_pct = conso.groupby(level=0).apply(lambda x: 100 * x/ float(x.sum())).rename("pourcentage_patients")
-    final_df = pd.merge(conso, conso_pct, on=["cis","age"])
+    conso_pct = (
+        conso.groupby(level=0)
+        .apply(lambda x: 100 * x / float(x.sum()))
+        .rename("pourcentage_patients")
+    )
+    final_df = pd.merge(conso, conso_pct, on=["cis", "age"])
     final_df.reset_index(inplace=True, level=["age"])
     db.create_table_from_df(final_df, _settings[2]["to_sql"])
+
 
 def create_substance_ordei_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
@@ -95,20 +107,29 @@ def create_substance_ordei_table(_settings):
     final_df.reset_index(inplace=True, level=["annee"])
     db.create_table_from_df(final_df, _settings[0]["to_sql"])
 
+
 def create_substance_patients_sexe_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     df["sexe"] = df["sexe"].apply(lambda x: helpers.mapSexeToCode(x))
     conso = df.groupby(["code", "sexe"])["conso"].sum().rename("conso")
-    conso_pct = conso.groupby(level=0).apply(lambda x: 100 * x/ float(x.sum())).rename("pourcentage_patients")
-    final_df = pd.merge(conso, conso_pct, on=["code","sexe"])
+    conso_pct = (
+        conso.groupby(level=0)
+        .apply(lambda x: 100 * x / float(x.sum()))
+        .rename("pourcentage_patients")
+    )
+    final_df = pd.merge(conso, conso_pct, on=["code", "sexe"])
     final_df.reset_index(inplace=True, level=["sexe"])
     db.create_table_from_df(final_df, _settings[1]["to_sql"])
 
 def create_substance_patients_age_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     conso = df.groupby(["code", "age"])["conso"].sum().rename("conso")
-    conso_pct = conso.groupby(level=0).apply(lambda x: 100 * x/ float(x.sum())).rename("pourcentage_patients")
-    final_df = pd.merge(conso, conso_pct, on=["code","age"])
+    conso_pct = (
+        conso.groupby(level=0)
+        .apply(lambda x: 100 * x / float(x.sum()))
+        .rename("pourcentage_patients")
+    )
+    final_df = pd.merge(conso, conso_pct, on=["code", "age"])
     final_df.reset_index(inplace=True, level=["age"])
     db.create_table_from_df(final_df, _settings[2]["to_sql"])
 
@@ -116,24 +137,36 @@ def create_substance_cas_sexe_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     df["sexe"] = df["sexe"].apply(lambda x: helpers.mapSexeToCode(x))
     cas = df.groupby(["code", "sexe"])["cas"].sum().rename("cas")
-    cas_pct = cas.groupby(level=0).apply(lambda x: 100 * x/ float(x.sum())).rename("pourcentage_cas")
-    final_df = pd.merge(cas, cas_pct, on=["code","sexe"])
+    cas_pct = (
+        cas.groupby(level=0)
+        .apply(lambda x: 100 * x / float(x.sum()))
+        .rename("pourcentage_cas")
+    )
+    final_df = pd.merge(cas, cas_pct, on=["code", "sexe"])
     final_df.reset_index(inplace=True, level=["sexe"])
     db.create_table_from_df(final_df, _settings[3]["to_sql"])
 
 def create_substance_cas_age_table(_settings):
     df = helpers.load_csv_to_df(_settings[0])
     cas = df.groupby(["code", "age"])["cas"].sum().rename("cas")
-    cas_pct = cas.groupby(level=0).apply(lambda x: 100 * x/ float(x.sum())).rename("pourcentage_cas")
-    final_df = pd.merge(cas, cas_pct, on=["code","age"])
+    cas_pct = (
+        cas.groupby(level=0)
+        .apply(lambda x: 100 * x / float(x.sum()))
+        .rename("pourcentage_cas")
+    )
+    final_df = pd.merge(cas, cas_pct, on=["code", "age"])
     final_df.reset_index(inplace=True, level=["age"])
     db.create_table_from_df(final_df, _settings[4]["to_sql"])
 
 def create_notificateurs_table(_settings):
     df = helpers.load_csv_to_df(_settings)
     decla = df.groupby(["code", "notificateur"])["n_decla"].sum().rename("decla")
-    decla_pct = decla.groupby(level=0).apply(lambda x: 100 * x/ float(x.sum())).rename("pourcentage_decla")
-    final_df = pd.merge(decla, decla_pct, on=["code","notificateur"])
+    decla_pct = (
+        decla.groupby(level=0)
+        .apply(lambda x: 100 * x / float(x.sum()))
+        .rename("pourcentage_decla")
+    )
+    final_df = pd.merge(decla, decla_pct, on=["code", "notificateur"])
     final_df.reset_index(inplace=True, level=["notificateur"])
     db.create_table_from_df(final_df, _settings["to_sql"])
 
@@ -143,9 +176,12 @@ def create_substance_soclong_table(_settings):
     total_case = total_case_per_sex_and_age.groupby("code").agg({ "n_cas": "sum" })
     decla_eff = df.groupby(["code", "soc_long"]).agg({ "n_decla_eff": "sum"}).reset_index(level="soc_long")
     final_df = pd.merge(total_case, decla_eff, left_index=True, right_on=["code"])
-    final_df["pourcentage_cas"] = final_df.apply(lambda x: float(x.n_decla_eff * 100 / x.n_cas), axis=1, result_type="expand")
+    final_df["pourcentage_cas"] = final_df.apply(
+        lambda x: float(x.n_decla_eff * 100 / x.n_cas), axis=1, result_type="expand"
+    )
     # final_df.drop(["n_cas"], inplace=True, axis=1)
     db.create_table_from_df(final_df, _settings["to_sql"])
+
 
 def create_hlt_table(_settings_soclong, _settings):
     df = helpers.load_csv_to_df(_settings)
@@ -155,7 +191,9 @@ def create_hlt_table(_settings_soclong, _settings):
     hlt = df.groupby(["code", "soc_long", "effet_hlt"]).agg({"n_decla_eff_hlt": "sum"})
     hlt.reset_index(["effet_hlt", "soc_long"], inplace=True)
     final_df = pd.merge(total_cases, hlt, left_index=True, right_index=True)
-    final_df["pourcentage_cas"] = final_df.apply(lambda x: float(x.n_decla_eff_hlt * 100 / x.n_cas), axis=1, result_type="expand")
+    final_df["pourcentage_cas"] = final_df.apply(
+        lambda x: float(x.n_decla_eff_hlt * 100 / x.n_cas), axis=1, result_type="expand"
+    )
     db.create_table_from_df(final_df, _settings["to_sql"])
 
 
