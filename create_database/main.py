@@ -9,7 +9,6 @@ import helpers
 import settings
 
 engine = db.connect_db()
-conn = engine.connect()
 
 
 def create_table_bdpm_cis(settings):
@@ -121,7 +120,7 @@ def create_table_emed(_settings):
         df["produit_denom"] = df.denomination.apply(em.get_produit_denom)
         df["forme_denom"] = df.denomination.apply(em.get_forme_denom)
 
-        df_spe = pd.read_sql("specialite", conn)
+        df_spe = pd.read_sql("specialite", engine)
         df_spe = df_spe.set_index("cis")
 
         df_corresp = em.get_corresp_df(df, df_spe)
