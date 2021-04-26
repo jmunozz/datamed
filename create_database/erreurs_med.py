@@ -45,6 +45,21 @@ def get_erreur_df(df_base: pd.DataFrame, cis: str, fields: List[str]) -> pd.Data
     return df.sort_values(by=["cis", "pourcentage"])
 
 
+def get_corresp_df(df: pd.DataFrame, df_spe: pd.DataFrame) -> pd.DataFrame():
+    frames = []
+    for cis in tqdm(list(df_spe.index.values)):
+        specialite = df_spe.loc[cis].nom
+        df_erreurs = get_denom_linked_to_specialite(df, specialite)
+
+        if not df_erreurs.empty:
+            # Put cis -> denominations correspondences in dataframe
+            df_corresp = df_erreurs[["denomination"]].drop_duplicates().copy()
+            df_corresp["cis"] = cis
+            frames.append(df_corresp)
+
+    return pd.concat(frames).reset_index(drop=True)
+
+
 def get_table_df(
     df: pd.DataFrame, df_spe: pd.DataFrame, cols: List[str]
 ) -> pd.DataFrame:
