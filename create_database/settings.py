@@ -17,7 +17,7 @@ DBHOSTNAME = config("DBHOSTNAME")
 DBUSERNAME = config("DBUSERNAME")
 DBPWD = config("DBPWD")
 DBNAME = config("DBNAME")
-DBURL= config("DBURL")
+DBURL = config("DBURL")
 FILTER_THREESHOLD = config("FILTER_THREESHOLD", default=10, cast=int)
 
 EXPOSITION = {
