@@ -143,6 +143,7 @@ files = {
         "to_sql": {
             "if_exists": "replace",
             "index": True,
+            "dtype": {"cis": String(16)},
         },
     },
 }
