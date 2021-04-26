@@ -38,7 +38,7 @@ def get_erreur_df(df_base: pd.DataFrame, cis: str, col: str) -> pd.DataFrame:
     df["pourcentage"] = df.apply(
         lambda x: round(x.denomination / df.denomination.sum() * 100, 2), axis=1
     )
-    df = df.drop(columns=["denomination"])
+    df.drop(["denomination"], inplace=True, axis=1)
     df.insert(loc=0, column="cis", value=cis)
     return df.sort_values(by=["cis", "pourcentage"])
 
