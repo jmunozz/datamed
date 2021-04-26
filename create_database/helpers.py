@@ -92,3 +92,19 @@ def load_csv_to_df(_settings):
     if cast_str_index:
         df.set_index(index_col, drop=True, inplace=True)
     return df
+
+def filter_row_low_value(row, **kwargs):
+    cols = kwargs["cols"]
+    for col in cols:
+        if row[col] < settings.FILTER_THREESHOLD: 
+            row[col] = None
+    return row
+    
+def filter_df_on_low_values(df, cols): 
+    return df.apply(axis=1, func=filter_row_low_value, cols=cols)
+
+def filter_serie_on_low_values(serie): 
+    return serie.transform(lambda x: x if x >= settings.FILTER_THREESHOLD else None)
+
+def get_total_exposition_level(serie):
+    return get_exposition_level(serie.sum() / serie.size, type="substance")
