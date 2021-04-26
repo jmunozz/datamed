@@ -55,7 +55,7 @@ def get_corresp_df(df: pd.DataFrame, df_spe: pd.DataFrame) -> pd.DataFrame():
             df_corresp["cis"] = cis
             frames.append(df_corresp)
 
-    return pd.concat(frames).reset_index(drop=True)
+    return pd.concat(frames).reset_index(drop=True).set_index("cis")
 
 
 def get_table_df(df: pd.DataFrame, df_spe: pd.DataFrame, col: str) -> pd.DataFrame:
@@ -68,4 +68,4 @@ def get_table_df(df: pd.DataFrame, df_spe: pd.DataFrame, col: str) -> pd.DataFra
         if not df_erreurs.empty:
             frames.append(get_erreur_df(df_erreurs, cis, col))
 
-    return pd.concat(frames).reset_index(drop=True)
+    return pd.concat(frames).reset_index(drop=True).set_index("cis")
