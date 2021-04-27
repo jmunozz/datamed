@@ -24,7 +24,7 @@ def list_files(dirpath, pattern="*"):
         for filename in filenames
         if Path(dirpath).joinpath(filename).match(pattern)
     ]
-    files.sort(key=(lambda x: -(x.stat().st_mtime)))
+    files.sort(key=(lambda x: -x.stat().st_mtime))
     return files
 
 def find_file(folder, pattern): 
