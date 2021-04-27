@@ -3,6 +3,7 @@ import zipfile
 from typing import List
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
+import dash
 import dash.dependencies as dd
 import dash_table
 import pandas as pd
@@ -12,7 +13,10 @@ from app import app
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
+import dash_bootstrap_components as dbc
+import dash_html_components as html
 from dash_bootstrap_components import (
+    
     Button,
     Modal,
     ModalHeader,
@@ -30,40 +34,60 @@ from sm import SideMenu
 from .main_search import SearchBar
 from ..constants.colors import PIE_COLORS, BAR_CHART_COLORS
 from ..constants.layouts import BAR_LAYOUT, CURVE_LAYOUT, PIE_LAYOUT
+from db import specialite, substance, atc
 
-with zipfile.ZipFile("./data/med_dict.json.zip", "r") as z:
-    filename = z.namelist()[0]
-    with z.open(filename) as f:
-        data = f.read()
-        MED_DICT = json.loads(data.decode("utf-8"))
+# with zipfile.ZipFile("./data/med_dict.json.zip", "r") as z:
+#     filename = z.namelist()[0]
+#     with z.open(filename) as f:
+#         data = f.read()
+#         MED_DICT = json.loads(data.decode("utf-8"))
 
-with zipfile.ZipFile("./data/notice_by_spe.json.zip", "r") as z:
-    filename = z.namelist()[0]
-    with z.open(filename) as f:
-        data = f.read()
-        NOTICE_BY_SPE = json.loads(data.decode("utf-8"))
+# with zipfile.ZipFile("./data/notice_by_spe.json.zip", "r") as z:
+#     filename = z.namelist()[0]
+#     with z.open(filename) as f:
+#         data = f.read()
+#         NOTICE_BY_SPE = json.loads(data.decode("utf-8"))
 
-file_sub_by_spe = open("./data/substance_by_specialite.json", "r")
-SUBSTANCE_BY_SPECIALITE = json.loads(file_sub_by_spe.read())
+# file_sub_by_spe = open("./data/substance_by_specialite.json", "r")
+# SUBSTANCE_BY_SPECIALITE = json.loads(file_sub_by_spe.read())
 
-file_liste_spe_sa = open("./data/spe_sa_dict.json", "r")
-SPE_SA_DICT = json.loads(file_liste_spe_sa.read())
+# file_liste_spe_sa = open("./data/spe_sa_dict.json", "r")
+# SPE_SA_DICT = json.loads(file_liste_spe_sa.read())
 
-file_atc_by_spe = open("./data/atc_by_spe.json", "r")
-ATC_BY_SPE = json.loads(file_atc_by_spe.read())
+# file_atc_by_spe = open("./data/atc_by_spe.json", "r")
+# ATC_BY_SPE = json.loads(file_atc_by_spe.read())
 
+def get_has_guideline_link(current_specialite): 
+    cis = current_specialite.name
+    link = "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(cis)
+    return link
 
-def get_bdpm_links(selected_med: str, link: str) -> str:
+def get_bdpm_links(cis) -> str:
+    link = "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(cis)
+    fallback_link = "https://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid={}".format(cis)
     page = requests.get(link)
     soup = BeautifulSoup(page.content, "html.parser")
-    if soup.body.findAll(
+    return fallback_link if soup.body.findAll(
         text="Le document demandé n'est pas disponible pour ce médicament"
-    ):
-        return (
-            "https://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid="
-            + SUBSTANCE_BY_SPECIALITE[selected_med]["cis"][0]
-        )
-    return link
+    ) else link
+
+
+def Accordion() -> Component: 
+    return dbc.Card([
+        dbc.CardHeader(
+            html.H2(
+                dbc.Button(
+                    "Collapsible group #1",
+                    color="link",
+                    id="group-1-toggle",
+                )
+            )
+        ),
+        dbc.Collapse(
+            dbc.CardBody("This is the content of group 1..."),
+            id="collapse-1",
+        ),
+    ])
 
 
 def SearchDiv() -> Component:
@@ -95,7 +119,51 @@ def SearchDiv() -> Component:
     )
 
 
-def SubstanceLinks(substances_list: List[str]) -> Component:
+def CommercializationStatus(current_specialite): 
+    return Div(
+        [
+            Div(
+                "Statut de la spécialité de médicament",
+                className="small-text-bold",
+            ),
+            A(
+                current_specialite.etat_commercialisation.upper(),
+                className="normal-text link d-block",
+                id="refresh-substances",
+            )
+        ]
+    )
+
+def ExternalLink(title, label, link): 
+    return Div([
+        Div(
+            title,
+            className="small-text-bold",
+        ),
+        A(
+            label,
+            href=link,
+            target="_blank",
+            rel="noopener noreferrer",
+            className="normal-text link d-inline-block",
+            id="refresh-substances",
+        ),
+    ])
+
+def HASGuidelineLink(current_specialite): 
+    return ExternalLink("Recommandation HAS", "Afficher les recommandations", get_has_guideline_link(current_specialite))
+
+def RCPLink(current_specialite): 
+    return ExternalLink("Infos pour les professionnels de santé", "Afficher le RCP", get_has_guideline_link(current_specialite))
+
+def TechnicalInstructionsLink(current_specialite):
+    return ExternalLink("Infos pour les patients", "Afficher la notice", get_has_guideline_link(current_specialite))
+
+
+def SubstanceLinks(cis: str) -> Component:
+    substances_specialite_df = specialite.list_specialite_substances(cis)
+    substances_codes_list = [s[1] for s in substances_specialite_df["code_substance"].iteritems()]
+    substances_df = substance.list_substances(substances_codes_list)
     return Div(
         [
             A(
@@ -106,12 +174,12 @@ def SubstanceLinks(substances_list: List[str]) -> Component:
                 className="normal-text link d-block",
                 id="refresh-substances",
             )
-            for sa in substances_list
+            for sa in substances_df["nom"]
         ]
     )
 
-
-def SpecialiteDiv(selected_med: str, substances_list) -> Component:
+def SpecialiteDiv(current_specialite) -> Component:
+    cis = current_specialite.name
     tooltip_text = (
         "Les médicaments peuvent être regroupés suivant différents niveaux de "
         "précision (du plus au moins précis) : la présentation (Doliprane "
@@ -121,24 +189,7 @@ def SpecialiteDiv(selected_med: str, substances_list) -> Component:
         "une dénomination spéciale (Doliprane) et un conditionnement "
         "particulier (1000 mg, comprimé)."
     )
-
-    rcp_link = get_bdpm_links(
-        selected_med,
-        (
-            "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid="
-            + SUBSTANCE_BY_SPECIALITE[selected_med]["cis"][0]
-            + "&typedoc=R"
-        ),
-    )
-
-    notice_link = get_bdpm_links(
-        selected_med,
-        (
-            "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid="
-            + SUBSTANCE_BY_SPECIALITE[selected_med]["cis"][0]
-            + "&typedoc=N"
-        ),
-    )
+    specialite_atc_df = atc.list_atc(cis)
 
     return Div(Div(
         Div(
@@ -154,7 +205,7 @@ def SpecialiteDiv(selected_med: str, substances_list) -> Component:
                     Div(
                         [
                             Div(
-                                selected_med,
+                                current_specialite.nom.capitalize(),
                                 className="heading-4",
                             ),
                             Div(
@@ -178,40 +229,28 @@ def SpecialiteDiv(selected_med: str, substances_list) -> Component:
                                 "Substance(s) active(s)",
                                 className="small-text-bold",
                             ),
-                            SubstanceLinks(substances_list),
+                            SubstanceLinks(cis),
+                            CommercializationStatus(current_specialite),
                             Div(
                                 "Description",
                                 className="small-text-bold",
                             ),
                             P(
                                 "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
-                                    ATC_BY_SPE[selected_med]["nom_atc"],
-                                    ATC_BY_SPE[selected_med]["code_atc"],
+                                    specialite_atc_df.loc[cis]["nom_atc"],
+                                    specialite_atc_df.loc[cis]["atc"],
                                 ),
                                 className="normal-text",
                             ),
-                            P(
-                                NOTICE_BY_SPE[selected_med],
-                                className="normal-text text-justify mt-3",
-                            ),
+                            # P(
+                            #     NOTICE_BY_SPE[selected_med],
+                            #     className="normal-text text-justify mt-3",
+                            # ),
                             Div(
                                 [
-                                    A(
-                                        "Afficher le RCP",
-                                        href=rcp_link,
-                                        target="_blank",
-                                        rel="noopener noreferrer",
-                                        className="normal-text link d-inline-block",
-                                        id="refresh-substances",
-                                    ),
-                                    A(
-                                        "Afficher la notice",
-                                        href=notice_link,
-                                        target="_blank",
-                                        rel="noopener noreferrer",
-                                        className="normal-text link d-inline-block ml-5",
-                                        id="refresh-substances",
-                                    ),
+                                    HASGuidelineLink(current_specialite),
+                                    RCPLink(current_specialite),
+                                    TechnicalInstructionsLink(current_specialite),
                                 ],
                                 style={"margin-top": "34px"},
                             ),
@@ -312,24 +351,24 @@ def SubstanceDiv(selected_med: str, spe_dataframe: pd.DataFrame) -> Component:
     )
 
 
-def DescriptionSpecialite(selected_med: str) -> Component:
-    if SPE_SA_DICT[selected_med] == "spécialité":
-        substances_list = SUBSTANCE_BY_SPECIALITE[selected_med]["substances"]
-        return SpecialiteDiv(selected_med, substances_list)
-    else:
-        selected_med_spe_list = [
-            k
-            for k, values in SUBSTANCE_BY_SPECIALITE.items()
-            for v in values["substances"]
-            if selected_med in v
-        ]
-        selected_med_spe_list.sort()
+def DescriptionSpecialite(cis: str) -> Component:
+    current_specialite_series = specialite.get_specialite(cis)
+    if current_specialite_series.any():
+        return SpecialiteDiv(current_specialite_series)
+    # else:
+    #     selected_med_spe_list = [
+    #         k
+    #         for k, values in SUBSTANCE_BY_SPECIALITE.items()
+    #         for v in values["substances"]
+    #         if selected_med in v
+    #     ]
+    #     selected_med_spe_list.sort()
 
-        df = pd.DataFrame(
-            selected_med_spe_list,
-            columns=["Spécialités de médicaments contenant : {}".format(selected_med)],
-        )
-        return SubstanceDiv(selected_med, df)
+    #     df = pd.DataFrame(
+    #         selected_med_spe_list,
+    #         columns=["Spécialités de médicaments contenant : {}".format(selected_med)],
+    #     )
+    #     return SubstanceDiv(selected_med, df)
 
 
 def NoData() -> Div:
@@ -500,7 +539,7 @@ def HltModal() -> Modal:
 
 
 def SectionTitle(
-    title: str, icon_id: str, tooltip_text: str
+    title: str, icon_id: str
 ) -> Component:
     return Div(
         [
@@ -510,11 +549,11 @@ def SectionTitle(
                     className="heading-4 d-inline-block",
                 ),
                 I(className="info-icon bi bi-info-circle d-inline-block", id=icon_id),
-                Tooltip(
-                    tooltip_text,
-                    target=icon_id,
-                    placement="right",
-                ),
+                # Tooltip(
+                #     tooltip_text,
+                #     target=icon_id,
+                #     placement="right",
+                # ),
             ], 
             className="col-12")
 
@@ -546,82 +585,84 @@ def Indicateur(
 
 
 def PatientsTraites(selected_med: str) -> Component:
-    if SPE_SA_DICT[selected_med] == "spécialité":
-        medicament = SUBSTANCE_BY_SPECIALITE[selected_med]["produit"]
-        disclaimer = Div(
-            [Div([
-                Jumbotron(
-                [
-                    Div("Note d'attention", className="medium-text"),
-                    Div(
-                        "Les données affichées ci-dessous sont l'agrégations des données de "
-                        "toutes les spécialités de médicament rattachées au produit : {}".format(
-                            medicament
-                        ),
-                        className="normal-text mt-3",
-                    ),
-                ],
-                className="p-3 mb-2",
-            ),
-            ], className="col-md-12")],
-            className="row patients-traites-jumbotron"
-        )
-    else:
-        medicament = selected_med
-        disclaimer = []
+    # if SPE_SA_DICT[selected_med] == "spécialité":
+    #     medicament = SUBSTANCE_BY_SPECIALITE[selected_med]["produit"]
+    #     disclaimer = Div(
+    #         [Div([
+    #             Jumbotron(
+    #             [
+    #                 Div("Note d'attention", className="medium-text"),
+    #                 Div(
+    #                     "Les données affichées ci-dessous sont l'agrégations des données de "
+    #                     "toutes les spécialités de médicament rattachées au produit : {}".format(
+    #                         medicament
+    #                     ),
+    #                     className="normal-text mt-3",
+    #                 ),
+    #             ],
+    #             className="p-3 mb-2",
+    #         ),
+    #         ], className="col-md-12")],
+    #         className="row patients-traites-jumbotron"
+    #     )
+    # else:
+    #     medicament = selected_med
+    #     disclaimer = []
 
-    df = pd.DataFrame(MED_DICT[medicament]["annee"])
-    patients_traites = round(df.n_conso.mean())
+    # df = pd.DataFrame(MED_DICT[medicament]["annee"])
+    # patients_traites = round(df.n_conso.mean())
 
-    tooltip_text = (
-        "Nombre de patients par présentation ayant eu au moins un remboursement dans l’année cumulé par "
-        "produit/substance active. Estimations obtenues à partir des données Open-Medic ("
-        "https://www.etalab.gouv.fr/licence-ouverte-open-licence) portant sur l’usage du médicament, "
-        "délivré en pharmacie de ville en 2014 à 2018 et remboursé par l’Assurance Maladie. Pour plus "
-        "d’informations, consultez : http://open-data-assurance-maladie.ameli.fr/medicaments/index.php "
-        "Attention : Les patients étant restitués par présentation dans les données Open Medic, ils sont "
-        "comptabilisés autant de fois qu’ils ont eu de remboursements de présentations différentes d’un même"
-        " produit/substance active. Les indicateurs restitués pourraient être surestimés pour certains "
-        "médicaments."
-    )
+    # tooltip_text = (
+    #     "Nombre de patients par présentation ayant eu au moins un remboursement dans l’année cumulé par "
+    #     "produit/substance active. Estimations obtenues à partir des données Open-Medic ("
+    #     "https://www.etalab.gouv.fr/licence-ouverte-open-licence) portant sur l’usage du médicament, "
+    #     "délivré en pharmacie de ville en 2014 à 2018 et remboursé par l’Assurance Maladie. Pour plus "
+    #     "d’informations, consultez : http://open-data-assurance-maladie.ameli.fr/medicaments/index.php "
+    #     "Attention : Les patients étant restitués par présentation dans les données Open Medic, ils sont "
+    #     "comptabilisés autant de fois qu’ils ont eu de remboursements de présentations différentes d’un même"
+    #     " produit/substance active. Les indicateurs restitués pourraient être surestimés pour certains "
+    #     "médicaments."
+    # )
 
 
-    content = Div([
-                    Div(
-                        Div(
-                            [
-                                Div(
-                                    "Répartition par sexe des patients traités",
-                                    className="normal-text",
-                                ),
-                                Div([PieChart(medicament, "sexe", "n_conso")], style={"height":"450px"}),
-                            ],
-                            className="box",
-                        ),
-                        className="col-md-6 col-sm-12",
-                    ),
-                    Div(
-                        Div(
-                            [
-                                Div(
-                                    "Répartition par âge des patients traités",
-                                    className="normal-text",
-                                ),
-                                Div([PieChart(medicament, "age", "n_conso")], style={"height":"450px"}),
-                            ],
-                            className="box",
-                        ),
-                        className="col-md-6 col-sm-12",
-                    ),
-                ],
-                className="row")
+    # content = Div([
+    #                 Div(
+    #                     Div(
+    #                         [
+    #                             Div(
+    #                                 "Répartition par sexe des patients traités",
+    #                                 className="normal-text",
+    #                             ),
+    #                             Div([PieChart(medicament, "sexe", "n_conso")], style={"height":"450px"}),
+    #                         ],
+    #                         className="box",
+    #                     ),
+    #                     className="col-md-6 col-sm-12",
+    #                 ),
+    #                 Div(
+    #                     Div(
+    #                         [
+    #                             Div(
+    #                                 "Répartition par âge des patients traités",
+    #                                 className="normal-text",
+    #                             ),
+    #                             Div([PieChart(medicament, "age", "n_conso")], style={"height":"450px"}),
+    #                         ],
+    #                         className="box",
+    #                     ),
+    #                     className="col-md-6 col-sm-12",
+    #                 ),
+    #             ],
+    #             className="row")
 
     return Div(
         [
             Div([
-                SectionTitle("Patients traités", "patients-traites-info-icon", tooltip_text),
-                disclaimer,
-                content], 
+                SectionTitle("Patients traités", "patients-traites-info-icon"),
+                Accordion(),
+                # disclaimer,
+                # content
+                ], 
             className="col-12"
             )
             # Indicateur(
@@ -804,16 +845,16 @@ def Organes(selected_med: str) -> Component:
     )
 
 
-def FirstSection(selected_med:str) -> Component:
+def FirstSection(cis:str) -> Component:
     return Div([
         SearchDiv(),
-        DescriptionSpecialite(selected_med),
+        DescriptionSpecialite(cis),
     ],
     className="topic-section row",
     id="Desc"
     )
 
-def Specialite(selected_med: str) -> Component:
+def Specialite(cis: str) -> Component:
     return Div(
         [
                     Div(
@@ -829,9 +870,9 @@ def Specialite(selected_med: str) -> Component:
                 className="side-menu",
             ),
             Div([
-                FirstSection(selected_med),
-                PatientsTraites(selected_med),
-                EffetsIndesirables(selected_med),
+                FirstSection(cis),
+                PatientsTraites(cis),
+                # EffetsIndesirables(selected_med),
             ], className="container-fluid")
         ],
         className="side-menu-container"
@@ -938,3 +979,16 @@ def getActiveCell(active_cell, page_current, page_size, data):
         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
     else:
         raise PreventUpdate
+
+
+@app.callback(
+    dd.Output("collapse-1", "is_open"),
+    dd.Input("group-1-toggle", "n_clicks"),
+    dd.State("collapse-1", "is_open"),
+)
+def toggle_accordion(n_clicks, is_open):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return False
+    if n_clicks:
+        return not is_open
