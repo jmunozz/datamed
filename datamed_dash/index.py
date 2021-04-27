@@ -1,4 +1,5 @@
 from urllib.parse import urlparse, unquote_plus
+import os
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -28,6 +29,8 @@ def display_page(href):
     else:
         return app1.layout
 
-
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    if os.environ.get("FLASK_ENV") == "development":
+        app.run_server(host="0.0.0.0", port=8050, debug=True)
+    else:
+        app.run_server()
