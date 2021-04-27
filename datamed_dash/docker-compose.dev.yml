@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    env_file:
+      - docker.env
+    ports:
+      - "8050:8050"
+    command: python index.py
+    volumes:
+      - ./:/usr/src/app
