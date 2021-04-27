@@ -243,8 +243,10 @@ def create_notificateurs_table(_settings: Dict):
 
 def create_substance_soclong_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings)
-    total_case_per_sex_and_age = df.groupby(["code", "sexe", "age"]).n_cas.max()
-    total_case = total_case_per_sex_and_age.groupby("code").n_cas.sum()
+    total_case_per_sex_and_age = df.groupby(["code", "sexe", "age"]).agg(
+        {"n_cas": "max"}
+    )
+    total_case = total_case_per_sex_and_age.groupby("code").agg({"n_cas": "sum"})
     decla_eff = (
         df.groupby(["code", "soc_long"]).n_decla_eff.sum().reset_index(level="soc_long")
     )
@@ -264,12 +266,9 @@ def create_substance_soclong_table(_settings: Dict):
 def create_hlt_table(_settings_soclong: Dict, _settings: Dict):
     df = helpers.load_csv_to_df(_settings)
     soclong_df = helpers.load_csv_to_df(_settings_soclong)
-    decla_eff = soclong_df.groupby(["code", "soc_long"]).n_decla_eff.sum()
-    hlt = (
-        df.groupby(["code", "soc_long", "effet_hlt"])
-        .n_decla_eff_hlt.sum()
-        .reset_index(["effet_hlt"], inplace=True)
-    )
+    decla_eff = soclong_df.groupby(["code", "soc_long"]).agg({"n_decla_eff": "sum"})
+    hlt = df.groupby(["code", "soc_long", "effet_hlt"]).agg({"n_decla_eff_hlt": "sum"})
+    hlt.reset_index(["effet_hlt"], inplace=True)
 
     tmp_df = pd.merge(decla_eff, hlt, left_index=True, right_index=True)
 
