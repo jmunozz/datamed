@@ -1,10 +1,14 @@
 from os import path
 
 import pandas as pd
+from tqdm import tqdm
 
 import db
+import erreurs_med as em
 import helpers
 import settings
+
+engine = db.connect_db()
 
 
 
@@ -211,9 +215,70 @@ def create_hlt_table(_settings_soclong, _settings):
     db.create_table_from_df(final_df, _settings["to_sql"])
 
 
+def find_emed(pattern):
+    return helpers.list_files(settings.DATA_FOLDER, pattern)[0]
+
+
+def load_to_df_emed(fpath, settings) -> pd.DataFrame:
+    args = {**{"io": fpath}, **settings["read_excel"]}
+    df = pd.read_excel(**args)
+
+    # Cleaning
+    df = df[~df.denomination.isna()]
+    df.denomination = df.denomination.apply(lambda x: x.lower().strip() if x else None)
+    df.lieu_erreur = df.lieu_erreur.apply(lambda x: settings["noms_lieux"].get(x, x))
+
+    df[settings["no_info"]] = df[settings["no_info"]].where(
+        pd.notnull(df), "Non renseigné"
+    )
+    df.population_erreur = df.population_erreur.apply(
+        lambda x: "Non renseigné" if x == "NR" else x
+    )
+    df.lieu_erreur = df.lieu_erreur.apply(lambda x: "Non renseigné" if x == "NR" else x)
+    df.effet_indesirable = df.effet_indesirable.apply(
+        lambda x: "Non renseigné" if x == "NR" else x
+    )
+    df.gravite = df.gravite.apply(lambda x: "Non renseigné" if x == "NR" else x)
+    df.initial_erreur = df.initial_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+    df.nature_erreur = df.nature_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+    df.cause_erreur = df.cause_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+    return df
+
+
+def create_table_emed(_settings):
+    fpath = find_emed(_settings["source"]["pattern"])
+    if fpath.exists():
+        df = load_to_df_emed(fpath, _settings)
+        df["produit_denom"] = df.denomination.apply(em.get_produit_denom)
+        df["forme_denom"] = df.denomination.apply(em.get_forme_denom)
+
+        df_spe = pd.read_sql("specialite", engine)
+        df_spe = df_spe.set_index("cis")
+
+        df_corresp = em.get_corresp_df(df, df_spe)
+        args = {**{"name": "cis_erreurs_med_corresp"}, **_settings["to_sql"]}
+        db.create_table_from_df(df_corresp, args)
+
+        for table_name, table_column in tqdm(_settings["tables"].items()):
+            print("{} table creation".format(table_name))
+            df_table = em.get_table_df(df, df_spe, table_column)
+            args = {
+                **{"name": "erreur_med_{}".format(table_name)},
+                **_settings["to_sql"],
+            }
+            db.create_table_from_df(df_table, args)
+
+
 create_table_bdpm_cis(settings.files["bdpm_cis"])
 create_tables_rsp_compo(settings.files["rsp_compo"])
 create_table_atc(settings.files["atc"])
+create_table_emed(settings.files["erreurs_med"])
 create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
 create_table_cis_atc(settings.files["cis_atc"])
 # # Ordei
