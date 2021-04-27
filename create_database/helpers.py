@@ -1,8 +1,7 @@
 from os import walk
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 from urllib.request import urlretrieve
-from typing import Dict
 
 import pandas as pd
 
@@ -18,7 +17,7 @@ def download_file_from_url(url, fpath):
     return fpath
 
 
-def list_files(dirpath, pattern="*"):
+def list_files(dirpath: str, pattern: str = "*") -> List:
     _, _, filenames = next(walk(dirpath))
     files = [
         Path(dirpath).joinpath(filename)
@@ -29,7 +28,7 @@ def list_files(dirpath, pattern="*"):
     return files
 
 
-def find_file(folder, pattern):
+def find_file(folder: str, pattern: str):
     return list_files(folder, pattern)[0]
 
 
@@ -40,11 +39,7 @@ def serie_to_lowercase(df: pd.DataFrame, cols: List[str]):
         )
 
 
-def find_file(folder, pattern):
-    return list_files(folder, pattern)[0]
-
-
-def get_exposition_level(nb, **kwargs):
+def get_exposition_level(nb: int, **kwargs) -> int:
     type = kwargs["type"]
     return (
         max(settings.EXPOSITION[type].items(), key=lambda y: nb <= y[0])[1]
@@ -62,10 +57,10 @@ def mapSexeToCode(x):
     return m[x]
 
 
-def load_excel_to_df(_settings: Dict, path=None):
+def load_excel_to_df(_settings: Dict, path=None) -> pd.DataFrame:
     fpath = (
         find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
-        if path is None
+        if not path
         else path
     )
     # fix bug in pandas when setting type for index (see https://github.com/pandas-dev/pandas/issues/35816)
@@ -84,10 +79,10 @@ def load_excel_to_df(_settings: Dict, path=None):
     return df
 
 
-def load_csv_to_df(_settings: Dict, path=None):
+def load_csv_to_df(_settings: Dict, path=None) -> pd.DataFrame:
     fpath = (
         find_file(settings.DATA_FOLDER, _settings["source"]["pattern"])
-        if path is None
+        if not path
         else path
     )
     # fix bug in pandas when setting type for index (see https://github.com/pandas-dev/pandas/issues/35816)
@@ -114,13 +109,13 @@ def filter_row_low_value(row, **kwargs):
     return row
 
 
-def filter_df_on_low_values(df: pd.DataFrame, cols: List):
+def filter_df_on_low_values(df: pd.DataFrame, cols: List) -> pd.DataFrame:
     return df.apply(axis=1, func=filter_row_low_value, cols=cols)
 
 
-def filter_serie_on_low_values(serie):
+def filter_serie_on_low_values(serie: pd.Series) -> pd.Series:
     return serie.transform(lambda x: x if x >= settings.FILTER_THREESHOLD else None)
 
 
-def get_total_exposition_level(serie, type):
+def get_total_exposition_level(serie: pd.Series, type: str) -> int:
     return get_exposition_level(serie.sum() / serie.size, type=type)

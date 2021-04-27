@@ -349,7 +349,7 @@ files = {
             "dtype": {
                 "code": String(16),
                 "notificateur": Text,
-                "pourcentage_decla": Float,
+                "pourcentage_notif": Float,
             },
         },
     },
