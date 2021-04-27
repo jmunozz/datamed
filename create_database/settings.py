@@ -17,6 +17,8 @@ DBHOSTNAME = config("DBHOSTNAME")
 DBUSERNAME = config("DBUSERNAME")
 DBPWD = config("DBPWD")
 DBNAME = config("DBNAME")
+DBURL = config("DBURL")
+FILTER_THREESHOLD = config("FILTER_THREESHOLD", default=10, cast=int)
 
 EXPOSITION = {
     "specialite": {1000: 1, 5000: 2, 15000: 3, 50000: 4},
@@ -85,7 +87,7 @@ files = {
                     "v",
                 ],
                 "header": None,
-                "index_col": 2,
+                "index_col": "code",
                 "dtype": {"cis": str, "code": str},
             },
             "to_sql": {
@@ -114,7 +116,7 @@ files = {
                     "v",
                 ],
                 "header": None,
-                "index_col": 0,
+                "index_col": "cis",
                 "dtype": {"cis": str, "code": str},
             },
             "to_sql": {
@@ -295,7 +297,6 @@ files = {
                 "dtype": {
                     "code": String(16),
                     "sexe": Integer,
-                    "cas": Integer,
                     "pourcentage_cas": Float,
                 },
             }
@@ -308,7 +309,6 @@ files = {
                 "dtype": {
                     "code": String(16),
                     "age": Text,
-                    "cas": Integer,
                     "pourcentage_cas": Float,
                 },
             }
@@ -382,7 +382,7 @@ files = {
             ],
         },
         "to_sql": {
-            "name": "substance_notif_ordei",
+            "name": "substance_soclong_ordei",
             "if_exists": "replace",
             "index": True,
             "dtype": {"code": String(16), "soc_long": Text, "pourcentage_cas": Float},

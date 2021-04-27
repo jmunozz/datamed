@@ -8,16 +8,14 @@ engine = None
 
 def connect_db():
     global engine
+    url = settings.DBURL or "mysql+pymysql://{user}:{pwd}@{host}/{db}".format(
+        host=settings.DBHOSTNAME,
+        db=settings.DBNAME,
+        user=settings.DBUSERNAME,
+        pwd=settings.DBPWD,
+    )
     if not engine:
-        engine = create_engine(
-            "mysql+pymysql://{user}:{pwd}@{host}/{db}".format(
-                host=settings.DBHOSTNAME,
-                db=settings.DBNAME,
-                user=settings.DBUSERNAME,
-                pwd=settings.DBPWD,
-            ),
-            echo=False,
-        )
+        engine = create_engine(url, echo=False)
     return engine
 
 
