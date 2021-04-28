@@ -1,3 +1,4 @@
+import math
 from urllib.parse import urlencode, quote_plus
 
 import dash.dependencies as dd
@@ -7,7 +8,7 @@ import dash_table
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
-from apps.components.specialite import Accordion, UTILISATION
+from apps.components.specialite import Accordion, UTILISATION, NoData
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
@@ -259,13 +260,20 @@ def CasDeclares(code: str) -> Component:
     fig.update_layout(CURVE_LAYOUT)
 
     df_age = fetch_data.fetch_table("substance_cas_age_ordei", "code")
-    fig_age = go.Figure(
-        go.Pie(
-            labels=df_age.loc[code].age,
-            values=df_age.loc[code].pourcentage_cas,
-            marker_colors=PIE_COLORS_SUBSTANCE,  # px.colors.qualitative.Set3,
+    if not math.isnan(df_age.loc[code].pourcentage_cas.unique()[0]):
+        fig_age = go.Figure(
+            go.Pie(
+                labels=df_age.loc[code].age,
+                values=df_age.loc[code].pourcentage_cas,
+                marker_colors=PIE_COLORS_SUBSTANCE,  # px.colors.qualitative.Set3,
+            )
+        ).update_layout(PIE_LAYOUT)
+        graph_age = Graph(
+            figure=fig_age,
+            responsive=True,
         )
-    ).update_layout(PIE_LAYOUT)
+    else:
+        graph_age = NoData()
 
     return TopicSection(
         [
@@ -308,12 +316,7 @@ def CasDeclares(code: str) -> Component:
                     ),
                     GraphBox(
                         "Répartition par âge des cas déclarés",
-                        [
-                            Graph(
-                                figure=fig_age,
-                                responsive=True,
-                            )
-                        ],
+                        [graph_age],
                         class_name_wrapper="col-md-6",
                     ),
                 ]
