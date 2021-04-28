@@ -1,19 +1,16 @@
-from urllib.parse import urlparse, unquote_plus
 import os
+from urllib.parse import urlparse, unquote_plus
 
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Output, Input
 
-from app import app, server
+from app import app
 from apps import app1, app2, app3, app4
 
 app.layout = html.Div(
     [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
 )
-
-os.environ["PYTHONUNBUFFERED"] = "1"
-os.environ["DATABASE_URL"] = "postgresql://vcbfhnpadtnkzu:553026ea6ff893cd34cf8a4b61a8deeae2f9fb7de004fd393313220d2b249310@ec2-54-228-174-49.eu-west-1.compute.amazonaws.com:5432/d3s5pjrcuo170u"
 
 
 @app.callback(Output("page-content", "children"), Input("url", "href"))
@@ -31,6 +28,7 @@ def display_page(href):
         return app4.Layout()
     else:
         return app1.layout
+
 
 if __name__ == "__main__":
     if os.environ.get("FLASK_ENV") == "development":
