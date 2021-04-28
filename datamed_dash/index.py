@@ -1,11 +1,11 @@
-from urllib.parse import urlparse, unquote_plus
 import os
+from urllib.parse import urlparse, unquote_plus
 
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Output, Input
 
-from app import app, server
+from app import app
 from apps import app1, app2, app3, app4
 
 app.layout = html.Div(
@@ -28,6 +28,7 @@ def display_page(href):
         return app4.Layout()
     else:
         return app1.layout
+
 
 if __name__ == "__main__":
     if os.environ.get("FLASK_ENV") == "development":

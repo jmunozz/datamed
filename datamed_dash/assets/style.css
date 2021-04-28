@@ -110,6 +110,21 @@
   letter-spacing: 0.25px;
 }
 
+.normal-text-bold {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+}
+
+.normal-text-cap {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  color: #009640;
+}
+
 .button-text {
   font-weight: 400;
   font-size: 14px;

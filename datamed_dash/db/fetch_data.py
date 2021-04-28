@@ -1,8 +1,8 @@
-
+import app
 import pandas as pd
 
 from . import utils
-import app
+
 
 @app.cache.memoize(300)
 def fetch_table(table_name, index_col):
