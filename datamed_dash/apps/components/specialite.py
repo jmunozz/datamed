@@ -103,8 +103,11 @@ def Specialite(cis: str) -> Component:
                 className="side-menu",
             ),
             html.Div(
-                divs,
-                className="container side-content",
+                html.Div(
+                    divs,
+                    className="container-fluid"
+                ),
+                className="container-fluid side-content"
             ),
         ],
         className="container-fluid p-0 content",
