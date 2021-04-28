@@ -1,24 +1,28 @@
-.navbar-layout {
-    height: 88px;
-    width: 100%;
-    border-right: none;
-    border-left: none;
-    display: flex;
-    align-items: center;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.24);
-    background-color: #fff;
+.navbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  height: 88px;
+  width: 100%;
+  border-right: none;
+  border-left: none;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.24);
+  background-color: #fff;
+  position: fixed;
+  top: 0;
+  z-index: 10;
 }
 
 .navbar-span {
-    align-items: center;
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
+  align-items: center;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .navbar-menu {
-    align-items: center;
-    display: flex;
+  align-items: center;
+  display: flex;
 }
 
 .vl {
