@@ -4,15 +4,15 @@ from typing import List, Dict
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from sqlalchemy.types import Text
 from tqdm import tqdm
 
-import paths
-from create_tables import upload_cis_from_rsp, push_to_table
+from .create_database import db, settings
+
+engine = db.connect_db()
 
 
 def get_cis_list() -> List:
-    df_cis = upload_cis_from_rsp(paths.P_CIS_RSP)
+    df_cis = pd.read_sql('specialite', engine)
     return df_cis.cis.unique()
 
 
@@ -66,11 +66,5 @@ def create_description_table():
     with open("./datamed_dash/data/descriptions.json", "w") as outfile:
         json.dump(descriptions, outfile)
 
-    push_to_table(
-        pd.DataFrame(descriptions),
-        "description",
-        {
-            "cis": Text,
-            "description": Text,
-        },
-    )
+    df = pd.DataFrame(descriptions, columns=["cis", "description"])
+    db.create_table_from_df(df, settings.files["description"]["to_sql"])
