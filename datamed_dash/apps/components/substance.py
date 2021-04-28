@@ -387,20 +387,89 @@ def SystemesOrganes(code: str) -> Component:
     )
 
 
-@app.callback(
-    dd.Output("url", "href"),
-    [
-        dd.Input("substance-specialite-table", "active_cell"),
-        dd.Input("substance-specialite-table", "page_current"),
-        dd.Input("substance-specialite-table", "page_size"),
-    ],
-    dd.State("substance-specialite-table", "data"),
-)
-def getActiveCell(active_cell, page_current, page_size, data):
-    if active_cell:
-        col = active_cell["column_id"]
-        row = active_cell["row"]
-        cellData = data[(page_current or 0) * page_size + row]["cis"]
-        return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
-    else:
-        raise PreventUpdate
+# @app.callback(
+#     dd.Output("url", "href"),
+#     [
+#         dd.Input("substance-specialite-table", "active_cell"),
+#         dd.Input("substance-specialite-table", "page_current"),
+#         dd.Input("substance-specialite-table", "page_size"),
+#     ],
+#     dd.State("substance-specialite-table", "data"),
+# )
+# def getActiveCell(active_cell, page_current, page_size, data):
+#     if active_cell:
+#         print(active_cell)
+#         col = active_cell["column_id"]
+#         row = active_cell["row"]
+#         cellData = data[(page_current or 0) * page_size + row]["cis"]
+#         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
+#     else:
+#         raise PreventUpdate
+
+# @app.callback(
+#     [
+#         dd.Output("update-on-click-data", "is_open"),
+#         dd.Output("body-modal", "children"),
+#         dd.Output("header-modal", "children"),
+#         dd.Output("selected-soc", "children"),
+#     ],
+#     [
+#         dd.Input("soc-chart-container", "n_clicks"),
+#         dd.Input("close-backdrop", "n_clicks"),
+#         dd.Input("url", "href"),
+#     ],
+#     [dd.State("selected-soc", "children"), dd.State("soc-bar-chart", "hoverData")],
+# )
+# def update_callback(
+#     clicks_container, clicks_close, href, previous_selected_soc, hover_data
+# ):
+#     if not hover_data:
+#         return False, "", "", ""
+#
+#     selected_soc = hover_data["points"][0]["label"]
+#     selected_soc_has_changed = selected_soc != previous_selected_soc
+#
+#     if selected_soc_has_changed:
+#         parsed_url = urlparse(unquote_plus(href))
+#         query = parse_qs(parsed_url.query)
+#         selected_med = query["search"][0]
+#
+#         if SPE_SA_DICT[selected_med] == "spécialité":
+#             medicament = SUBSTANCE_BY_SPECIALITE[selected_med]["produit"]
+#         else:
+#             medicament = selected_med
+#
+#         df_hlt = pd.DataFrame(MED_DICT[medicament]["hlt"])
+#         df_hlt = df_hlt.rename(
+#             columns={"effet_hlt": "Détail des effets rapportés par nombre décroissant"}
+#         )
+#         df_hlt_details = df_hlt[df_hlt.soc_long == selected_soc][
+#             ["Détail des effets rapportés par nombre décroissant"]
+#         ]
+#         return (
+#             True,
+#             Table.from_dataframe(
+#                 df_hlt_details,
+#                 striped=True,
+#                 bordered=True,
+#                 hover=True,
+#                 responsive=True,
+#             ),
+#             selected_soc,
+#             selected_soc,
+#         )
+#     else:
+#         return False, "", "", ""
+
+
+# @app.callback(
+#     dd.Output("collapse-1", "is_open"),
+#     dd.Input("group-1-toggle", "n_clicks"),
+#     dd.State("collapse-1", "is_open"),
+# )
+# def toggle_accordion(n_clicks, is_open):
+#     ctx = dash.callback_context
+#     if not ctx.triggered:
+#         return False
+#     if n_clicks:
+#         return not is_open
