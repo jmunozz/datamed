@@ -73,24 +73,21 @@ def get_notice_link(cis) -> str:
     )
 
 
-# def Specialite(cis: str) -> Component:
-#     return html.Div([
-#         html.Div([],
-#         style={"backgroundColor": "red", "height": "500px"}),
-#         html.Div([],
-#         style={"backgroundColor": "blue", "height": "500px"}),
-#         html.Div([],
-#         style={"backgroundColor": "red", "height": "500px"}),
-#                 html.Div([],
-#         style={"backgroundColor": "blue", "height": "500px"}),
-#                 html.Div([],
-#         style={"backgroundColor": "red", "height": "500px"}),
-#     ],
-#         className="container-fluid",
-#         style={"marginTop": "88px", "position": "sticky", "top": "-500px"})
-
-
 def Specialite(cis: str) -> Component:
+    divs = [
+        Header(cis),
+        Description(cis),
+    ]
+    df_expo = fetch_data.fetch_table("specialite_exposition", "cis")
+    if cis in df_expo.index.tolist():
+        divs.append(PatientsTraites(cis))
+
+    df_emed = fetch_data.fetch_table("erreur_med_cis_denomination", "cis")
+    if cis in df_emed.index.tolist():
+        divs.append(ErreursMedicamenteuses(cis))
+
+    divs.append(EffetsIndesirables(cis))
+
     return html.Div(
         [
             SideMenu(
@@ -106,13 +103,7 @@ def Specialite(cis: str) -> Component:
                 className="side-menu",
             ),
             html.Div(
-                [
-                    Header(cis),
-                    Description(cis),
-                    PatientsTraites(cis),
-                    ErreursMedicamenteuses(cis),
-                    EffetsIndesirables(cis),
-                ],
+                divs,
                 className="container side-content",
             ),
         ],
@@ -215,22 +206,18 @@ def Utilisation(cis: str):
 
 
 def SubstanceLinks(cis: str) -> Component:
-    substances_specialite_df = specialite.list_specialite_substances(cis)
-    substances_codes_list = [
-        s[1] for s in substances_specialite_df["code_substance"].iteritems()
-    ]
-    substances_df = substance.list_substances(substances_codes_list)
+    df_sub_spe = specialite.list_specialite_substances(cis)
+    substances_codes_list = df_sub_spe.code_substance.unique()
+    df_sub = substance.list_substances(substances_codes_list)
     return html.Div(
         [
             html.A(
-                sa.upper(),
-                href="/apps/specialite?{}".format(
-                    urlencode({"search": quote_plus(sa)})
-                ),
+                nom_dict["nom"].upper(),
+                href="/apps/substance?search={}".format(code),
                 className="normal-text link d-block",
                 id="refresh-substances",
             )
-            for sa in substances_df["nom"]
+            for code, nom_dict in df_sub.to_dict(orient="index").items()
         ]
     )
 
@@ -271,7 +258,7 @@ def Description(cis: str) -> Component:
                             ),
                             className="normal-text",
                         ),
-                        html.Div(df_description.loc[cis], className="normal-text"),
+                        html.Div(df_description.loc[cis].description, className="normal-text"),
                     ]
                 ),
                 html.Article(
@@ -344,19 +331,20 @@ def PatientsTraites(cis: str) -> Component:
 def ErreursMedicamenteuses(cis: str) -> Component:
     df_ei = fetch_data.fetch_table("erreur_med_effet_indesirable", "cis")
 
-    df_pop = fetch_data.fetch_table("erreur_med_population", "cis")
+    df_pop = fetch_data.fetch_table("erreur_med_population", "cis").reset_index()
     fig_pop = go.Figure(
         go.Pie(
-            labels=df_pop.loc[cis].population_erreur,
-            values=df_pop.loc[cis].pourcentage,
+            labels=df_pop[df_pop.cis == cis].population_erreur,
+            values=df_pop[df_pop.cis == cis].pourcentage,
             marker_colors=PIE_COLORS,
         )
     ).update_layout(PIE_LAYOUT)
 
-    df_cause = fetch_data.fetch_table("erreur_med_cause", "cis")
+    df_cause = fetch_data.fetch_table("erreur_med_cause", "cis").reset_index()
     fig_cause = px.bar(
-        df_cause.loc[cis],
+        df_cause[df_cause.cis == cis],
         x="pourcentage",
+        y="cis",
         color="cause_erreur",
         labels={"pourcentage": "Proportion (%)", "cause_erreur": "Cause"},
         color_discrete_sequence=PIE_COLORS,
@@ -365,10 +353,11 @@ def ErreursMedicamenteuses(cis: str) -> Component:
     fig_cause.update_layout(STACKED_BAR_CHART_LAYOUT)
     fig_cause.update_layout(barmode="stack")
 
-    df_nat = fetch_data.fetch_table("erreur_med_nature", "cis")
+    df_nat = fetch_data.fetch_table("erreur_med_nature", "cis").reset_index()
     fig_nat = px.bar(
-        df_nat.loc[cis],
+        df_nat[df_nat.cis == cis],
         x="pourcentage",
+        y="cis",
         color="nature_erreur",
         labels={"pourcentage": "Proportion (%)", "nature_erreur": "Nature"},
         color_discrete_sequence=PIE_COLORS,
@@ -508,79 +497,23 @@ def AdverseEffectLink(
     return Box(substance, class_name=class_name, style=style)
 
 
-@app.callback(
-    [
-        dd.Output("update-on-click-data", "is_open"),
-        dd.Output("body-modal", "children"),
-        dd.Output("header-modal", "children"),
-        dd.Output("selected-soc", "children"),
-    ],
-    [
-        dd.Input("soc-chart-container", "n_clicks"),
-        dd.Input("close-backdrop", "n_clicks"),
-        dd.Input("url", "href"),
-    ],
-    [dd.State("selected-soc", "children"), dd.State("soc-bar-chart", "hoverData")],
-)
-def update_callback(
-    clicks_container, clicks_close, href, previous_selected_soc, hover_data
-):
-    if not hover_data:
-        return False, "", "", ""
-
-    selected_soc = hover_data["points"][0]["label"]
-    selected_soc_has_changed = selected_soc != previous_selected_soc
-
-    if selected_soc_has_changed:
-        parsed_url = urlparse(unquote_plus(href))
-        query = parse_qs(parsed_url.query)
-        selected_med = query["search"][0]
-
-        if SPE_SA_DICT[selected_med] == "spécialité":
-            medicament = SUBSTANCE_BY_SPECIALITE[selected_med]["produit"]
-        else:
-            medicament = selected_med
-
-        df_hlt = pd.DataFrame(MED_DICT[medicament]["hlt"])
-        df_hlt = df_hlt.rename(
-            columns={"effet_hlt": "Détail des effets rapportés par nombre décroissant"}
-        )
-        df_hlt_details = df_hlt[df_hlt.soc_long == selected_soc][
-            ["Détail des effets rapportés par nombre décroissant"]
-        ]
-        return (
-            True,
-            Table.from_dataframe(
-                df_hlt_details,
-                striped=True,
-                bordered=True,
-                hover=True,
-                responsive=True,
-            ),
-            selected_soc,
-            selected_soc,
-        )
-    else:
-        return False, "", "", ""
-
-
-@app.callback(
-    dd.Output("url", "href"),
-    [
-        dd.Input("substance-specialite-table", "active_cell"),
-        dd.Input("substance-specialite-table", "page_current"),
-        dd.Input("substance-specialite-table", "page_size"),
-    ],
-    dd.State("substance-specialite-table", "data"),
-)
-def getActiveCell(active_cell, page_current, page_size, data):
-    if active_cell:
-        col = active_cell["column_id"]
-        row = active_cell["row"]
-        cellData = data[(page_current or 0) * page_size + row][col]
-        return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
-    else:
-        raise PreventUpdate
+# @app.callback(
+#     dd.Output("url", "href"),
+#     [
+#         dd.Input("substance-specialite-table", "active_cell"),
+#         dd.Input("substance-specialite-table", "page_current"),
+#         dd.Input("substance-specialite-table", "page_size"),
+#     ],
+#     dd.State("substance-specialite-table", "data"),
+# )
+# def getActiveCell(active_cell, page_current, page_size, data):
+#     if active_cell:
+#         col = active_cell["column_id"]
+#         row = active_cell["row"]
+#         cellData = data[(page_current or 0) * page_size + row][col]
+#         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
+#     else:
+#         raise PreventUpdate
 
 
 @app.callback(
