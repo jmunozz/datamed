@@ -142,6 +142,14 @@ files = {
             "dtype": {"code": String(16)},
         },
     },
+    "description": {
+        "to_sql": {
+            "name": "description",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {"cis": String(16)},
+        },
+    },
     "cis_cip_bdpm": {
         "source": {"pattern": "CIS_CIP_bdpm.txt"},
         "read_csv": {
