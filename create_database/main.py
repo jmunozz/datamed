@@ -58,8 +58,8 @@ def create_table_atc(_settings: Dict):
 
 def load_to_df_atc(fpath):
     serie = pd.read_json(fpath, typ="series")
-    df = serie.to_frame("label_atc")
-    df.index.set_names(names="code_atc", inplace=True)
+    df = serie.to_frame("label")
+    df.index.set_names(names="code", inplace=True)
     return df
 
 
@@ -302,7 +302,7 @@ def create_table_emed(_settings: Dict):
     df_spe = df_spe.set_index("cis")
 
     df_corresp = em.get_corresp_df(df, df_spe)
-    args_corresp = {**{"name": "cis_erreurs_med_corresp"}, **_settings["to_sql"]}
+    args_corresp = {**{"name": "erreur_med_cis_denomination"}, **_settings["to_sql"]}
     db.create_table_from_df(df_corresp, args_corresp)
 
     for table_name, table_column in tqdm(_settings["tables"].items()):

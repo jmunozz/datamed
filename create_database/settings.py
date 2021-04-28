@@ -139,7 +139,7 @@ files = {
             "name": "classes_atc",
             "if_exists": "replace",
             "index": True,
-            "dtype": {"code_atc": String(16)},
+            "dtype": {"code": String(16)},
         },
     },
     "cis_cip_bdpm": {
@@ -186,7 +186,7 @@ files = {
                 "names": ["index", "cis", "sexe", "age", "conso", "n_conso_an", "SEXE"],
             },
             "to_sql": {
-                "name": "specialite_ordei",
+                "name": "specialite_exposition",
                 "if_exists": "replace",
                 "index": True,
                 "dtype": {"cis": String(16), "exposition": Integer},
@@ -249,7 +249,7 @@ files = {
                 ],
             },
             "to_sql": {
-                "name": "substance_ordei",
+                "name": "substance_exposition",
                 "if_exists": "replace",
                 "index": True,
                 "dtype": {
