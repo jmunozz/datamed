@@ -1,28 +1,23 @@
-from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
+from urllib.parse import urlencode, quote_plus
 
-import dash
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
-import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import requests
 from app import app
-from bs4 import BeautifulSoup
+from apps.components.specialite import Accordion, UTILISATION
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from db import specialite, substance, fetch_data
+from db import fetch_data
+from plotly.subplots import make_subplots
 from sm import SideMenu
-from apps.components.specialite import Accordion, UTILISATION
 
-from .utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, ExternalLink
-from ..constants.colors import PIE_COLORS
-from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
-
-code = "00001"
+from .utils import Box, GraphBox, TopicSection, SectionTitle
+from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
+from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
 
 def Substance(code: str) -> Component:
@@ -45,7 +40,8 @@ def Substance(code: str) -> Component:
                     Header(code),
                     Description(code),
                     PatientsTraites(code),
-                    #EffetsIndesirables(code),
+                    CasDeclares(code),
+                    SystemesOrganes(code),
                 ],
                 className="container side-content",
             ),
@@ -120,93 +116,6 @@ def Utilisation(code: str):
     )
 
 
-# def SubstanceDiv(code: str) -> Component:
-#     return html.Div(
-#         html.Div(
-#             html.Div(
-#                 html.Div(
-#                     [
-#                         html.Div(
-#                             html.I(
-#                                 className="bi bi-book d-flex justify-content-center pt-3",
-#                                 style={"font-size": "3rem"},
-#                             ),
-#                             className="position-absolute",
-#                         ),
-#                         html.Div(
-#                             [
-#                                 html.Div(
-#                                     code,
-#                                     className="heading-4",
-#                                 ),
-#                                 html.Div(
-#                                     [
-#                                         html.Div(
-#                                             "SUBSTANCE ACTIVE",
-#                                             className="caption-text d-inline-block",
-#                                         ),
-#                                         html.I(
-#                                             className="info-icon bi bi-info-circle d-inline-block",
-#                                             id="substance-info-icon",
-#                                         ),
-#                                         html.Tooltip(
-#                                             "Composant d'une spécialité pharmaceutique reconnu "
-#                                             "comme possédant des propriétés thérapeutiques.",
-#                                             target="substance-info-icon",
-#                                             placement="right",
-#                                         ),
-#                                     ]
-#                                 ),
-#                                 html.Div(
-#                                     "Spécialités de médicaments contenant : {}".format(
-#                                         code
-#                                     ),
-#                                     className="medium-text mt-5",
-#                                 ),
-#                                 html.Div(
-#                                     "{} médicaments identifiés".format(
-#                                         len(spe_dataframe)
-#                                     ),
-#                                     className="normal-text mt-3",
-#                                     style={"color": "#33C2D6"},
-#                                 ),
-#                                 dash_table.DataTable(
-#                                     id="substance-specialite-table",
-#                                     columns=[
-#                                         {"name": i, "id": i}
-#                                         for i in spe_dataframe.columns
-#                                     ],
-#                                     data=spe_dataframe.to_dict("records"),
-#                                     page_size=10,
-#                                     style_as_list_view=True,
-#                                     style_table={"overflowX": "auto"},
-#                                     style_cell={
-#                                         "height": "40px",
-#                                     },
-#                                     style_data={
-#                                         "fontSize": "12px",
-#                                         "fontWeight": "400",
-#                                         "font-family": "Roboto",
-#                                         "lineHeight": "16px",
-#                                         "textAlign": "left",
-#                                     },
-#                                     style_header={"display": "none"},
-#                                 ),
-#                             ],
-#                             className="pr-5",
-#                             style={"padding-left": "70px"},
-#                         ),
-#                     ],
-#                     className="description",
-#                 ),
-#                 className="col-md-12",
-#             ),
-#             className="row",
-#         ),
-#         className="col-12",
-#     )
-
-
 def Description(code: str) -> Component:
     df_sub = fetch_data.fetch_table("substance", "code")
     df_cis_sub = fetch_data.fetch_table(
@@ -214,10 +123,14 @@ def Description(code: str) -> Component:
     ).reset_index()
     df_cis = fetch_data.fetch_table("specialite", "cis").reset_index()
     df_cis_sub = (
-        df_cis_sub[["code_substance", "cis"]]
-        .merge(df_cis[["cis", "nom"]], on="cis")
-        .rename(columns={"nom": "nom_specialite"})
-    ).set_index("code_substance").sort_values(by="nom_specialite")
+        (
+            df_cis_sub[["code_substance", "cis"]]
+            .merge(df_cis[["cis", "nom"]], on="cis")
+            .rename(columns={"nom": "nom_specialite"})
+        )
+        .set_index("code_substance")
+        .sort_values(by="nom_specialite")
+    )
 
     return TopicSection(
         Box(
@@ -236,8 +149,7 @@ def Description(code: str) -> Component:
                 dash_table.DataTable(
                     id="substance-specialite-table",
                     columns=[
-                        {"name": i, "id": i}
-                        for i in df_cis_sub.loc[code].columns
+                        {"name": i, "id": i} for i in df_cis_sub.loc[code].columns
                     ],
                     data=df_cis_sub.loc[code].to_dict("records"),
                     page_size=10,
@@ -268,7 +180,7 @@ def PatientsTraites(code: str) -> Component:
         go.Pie(
             labels=df_age.loc[code].age,
             values=df_age.loc[code].pourcentage_patients,
-            marker_colors=PIE_COLORS,  # px.colors.qualitative.Set3,
+            marker_colors=PIE_COLORS_SUBSTANCE,  # px.colors.qualitative.Set3,
         )
     ).update_layout(PIE_LAYOUT)
 
@@ -301,40 +213,175 @@ def PatientsTraites(code: str) -> Component:
     )
 
 
-# def EffetsIndesirables(cis: str) -> Component:
-#     df_cis_sub = fetch_data.fetch_table("specialite_substance", "cis").reset_index()
-#     df_sub = fetch_data.fetch_table("substance", "code").reset_index()
-#     df = df_cis_sub[df_cis_sub.cis == cis].merge(
-#         df_sub, left_on="code_substance", right_on="code", how="left"
-#     )
-#     substances_list = df.nom.unique()
-#
-#     return TopicSection(
-#         [
-#             SectionTitle(
-#                 "Cas déclarés d’effets indésirables des substances actives du Doliprane"
-#             ),
-#             html.Div(
-#                 "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
-#                 "l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou erreurs médicamenteuses. "
-#                 "Il s’agit de cas évalués et validés par un comité d’experts.",
-#                 className="normal-text",
-#             ),
-#             dbc.Row(
-#                 [
-#                     AdverseEffectLink(substance.capitalize())
-#                     for substance in substances_list
-#                 ]
-#             ),
-#         ],
-#         id="",
-#     )
+def CasDeclares(code: str) -> Component:
+    df_decla = fetch_data.fetch_table("substance_ordei", "code")
+    declarations = int(df_decla.loc[code].cas.unique()[0])
+    taux_cas = round(df_decla.loc[code].taux_cas.unique()[0], 2)
+
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    if df_decla.loc[code].cas_annee.min() > 10:
+        fig.add_trace(
+            go.Scatter(
+                x=df_decla.loc[code].annee,
+                y=df_decla.loc[code].cas_annee,
+                mode="lines",
+                name="Cas déclarés",
+                line={
+                    "shape": "spline",
+                    "smoothing": 1,
+                    "width": 4,
+                    "color": "#F599B5",
+                },
+            ),
+            secondary_y=False,
+        )
+
+    fig.add_trace(
+        go.Scatter(
+            x=df_decla.loc[code].annee,
+            y=df_decla.loc[code].conso_annee,
+            mode="lines",
+            name="Patients traités",
+            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
+            hoverlabel={"namelength": -1},
+        ),
+        secondary_y=True,
+    )
+
+    fig.update_yaxes(
+        title_text="Déclarations d'effets indésirables",
+        color="#F599B5",
+        secondary_y=False,
+    )
+    fig.update_yaxes(title_text="Patients traités", color="#EA336B", secondary_y=True)
+    fig.update_xaxes(title_text="Années")
+    fig.update_xaxes(nticks=len(df_decla.loc[code]))
+    fig.update_layout(CURVE_LAYOUT)
+
+    df_age = fetch_data.fetch_table("substance_cas_age_ordei", "code")
+    fig_age = go.Figure(
+        go.Pie(
+            labels=df_age.loc[code].age,
+            values=df_age.loc[code].pourcentage_cas,
+            marker_colors=PIE_COLORS_SUBSTANCE,  # px.colors.qualitative.Set3,
+        )
+    ).update_layout(PIE_LAYOUT)
+
+    return TopicSection(
+        [
+            SectionTitle("Cas déclarés d'effets indésirables"),
+            Accordion(),
+            dbc.Row(
+                [
+                    GraphBox(
+                        "{} déclarations".format(declarations),
+                        [],
+                        class_name_wrapper="col-md-6",
+                    ),
+                    GraphBox(
+                        "{} déclarations / 100 000".format(taux_cas),
+                        [],
+                        class_name_wrapper="col-md-6",
+                    ),
+                ]
+            ),
+            dbc.Row(
+                [
+                    GraphBox(
+                        "Nombre de cas déclarés d’effets indésirables et patients traités par année",
+                        [
+                            Graph(
+                                figure=fig,
+                                responsive=True,
+                            )
+                        ],
+                        class_name_wrapper="col-md-12",
+                    ),
+                ]
+            ),
+            dbc.Row(
+                [
+                    GraphBox(
+                        "Répartition par sexe des cas déclarés",
+                        [],
+                        class_name_wrapper="col-md-6",
+                    ),
+                    GraphBox(
+                        "Répartition par âge des cas déclarés",
+                        [
+                            Graph(
+                                figure=fig_age,
+                                responsive=True,
+                            )
+                        ],
+                        class_name_wrapper="col-md-6",
+                    ),
+                ]
+            ),
+        ],
+        id="",
+    )
 
 
-def AdverseEffectLink(
-    substance: str, class_name="normal-text-bold", style={"color": "#00B3CC"}
-) -> Component:
-    return Box(substance, class_name=class_name, style=style)
+def SystemesOrganes(code: str) -> Component:
+    df_soc = fetch_data.fetch_table("substance_soclong_ordei", "code")
+    fig_soc = px.treemap(
+        df_soc.loc[code].sort_values(by="pourcentage_cas", ascending=False).head(10),
+        path=["soc_long"],
+        values="pourcentage_cas",
+        color_discrete_sequence=TREE_COLORS,
+        hover_name="soc_long",
+    )
+
+    fig_soc.update_layout(
+        {
+            "xaxis_showgrid": False,
+            "yaxis_showgrid": False,
+            "hovermode": "x unified",
+            "plot_bgcolor": "#FAFAFA",
+            "paper_bgcolor": "#FAFAFA",
+            "margin": dict(t=0, b=0, l=0, r=0),
+            "font": {"size": 12, "color": "black"},
+            "legend": dict(
+                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
+            ),
+        }
+    )
+    fig_soc.update_traces(
+        texttemplate="%{label}<br>%{value:.0f}%",
+        textposition="middle center",
+        textfont_size=18,
+        hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
+    )
+
+    return TopicSection(
+        [
+            SectionTitle("Effets indésirables par système d'organe"),
+            html.Div(
+                "Les Systèmes d’organes (Système Organe Classe) représentent les 27 classes de disciplines médicales "
+                "selon la hiérarchie MedDRA Sont listés ici les 10 SOC avec le plus d’effets indésirables déclarés. "
+                "Attention : Un cas est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets indésirables "
+                "affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC différents "
+                "(en fonction des effets indésirables déclarés).",
+                className="normal-text",
+            ),
+            dbc.Row(
+                [
+                    GraphBox(
+                        "",
+                        [
+                            Graph(
+                                figure=fig_soc,
+                                responsive=True,
+                            )
+                        ],
+                        class_name_wrapper="col-md-12",
+                    ),
+                ]
+            ),
+        ],
+        id="population-concernee",
+    )
 
 
 # @app.callback(
