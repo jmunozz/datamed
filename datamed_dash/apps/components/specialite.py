@@ -564,23 +564,23 @@ def update_callback(
         return False, "", "", ""
 
 
-@app.callback(
-    dd.Output("url", "href"),
-    [
-        dd.Input("substance-specialite-table", "active_cell"),
-        dd.Input("substance-specialite-table", "page_current"),
-        dd.Input("substance-specialite-table", "page_size"),
-    ],
-    dd.State("substance-specialite-table", "data"),
-)
-def getActiveCell(active_cell, page_current, page_size, data):
-    if active_cell:
-        col = active_cell["column_id"]
-        row = active_cell["row"]
-        cellData = data[(page_current or 0) * page_size + row][col]
-        return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
-    else:
-        raise PreventUpdate
+# @app.callback(
+#     dd.Output("url", "href"),
+#     [
+#         dd.Input("substance-specialite-table", "active_cell"),
+#         dd.Input("substance-specialite-table", "page_current"),
+#         dd.Input("substance-specialite-table", "page_size"),
+#     ],
+#     dd.State("substance-specialite-table", "data"),
+# )
+# def getActiveCell(active_cell, page_current, page_size, data):
+#     if active_cell:
+#         col = active_cell["column_id"]
+#         row = active_cell["row"]
+#         cellData = data[(page_current or 0) * page_size + row][col]
+#         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
+#     else:
+#         raise PreventUpdate
 
 
 @app.callback(
