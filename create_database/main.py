@@ -253,8 +253,8 @@ def create_substance_soclong_table(_settings: Dict):
     final_df = pd.merge(total_case, decla_eff, left_index=True, right_on=["code"])
     final_df = helpers.filter_df_on_low_values(final_df, ["n_decla_eff", "n_cas"])
     final_df["pourcentage_cas"] = final_df.apply(
-        lambda x: float(x.n_decla_eff * 100 / x.n_cas)
-        if x.n_decla_eff is not None and x.n_cas is not None
+        lambda x: x.n_decla_eff / x.n_cas * 100
+        if x.n_decla_eff and x.n_cas
         else None,
         axis=1,
         result_type="expand",
@@ -315,24 +315,24 @@ def create_table_emed(_settings: Dict):
         db.create_table_from_df(df_table, args)
 
 
-create_table_bdpm_cis(settings.files["bdpm_cis"])
-create_tables_rsp_compo(settings.files["rsp_compo"])
-create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
-create_table_atc(settings.files["atc"])
-create_table_cis_atc(settings.files["cis_atc"])
-
-# Ordei
-create_spe_conso_ordei_table(settings.files["ordei_specialite"])
-create_spe_patients_sexe_table(settings.files["ordei_specialite"])
-create_spe_patients_age_table(settings.files["ordei_specialite"])
-create_substance_ordei_table(settings.files["ordei_substance"])
-create_substance_patients_sexe_table(settings.files["ordei_substance"])
-create_substance_patients_age_table(settings.files["ordei_substance"])
-create_substance_cas_sexe_table(settings.files["ordei_substance"])
-create_substance_cas_age_table(settings.files["ordei_substance"])
-create_notificateurs_table(settings.files["ordei_notificateurs"])
-create_substance_soclong_table(settings.files["ordei_soclong"])
-create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
-
-# Erreurs médicamenteuses
-create_table_emed(settings.files["erreurs_med"])
+# create_table_bdpm_cis(settings.files["bdpm_cis"])
+# create_tables_rsp_compo(settings.files["rsp_compo"])
+# create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+# create_table_atc(settings.files["atc"])
+# create_table_cis_atc(settings.files["cis_atc"])
+#
+# # Ordei
+# create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+# create_spe_patients_sexe_table(settings.files["ordei_specialite"])
+# create_spe_patients_age_table(settings.files["ordei_specialite"])
+# create_substance_ordei_table(settings.files["ordei_substance"])
+# create_substance_patients_sexe_table(settings.files["ordei_substance"])
+# create_substance_patients_age_table(settings.files["ordei_substance"])
+# create_substance_cas_sexe_table(settings.files["ordei_substance"])
+# create_substance_cas_age_table(settings.files["ordei_substance"])
+# create_notificateurs_table(settings.files["ordei_notificateurs"])
+# create_substance_soclong_table(settings.files["ordei_soclong"])
+# create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+#
+# # Erreurs médicamenteuses
+# create_table_emed(settings.files["erreurs_med"])
