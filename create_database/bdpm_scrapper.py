@@ -30,33 +30,23 @@ def scrap_bdpm(cis_list: List) -> List[Dict]:
         soup = BeautifulSoup(page.content, "html.parser")
         # print(soup.prettify())
 
-        if soup.body.findAll(
-            text="Le document demandé n'est pas disponible pour ce médicament"
-        ):
-            print(cis)
-            page = requests.get(
-                "https://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid={}".format(
-                    cis
-                )
-            )
-            soup = BeautifulSoup(page.content, "html.parser")
-
         description_elements = soup.find_all("p", {"class": "AmmCorpsTexte"})
 
-        description = ""
-        for ele in description_elements:
-            if (
-                ele.text.replace("\n", " ")
-                .strip()
-                .startswith("Classe pharmacothérapeutique")
-                or "ATC" in ele.text.replace("\n", " ").strip()
-            ):
-                continue
-            else:
-                description += (
-                    ele.text.replace("\n", " ").strip().lower().capitalize() + " "
-                )
-        descriptions.append({"cis": cis, "description": description})
+        if description_elements:
+            description = ""
+            for ele in description_elements:
+                if (
+                    ele.text.replace("\n", " ")
+                    .strip()
+                    .startswith("Classe pharmacothérapeutique")
+                    or "ATC" in ele.text.replace("\n", " ").strip()
+                ):
+                    continue
+                else:
+                    description += (
+                        ele.text.replace("\n", " ").strip().lower().capitalize() + " "
+                    )
+            descriptions.append({"cis": cis, "description": description})
     return descriptions
 
 
@@ -64,8 +54,9 @@ def create_description_table():
     cis_list = get_cis_list()
     descriptions = scrap_bdpm(cis_list)
 
-    with open("./datamed_dash/data/descriptions.json", "w") as outfile:
+    with open("data/descriptions.json", "w") as outfile:
         json.dump(descriptions, outfile)
 
     df = pd.DataFrame(descriptions, columns=["cis", "description"])
+    df = df.set_index("cis")
     db.create_table_from_df(df, settings.files["description"]["to_sql"])
