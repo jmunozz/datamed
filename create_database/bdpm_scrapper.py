@@ -6,13 +6,14 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-from .create_database import db, settings
+import db
+import settings
 
 engine = db.connect_db()
 
 
 def get_cis_list() -> List:
-    df_cis = pd.read_sql('specialite', engine)
+    df_cis = pd.read_sql("specialite", engine)
     return df_cis.cis.unique()
 
 
