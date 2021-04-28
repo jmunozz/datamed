@@ -12,7 +12,7 @@ from dash_html_components import Div, A, P, I
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .specialite import SectionTitle, Indicateur
+from .specialite import SectionTitle    #, Indicateur
 from ..constants.colors import BAR_CHART_COLORS
 from ..constants.layouts import BAR_LAYOUT
 
