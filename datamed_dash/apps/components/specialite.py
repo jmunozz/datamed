@@ -15,42 +15,40 @@ from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+from dash_core_components import Graph
 from plotly.subplots import make_subplots
 from sm import SideMenu
+import plotly.express as px
 
 from ..constants.colors import PIE_COLORS, BAR_CHART_COLORS
-from ..constants.layouts import BAR_LAYOUT, CURVE_LAYOUT, PIE_LAYOUT
-from db import specialite, substance, atc
+from ..constants.layouts import BAR_LAYOUT, CURVE_LAYOUT, PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
+from db import specialite, substance, atc, fetch_data
 from.utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, ExternalLink
 
 
-# with zipfile.ZipFile("./data/med_dict.json.zip", "r") as z:
-#     filename = z.namelist()[0]
-#     with z.open(filename) as f:
-#         data = f.read()
-#         MED_DICT = json.loads(data.decode("utf-8"))
-
-# with zipfile.ZipFile("./data/notice_by_spe.json.zip", "r") as z:
-#     filename = z.namelist()[0]
-#     with z.open(filename) as f:
-#         data = f.read()
-#         NOTICE_BY_SPE = json.loads(data.decode("utf-8"))
-
-# file_sub_by_spe = open("./data/substance_by_specialite.json", "r")
-# SUBSTANCE_BY_SPECIALITE = json.loads(file_sub_by_spe.read())
-
-# file_liste_spe_sa = open("./data/spe_sa_dict.json", "r")
-# SPE_SA_DICT = json.loads(file_liste_spe_sa.read())
-
-# file_atc_by_spe = open("./data/atc_by_spe.json", "r")
-# ATC_BY_SPE = json.loads(file_atc_by_spe.read())
+UTILISATION = {
+    1: "Utilisation faible",
+    2: "Utilisation faible",
+    3: "Utilisation moyenne",
+    4: "Utilisation élevée",
+    5: "Utilisation élevée",
+}
 
 def get_has_guideline_link(current_specialite): 
     cis = current_specialite.name
-    link = "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(cis)
-    return link
+    return "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(cis)
 
-def get_bdpm_links(cis) -> str:
+def get_rcp_link(cis) -> str:
+    link = "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=R".format(cis)
+    fallback_link = "https://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid={}".format(cis)
+    page = requests.get(link)
+    soup = BeautifulSoup(page.content, "html.parser")
+    return fallback_link if soup.body.findAll(
+        text="Le document demandé n'est pas disponible pour ce médicament"
+    ) else link
+
+
+def get_notice_link(cis) -> str:
     link = "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(cis)
     fallback_link = "https://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid={}".format(cis)
     page = requests.get(link)
@@ -58,6 +56,7 @@ def get_bdpm_links(cis) -> str:
     return fallback_link if soup.body.findAll(
         text="Le document demandé n'est pas disponible pour ce médicament"
     ) else link
+
 
 
 
@@ -89,7 +88,7 @@ def Specialite(cis: str) -> Component:
                 className="side-menu",
             ),
             html.Div([
-                    Header(),
+                    Header(cis),
                     Description(cis),
                     PatientsTraites(cis),
                     ErreursMedicamenteuses(cis),
@@ -99,10 +98,11 @@ def Specialite(cis: str) -> Component:
         ], 
         className="container-fluid p-0 content")
 
-def Header() -> Component: 
+def Header(cis: str) -> Component:
+    spe = specialite.get_specialite(cis).nom
     return html.Div([
-            html.H1("Doliprane, 500mg, comprimé"),
-            html.H3("Spécialité de médicament"),
+            html.Div(spe.capitalize(), className="heading-4"),
+            html.Div("Spécialité de médicament", className="large-text"),
             html.A("Qu'est-ce qu'une spécialité de médicament ?")
         ],
         className="content-header"
@@ -130,7 +130,9 @@ def Accordion() -> Component:
 
 
 
-def Utilisation(cis: str): 
+def Utilisation(cis: str):
+    df_expo = fetch_data.fetch_table("specialite_exposition", "cis")
+    utilisation = df_expo.loc[cis].exposition
     return dbc.Row([
         Box([
             html.Div([
@@ -139,18 +141,20 @@ def Utilisation(cis: str):
                     html.P("INDICE")
                 ],
                 className="d-flex flex-column"),
-                html.Div(html.H1("4/5", className="text-4"))
+                html.Div([html.Div(str(utilisation), className="heading-1"),
+                          html.Div("/5", className="heading-4")], className="d-flex")
             ], 
             style={"flex": 1, "backgroundColor": "#00B3CC"},
             className="p-3 d-flex flex-row justify-content-around align-items-center on-background"),
             html.Div([
-                html.H2("Utilisation élevée"),
-                html.P("Nombre de patients traité par an en France entre 15 000 et 50 000"),
-                html.A("En savoir plus sur le taux d'exposition")
+                html.Div(UTILISATION[utilisation], className="heading-4"),
+                html.Div("Nombre de patients traités par an en France", className="normal-text"),
+                html.Div("En savoir plus sur le taux d'exposition", className="normal-text link", style={"color": "#00B3CC"})
             ],
             style={"flex": 3},
             className="p-3"),
-        ],class_name_wrapper="col-md-12", class_name="p-0 d-flex")
+        ],
+            class_name_wrapper="col-md-12", class_name="p-0 d-flex")
     ])
 
 def SubstanceLinks(cis: str) -> Component:
@@ -173,20 +177,35 @@ def SubstanceLinks(cis: str) -> Component:
 
 def Description(cis: str) -> Component:
     current_specialite_series = specialite.get_specialite(cis)
+    df_description = fetch_data.fetch_table("description", "cis")
+
+    df_cis_atc = fetch_data.fetch_table("specialite_atc", "cis").reset_index()
+    df_atc = fetch_data.fetch_table("classes_atc", "code")
+    df = df_cis_atc.merge(df_atc, left_on="atc", right_on="code", how="left").set_index("cis")
+
     return TopicSection(
         Box([
             html.Article([
-                ArticleTitle("Substance(s) active(s)")
+                ArticleTitle("Substance(s) active(s)"),
+                SubstanceLinks(cis)
             ]),
             html.Article([
                 ArticleTitle("Statut de la spécialité de médicament"),
-                html.A(current_specialite_series.etat_commercialisation.upper(),
-                className="normal-text link d-block",
+                html.Div(current_specialite_series.etat_commercialisation.upper(),
+                className="normal-text-cap d-block",
                 id="refresh-substances",
             )
             ]),
             html.Article([
-                ArticleTitle("Description")
+                ArticleTitle("Description"),
+                html.Div(
+                    "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
+                        df.loc[cis].label.capitalize(),
+                        df.loc[cis].atc,
+                    ),
+                    className="normal-text",
+                ),
+                html.Div(df_description.loc[cis], className="normal-text"),
             ]),        
             html.Article([
                 ArticleTitle("Recommandation HAS"),
@@ -194,18 +213,26 @@ def Description(cis: str) -> Component:
             ]),
             html.Article([
                 ArticleTitle("Infos pour les professionnels de santé"),
-                ExternalLink("Afficher le RCP", get_has_guideline_link(current_specialite_series)),
+                ExternalLink("Afficher le RCP", get_rcp_link(cis)),
 
             ]),
             html.Article([
                 ArticleTitle("Infos pour les patients"),
-                ExternalLink("Afficher la notice", get_has_guideline_link(current_specialite_series)),
+                ExternalLink("Afficher la notice", get_notice_link(cis)),
             ])
         ], class_name_wrapper="overlap-top-content"), 
         id="description"
     )
 
 def PatientsTraites(cis: str) -> Component:
+    df_age = fetch_data.fetch_table("specialite_patient_age_ordei", "cis")
+    fig = go.Figure(
+        go.Pie(
+            labels=df_age.loc[cis].age,
+            values=df_age.loc[cis].pourcentage_patients,
+            marker_colors=PIE_COLORS,  # px.colors.qualitative.Set3,
+        )
+    ).update_layout(PIE_LAYOUT)
 
     return TopicSection([
                 SectionTitle("Patients traités"),
@@ -213,45 +240,129 @@ def PatientsTraites(cis: str) -> Component:
                 Utilisation(cis),
                 dbc.Row([
                     GraphBox("Répartition par sexe des patients traités", [], class_name_wrapper="col-md-6"),
-                    GraphBox("Répartition par âge des patients traités", [], class_name_wrapper="col-md-6"),
+                    GraphBox("Répartition par âge des patients traités", [
+                        Graph(
+                            figure=fig,
+                            responsive=True,
+                        )], class_name_wrapper="col-md-6"),
                 ]),
             ], id="population-concernee")
 
 
 def ErreursMedicamenteuses(cis: str) -> Component:
+    df_ei = fetch_data.fetch_table("erreur_med_effet_indesirable", "cis")
+
+    df_pop = fetch_data.fetch_table("erreur_med_population", "cis")
+    fig_pop = go.Figure(
+        go.Pie(
+            labels=df_pop.loc[cis].population_erreur,
+            values=df_pop.loc[cis].pourcentage,
+            marker_colors=PIE_COLORS,
+        )
+    ).update_layout(PIE_LAYOUT)
+
+    df_cause = fetch_data.fetch_table("erreur_med_cause", "cis")
+    fig_cause = px.bar(
+        df_cause.loc[cis],
+        x="pourcentage",
+        color="cause_erreur",
+        labels={'pourcentage': 'Proportion (%)', 'cause_erreur': "Cause"},
+        color_discrete_sequence=PIE_COLORS,
+        orientation="h"
+    )
+    fig_cause.update_layout(STACKED_BAR_CHART_LAYOUT)
+    fig_cause.update_layout(barmode='stack')
+
+    df_nat = fetch_data.fetch_table("erreur_med_nature", "cis")
+    fig_nat = px.bar(
+        df_nat.loc[cis],
+        x="pourcentage",
+        color="nature_erreur",
+        labels={'pourcentage': 'Proportion (%)', 'nature_erreur': "Nature"},
+        color_discrete_sequence=PIE_COLORS,
+        orientation="h"
+    )
+    fig_nat.update_layout(STACKED_BAR_CHART_LAYOUT)
+    fig_nat.update_layout(barmode='stack')
+
+    df_denom = fetch_data.fetch_table("erreur_med_cis_denomination", "cis")
+
     return TopicSection([
         SectionTitle("Erreurs médicamenteuses"),
-        html.P("Les erreurs médicamenteuses proviennent des déclarations d’erreurs médicamenteuses, gérée par l’ANSM. Les formes d’erreur se classifient sous 3 grandes catégories : Erreur de prescription, Erreur de délivrance, Erreur d’administration."),
+        html.Div("Les erreurs médicamenteuses proviennent des déclarations d’erreurs médicamenteuses, "
+                 "gérée par l’ANSM. Les formes d’erreur se classifient sous 3 grandes catégories : "
+                 "Erreur de prescription, Erreur de délivrance, Erreur d’administration.",
+                 className="normal-text"),
         dbc.Row([
             GraphBox("Existance d’effets indésirables", [], class_name_wrapper="col-md-6"),
-            GraphBox("Répartition de la population concernée", [], class_name_wrapper="col-md-6"),
+            GraphBox("Répartition de la population concernée", [
+                Graph(
+                    figure=fig_pop,
+                    responsive=True,
+                )], class_name_wrapper="col-md-6"),
         ]),
         dbc.Row([
-            GraphBox("Cause des erreurs médicamenteuses et leur gravité", [], class_name_wrapper="col-md-12"),
+            GraphBox("Cause des erreurs médicamenteuses", [
+                Graph(
+                    figure=fig_cause,
+                    responsive=True,
+                )], class_name_wrapper="col-md-12"),
         ]), 
         dbc.Row([
-            GraphBox("Nature des erreurs médicamenteuses et leur gravité", [], class_name_wrapper="col-md-12"),
+            GraphBox("Nature des erreurs médicamenteuses", [
+                Graph(
+                    figure=fig_nat,
+                    responsive=True,
+                )], class_name_wrapper="col-md-12"),
         ]),
         dbc.Row([
-            GraphBox("Liste des dénominations d’erreurs médicamenteuses", [], class_name_wrapper="col-md-12"),
+            GraphBox("Liste des dénominations des médicaments concernés par ces erreurs médicamenteuses", [
+                dash_table.DataTable(
+                    id="denomination-table",
+                    columns=[
+                        {"name": i, "id": i} for i in df_denom.loc[cis].columns
+                    ],
+                    data=df_denom.loc[cis].to_dict("records"),
+                    page_size=10,
+                    style_as_list_view=True,
+                    style_table={"overflowX": "auto"},
+                    style_cell={
+                        "height": "40px",
+                    },
+                    style_data={
+                        "fontSize": "12px",
+                        "fontWeight": "400",
+                        "font-family": "Roboto",
+                        "lineHeight": "16px",
+                        "textAlign": "left",
+                    },
+                    style_header={"display": "none"},
+                )
+            ], class_name_wrapper="col-md-12"),
         ])
 
     ], id="erreurs-medicamenteuses")
 
 def EffetsIndesirables(cis: str) -> Component:
+    df_cis_sub = fetch_data.fetch_table("specialite_substance", "cis").reset_index()
+    df_sub = fetch_data.fetch_table("substance", "code").reset_index()
+    df = df_cis_sub[df_cis_sub.cis == cis].merge(df_sub, left_on="code_substance", right_on="code", how="left")
+    substances_list = df.nom.unique()
+
     return TopicSection([
         SectionTitle("Cas déclarés d’effets indésirables des substances actives du Doliprane"),
-        html.P("Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts."),
+        html.Div("Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
+               "l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou erreurs médicamenteuses. "
+               "Il s’agit de cas évalués et validés par un comité d’experts.",
+                 className="normal-text"),
         dbc.Row([
-            AdverseEffectLink("Paracétamol"),
-            AdverseEffectLink("Codéine"),
-            AdverseEffectLink("Huile d'olive raffinée pour préparations injectables"),
+            AdverseEffectLink(substance.capitalize()) for substance in substances_list
         ])
 
     ], id="")
 
-def AdverseEffectLink(substance: str) -> Component:
-    return Box(substance)
+def AdverseEffectLink(substance: str, class_name="normal-text-bold", style={"color": "#00B3CC"}) -> Component:
+    return Box(substance, class_name=class_name, style=style)
 
 
 @app.callback(

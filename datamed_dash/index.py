@@ -12,6 +12,9 @@ app.layout = html.Div(
     [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
 )
 
+os.environ["PYTHONUNBUFFERED"] = "1"
+os.environ["DATABASE_URL"] = "postgresql://vcbfhnpadtnkzu:553026ea6ff893cd34cf8a4b61a8deeae2f9fb7de004fd393313220d2b249310@ec2-54-228-174-49.eu-west-1.compute.amazonaws.com:5432/d3s5pjrcuo170u"
+
 
 @app.callback(Output("page-content", "children"), Input("url", "href"))
 def display_page(href):
