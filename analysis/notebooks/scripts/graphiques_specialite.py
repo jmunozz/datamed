@@ -42,11 +42,17 @@ df_spe = df_spe.set_index("cis")
 cis = df_spe[df_spe.nom == specialite].index[0]
 
 
+# In[6]:
+
+
+df_spe[df_spe.nom == specialite]
+
+
 # # Graphes
 
 # ## Layouts
 
-# In[6]:
+# In[7]:
 
 
 BAR_CHART_COLORS = [
@@ -121,7 +127,7 @@ STACKED_BAR_CHART_LAYOUT = {
 
 # # Spécialité
 
-# In[7]:
+# In[8]:
 
 
 # DOLIPRANE 500 mg, gélule
@@ -132,16 +138,16 @@ STACKED_BAR_CHART_LAYOUT = {
 
 # ### Exposition
 
-# In[25]:
+# In[9]:
 
 
-df_expo = pd.read_sql("specialite_ordei", con=engine, index_col="cis")
+df_expo = pd.read_sql("specialite_exposition", con=engine, index_col="cis")
 df_expo.loc[cis]
 
 
 # ### Sexe
 
-# In[9]:
+# In[10]:
 
 
 df_sexe = pd.read_sql("specialite_patient_sexe_ordei", con=engine)
@@ -150,14 +156,14 @@ df_sexe[df_sexe.cis == cis].head(2)
 
 # ### Âge
 
-# In[10]:
+# In[11]:
 
 
 df_age = pd.read_sql("specialite_patient_age_ordei", con=engine)
 df_age.head(2)
 
 
-# In[11]:
+# In[12]:
 
 
 fig = go.Figure(
@@ -175,14 +181,14 @@ fig.show()
 
 # ### Effets indésirables
 
-# In[12]:
+# In[13]:
 
 
 df_ei = pd.read_sql("erreur_med_effet_indesirable", con=engine)
 df_ei.head(2)
 
 
-# In[13]:
+# In[14]:
 
 
 df_ei[df_ei.cis == cis]
@@ -190,14 +196,14 @@ df_ei[df_ei.cis == cis]
 
 # ### Population erreurs med
 
-# In[14]:
+# In[15]:
 
 
 df_pop = pd.read_sql("erreur_med_population", con=engine)
 df_pop.head(2)
 
 
-# In[15]:
+# In[16]:
 
 
 fig = go.Figure(
@@ -213,14 +219,14 @@ fig.show()
 
 # ### Cause des erreurs
 
-# In[16]:
+# In[17]:
 
 
 df_cause = pd.read_sql("erreur_med_cause", con=engine)
 df_cause[df_cause.cis == cis]
 
 
-# In[17]:
+# In[18]:
 
 
 fig = px.bar(
@@ -240,14 +246,14 @@ fig.show()
 
 # ### Nature des erreurs
 
-# In[18]:
+# In[19]:
 
 
 df_nat = pd.read_sql("erreur_med_nature", con=engine)
 df_nat[df_nat.cis == cis]
 
 
-# In[19]:
+# In[20]:
 
 
 fig = px.bar(
@@ -267,23 +273,23 @@ fig.show()
 
 # ### Liste des dénominations d'erreurs médicamenteuses
 
-# In[20]:
+# In[21]:
 
 
-df_denom = pd.read_sql("cis_erreurs_med_corresp", con=engine)
+df_denom = pd.read_sql("erreur_med_cis_denomination", con=engine)
 df_denom[df_denom.cis == cis]
 
 
 # # Substances actives correspondant à la spécialité
 
-# In[21]:
+# In[22]:
 
 
 df_cis_sub = pd.read_sql("specialite_substance", engine)
 df_sub = pd.read_sql("substance", engine)
 
 
-# In[22]:
+# In[23]:
 
 
 df = df_cis_sub[df_cis_sub.cis == cis].merge(df_sub, left_on="code_substance", right_on="code", how="left")
