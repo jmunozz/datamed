@@ -1,18 +1,14 @@
-from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
-
 import dash
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
-import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
 from app import app
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
-from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
 from db import specialite, substance, fetch_data
 from sm import SideMenu
@@ -258,7 +254,9 @@ def Description(cis: str) -> Component:
                             ),
                             className="normal-text",
                         ),
-                        html.Div(df_description.loc[cis].description, className="normal-text"),
+                        html.Div(
+                            df_description.loc[cis].description, className="normal-text"
+                        ),
                     ]
                 ),
                 html.Article(
@@ -328,6 +326,24 @@ def PatientsTraites(cis: str) -> Component:
     )
 
 
+def NoData() -> html.Div:
+    return html.Div(
+        [
+            html.Img(
+                src="/assets/illu_no_data.svg",
+                className="img-fluid",
+                alt="Responsive image",
+            ),
+            html.Div(
+                "Données insuffisantes pour affichage",
+                className="small-text",
+                style={"color": "#9e9e9e"},
+            ),
+        ],
+        className="d-flex flex-column align-items-center",
+    )
+
+
 def ErreursMedicamenteuses(cis: str) -> Component:
     df_ei = fetch_data.fetch_table("erreur_med_effet_indesirable", "cis")
 
@@ -341,32 +357,48 @@ def ErreursMedicamenteuses(cis: str) -> Component:
     ).update_layout(PIE_LAYOUT)
 
     df_cause = fetch_data.fetch_table("erreur_med_cause", "cis").reset_index()
-    fig_cause = px.bar(
-        df_cause[df_cause.cis == cis],
-        x="pourcentage",
-        y="cis",
-        color="cause_erreur",
-        labels={"pourcentage": "Proportion (%)", "cause_erreur": "Cause"},
-        color_discrete_sequence=PIE_COLORS_SPECIALITE,
-        orientation="h",
-    )
-    fig_cause.update_layout(STACKED_BAR_CHART_LAYOUT)
-    fig_cause.update_layout(barmode="stack")
+    if df_cause[df_cause.cis == cis].empty:
+        graph_cause = NoData()
+    else:
+        fig_cause = px.bar(
+            df_cause[df_cause.cis == cis],
+            x="pourcentage",
+            y="cis",
+            color="cause_erreur",
+            labels={"pourcentage": "Proportion (%)", "cause_erreur": "Cause"},
+            color_discrete_sequence=PIE_COLORS_SPECIALITE,
+            orientation="h",
+        )
+        fig_cause.update_layout(STACKED_BAR_CHART_LAYOUT)
+        fig_cause.update_layout(barmode="stack")
+        graph_cause = Graph(
+            figure=fig_cause,
+            responsive=True,
+        )
 
     df_nat = fetch_data.fetch_table("erreur_med_nature", "cis").reset_index()
-    fig_nat = px.bar(
-        df_nat[df_nat.cis == cis],
-        x="pourcentage",
-        y="cis",
-        color="nature_erreur",
-        labels={"pourcentage": "Proportion (%)", "nature_erreur": "Nature"},
-        color_discrete_sequence=PIE_COLORS_SPECIALITE,
-        orientation="h",
-    )
-    fig_nat.update_layout(STACKED_BAR_CHART_LAYOUT)
-    fig_nat.update_layout(barmode="stack")
+    if df_nat[df_nat.cis == cis].empty:
+        graph_nat = NoData()
+    else:
+        fig_nat = px.bar(
+            df_nat[df_nat.cis == cis],
+            x="pourcentage",
+            y="cis",
+            color="nature_erreur",
+            labels={"pourcentage": "Proportion (%)", "nature_erreur": "Nature"},
+            color_discrete_sequence=PIE_COLORS_SPECIALITE,
+            orientation="h",
+        )
+        fig_nat.update_layout(STACKED_BAR_CHART_LAYOUT)
+        fig_nat.update_layout(barmode="stack")
+        graph_nat = Graph(
+            figure=fig_nat,
+            responsive=True,
+        )
 
-    df_denom = fetch_data.fetch_table("erreur_med_cis_denomination", "cis")
+    df_denom = fetch_data.fetch_table(
+        "erreur_med_cis_denomination", "cis"
+    ).reset_index()
 
     return TopicSection(
         [
@@ -400,12 +432,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                 [
                     GraphBox(
                         "Cause des erreurs médicamenteuses",
-                        [
-                            Graph(
-                                figure=fig_cause,
-                                responsive=True,
-                            )
-                        ],
+                        [graph_cause],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -414,12 +441,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
-                        [
-                            Graph(
-                                figure=fig_nat,
-                                responsive=True,
-                            )
-                        ],
+                        [graph_nat],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -433,9 +455,9 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                                 id="denomination-table",
                                 columns=[
                                     {"name": i, "id": i}
-                                    for i in df_denom.loc[cis].columns
+                                    for i in df_denom[df_denom.cis == cis].columns
                                 ],
-                                data=df_denom.loc[cis].to_dict("records"),
+                                data=df_denom[df_denom.cis == cis].to_dict("records"),
                                 page_size=10,
                                 style_as_list_view=True,
                                 style_table={"overflowX": "auto"},
