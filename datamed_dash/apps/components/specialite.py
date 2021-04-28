@@ -18,7 +18,7 @@ from db import specialite, substance, fetch_data
 from sm import SideMenu
 
 from .utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, ExternalLink
-from ..constants.colors import PIE_COLORS
+from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
 
 UTILISATION = {
@@ -295,7 +295,7 @@ def PatientsTraites(cis: str) -> Component:
         go.Pie(
             labels=df_age.loc[cis].age,
             values=df_age.loc[cis].pourcentage_patients,
-            marker_colors=PIE_COLORS,  # px.colors.qualitative.Set3,
+            marker_colors=PIE_COLORS_SPECIALITE,  # px.colors.qualitative.Set3,
         )
     ).update_layout(PIE_LAYOUT)
 
@@ -336,7 +336,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
         go.Pie(
             labels=df_pop[df_pop.cis == cis].population_erreur,
             values=df_pop[df_pop.cis == cis].pourcentage,
-            marker_colors=PIE_COLORS,
+            marker_colors=PIE_COLORS_SPECIALITE,
         )
     ).update_layout(PIE_LAYOUT)
 
@@ -347,7 +347,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
         y="cis",
         color="cause_erreur",
         labels={"pourcentage": "Proportion (%)", "cause_erreur": "Cause"},
-        color_discrete_sequence=PIE_COLORS,
+        color_discrete_sequence=PIE_COLORS_SPECIALITE,
         orientation="h",
     )
     fig_cause.update_layout(STACKED_BAR_CHART_LAYOUT)
@@ -360,7 +360,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
         y="cis",
         color="nature_erreur",
         labels={"pourcentage": "Proportion (%)", "nature_erreur": "Nature"},
-        color_discrete_sequence=PIE_COLORS,
+        color_discrete_sequence=PIE_COLORS_SPECIALITE,
         orientation="h",
     )
     fig_nat.update_layout(STACKED_BAR_CHART_LAYOUT)
