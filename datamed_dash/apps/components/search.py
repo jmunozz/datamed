@@ -47,12 +47,11 @@ def update_options(search_value:str):
     return load_specialites_into_options(search_value)
 
 @app.callback(
-    dd.Output("url", "pathname"),
+    dd.Output("url", "href"),
     dd.Input("search-dropdown", "value"),
 )
 def update_path(value: str):
     ctx = dash.callback_context
-    if not ctx.triggered:
+    if not ctx.triggered or not value:
         raise PreventUpdate()
-    if value:
-        return "/apps/specialite?" + urlencode({"search": quote_plus(value)})
+    return "/apps/specialite?" + urlencode({"search": quote_plus(value)})
