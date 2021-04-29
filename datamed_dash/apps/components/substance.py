@@ -1,4 +1,5 @@
 import math
+from urllib.parse import urlparse, parse_qs, unquote_plus
 
 import dash
 import dash.dependencies as dd
@@ -11,6 +12,14 @@ from app import app
 from apps.components import commons
 from apps.components.specialite import NoData
 from dash.development.base_component import Component
+from dash_bootstrap_components import (
+    Button,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Table,
+)
 from dash_core_components import Graph
 from db import substance, fetch_data
 from plotly.subplots import make_subplots
@@ -263,7 +272,7 @@ def CasDeclares(code: str) -> Component:
                                     {
                                         "figure": f"{taux_cas} / 100 000",
                                         "caption": "Taux de déclaration pour 100 000 patients "
-                                                   "traités/an sur la période 2014-2018",
+                                        "traités/an sur la période 2014-2018",
                                     }
                                 ]
                             )
@@ -351,10 +360,16 @@ def SystemesOrganes(code: str) -> Component:
                     GraphBox(
                         "",
                         [
-                            Graph(
-                                figure=fig_soc,
-                                responsive=True,
-                            )
+                            html.Div(
+                                Graph(
+                                    figure=fig_soc,
+                                    responsive=True,
+                                    id="soc-treemap",
+                                ),
+                                id="soc-treemap-container",
+                            ),
+                            html.Div(id="selected-soc", className="d-none"),
+                            HltModal(),
                         ],
                         class_name_wrapper="col-md-12",
                     ),
@@ -362,6 +377,27 @@ def SystemesOrganes(code: str) -> Component:
             ),
         ],
         id="population-concernee",
+    )
+
+
+def HltModal() -> Modal:
+    return Modal(
+        [
+            ModalHeader(id="header-modal"),
+            ModalBody(id="body-modal"),
+            ModalFooter(
+                Button(
+                    "Fermer",
+                    id="close-backdrop",
+                    className="ml-auto button-text-bold",
+                    color="secondary",
+                    outline=True,
+                )
+            ),
+        ],
+        scrollable=True,
+        centered=True,
+        id="update-on-click-data",
     )
 
 
@@ -397,60 +433,58 @@ def toggle_substance_ei_tooltip(n_clicks, is_open):
 #     else:
 #         raise PreventUpdate
 
-# @app.callback(
-#     [
-#         dd.Output("update-on-click-data", "is_open"),
-#         dd.Output("body-modal", "children"),
-#         dd.Output("header-modal", "children"),
-#         dd.Output("selected-soc", "children"),
-#     ],
-#     [
-#         dd.Input("soc-chart-container", "n_clicks"),
-#         dd.Input("close-backdrop", "n_clicks"),
-#         dd.Input("url", "href"),
-#     ],
-#     [dd.State("selected-soc", "children"), dd.State("soc-bar-chart", "hoverData")],
-# )
-# def update_callback(
-#     clicks_container, clicks_close, href, previous_selected_soc, hover_data
-# ):
-#     if not hover_data:
-#         return False, "", "", ""
-#
-#     selected_soc = hover_data["points"][0]["label"]
-#     selected_soc_has_changed = selected_soc != previous_selected_soc
-#
-#     if selected_soc_has_changed:
-#         parsed_url = urlparse(unquote_plus(href))
-#         query = parse_qs(parsed_url.query)
-#         selected_med = query["search"][0]
-#
-#         if SPE_SA_DICT[selected_med] == "spécialité":
-#             medicament = SUBSTANCE_BY_SPECIALITE[selected_med]["produit"]
-#         else:
-#             medicament = selected_med
-#
-#         df_hlt = pd.DataFrame(MED_DICT[medicament]["hlt"])
-#         df_hlt = df_hlt.rename(
-#             columns={"effet_hlt": "Détail des effets rapportés par nombre décroissant"}
-#         )
-#         df_hlt_details = df_hlt[df_hlt.soc_long == selected_soc][
-#             ["Détail des effets rapportés par nombre décroissant"]
-#         ]
-#         return (
-#             True,
-#             Table.from_dataframe(
-#                 df_hlt_details,
-#                 striped=True,
-#                 bordered=True,
-#                 hover=True,
-#                 responsive=True,
-#             ),
-#             selected_soc,
-#             selected_soc,
-#         )
-#     else:
-#         return False, "", "", ""
+
+@app.callback(
+    [
+        dd.Output("update-on-click-data", "is_open"),
+        dd.Output("body-modal", "children"),
+        dd.Output("header-modal", "children"),
+        dd.Output("selected-soc", "children"),
+    ],
+    [
+        dd.Input("soc-treemap-container", "n_clicks"),
+        dd.Input("close-backdrop", "n_clicks"),
+        dd.Input("url", "href"),
+        dd.Input("soc-treemap", "clickData")
+    ],
+    [dd.State("selected-soc", "children")],
+)
+def update_callback(
+    clicks_container, clicks_close, href, click_data, previous_selected_soc
+):
+    if not click_data:
+        return False, "", "", ""
+
+    selected_soc = click_data["points"][0]["label"]
+    selected_soc_has_changed = selected_soc != previous_selected_soc
+
+    if selected_soc_has_changed:
+        parsed_url = urlparse(unquote_plus(href))
+        query = parse_qs(parsed_url.query)
+        code = query["search"][0]
+
+        df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
+        df_hlt_details = df_hlt[df_hlt.soc_long == selected_soc].loc[code]
+
+        fig_hlt = px.treemap(
+            df_hlt_details.sort_values(by="pourcentage_cas", ascending=False).head(10),
+            path=["effet_hlt"],
+            values="pourcentage_cas",
+            color_discrete_sequence=TREE_COLORS,
+            hover_name="effet_hlt",
+        )
+
+        return (
+            True,
+            Graph(
+                figure=fig_hlt,
+                responsive=True,
+            ),
+            selected_soc,
+            selected_soc,
+        )
+    else:
+        return False, "", "", ""
 
 
 # @app.callback(
