@@ -38,8 +38,10 @@ UTILISATION = {
 SEXE = {1: "Hommes", 2: "Femmes"}
 
 EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
-EI_IMG_URL = {"Non": app.get_asset_url("healthy_man.svg"), "Oui": app.get_asset_url("sick_man.svg")}
-
+EI_IMG_URL = {
+    "Non": app.get_asset_url("healthy_man.svg"),
+    "Oui": app.get_asset_url("sick_man.svg"),
+}
 
 
 def get_has_guideline_link(current_specialite):
@@ -265,7 +267,10 @@ def StackBarGraph(df: pd.DataFrame, cis: str, field: str) -> Graph:
             x="pourcentage",
             y="cis",
             color=field,
-            labels={"pourcentage": "Proportion (%)", field: field.split('_')[0].capitalize()},
+            labels={
+                "pourcentage": "Proportion (%)",
+                field: field.split("_")[0].capitalize(),
+            },
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
         )
@@ -281,7 +286,11 @@ def StackBarGraph(df: pd.DataFrame, cis: str, field: str) -> Graph:
 def ErreursMedicamenteuses(cis: str) -> Component:
     df_ei = specialite.get_erreur_med_effet_indesirable(cis)
     ei_figures = [
-        {"figure": "{}%".format(round(x["pourcentage"], 2)), "caption": EI[x["effet_indesirable"]], "img": EI_IMG_URL[x["effet_indesirable"]]}
+        {
+            "figure": "{}%".format(round(x["pourcentage"], 2)),
+            "caption": EI[x["effet_indesirable"]],
+            "img": EI_IMG_URL[x["effet_indesirable"]],
+        }
         for x in fetch_data.transform_df_to_series_list(df_ei)
     ]
 
@@ -297,7 +306,9 @@ def ErreursMedicamenteuses(cis: str) -> Component:
     df_cause = fetch_data.fetch_table("erreur_med_cause", "cis").reset_index()
     df_nat = fetch_data.fetch_table("erreur_med_nature", "cis").reset_index()
 
-    df_denom = fetch_data.fetch_table("erreur_med_cis_denomination", "cis").reset_index()
+    df_denom = fetch_data.fetch_table(
+        "erreur_med_cis_denomination", "cis"
+    ).reset_index()
     df_denom.denomination = df_denom.denomination.str.capitalize()
 
     return TopicSection(
@@ -359,7 +370,9 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                                 id="denomination-table",
                                 columns=[
                                     {"name": i, "id": i}
-                                    for i in df_denom[df_denom.cis == cis][["denomination"]].columns
+                                    for i in df_denom[df_denom.cis == cis][
+                                        ["denomination"]
+                                    ].columns
                                 ],
                                 data=df_denom[df_denom.cis == cis].to_dict("records"),
                                 page_size=10,
@@ -367,7 +380,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                                 style_table={"overflowX": "auto"},
                                 style_cell={
                                     "height": "50px",
-                                    'backgroundColor': '#FAFAFA',
+                                    "backgroundColor": "#FAFAFA",
                                 },
                                 style_data={
                                     "fontSize": "14px",
@@ -420,10 +433,11 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
         [
             html.Label(substance, className="color-secondary font-weight-bold"),
-            html.A("Voir les effets indésirables", 
-                            href="/apps/substance?search={}".format(code),
-            className="color-three"),
+            html.A(
+                "Voir les effets indésirables",
+                href="/apps/substance?search={}".format(code),
+                className="color-three",
+            ),
         ],
         class_name="d-flex flex-row justify-content-between",
     )
-
