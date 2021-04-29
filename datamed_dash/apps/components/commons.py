@@ -28,13 +28,13 @@ UTILISATION = {
 }
 
 SEXE = {1: "Hommes", 2: "Femmes"}
+SEXE_IMG_URL = {1: app.get_asset_url("man_img.svg"), 2: app.get_asset_url("woman_img.svg")}
 
-EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
 
 
 def get_sexe_figures_from_df(df, column):
     return [
-        {"figure": "{}%".format(round(x[column], 2)), "caption": SEXE[x["sexe"]]}
+        {"figure": "{}%".format(round(x[column], 2)), "caption": SEXE[x["sexe"]], "img": SEXE_IMG_URL[x["sexe"]]}
         for x in fetch_data.transform_df_to_series_list(df)
     ]
 

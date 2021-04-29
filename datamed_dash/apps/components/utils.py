@@ -37,7 +37,7 @@ def FigureGraph(figures: List[Dict]) -> Component:
         elems = []
         elems = elems + [Img(src=f["img"])] if f.get("img") else []
         elems = elems + [H1(f["figure"])] if f.get("figure") else []
-        elems = elems + [Label(f["caption"])] if f.get("caption") else []
+        elems = elems + [Label(f["caption"], className="normal-text")] if f.get("caption") else []
         l += [Div(elems, className="d-flex flex-column align-items-center")]
     return Div(l, className="d-flex flex-row flex-wrap justify-content-around")
 
