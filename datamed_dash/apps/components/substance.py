@@ -1,6 +1,7 @@
 import math
 from urllib.parse import urlencode, quote_plus
 
+import dash
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
@@ -18,9 +19,42 @@ from sm import SideMenu
 
 from .commons import PatientsTraites
 
-from .utils import Box, GraphBox, TopicSection, SectionTitle
+from .utils import Box, FigureGraph, GraphBox, TopicSection, SectionTitle, SectionP
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
+from apps.components import commons
+
+
+
+
+def EffetsIndesirablesTooltip() -> Component:
+        return dbc.Card(
+        [
+            html.H2(
+                dbc.Button(
+                    "Comment sont calculés ces indicateurs ?",
+                    color="link",
+                    id="group-substance-ei-tooltip-toggle",
+                    className="color-secondary"
+                ),
+                className="with-lightbulb",
+            ),
+            dbc.Collapse(
+                dbc.CardBody(
+                    [
+                        html.P(
+                            "Nombre de cas notifiés d’effets indésirables en France estimé à partir des données de la Base Nationale de PharmacoVigilance (BNPV). La BNPV est alimentée par les centres régionaux de pharmacovigilance qui sont notifiés par les professionnels de santé ou par les patients et association agréées via un portail dédié : https://signalement.social-sante.gouv.fr"
+                        ),
+                        html.P(
+                            "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts. Pour plus d’informations, consultez : https://ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments"
+                        ),
+                    ]
+                ),
+                id="group-substance-ei-tooltip-collapse",
+            ),
+        ],
+        className="box",
+    )
 
 
 def Substance(code: str) -> Component:
@@ -130,9 +164,11 @@ def Description(code: str) -> Component:
 
 
 def CasDeclares(code: str) -> Component:
-    df_decla = fetch_data.fetch_table("substance_ordei", "code")
-    declarations = int(df_decla.loc[code].cas.unique()[0])
-    taux_cas = round(df_decla.loc[code].taux_cas.unique()[0], 2)
+    df_decla = substance.get_decla_df(code)
+    if df_decla is None:
+        return html.Div()
+    decla = int(fetch_data.get_one_value(df_decla, code, "cas"))
+    taux_cas = round(fetch_data.get_one_value(df_decla, code, "taux_cas"))
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     if df_decla.loc[code].cas_annee.min() > 10:
@@ -174,12 +210,17 @@ def CasDeclares(code: str) -> Component:
     fig.update_xaxes(nticks=len(df_decla.loc[code]))
     fig.update_layout(CURVE_LAYOUT)
 
-    df_age = fetch_data.fetch_table("substance_cas_age_ordei", "code")
+    df_age = substance.get_age_cas_df(code)
+    df_sexe = substance.get_sexe_cas_df(code)
+
+    figure_graph_sexe = NoData() if df_sexe is None else FigureGraph(commons.get_sexe_figures_from_df(df_sexe, "pourcentage_cas"))
+
+
     if not math.isnan(df_age.loc[code].pourcentage_cas.unique()[0]):
         fig_age = go.Figure(
             go.Pie(
-                labels=df_age.loc[code].age,
-                values=df_age.loc[code].pourcentage_cas,
+                labels=df_age.age,
+                values=df_age.pourcentage_cas,
                 marker_colors=PIE_COLORS_SUBSTANCE,  # px.colors.qualitative.Set3,
             )
         ).update_layout(PIE_LAYOUT)
@@ -193,17 +234,17 @@ def CasDeclares(code: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Cas déclarés d'effets indésirables"),
-            # Accordion(),
+            EffetsIndesirablesTooltip(),
             dbc.Row(
                 [
                     GraphBox(
-                        "{} déclarations".format(declarations),
-                        [],
+                        None,
+                        [FigureGraph([{"figure": f"{decla}", "caption": "Nombre de cas déclarés sur la période 2014-2018"}])],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
-                        "{} déclarations / 100 000".format(taux_cas),
-                        [],
+                        None,
+                        [FigureGraph([{"figure": f"{taux_cas} / 100 000", "caption": "Taux de déclaration pour 100 000 patients traités/an sur la période 2014-2018"}])],
                         class_name_wrapper="col-md-6",
                     ),
                 ]
@@ -225,8 +266,8 @@ def CasDeclares(code: str) -> Component:
             dbc.Row(
                 [
                     GraphBox(
-                        "Répartition par sexe des cas déclarés",
-                        [],
+                        None,
+                        [figure_graph_sexe],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
@@ -275,14 +316,11 @@ def SystemesOrganes(code: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Effets indésirables par système d'organe"),
-            html.Div(
-                "Les Systèmes d’organes (Système Organe Classe) représentent les 27 classes de disciplines médicales "
+            SectionP("Les Systèmes d’organes (Système Organe Classe) représentent les 27 classes de disciplines médicales "
                 "selon la hiérarchie MedDRA Sont listés ici les 10 SOC avec le plus d’effets indésirables déclarés. "
                 "Attention : Un cas est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets indésirables "
                 "affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC différents "
-                "(en fonction des effets indésirables déclarés).",
-                className="normal-text",
-            ),
+                "(en fonction des effets indésirables déclarés)."),
             dbc.Row(
                 [
                     GraphBox(
@@ -300,6 +338,18 @@ def SystemesOrganes(code: str) -> Component:
         ],
         id="population-concernee",
     )
+
+@app.callback(
+    dd.Output("group-substance-ei-tooltip-collapse", "is_open"),
+    dd.Input("group-substance-ei-tooltip-toggle", "n_clicks"),
+    dd.State("group-substance-ei-tooltip-collapse", "is_open"),
+)
+def toggle_substance_ei_tooltip(n_clicks, is_open):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return False
+    if n_clicks:
+        return not is_open
 
 
 # @app.callback(

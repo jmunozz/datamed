@@ -37,6 +37,8 @@ EI = {
     "Oui": "Avec effets indésirables"
 }
 
+def get_sexe_figures_from_df(df, column): 
+    return [{"figure": round(x[column], 2), "caption": SEXE[x["sexe"]]} for x in fetch_data.transform_df_to_series_list(df)]
 
 def makePie(labels, values): 
     return go.Figure(
@@ -122,7 +124,7 @@ def Utilisation(df_expo, index):
     )
 
 def PatientsTraites(df_age, df_sexe, df_expo, index) -> Component:
-    sexe_figures = [{"figure": round(x["pourcentage_patients"], 2), "caption": SEXE[x["sexe"]]} for x in fetch_data.transform_df_to_series_list(df_sexe)]
+    sexe_figures = get_sexe_figures_from_df(df_sexe, "pourcentage_patients")
     return TopicSection(
         [
             SectionTitle("Patients traités"),

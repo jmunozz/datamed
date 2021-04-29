@@ -20,8 +20,10 @@ def ArticleTitle(title) -> Component:
 def GraphBox(
     title, children, class_name_wrapper="col-md-12", class_name=""
 ) -> Component:
+    if title is not None:
+        children = [html.Div(title, className="small-text-bold mb-4")] + children
     return Box(
-        [html.Div(title, className="small-text-bold mb-4")] + children,
+        children,
         class_name_wrapper=class_name_wrapper,
         class_name=class_name,
     )
