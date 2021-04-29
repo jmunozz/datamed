@@ -13,13 +13,6 @@ app.layout = html.Div(
 )
 
 
-os.environ["PYTHONUNBUFFERED"] = "1"
-os.environ[
-    "DB_URL"
-] = "postgresql://vcbfhnpadtnkzu:553026ea6ff893cd34cf8a4b61a8deeae2f9fb7de004fd393313220d2b249310@ec2-54-228-174-49.eu-west-1.compute.amazonaws.com:5432/d3s5pjrcuo170u"
-os.environ["FLASK_ENV"] = "development"
-
-
 @app.callback(Output("page-content", "children"), Input("url", "href"))
 def display_page(href):
     parsed_url = urlparse(unquote_plus(href))
