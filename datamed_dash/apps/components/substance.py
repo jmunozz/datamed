@@ -6,6 +6,7 @@ import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
@@ -19,6 +20,7 @@ from dash_bootstrap_components import (
     ModalHeader,
     ModalBody,
     ModalFooter,
+    Table,
 )
 from dash_core_components import Graph
 from db import substance, fetch_data
@@ -30,8 +32,7 @@ from .utils import Box, FigureGraph, GraphBox, TopicSection, SectionTitle, Secti
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
-
-NOTIF_IMAGE_URL={
+NOTIF_IMAGE_URL = {
     "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
     "Dentiste": app.get_asset_url("./surgeon_1.svg"),
     "Infirmière": app.get_asset_url("./nurse_1.svg"),
@@ -42,15 +43,16 @@ NOTIF_IMAGE_URL={
     "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
 }
 
+
 def get_notif_figures_from_df(df):
-    print(fetch_data.transform_df_to_series_list(df))
     return [
         {
             "figure": "{}%".format(round(x["pourcentage_notif"], 2)),
             "caption": x["notificateur"],
             "img": NOTIF_IMAGE_URL[x["notificateur"]],
         }
-        for x in fetch_data.transform_df_to_series_list(df) if not math.isnan(x["pourcentage_notif"])
+        for x in fetch_data.transform_df_to_series_list(df)
+        if not math.isnan(x["pourcentage_notif"])
     ]
 
 
@@ -180,7 +182,8 @@ def Description(code: str) -> Component:
                 dash_table.DataTable(
                     id="substance-specialite-table",
                     columns=[
-                        {"name": i, "id": i} for i in df_cis_sub.loc[code][["nom_specialite"]].columns
+                        {"name": i, "id": i}
+                        for i in df_cis_sub.loc[code][["nom_specialite"]].columns
                     ],
                     data=df_cis_sub.loc[code].to_dict("records"),
                     page_size=10,
@@ -188,7 +191,7 @@ def Description(code: str) -> Component:
                     style_table={"overflowX": "auto"},
                     style_cell={
                         "height": "50px",
-                        'backgroundColor': '#FAFAFA',
+                        "backgroundColor": "#FAFAFA",
                     },
                     style_data={
                         "fontSize": "14px",
@@ -213,7 +216,15 @@ def CasDeclares(code: str) -> Component:
     decla = int(fetch_data.get_one_value(df_decla, code, "cas"))
     taux_cas = round(fetch_data.get_one_value(df_decla, code, "taux_cas"))
     notif_df = substance.get_notif_df(code)
-    figure_graph_notif = FigureGraph(get_notif_figures_from_df(notif_df), height="80px", class_name="justify-content-start") if notif_df is not None else NoData()    
+    figure_graph_notif = (
+        FigureGraph(
+            get_notif_figures_from_df(notif_df),
+            height="80px",
+            class_name="justify-content-start",
+        )
+        if notif_df is not None
+        else NoData()
+    )
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     if df_decla.loc[code].cas_annee.min() > 10:
@@ -352,7 +363,7 @@ def CasDeclares(code: str) -> Component:
                         class_name_wrapper="col-md-12",
                     ),
                 ]
-            )
+            ),
         ],
         id="effets-indesirables",
     )
@@ -460,7 +471,7 @@ def toggle_substance_ei_tooltip(n_clicks, is_open):
 
 @app.callback(
     dd.Output("url", "href"),
-    dd.Input("substance-specialite-table", "active_cell"), 
+    dd.Input("substance-specialite-table", "active_cell"),
     dd.State("substance-specialite-table", "page_current"),
     dd.State("substance-specialite-table", "page_size"),
     dd.State("substance-specialite-table", "data"),
@@ -486,7 +497,7 @@ def getActiveCell(active_cell, page_current, page_size, data):
         dd.Input("soc-treemap-container", "n_clicks"),
         dd.Input("close-backdrop", "n_clicks"),
         dd.Input("url", "href"),
-        dd.Input("soc-treemap", "clickData")
+        dd.Input("soc-treemap", "clickData"),
     ],
     [dd.State("selected-soc", "children")],
 )
@@ -505,22 +516,40 @@ def update_callback(
         code = query["search"][0]
 
         df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
-        df_hlt_details = df_hlt[df_hlt.soc_long == selected_soc].loc[code]
-
-        fig_hlt = px.treemap(
-            df_hlt_details.sort_values(by="pourcentage_cas", ascending=False).head(10),
-            path=["effet_hlt"],
-            values="pourcentage_cas",
-            color_discrete_sequence=TREE_COLORS,
-            hover_name="effet_hlt",
+        df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
+        df_hlt_details = (
+            df_hlt[df_hlt.soc_long == selected_soc]
+            .loc[code]
+            .sort_values(by="pourcentage_cas", ascending=False)
+        ).reset_index()
+        df_hlt_details.pourcentage_cas = df_hlt_details.pourcentage_cas.apply(
+            lambda x: "{}%".format(round(x)) if x else ""
         )
+        df_hlt_details = df_hlt_details.rename(
+            columns={"effet_hlt": "High-Level-Term", "pourcentage_cas": "Pourcentage"}
+        )
+
+        # fig_hlt = px.treemap(
+        #     df_hlt_details.sort_values(by="pourcentage_cas", ascending=False).head(10),
+        #     path=["effet_hlt"],
+        #     values="pourcentage_cas",
+        #     color_discrete_sequence=TREE_COLORS,
+        #     hover_name="effet_hlt",
+        # )
 
         return (
             True,
-            Graph(
-                figure=fig_hlt,
+            Table.from_dataframe(
+                df_hlt_details[["High-Level-Term", "Pourcentage"]],
+                striped=True,
+                bordered=True,
+                hover=True,
                 responsive=True,
             ),
+            # Graph(
+            #     figure=fig_hlt,
+            #     responsive=True,
+            # ),
             selected_soc,
             selected_soc,
         )
