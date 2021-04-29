@@ -317,7 +317,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
             dbc.Row(
                 [
                     GraphBox(
-                        "Existence d’effets indésirables",
+                        "Existence d’effets indésirables suite aux erreurs médicamenteuses",
                         [FigureGraph(ei_figures)],
                         class_name_wrapper="col-md-6",
                     ),
