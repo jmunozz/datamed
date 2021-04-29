@@ -118,7 +118,7 @@ def Specialite(cis: str) -> Component:
             ),
             html.Div(
                 html.Div(
-                    divs, className="container-fluid", style={"padding-left": "65px"}
+                    divs, className="container-fluid", style={"padding-left": "80px"}
                 ),
                 className="container-fluid side-content",
             ),
