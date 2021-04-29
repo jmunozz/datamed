@@ -270,8 +270,7 @@ def StackBarGraph(df: pd.DataFrame, cis: str, field: str) -> Graph:
         fig.update_yaxes(visible=False, showticklabels=False)
         return Graph(
             figure=fig,
-            responsive=True,
-            style={"height": str(len(df[df.cis == cis]) * 50) + "px"}
+            responsive=False,
         )
 
 
