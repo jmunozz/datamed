@@ -165,7 +165,9 @@ def Utilisation(df_expo, index, type: str):
     )
 
 
-def PatientsTraites(df_age, df_sexe, df_expo, index, pie_colors: List, type: str) -> Component:
+def PatientsTraites(
+    df_age, df_sexe, df_expo, index, pie_colors: List, type: str
+) -> Component:
     sexe_figures = get_sexe_figures_from_df(df_sexe, "pourcentage_patients")
     return TopicSection(
         [
