@@ -31,6 +31,29 @@ from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
 
+NOTIF_IMAGE_URL={
+    "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
+    "Dentiste": app.get_asset_url("./surgeon_1.svg"),
+    "Infirmière": app.get_asset_url("./nurse_1.svg"),
+    "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
+    "Pharmacien": app.get_asset_url("./pharmacist.svg"),
+    "Inconnu": app.get_asset_url("./face.svg"),
+    "Non professionnel de santé": app.get_asset_url("./face.svg"),
+    "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
+}
+
+def get_notif_figures_from_df(df):
+    print(fetch_data.transform_df_to_series_list(df))
+    return [
+        {
+            "figure": "{}%".format(round(x["pourcentage_notif"], 2)),
+            "caption": x["notificateur"],
+            "img": NOTIF_IMAGE_URL[x["notificateur"]],
+        }
+        for x in fetch_data.transform_df_to_series_list(df) if not math.isnan(x["pourcentage_notif"])
+    ]
+
+
 def EffetsIndesirablesTooltip() -> Component:
     return dbc.Card(
         [
@@ -189,6 +212,8 @@ def CasDeclares(code: str) -> Component:
         return html.Div()
     decla = int(fetch_data.get_one_value(df_decla, code, "cas"))
     taux_cas = round(fetch_data.get_one_value(df_decla, code, "taux_cas"))
+    notif_df = substance.get_notif_df(code)
+    figure_graph_notif = FigureGraph(get_notif_figures_from_df(notif_df), height="80px", class_name="justify-content-start") if notif_df is not None else NoData()    
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     if df_decla.loc[code].cas_annee.min() > 10:
@@ -319,6 +344,15 @@ def CasDeclares(code: str) -> Component:
                     ),
                 ]
             ),
+            dbc.Row(
+                [
+                    GraphBox(
+                        "Répartition par type de notificateur",
+                        [figure_graph_notif],
+                        class_name_wrapper="col-md-12",
+                    ),
+                ]
+            )
         ],
         id="",
     )

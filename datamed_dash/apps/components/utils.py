@@ -31,11 +31,12 @@ def GraphBox(
     )
 
 
-def FigureGraph(figures: List[Dict]) -> Component:
+def FigureGraph(figures: List[Dict], height="150px", class_name="") -> Component:
+    class_name= " ".join((["d-flex", "flex-row", "flex-wrap", "justify-content-around"]+class_name.split(" ")))
     l = []
     for f in figures:
         elems = []
-        elems = elems + [Img(src=f["img"], className="mb-2")] if "img" in f else []
+        elems = elems + [Img(src=f["img"], className="mb-2", style={"height": height})] if "img" in f else []
         elems = elems + [H1(f["figure"])] if "figure" in f else []
         elems = (
             elems
@@ -47,10 +48,10 @@ def FigureGraph(figures: List[Dict]) -> Component:
             Div(
                 elems,
                 className="d-flex flex-column align-items-center",
-                style={"color": "#00B3CC"},
+                style={"color": "#00B3CC", "margin": "15px"},
             )
         ]
-    return Div(l, className="d-flex flex-row flex-wrap justify-content-around")
+    return Div(l, className=class_name)
 
 
 def TopicSection(children: List, id: str) -> Component:
