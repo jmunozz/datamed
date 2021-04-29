@@ -1,20 +1,26 @@
-import dash
-import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
-from app import app
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
 from dash_core_components import Graph
 from db import specialite, substance, fetch_data
 from sm import SideMenu
 
-from .utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, ExternalLink, SectionP, FigureGraph
 from .commons import PatientsTraites
+from .utils import (
+    Box,
+    GraphBox,
+    TopicSection,
+    ArticleTitle,
+    SectionTitle,
+    ExternalLink,
+    SectionP,
+    FigureGraph,
+)
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
 
@@ -26,15 +32,9 @@ UTILISATION = {
     5: "Utilisation élevée",
 }
 
-SEXE = {
-    1: "Hommes", 
-    2: "Femmes"
-}
+SEXE = {1: "Hommes", 2: "Femmes"}
 
-EI = {
-    "Non": "Sans effets indésirables", 
-    "Oui": "Avec effets indésirables"
-}
+EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
 
 
 def get_has_guideline_link(current_specialite):
@@ -79,6 +79,7 @@ def get_notice_link(cis) -> str:
         else link
     )
 
+
 def Specialite(cis: str) -> Component:
     divs = [
         Header(cis),
@@ -88,7 +89,9 @@ def Specialite(cis: str) -> Component:
     if df_expo is not None:
         df_age = specialite.get_age_df(cis)
         df_sexe = specialite.get_sexe_df(cis)
-        divs.append(PatientsTraites(df_age=df_age, df_sexe=df_sexe, df_expo=df_expo, index=cis))
+        divs.append(
+            PatientsTraites(df_age=df_age, df_sexe=df_sexe, df_expo=df_expo, index=cis)
+        )
 
     df_emed = fetch_data.fetch_table("erreur_med_cis_denomination", "cis")
     if cis in df_emed.index.tolist():
@@ -112,11 +115,9 @@ def Specialite(cis: str) -> Component:
             ),
             html.Div(
                 html.Div(
-                    divs,
-                    className="container-fluid",
-                    style={"padding-left": "65px"}
+                    divs, className="container-fluid", style={"padding-left": "65px"}
                 ),
-                className="container-fluid side-content"
+                className="container-fluid side-content",
             ),
         ],
         className="container-fluid p-0 content",
@@ -137,7 +138,11 @@ def Header(cis: str) -> Component:
 
 def SubstanceLinks(cis: str) -> Component:
     df_sub_spe = specialite.list_specialite_substances(cis)
-    substances_codes_list = df_sub_spe.code_substance.unique()
+    substances_codes_list = (
+        df_sub_spe.code_substance.unique()
+        if not isinstance(df_sub_spe.code_substance, str)
+        else [df_sub_spe.code_substance]
+    )
     df_sub = substance.list_substances(substances_codes_list)
     return html.Div(
         [
@@ -221,7 +226,6 @@ def Description(cis: str) -> Component:
     )
 
 
-
 def NoData() -> html.Div:
     return html.Div(
         [
@@ -242,7 +246,10 @@ def NoData() -> html.Div:
 
 def ErreursMedicamenteuses(cis: str) -> Component:
     df_ei = specialite.get_erreur_med_effet_indesirable(cis)
-    ei_figures = [{"figure": round(x["pourcentage"], 2), "caption": EI[x["effet_indesirable"]]} for x in fetch_data.transform_df_to_series_list(df_ei)]
+    ei_figures = [
+        {"figure": round(x["pourcentage"], 2), "caption": EI[x["effet_indesirable"]]}
+        for x in fetch_data.transform_df_to_series_list(df_ei)
+    ]
 
     df_pop = fetch_data.fetch_table("erreur_med_population", "cis").reset_index()
     fig_pop = go.Figure(
@@ -300,9 +307,11 @@ def ErreursMedicamenteuses(cis: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Erreurs médicamenteuses"),
-            SectionP("Les erreurs médicamenteuses proviennent des déclarations d’erreurs médicamenteuses, "
+            SectionP(
+                "Les erreurs médicamenteuses proviennent des déclarations d’erreurs médicamenteuses, "
                 "gérée par l’ANSM. Les formes d’erreur se classifient sous 3 grandes catégories : "
-                "Erreur de prescription, Erreur de délivrance, Erreur d’administration."),
+                "Erreur de prescription, Erreur de délivrance, Erreur d’administration."
+            ),
             dbc.Row(
                 [
                     GraphBox(
@@ -387,12 +396,12 @@ def EffetsIndesirables(cis: str) -> Component:
 
     return TopicSection(
         [
-            SectionTitle(
-                "Cas déclarés d’effets indésirables des substances actives"
-            ),
-            SectionP("Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
+            SectionTitle("Cas déclarés d’effets indésirables des substances actives"),
+            SectionP(
+                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
                 "l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou erreurs médicamenteuses. "
-                "Il s’agit de cas évalués et validés par un comité d’experts."),
+                "Il s’agit de cas évalués et validés par un comité d’experts."
+            ),
             dbc.Row(
                 [
                     AdverseEffectLink(substance.capitalize())
@@ -404,13 +413,14 @@ def EffetsIndesirables(cis: str) -> Component:
     )
 
 
-def AdverseEffectLink(
-    substance: str
-) -> Component:
-    return Box([
-        html.Label(substance, className="color-secondary font-weight-bold"),
-        html.A("Voir les effets indésirables", className="color-three")
-    ], class_name="d-flex flex-row justify-content-between")
+def AdverseEffectLink(substance: str) -> Component:
+    return Box(
+        [
+            html.Label(substance, className="color-secondary font-weight-bold"),
+            html.A("Voir les effets indésirables", className="color-three"),
+        ],
+        class_name="d-flex flex-row justify-content-between",
+    )
 
 
 # @app.callback(

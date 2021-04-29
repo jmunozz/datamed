@@ -2,22 +2,21 @@ import dash
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-import dash_table
-import plotly.express as px
 import plotly.graph_objects as go
-import requests
 from app import app
-from bs4 import BeautifulSoup
 from dash.development.base_component import Component
 from dash_core_components import Graph
-from db import specialite, substance, fetch_data
-from sm import SideMenu
+from db import fetch_data
 
-from .utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, ExternalLink, SectionP, FigureGraph
+from .utils import (
+    Box,
+    GraphBox,
+    TopicSection,
+    SectionTitle,
+    FigureGraph,
+)
 from ..constants.colors import PIE_COLORS_SPECIALITE
-from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
-
-
+from ..constants.layouts import PIE_LAYOUT
 
 UTILISATION = {
     1: "Utilisation faible",
@@ -27,20 +26,19 @@ UTILISATION = {
     5: "Utilisation élevée",
 }
 
-SEXE = {
-    1: "Hommes", 
-    2: "Femmes"
-}
+SEXE = {1: "Hommes", 2: "Femmes"}
 
-EI = {
-    "Non": "Sans effets indésirables", 
-    "Oui": "Avec effets indésirables"
-}
+EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
 
-def get_sexe_figures_from_df(df, column): 
-    return [{"figure": round(x[column], 2), "caption": SEXE[x["sexe"]]} for x in fetch_data.transform_df_to_series_list(df)]
 
-def makePie(labels, values): 
+def get_sexe_figures_from_df(df, column):
+    return [
+        {"figure": round(x[column], 2), "caption": SEXE[x["sexe"]]}
+        for x in fetch_data.transform_df_to_series_list(df)
+    ]
+
+
+def makePie(labels, values):
     return go.Figure(
         go.Pie(
             labels=labels,
@@ -58,7 +56,7 @@ def Accordion() -> Component:
                     "Comment sont calculés ces indicateurs ?",
                     color="link",
                     id="group-1-toggle",
-                    className="color-secondary"
+                    className="color-secondary",
                 ),
                 className="with-lightbulb",
             ),
@@ -79,8 +77,11 @@ def Accordion() -> Component:
         className="box",
     )
 
+
 def Utilisation(df_expo, index):
-    utilisation = df_expo.at[index, "exposition"][0]
+    utilisation = (
+        df_expo.at[index, "exposition"][0] if len(df_expo) > 1 else df_expo.exposition
+    )
     print(utilisation)
     return dbc.Row(
         [
@@ -109,9 +110,14 @@ def Utilisation(df_expo, index):
                     ),
                     html.Div(
                         [
-                            html.H2(UTILISATION[utilisation], className="color-secondary"),
+                            html.H2(
+                                UTILISATION[utilisation], className="color-secondary"
+                            ),
                             html.P("Nombre de patients traités par an en France"),
-                            html.A("En savoir plus sur le taux d'exposition", className="color-secondary"),
+                            html.A(
+                                "En savoir plus sur le taux d'exposition",
+                                className="color-secondary",
+                            ),
                         ],
                         style={"flex": 3},
                         className="p-3",
@@ -122,6 +128,7 @@ def Utilisation(df_expo, index):
             )
         ]
     )
+
 
 def PatientsTraites(df_age, df_sexe, df_expo, index) -> Component:
     sexe_figures = get_sexe_figures_from_df(df_sexe, "pourcentage_patients")
@@ -152,6 +159,7 @@ def PatientsTraites(df_age, df_sexe, df_expo, index) -> Component:
         ],
         id="population-concernee",
     )
+
 
 @app.callback(
     dd.Output("collapse-1", "is_open"),

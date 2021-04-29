@@ -1,5 +1,4 @@
 import math
-from urllib.parse import urlencode, quote_plus
 
 import dash
 import dash.dependencies as dd
@@ -9,33 +8,29 @@ import dash_table
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
+from apps.components import commons
 from apps.components.specialite import NoData
 from dash.development.base_component import Component
-from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from db import specialite, substance, fetch_data
+from db import substance, fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
 from .commons import PatientsTraites
-
 from .utils import Box, FigureGraph, GraphBox, TopicSection, SectionTitle, SectionP
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
-from apps.components import commons
-
-
 
 
 def EffetsIndesirablesTooltip() -> Component:
-        return dbc.Card(
+    return dbc.Card(
         [
             html.H2(
                 dbc.Button(
                     "Comment sont calculés ces indicateurs ?",
                     color="link",
                     id="group-substance-ei-tooltip-toggle",
-                    className="color-secondary"
+                    className="color-secondary",
                 ),
                 className="with-lightbulb",
             ),
@@ -81,7 +76,9 @@ def Substance(code: str) -> Component:
                 [
                     Header(code),
                     Description(code),
-                    PatientsTraites(df_age=df_age, df_sexe=df_sexe, df_expo=df_expo, index=code),
+                    PatientsTraites(
+                        df_age=df_age, df_sexe=df_sexe, df_expo=df_expo, index=code
+                    ),
                     CasDeclares(code),
                     SystemesOrganes(code),
                 ],
@@ -213,8 +210,11 @@ def CasDeclares(code: str) -> Component:
     df_age = substance.get_age_cas_df(code)
     df_sexe = substance.get_sexe_cas_df(code)
 
-    figure_graph_sexe = NoData() if df_sexe is None else FigureGraph(commons.get_sexe_figures_from_df(df_sexe, "pourcentage_cas"))
-
+    figure_graph_sexe = (
+        NoData()
+        if df_sexe is None
+        else FigureGraph(commons.get_sexe_figures_from_df(df_sexe, "pourcentage_cas"))
+    )
 
     if not math.isnan(df_age.loc[code].pourcentage_cas.unique()[0]):
         fig_age = go.Figure(
@@ -239,12 +239,30 @@ def CasDeclares(code: str) -> Component:
                 [
                     GraphBox(
                         None,
-                        [FigureGraph([{"figure": f"{decla}", "caption": "Nombre de cas déclarés sur la période 2014-2018"}])],
+                        [
+                            FigureGraph(
+                                [
+                                    {
+                                        "figure": f"{decla}",
+                                        "caption": "Nombre de cas déclarés sur la période 2014-2018",
+                                    }
+                                ]
+                            )
+                        ],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         None,
-                        [FigureGraph([{"figure": f"{taux_cas} / 100 000", "caption": "Taux de déclaration pour 100 000 patients traités/an sur la période 2014-2018"}])],
+                        [
+                            FigureGraph(
+                                [
+                                    {
+                                        "figure": f"{taux_cas} / 100 000",
+                                        "caption": "Taux de déclaration pour 100 000 patients traités/an sur la période 2014-2018",
+                                    }
+                                ]
+                            )
+                        ],
                         class_name_wrapper="col-md-6",
                     ),
                 ]
@@ -316,11 +334,13 @@ def SystemesOrganes(code: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Effets indésirables par système d'organe"),
-            SectionP("Les Systèmes d’organes (Système Organe Classe) représentent les 27 classes de disciplines médicales "
+            SectionP(
+                "Les Systèmes d’organes (Système Organe Classe) représentent les 27 classes de disciplines médicales "
                 "selon la hiérarchie MedDRA Sont listés ici les 10 SOC avec le plus d’effets indésirables déclarés. "
                 "Attention : Un cas est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets indésirables "
                 "affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC différents "
-                "(en fonction des effets indésirables déclarés)."),
+                "(en fonction des effets indésirables déclarés)."
+            ),
             dbc.Row(
                 [
                     GraphBox(
@@ -338,6 +358,7 @@ def SystemesOrganes(code: str) -> Component:
         ],
         id="population-concernee",
     )
+
 
 @app.callback(
     dd.Output("group-substance-ei-tooltip-collapse", "is_open"),
