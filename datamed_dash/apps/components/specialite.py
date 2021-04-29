@@ -144,13 +144,14 @@ def Header(cis: str) -> Component:
 
 
 def SubstanceLinks(cis: str) -> Component:
-    df_sub_spe = specialite.list_specialite_substances(cis)
+    df_sub_spe = specialite.get_specialite_substance_df(cis)
     substances_codes_list = (
         df_sub_spe.code_substance.unique()
         if not isinstance(df_sub_spe.code_substance, str)
         else [df_sub_spe.code_substance]
     )
     df_sub = substance.list_substances(substances_codes_list)
+    # df_sub = specialite.list_substances(cis)
     return html.Div(
         [
             html.A(
@@ -378,12 +379,13 @@ def ErreursMedicamenteuses(cis: str) -> Component:
 
 
 def EffetsIndesirables(cis: str) -> Component:
-    df_cis_sub = fetch_data.fetch_table("specialite_substance", "cis").reset_index()
-    df_sub = fetch_data.fetch_table("substance", "code").reset_index()
-    df = df_cis_sub[df_cis_sub.cis == cis].merge(
-        df_sub, left_on="code_substance", right_on="code", how="left"
+    df_sub_spe = specialite.get_specialite_substance_df(cis)
+    substances_codes_list = (
+        df_sub_spe.code_substance.unique()
+        if not isinstance(df_sub_spe.code_substance, str)
+        else [df_sub_spe.code_substance]
     )
-    substances_list = df.nom.unique()
+    df_sub = substance.list_substances(substances_codes_list)
 
     return TopicSection(
         [
@@ -395,8 +397,8 @@ def EffetsIndesirables(cis: str) -> Component:
             ),
             dbc.Row(
                 [
-                    AdverseEffectLink(substance.capitalize())
-                    for substance in substances_list
+                    AdverseEffectLink(nom_dict["nom"].capitalize(), code)
+                    for code, nom_dict in df_sub.to_dict(orient="index").items()
                 ]
             ),
         ],
@@ -404,11 +406,13 @@ def EffetsIndesirables(cis: str) -> Component:
     )
 
 
-def AdverseEffectLink(substance: str) -> Component:
+def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
         [
             html.Label(substance, className="color-secondary font-weight-bold"),
-            html.A("Voir les effets indésirables", className="color-three"),
+            html.A("Voir les effets indésirables", 
+                            href="/apps/substance?search={}".format(code),
+            className="color-three"),
         ],
         class_name="d-flex flex-row justify-content-between",
     )
