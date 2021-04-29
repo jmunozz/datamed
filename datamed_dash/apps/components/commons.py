@@ -148,7 +148,7 @@ def Utilisation(df_expo, index, type: str):
                             html.H2(
                                 UTILISATION[utilisation], className="color-secondary"
                             ),
-                            html.P(FOURCHETTES[type][utilisation]),
+                            html.P(FOURCHETTES[utilisation][type]),
                             html.A(
                                 "En savoir plus sur le taux d'exposition",
                                 className="color-secondary",
@@ -165,7 +165,7 @@ def Utilisation(df_expo, index, type: str):
     )
 
 
-def PatientsTraites(df_age, df_sexe, df_expo, index, pie_colors: List, type:str) -> Component:
+def PatientsTraites(df_age, df_sexe, df_expo, index, pie_colors: List, type: str) -> Component:
     sexe_figures = get_sexe_figures_from_df(df_sexe, "pourcentage_patients")
     return TopicSection(
         [
