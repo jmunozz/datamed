@@ -27,6 +27,29 @@ UTILISATION = {
     5: "Utilisation très élevée",
 }
 
+FOURCHETTES = {
+    1: {
+        "spécialité": "Nombre de patients traités par an en France inférieur à 1000",
+        "substance": "Nombre de patients traités par an en France inférieur à 5000",
+    },
+    2: {
+        "spécialité": "Nombre de patients traités par an en France entre 1000 et 5000",
+        "substance": "Nombre de patients traités par an en France entre 5000 et 25000",
+    },
+    3: {
+        "spécialité": "Nombre de patients traités par an en France entre 5000 et 15000",
+        "substance": "Nombre de patients traités par an en France entre 25000 et 100000",
+    },
+    4: {
+        "spécialité": "Nombre de patients traités par an en France entre 15000 et 50000",
+        "substance": "Nombre de patients traités par an en France entre 100000 et 500000",
+    },
+    5: {
+        "spécialité": "Nombre de patients traités par an en France supérieur à 50000",
+        "substance": "Nombre de patients traités par an en France supérieur à 500000",
+    },
+}
+
 SEXE = {1: "Hommes", 2: "Femmes"}
 SEXE_IMG_URL = {
     1: app.get_asset_url("man_img.svg"),
@@ -91,7 +114,7 @@ def Accordion() -> Component:
     )
 
 
-def Utilisation(df_expo, index):
+def Utilisation(df_expo, index, type: str):
     utilisation = (
         df_expo.at[index, "exposition"][0] if len(df_expo) > 1 else df_expo.exposition
     )
@@ -125,7 +148,7 @@ def Utilisation(df_expo, index):
                             html.H2(
                                 UTILISATION[utilisation], className="color-secondary"
                             ),
-                            html.P("Nombre de patients traités par an en France"),
+                            html.P(FOURCHETTES[type][utilisation]),
                             html.A(
                                 "En savoir plus sur le taux d'exposition",
                                 className="color-secondary",
@@ -142,13 +165,13 @@ def Utilisation(df_expo, index):
     )
 
 
-def PatientsTraites(df_age, df_sexe, df_expo, index, pie_colors: List) -> Component:
+def PatientsTraites(df_age, df_sexe, df_expo, index, pie_colors: List, type:str) -> Component:
     sexe_figures = get_sexe_figures_from_df(df_sexe, "pourcentage_patients")
     return TopicSection(
         [
             SectionTitle("Patients traités"),
             Accordion(),
-            Utilisation(df_expo, index),
+            Utilisation(df_expo, index, type),
             dbc.Row(
                 [
                     GraphBox(
@@ -186,4 +209,3 @@ def toggle_accordion(n_clicks, is_open):
         return False
     if n_clicks:
         return not is_open
-

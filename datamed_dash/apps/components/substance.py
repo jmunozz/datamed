@@ -124,6 +124,7 @@ def Substance(code: str) -> Component:
                         df_expo=df_expo,
                         index=code,
                         pie_colors=PIE_COLORS_SUBSTANCE,
+                        type="substance"
                     ),
                     CasDeclares(code),
                     SystemesOrganes(code),

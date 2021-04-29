@@ -93,6 +93,7 @@ def Specialite(cis: str) -> Component:
                 df_expo=df_expo,
                 index=cis,
                 pie_colors=PIE_COLORS_SPECIALITE,
+                type="spécialité"
             )
         )
 
