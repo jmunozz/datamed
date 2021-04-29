@@ -11,6 +11,8 @@ from dash_core_components import Graph
 from db import specialite, substance, fetch_data
 from sm import SideMenu
 
+from app import app
+
 from .commons import PatientsTraites
 from .utils import (
     Box,
@@ -36,6 +38,8 @@ UTILISATION = {
 SEXE = {1: "Hommes", 2: "Femmes"}
 
 EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
+EI_IMG_URL = {"Non": app.get_asset_url("healthy_man.svg"), "Oui": app.get_asset_url("sick_man.svg")}
+
 
 
 def get_has_guideline_link(current_specialite):
@@ -277,7 +281,7 @@ def StackBarGraph(df: pd.DataFrame, cis: str, field: str) -> Graph:
 def ErreursMedicamenteuses(cis: str) -> Component:
     df_ei = specialite.get_erreur_med_effet_indesirable(cis)
     ei_figures = [
-        {"figure": round(x["pourcentage"], 2), "caption": EI[x["effet_indesirable"]]}
+        {"figure": "{}%".format(round(x["pourcentage"], 2)), "caption": EI[x["effet_indesirable"]], "img": EI_IMG_URL[x["effet_indesirable"]]}
         for x in fetch_data.transform_df_to_series_list(df_ei)
     ]
 
