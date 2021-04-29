@@ -202,3 +202,29 @@
   padding: 1rem;
   width: 100%;
 }
+
+.color-secondary {
+  color: #00b3cc !important;
+}
+
+.color-three {
+  color: #ef7d00 !important;
+}
+
+.bg-secondary {
+  background-color: #00b3cc !important;
+  color: #fff;
+}
+
+a {
+  text-decoration: underline;
+}
+
+a:active {
+  color: initial;
+}
+
+a:hover {
+  color: inherit;
+  cursor: pointer;
+}

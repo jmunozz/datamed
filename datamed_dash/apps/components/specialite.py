@@ -13,7 +13,7 @@ from dash_core_components import Graph
 from db import specialite, substance, fetch_data
 from sm import SideMenu
 
-from .utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, ExternalLink
+from .utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, ExternalLink, SectionP, FigureGraph
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
 
@@ -23,6 +23,16 @@ UTILISATION = {
     3: "Utilisation moyenne",
     4: "Utilisation élevée",
     5: "Utilisation élevée",
+}
+
+SEXE = {
+    1: "Hommes", 
+    2: "Femmes"
+}
+
+EI = {
+    "Non": "Sans effets indésirables", 
+    "Oui": "Avec effets indésirables"
 }
 
 
@@ -68,7 +78,6 @@ def get_notice_link(cis) -> str:
         else link
     )
 
-
 def Specialite(cis: str) -> Component:
     divs = [
         Header(cis),
@@ -101,7 +110,8 @@ def Specialite(cis: str) -> Component:
             html.Div(
                 html.Div(
                     divs,
-                    className="container-fluid"
+                    className="container-fluid",
+                    style={"padding-left": "65px"}
                 ),
                 className="container-fluid side-content"
             ),
@@ -130,6 +140,7 @@ def Accordion() -> Component:
                     "Comment sont calculés ces indicateurs ?",
                     color="link",
                     id="group-1-toggle",
+                    className="color-secondary"
                 ),
                 className="with-lightbulb",
             ),
@@ -171,27 +182,19 @@ def Utilisation(cis: str):
                             ),
                             html.Div(
                                 [
-                                    html.Div(str(utilisation), className="heading-1"),
-                                    html.Div("/5", className="heading-4"),
+                                    html.H1(f"{utilisation}/5"),
                                 ],
                                 className="d-flex",
                             ),
                         ],
-                        style={"flex": 1, "backgroundColor": "#00B3CC"},
-                        className="p-3 d-flex flex-row justify-content-around align-items-center on-background",
+                        style={"flex": 1},
+                        className="p-3 d-flex flex-row justify-content-around align-items-center bg-secondary",
                     ),
                     html.Div(
                         [
-                            html.Div(UTILISATION[utilisation], className="heading-4"),
-                            html.Div(
-                                "Nombre de patients traités par an en France",
-                                className="normal-text",
-                            ),
-                            html.Div(
-                                "En savoir plus sur le taux d'exposition",
-                                className="normal-text link",
-                                style={"color": "#00B3CC"},
-                            ),
+                            html.H2(UTILISATION[utilisation], className="color-secondary"),
+                            html.P("Nombre de patients traités par an en France"),
+                            html.A("En savoir plus sur le taux d'exposition", className="color-secondary"),
                         ],
                         style={"flex": 3},
                         className="p-3",
@@ -292,6 +295,11 @@ def Description(cis: str) -> Component:
 
 def PatientsTraites(cis: str) -> Component:
     df_age = fetch_data.fetch_table("specialite_patient_age_ordei", "cis")
+    df_sexe_by_cis = specialite.get_sexe_df(cis)
+    sexe_figures = [{"figure": round(x["pourcentage_patients"], 2), "caption": SEXE[x["sexe"]]} for x in fetch_data.transform_df_to_series_list(df_sexe_by_cis)]
+
+    
+
     fig = go.Figure(
         go.Pie(
             labels=df_age.loc[cis].age,
@@ -309,7 +317,7 @@ def PatientsTraites(cis: str) -> Component:
                 [
                     GraphBox(
                         "Répartition par sexe des patients traités",
-                        [],
+                        [FigureGraph(sexe_figures)],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
@@ -348,7 +356,8 @@ def NoData() -> html.Div:
 
 
 def ErreursMedicamenteuses(cis: str) -> Component:
-    df_ei = fetch_data.fetch_table("erreur_med_effet_indesirable", "cis")
+    df_ei = specialite.get_erreur_med_effet_indesirable(cis)
+    ei_figures = [{"figure": round(x["pourcentage"], 2), "caption": EI[x["effet_indesirable"]]} for x in fetch_data.transform_df_to_series_list(df_ei)]
 
     df_pop = fetch_data.fetch_table("erreur_med_population", "cis").reset_index()
     fig_pop = go.Figure(
@@ -406,17 +415,14 @@ def ErreursMedicamenteuses(cis: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Erreurs médicamenteuses"),
-            html.Div(
-                "Les erreurs médicamenteuses proviennent des déclarations d’erreurs médicamenteuses, "
+            SectionP("Les erreurs médicamenteuses proviennent des déclarations d’erreurs médicamenteuses, "
                 "gérée par l’ANSM. Les formes d’erreur se classifient sous 3 grandes catégories : "
-                "Erreur de prescription, Erreur de délivrance, Erreur d’administration.",
-                className="normal-text",
-            ),
+                "Erreur de prescription, Erreur de délivrance, Erreur d’administration."),
             dbc.Row(
                 [
                     GraphBox(
-                        "Existance d’effets indésirables",
-                        [],
+                        "Existence d’effets indésirables",
+                        [FigureGraph(ei_figures)],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
@@ -497,14 +503,11 @@ def EffetsIndesirables(cis: str) -> Component:
     return TopicSection(
         [
             SectionTitle(
-                "Cas déclarés d’effets indésirables des substances actives du Doliprane"
+                "Cas déclarés d’effets indésirables des substances actives"
             ),
-            html.Div(
-                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
+            SectionP("Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
                 "l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou erreurs médicamenteuses. "
-                "Il s’agit de cas évalués et validés par un comité d’experts.",
-                className="normal-text",
-            ),
+                "Il s’agit de cas évalués et validés par un comité d’experts."),
             dbc.Row(
                 [
                     AdverseEffectLink(substance.capitalize())
@@ -517,9 +520,12 @@ def EffetsIndesirables(cis: str) -> Component:
 
 
 def AdverseEffectLink(
-    substance: str, class_name="normal-text-bold", style={"color": "#00B3CC"}
+    substance: str
 ) -> Component:
-    return Box(substance, class_name=class_name, style=style)
+    return Box([
+        html.Label(substance, className="color-secondary font-weight-bold"),
+        html.A("Voir les effets indésirables", className="color-three")
+    ], class_name="d-flex flex-row justify-content-between")
 
 
 # @app.callback(

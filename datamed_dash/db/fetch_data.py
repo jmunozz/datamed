@@ -8,3 +8,7 @@ from . import utils
 def fetch_table(table_name, index_col):
     engine = utils.connect_db()
     return pd.read_sql_table(table_name, engine, index_col=index_col)
+
+
+def transform_df_to_series_list(df): 
+    return [x[1] for x in df.iterrows()]

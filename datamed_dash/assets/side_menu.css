@@ -13,7 +13,7 @@ html {
 }
 
 nav.side-menu {
-  margin-top: 15px;
+  padding-top: 15px;
   position: fixed;
   left: 0;
   z-index: 5;
@@ -22,6 +22,8 @@ nav.side-menu {
   text-transform: uppercase;
   align-self: flex-start;
   overflow: hidden;
+  height: 100vh;
+  background-color: #fbfcfd;
 }
 
 nav.side-menu ul {

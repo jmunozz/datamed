@@ -21,10 +21,20 @@ def GraphBox(
     title, children, class_name_wrapper="col-md-12", class_name=""
 ) -> Component:
     return Box(
-        [html.Div(title, className="small-text-bold")] + children,
+        [html.Div(title, className="small-text-bold mb-4")] + children,
         class_name_wrapper=class_name_wrapper,
         class_name=class_name,
     )
+
+def FigureGraph(figures) -> Component:
+    l = []
+    for f in figures:
+        elems = []
+        elems = elems + [html.Img(src=f["img"])] if f.get("img") else []
+        elems = elems + [html.H1(f["figure"])] if f.get("figure") else []
+        elems = elems + [html.Label(f["caption"])] if f.get("caption") else []
+        l = l + [html.Div(elems, className="d-flex flex-column align-items-center")]
+    return html.Div(l, className="d-flex flex-row flex-wrap justify-content-around")
 
 
 def TopicSection(children, id) -> Component:
@@ -36,10 +46,13 @@ def TopicSection(children, id) -> Component:
 def SectionTitle(title: str) -> Component:
     return dbc.Row(
         html.Div(
-            html.Div(title, className="heading-4 d-inline-block"), className="col-12"
+            html.H1(title, className="d-inline-block"), className="col-12"
         ),
         className="section-title",
     )
+
+def SectionP(str: str) -> Component:
+    return dbc.Row(html.Div(html.P(str), className="col-12"))
 
 
 def ExternalLink(label, link):
