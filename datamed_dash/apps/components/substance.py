@@ -77,7 +77,11 @@ def Substance(code: str) -> Component:
                     Header(code),
                     Description(code),
                     PatientsTraites(
-                        df_age=df_age, df_sexe=df_sexe, df_expo=df_expo, index=code
+                        df_age=df_age,
+                        df_sexe=df_sexe,
+                        df_expo=df_expo,
+                        index=code,
+                        pie_colors=PIE_COLORS_SUBSTANCE,
                     ),
                     CasDeclares(code),
                     SystemesOrganes(code),

@@ -1,3 +1,5 @@
+from typing import List
+
 import dash
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
@@ -15,7 +17,6 @@ from .utils import (
     SectionTitle,
     FigureGraph,
 )
-from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT
 
 UTILISATION = {
@@ -38,12 +39,12 @@ def get_sexe_figures_from_df(df, column):
     ]
 
 
-def makePie(labels, values):
+def makePie(labels, values, pie_colors):
     return go.Figure(
         go.Pie(
             labels=labels,
             values=values,
-            marker_colors=PIE_COLORS_SPECIALITE,  # px.colors.qualitative.Set3,
+            marker_colors=pie_colors,
         )
     ).update_layout(PIE_LAYOUT)
 
@@ -64,10 +65,16 @@ def Accordion() -> Component:
                 dbc.CardBody(
                     [
                         html.P(
-                            "Estimations obtenues à partir des données Open-Medic portant sur l’usage du médicament, délivré en pharmacie de ville en 2014 à 2018 et remboursé par l’Assurance Maladie. Pour plus d’informations, consultez : http://open-data-assurance-maladie.ameli.fr/medicaments/index.php"
+                            "Estimations obtenues à partir des données Open-Medic portant sur l’usage du "
+                            "médicament, délivré en pharmacie de ville en 2014 à 2018 et remboursé par l’Assurance "
+                            "Maladie. Pour plus d’informations, consultez : "
+                            "http://open-data-assurance-maladie.ameli.fr/medicaments/index.php"
                         ),
                         html.P(
-                            "Attention : Les patients étant restitués par présentation dans les données Open Medic, ils sont comptabilisés autant de fois qu’ils ont eu de remboursements de présentations différentes d’un même produit/substance active. Les indicateurs restitués pourraient être surestimés pour certains médicaments."
+                            "Attention : Les patients étant restitués par présentation dans les données Open Medic, "
+                            "ils sont comptabilisés autant de fois qu’ils ont eu de remboursements de présentations "
+                            "différentes d’un même produit/substance active. Les indicateurs restitués pourraient être "
+                            "surestimés pour certains médicaments."
                         ),
                     ]
                 ),
@@ -130,7 +137,7 @@ def Utilisation(df_expo, index):
     )
 
 
-def PatientsTraites(df_age, df_sexe, df_expo, index) -> Component:
+def PatientsTraites(df_age, df_sexe, df_expo, index, pie_colors: List) -> Component:
     sexe_figures = get_sexe_figures_from_df(df_sexe, "pourcentage_patients")
     return TopicSection(
         [
@@ -148,7 +155,9 @@ def PatientsTraites(df_age, df_sexe, df_expo, index) -> Component:
                         "Répartition par âge des patients traités",
                         [
                             Graph(
-                                figure=makePie(df_age.age, df_age.pourcentage_patients),
+                                figure=makePie(
+                                    df_age.age, df_age.pourcentage_patients, pie_colors
+                                ),
                                 responsive=True,
                             )
                         ],

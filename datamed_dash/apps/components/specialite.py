@@ -90,7 +90,13 @@ def Specialite(cis: str) -> Component:
         df_age = specialite.get_age_df(cis)
         df_sexe = specialite.get_sexe_df(cis)
         divs.append(
-            PatientsTraites(df_age=df_age, df_sexe=df_sexe, df_expo=df_expo, index=cis)
+            PatientsTraites(
+                df_age=df_age,
+                df_sexe=df_sexe,
+                df_expo=df_expo,
+                index=cis,
+                pie_colors=PIE_COLORS_SPECIALITE,
+            )
         )
 
     df_emed = fetch_data.fetch_table("erreur_med_cis_denomination", "cis")
