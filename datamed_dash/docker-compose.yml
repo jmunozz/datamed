@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    env_file:
+      - docker.env
+    ports:
+      - "8050:8050"
+    command: python index.py
+      -
+  #   redis:
+  #     image: redis:3.2.11
+  #     restart: always
+  #     ports:
+  #       - 6389:6379 # was 6382:6379
+#   db:
+#     image: postgres:10
+#     restart: always
+#     ports:
+#       - 5432:5432
+#     environment:
+#       POSTGRES_PASSWORD: datamed
+#       POSTGRES_USER: datamed
+#       POSTGRES_DB: datamed-data
+#     volumes:
+#       - data-volume:/var/lib/postgresql/data
+# volumes:
+#   data-volume:
