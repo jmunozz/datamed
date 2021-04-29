@@ -1,3 +1,4 @@
+from db import substance
 from pandas.io.sql import read_sql_table
 from app import cache
 
@@ -11,7 +12,7 @@ def get_specialite(cis):
 def list_specialite():
     return fetch_table("specialite", "cis")
 
-def list_specialite_substances(cis):
+def get_specialite_substance_df(cis):
     return return_sub_df_or_none(fetch_table("specialite_substance", "cis"), cis)
 
 def get_sexe_df(cis): 
@@ -26,3 +27,7 @@ def get_exposition(cis):
 def get_age_df(cis): 
     return return_sub_df_or_none(fetch_table("specialite_patient_age_ordei", "cis"), cis)
 
+
+def list_substances(cis):
+    df_spe_sub = get_specialite_substance_df(cis)
+    return substance.list_substances(df_spe_sub["code_substance"])
