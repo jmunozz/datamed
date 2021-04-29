@@ -1,10 +1,14 @@
 import dash_core_components as dcc
-from dash.development.base_component import Component
 import dash_html_components as html
+from dash.development.base_component import Component
+
 from .search import Search
 
+
 def LogoAnsm() -> Component:
-    img = html.Img(src="/assets/logo_ansm.png", style={"width": "100px", "display": "inline-block"})
+    img = html.Img(
+        src="/assets/logo_ansm.png", style={"width": "100px", "display": "inline-block"}
+    )
     return dcc.Link(img, href="/")
 
 
@@ -24,13 +28,14 @@ def MenuItem(title: str, href: str) -> Component:
     )
 
 
-def Navbar() -> Component: 
-    return html.Div([
-        LogoAnsm(),
-        MenuItem("Analyses thématiques", "/"),
-        MenuItem("Explorer", "/apps/explorer"),
-        MenuItem("À propos", "/"),
-        Search()
-    ], 
-    className="navbar")
-
+def Navbar() -> Component:
+    return html.Div(
+        [
+            LogoAnsm(),
+            MenuItem("Analyses thématiques", "/"),
+            MenuItem("Explorer", "/apps/explorer"),
+            MenuItem("À propos", "/"),
+            Search(),
+        ],
+        className="navbar",
+    )
