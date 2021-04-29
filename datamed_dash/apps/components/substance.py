@@ -433,7 +433,6 @@ def toggle_substance_ei_tooltip(n_clicks, is_open):
 )
 def getActiveCell(active_cell, page_current, page_size, data):
     if active_cell:
-        print(active_cell)
         col = active_cell["column_id"]
         row = active_cell["row"]
         cellData = data[(page_current or 0) * page_size + row]["cis"]

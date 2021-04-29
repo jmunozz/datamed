@@ -34,7 +34,7 @@ EI_IMG_URL = {
 }
 
 
-def get_has_guideline_link(current_specialite):
+def get_has_guideline_link(current_specialite: pd.Series) -> str:
     cis = current_specialite.name
     return "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(
         cis
@@ -405,8 +405,8 @@ def EffetsIndesirables(cis: str) -> Component:
             SectionTitle("Cas déclarés d’effets indésirables des substances actives"),
             SectionP(
                 "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
-                "l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou erreurs médicamenteuses. "
-                "Il s’agit de cas évalués et validés par un comité d’experts."
+                "l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, abus ou "
+                "erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts."
             ),
             dbc.Row(
                 [
