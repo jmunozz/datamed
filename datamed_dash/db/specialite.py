@@ -1,26 +1,28 @@
+from pandas.io.sql import read_sql_table
 from app import cache
 
-from . import fetch_data
+from .fetch_data import fetch_table, return_sub_df_or_none
 
 
 @cache.memoize(300)
 def get_specialite(cis):
     return list_specialite().loc[cis]
 
-
 def list_specialite():
-    return fetch_data.fetch_table("specialite", "cis")
-
+    return fetch_table("specialite", "cis")
 
 def list_specialite_substances(cis):
-    substances_df = fetch_data.fetch_table("specialite_substance", "cis")
-    df = substances_df.loc[[cis]]
-    return df
+    return return_sub_df_or_none(fetch_table("specialite_substance", "cis"), cis)
 
 def get_sexe_df(cis): 
-    df = fetch_data.fetch_table("specialite_patient_sexe_ordei", "cis")
-    return df.loc[cis]
+    return return_sub_df_or_none(fetch_table("specialite_patient_sexe_ordei", "cis"), cis)
 
 def get_erreur_med_effet_indesirable(cis): 
-    df = fetch_data.fetch_table("erreur_med_effet_indesirable", "cis")
-    return df.loc[cis]
+    return return_sub_df_or_none(fetch_table("erreur_med_effet_indesirable", "cis"), cis)
+
+def get_exposition(cis):
+    return return_sub_df_or_none(fetch_table("specialite_exposition", "cis"), cis)
+
+def get_age_df(cis): 
+    return return_sub_df_or_none(fetch_table("specialite_patient_age_ordei", "cis"), cis)
+

@@ -8,13 +8,15 @@ import dash_table
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
-from apps.components.specialite import Accordion, UTILISATION, NoData
+from apps.components.specialite import NoData
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from db import fetch_data
+from db import specialite, substance, fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
+
+from .commons import PatientsTraites
 
 from .utils import Box, GraphBox, TopicSection, SectionTitle
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
@@ -22,6 +24,11 @@ from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
 
 def Substance(code: str) -> Component:
+
+    df_age = substance.get_age_df(code)
+    df_sexe = substance.get_sexe_df(code)
+    df_expo = substance.get_exposition_df(code)
+
     return html.Div(
         [
             SideMenu(
@@ -40,7 +47,7 @@ def Substance(code: str) -> Component:
                 [
                     Header(code),
                     Description(code),
-                    PatientsTraites(code),
+                    PatientsTraites(df_age=df_age, df_sexe=df_sexe, df_expo=df_expo, index=code),
                     CasDeclares(code),
                     SystemesOrganes(code),
                 ],
@@ -61,59 +68,6 @@ def Header(code: str) -> Component:
             html.A("Qu'est-ce qu'une substance active ?"),
         ],
         className="content-header",
-    )
-
-
-def Utilisation(code: str):
-    df_expo = fetch_data.fetch_table("substance_exposition", "code")
-    utilisation = df_expo.loc[code].exposition.values[0]
-    return dbc.Row(
-        [
-            Box(
-                [
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    html.Img(
-                                        src=app.get_asset_url("family_restroom.svg")
-                                    ),
-                                    html.P("INDICE"),
-                                ],
-                                className="d-flex flex-column",
-                            ),
-                            html.Div(
-                                [
-                                    html.Div(str(utilisation), className="heading-1"),
-                                    html.Div("/5", className="heading-4"),
-                                ],
-                                className="d-flex",
-                            ),
-                        ],
-                        style={"flex": 1, "backgroundColor": "#00B3CC"},
-                        className="p-3 d-flex flex-row justify-content-around align-items-center on-background",
-                    ),
-                    html.Div(
-                        [
-                            html.Div(UTILISATION[utilisation], className="heading-4"),
-                            html.Div(
-                                "Nombre de patients traités par an en France",
-                                className="normal-text",
-                            ),
-                            html.Div(
-                                "En savoir plus sur le taux d'exposition",
-                                className="normal-text link",
-                                style={"color": "#00B3CC"},
-                            ),
-                        ],
-                        style={"flex": 3},
-                        className="p-3",
-                    ),
-                ],
-                class_name_wrapper="col-md-12",
-                class_name="p-0 d-flex",
-            )
-        ]
     )
 
 
@@ -172,45 +126,6 @@ def Description(code: str) -> Component:
             class_name_wrapper="overlap-top-content",
         ),
         id="description",
-    )
-
-
-def PatientsTraites(code: str) -> Component:
-    df_age = fetch_data.fetch_table("substance_patient_age_ordei", "code")
-    fig = go.Figure(
-        go.Pie(
-            labels=df_age.loc[code].age,
-            values=df_age.loc[code].pourcentage_patients,
-            marker_colors=PIE_COLORS_SUBSTANCE,  # px.colors.qualitative.Set3,
-        )
-    ).update_layout(PIE_LAYOUT)
-
-    return TopicSection(
-        [
-            SectionTitle("Patients traités"),
-            Accordion(),
-            Utilisation(code),
-            dbc.Row(
-                [
-                    GraphBox(
-                        "Répartition par sexe des patients traités",
-                        [],
-                        class_name_wrapper="col-md-6",
-                    ),
-                    GraphBox(
-                        "Répartition par âge des patients traités",
-                        [
-                            Graph(
-                                figure=fig,
-                                responsive=True,
-                            )
-                        ],
-                        class_name_wrapper="col-md-6",
-                    ),
-                ]
-            ),
-        ],
-        id="population-concernee",
     )
 
 
@@ -278,7 +193,7 @@ def CasDeclares(code: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Cas déclarés d'effets indésirables"),
-            Accordion(),
+            # Accordion(),
             dbc.Row(
                 [
                     GraphBox(
