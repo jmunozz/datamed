@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.development.base_component import Component
@@ -13,14 +15,14 @@ def Box(
     )
 
 
-def ArticleTitle(title) -> Component:
+def ArticleTitle(title: str) -> Component:
     return html.H4(title, className="small-text-bold with-margin")
 
 
 def GraphBox(
-    title, children, class_name_wrapper="col-md-12", class_name=""
+    title: str, children: List, class_name_wrapper="col-md-12", class_name=""
 ) -> Component:
-    if title is not None:
+    if not title:
         children = [html.Div(title, className="small-text-bold mb-4")] + children
     return Box(
         children,
@@ -28,18 +30,19 @@ def GraphBox(
         class_name=class_name,
     )
 
-def FigureGraph(figures) -> Component:
+
+def FigureGraph(figures: List[Dict]) -> Component:
     l = []
     for f in figures:
         elems = []
         elems = elems + [html.Img(src=f["img"])] if f.get("img") else []
         elems = elems + [html.H1(f["figure"])] if f.get("figure") else []
         elems = elems + [html.Label(f["caption"])] if f.get("caption") else []
-        l = l + [html.Div(elems, className="d-flex flex-column align-items-center")]
+        l += [html.Div(elems, className="d-flex flex-column align-items-center")]
     return html.Div(l, className="d-flex flex-row flex-wrap justify-content-around")
 
 
-def TopicSection(children, id) -> Component:
+def TopicSection(children: List, id: str) -> Component:
     return dbc.Row(
         html.Div(children, className="col-12"), className="topic-section", id=id
     )
@@ -47,17 +50,16 @@ def TopicSection(children, id) -> Component:
 
 def SectionTitle(title: str) -> Component:
     return dbc.Row(
-        html.Div(
-            html.H1(title, className="d-inline-block"), className="col-12"
-        ),
+        html.Div(html.H1(title, className="d-inline-block"), className="col-12"),
         className="section-title",
     )
 
-def SectionP(str: str) -> Component:
-    return dbc.Row(html.Div(html.P(str), className="col-12"))
+
+def SectionP(text: str) -> Component:
+    return dbc.Row(html.Div(html.P(text), className="col-12"))
 
 
-def ExternalLink(label, link):
+def ExternalLink(label: str, link: str):
     return html.A(
         f"{label}",
         href=link,

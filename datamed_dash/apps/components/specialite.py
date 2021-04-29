@@ -300,9 +300,14 @@ def ErreursMedicamenteuses(cis: str) -> Component:
         [
             SectionTitle("Erreurs médicamenteuses"),
             SectionP(
-                "Les erreurs médicamenteuses proviennent des déclarations d’erreurs médicamenteuses, "
-                "gérée par l’ANSM. Les formes d’erreur se classifient sous 3 grandes catégories : "
-                "Erreur de prescription, Erreur de délivrance, Erreur d’administration."
+                "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
+                "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles sont "
+                "déclarées par les patients ou les professionnels de santé notamment via le portail : "
+                "https://signalement.social-sante.gouv.fr"
+            ),
+            SectionP(
+                "Les Erreurs Médicamenteuses se classifient en fonction du stade (Erreur de prescription, "
+                "Erreur de délivrance, Erreur d’administration), du type et de la cause. "
             ),
             dbc.Row(
                 [
