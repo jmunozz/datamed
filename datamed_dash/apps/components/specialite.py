@@ -294,6 +294,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
     df_nat = fetch_data.fetch_table("erreur_med_nature", "cis").reset_index()
 
     df_denom = fetch_data.fetch_table("erreur_med_cis_denomination", "cis").reset_index()
+    df_denom.denomination = df_denom.denomination.str.capitalize()
 
     return TopicSection(
         [
