@@ -180,3 +180,4 @@ def toggle_accordion(n_clicks, is_open):
         return False
     if n_clicks:
         return not is_open
+
