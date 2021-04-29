@@ -355,20 +355,21 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                                 id="denomination-table",
                                 columns=[
                                     {"name": i, "id": i}
-                                    for i in df_denom[df_denom.cis == cis].columns
+                                    for i in df_denom[df_denom.cis == cis][["denomination"]].columns
                                 ],
                                 data=df_denom[df_denom.cis == cis].to_dict("records"),
                                 page_size=10,
                                 style_as_list_view=True,
                                 style_table={"overflowX": "auto"},
                                 style_cell={
-                                    "height": "40px",
+                                    "height": "50px",
+                                    'backgroundColor': '#FAFAFA',
                                 },
                                 style_data={
-                                    "fontSize": "12px",
+                                    "fontSize": "14px",
                                     "fontWeight": "400",
                                     "font-family": "Roboto",
-                                    "lineHeight": "16px",
+                                    "lineHeight": "18px",
                                     "textAlign": "left",
                                 },
                                 style_header={"display": "none"},
