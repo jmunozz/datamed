@@ -1,5 +1,5 @@
 import math
-from urllib.parse import urlparse, parse_qs, unquote_plus
+from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
 import dash
 import dash.dependencies as dd
@@ -12,13 +12,13 @@ from app import app
 from apps.components import commons
 from apps.components.specialite import NoData
 from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
 from dash_bootstrap_components import (
     Button,
     Modal,
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Table,
 )
 from dash_core_components import Graph
 from db import substance, fetch_data
@@ -47,10 +47,18 @@ def EffetsIndesirablesTooltip() -> Component:
                 dbc.CardBody(
                     [
                         html.P(
-                            "Nombre de cas notifiés d’effets indésirables en France estimé à partir des données de la Base Nationale de PharmacoVigilance (BNPV). La BNPV est alimentée par les centres régionaux de pharmacovigilance qui sont notifiés par les professionnels de santé ou par les patients et association agréées via un portail dédié : https://signalement.social-sante.gouv.fr"
+                            "Nombre de cas notifiés d’effets indésirables en France estimé à partir des données de "
+                            "la Base Nationale de PharmacoVigilance (BNPV). La BNPV est alimentée par les centres "
+                            "régionaux de pharmacovigilance qui sont notifiés par les professionnels de santé ou par "
+                            "les patients et association agréées via un portail "
+                            "dédié : https://signalement.social-sante.gouv.fr"
                         ),
                         html.P(
-                            "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts. Pour plus d’informations, consultez : https://ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments"
+                            "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
+                            "d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou "
+                            "erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts. "
+                            "Pour plus d’informations, "
+                            "consultez : https://ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments"
                         ),
                     ]
                 ),
@@ -130,6 +138,7 @@ def Description(code: str) -> Component:
         .set_index("code_substance")
         .sort_values(by="nom_specialite")
     )
+    df_cis_sub.nom_specialite = df_cis_sub.nom_specialite.str.capitalize()
 
     return TopicSection(
         Box(
@@ -148,20 +157,21 @@ def Description(code: str) -> Component:
                 dash_table.DataTable(
                     id="substance-specialite-table",
                     columns=[
-                        {"name": i, "id": i} for i in df_cis_sub.loc[code].columns
+                        {"name": i, "id": i} for i in df_cis_sub.loc[code][["nom_specialite"]].columns
                     ],
                     data=df_cis_sub.loc[code].to_dict("records"),
                     page_size=10,
                     style_as_list_view=True,
                     style_table={"overflowX": "auto"},
                     style_cell={
-                        "height": "40px",
+                        "height": "50px",
+                        'backgroundColor': '#FAFAFA',
                     },
                     style_data={
-                        "fontSize": "12px",
+                        "fontSize": "14px",
                         "fontWeight": "400",
                         "font-family": "Roboto",
-                        "lineHeight": "16px",
+                        "lineHeight": "18px",
                         "textAlign": "left",
                     },
                     style_header={"display": "none"},
@@ -414,24 +424,24 @@ def toggle_substance_ei_tooltip(n_clicks, is_open):
         return not is_open
 
 
-# @app.callback(
-#     dd.Output("url", "href"),
-#     [
-#         dd.Input("substance-specialite-table", "active_cell"),
-#         dd.Input("substance-specialite-table", "page_current"),
-#         dd.Input("substance-specialite-table", "page_size"),
-#     ],
-#     dd.State("substance-specialite-table", "data"),
-# )
-# def getActiveCell(active_cell, page_current, page_size, data):
-#     if active_cell:
-#         print(active_cell)
-#         col = active_cell["column_id"]
-#         row = active_cell["row"]
-#         cellData = data[(page_current or 0) * page_size + row]["cis"]
-#         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
-#     else:
-#         raise PreventUpdate
+@app.callback(
+    dd.Output("url", "href"),
+    [
+        dd.Input("substance-specialite-table", "active_cell"),
+        dd.Input("substance-specialite-table", "page_current"),
+        dd.Input("substance-specialite-table", "page_size"),
+    ],
+    dd.State("substance-specialite-table", "data"),
+)
+def getActiveCell(active_cell, page_current, page_size, data):
+    if active_cell:
+        print(active_cell)
+        col = active_cell["column_id"]
+        row = active_cell["row"]
+        cellData = data[(page_current or 0) * page_size + row]["cis"]
+        return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
+    else:
+        raise PreventUpdate
 
 
 @app.callback(
