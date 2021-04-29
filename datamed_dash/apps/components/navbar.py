@@ -1,24 +1,27 @@
 import dash_core_components as dcc
+import dash_html_components as html
 from dash.development.base_component import Component
-from dash_bootstrap_components import Button
-from dash_html_components import Div, Img, Span, A, B
+
+from .search import Search
 
 
 def LogoAnsm() -> Component:
-    img = Img(src="/assets/logo_ansm.png", style={"width": "100px", "display": "inline-block"})
+    img = html.Img(
+        src="/assets/logo_ansm.png", style={"width": "100px", "display": "inline-block"}
+    )
     return dcc.Link(img, href="/")
 
 
 def UrlAnsm() -> Component:
-    return Span(
-        ["data.", B("ansm.sante.fr")],
+    return html.Span(
+        ["data.", html.B("ansm.sante.fr")],
         style={"color": "black"},
         className="ml-2 d-inline-block",
     )
 
 
 def MenuItem(title: str, href: str) -> Component:
-    return A(
+    return html.A(
         title,
         href=href,
         className="button-text nav-link text-secondary d-inline-block mr-4",
@@ -26,30 +29,13 @@ def MenuItem(title: str, href: str) -> Component:
 
 
 def Navbar() -> Component:
-    return Div(
+    return html.Div(
         [
             LogoAnsm(),
-            Div(
-                [
-                    UrlAnsm(),
-                    Div(
-                        [
-                            MenuItem("Analyses thématiques", "/"),
-                            MenuItem("Explorer", "/apps/explorer"),
-                            Div(className="vl mr-4"),
-                            MenuItem("À propos", "/"),
-                            Button(
-                                "CONTACT",
-                                outline=True,
-                                className="button-text-bold mr-1",
-                                color="primary",
-                            ),
-                        ],
-                        className="navbar-menu",
-                    ),
-                ],
-                className="navbar-span",
-            ),
+            MenuItem("Analyses thématiques", "/"),
+            MenuItem("Explorer", "/apps/explorer"),
+            MenuItem("À propos", "/"),
+            Search(),
         ],
-        className="navbar-layout container-fluid d-flex sticky-top",
+        className="navbar",
     )

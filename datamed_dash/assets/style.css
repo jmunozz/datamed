@@ -1,155 +1,235 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i');
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i");
 
 .box {
-    padding: 1.5rem 1.5rem 3rem 1.5rem;
+  padding: 1.5rem 1.5rem 3rem 1.5rem;
 }
 
 .btn {
-    height: 2.25rem;
+  height: 2.25rem;
 }
 
 .btn-outline-primary {
-    color: #a03189;
-    border: none;
-    box-shadow: 1px 1px 3px 1px #9E9E9E;
+  color: #a03189;
+  border: none;
+  box-shadow: 1px 1px 3px 1px #9e9e9e;
 }
 
 .btn-outline-primary:hover {
-    color: #A03189;
-    background-color: #dda0dd;
-    border: none;
+  color: #a03189;
+  background-color: #dda0dd;
+  border: none;
 }
 
 .btn-outline-secondary {
-    color: #fff;
-    border: none;
-    background-color: #A03189;
-    box-shadow: 0 2px 0 #9E9E9E;
+  color: #fff;
+  border: none;
+  background-color: #a03189;
+  box-shadow: 0 2px 0 #9e9e9e;
 }
 
 .btn-outline-secondary:hover {
-    color: #fff;
-    background-color: #a03189;
+  color: #fff;
+  background-color: #a03189;
 }
 
 .layout {
-    background-color: #fbfcfd;
-    z-index: -2;
-    font-family: "Roboto", serif;
-    font-size: 1rem;
-    font-weight: 300;
+  background-color: #fbfcfd;
+  z-index: -2;
+  font-family: "Roboto", serif;
+  font-size: 1rem;
+  font-weight: 300;
 }
 
 .heading-1 {
-    font-weight: 300;
-    font-size: 96px;
-    line-height: 116px;
-    letter-spacing: 0.25px;
+  font-weight: 300;
+  font-size: 96px;
+  line-height: 116px;
+  letter-spacing: 0.25px;
 }
 
 .heading-2 {
-    font-weight: 300;
-    font-size: 60px;
-    line-height: 80px;
-    letter-spacing: 0.25px;
+  font-weight: 300;
+  font-size: 60px;
+  line-height: 80px;
+  letter-spacing: 0.25px;
 }
 
 .heading-3 {
-    font-weight: 400;
-    font-size: 48px;
-    line-height: 68px;
-    letter-spacing: 0.25px;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 68px;
+  letter-spacing: 0.25px;
 }
 
 .heading-4 {
-    font-weight: 400;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 40px;
+  letter-spacing: 0.25px;
 }
 
 .heading-5 {
-    font-weight: 400;
-    font-size: 24px;
-    line-height: 32px;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 32px;
 }
 
 .heading-6 {
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 24px;
-    letter-spacing: 0.15px;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: 0.15px;
 }
 
 .large-text {
-    font-weight: 400;
-    font-size: 24px;
-    line-height: 30px;
-    letter-spacing: 0.25px;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: 0.25px;
 }
 
 .medium-text {
-    font-weight: 400;
-    font-size: 20px;
-    line-height: 24px;
-    letter-spacing: 0.25px;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: 0.25px;
 }
 
 .caption-text {
-    font-weight: 400;
-    font-size: 18px;
-    line-height: 22px;
-    letter-spacing: 0.25px;
-    text-transform: uppercase;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 22px;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
 }
 
 .normal-text {
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+}
+
+.normal-text-bold {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+}
+
+.normal-text-cap {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  color: #009640;
 }
 
 .button-text {
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 18px;
-    letter-spacing: 0.25px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.25px;
 }
 
 .button-text-bold {
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 18px;
-    letter-spacing: 0.25px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.25px;
 }
 
 .small-text {
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.25px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.25px;
 }
 
 .small-text-bold {
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.25px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.25px;
 }
 
-.modebar{
-    display: none !important;
+.modebar {
+  display: none !important;
 }
 
 .info-icon {
-    font-size: 1.5rem;
-    padding-left: 10px;
-    vertical-align: bottom;
+  font-size: 1.5rem;
+  padding-left: 10px;
+  vertical-align: bottom;
 }
 
 .lock-icon {
-    font-size: 11px;
-    padding-left: 3px;
-    vertical-align: text-bottom;
+  font-size: 11px;
+  padding-left: 3px;
+  vertical-align: text-bottom;
+}
+
+/* .app0,
+#react-entry-point,
+#react-entry-point > div,
+#_dash-app-content,
+#_dash-app-content > div,
+#main_content,
+#main_page,
+#selected_subpage > div #_dash-global-error-container,
+#_dash-global-error-container > div,
+#_dash-global-error-container > div > div > div,
+#_dash-global-error-container > div > div:nth-child(2) {
+  height: 100% !important;
+} */
+
+.content {
+  margin-top: 88px;
+  z-index: 1;
+}
+
+.box-border {
+  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 3px;
+  background-color: #fafafa;
+}
+
+.box {
+  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 3px;
+  background-color: #fafafa;
+  margin-bottom: 24px;
+  padding: 1rem;
+  width: 100%;
+}
+
+.color-secondary {
+  color: #00b3cc !important;
+}
+
+.color-three {
+  color: #ef7d00 !important;
+}
+
+.bg-secondary {
+  background-color: #00b3cc !important;
+  color: #fff;
+}
+
+a {
+  text-decoration: underline;
+}
+
+a:active {
+  color: initial;
+}
+
+a:hover {
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Fix dash graph wrapper div to graph default height  */
+.dash-graph {
+  height: 450px;
 }

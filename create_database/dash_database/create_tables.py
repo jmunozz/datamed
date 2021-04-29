@@ -1,266 +1,121 @@
-import json
-import zipfile
-from datetime import datetime as dt
-from typing import List, Dict
+from typing import Dict
+from os import path
 
 import pandas as pd
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.types import Integer, Text, Date
 
 import paths
-from models import (
-    connect_db,
-    Specialite,
-    Substance,
-    SpecialiteSubstance,
-    Presentation,
-    Produit,
-    Notice,
-)
+from models import connect_db
+from ordei import Ordei
+from utils import upload_cis_from_bdpm, upload_compo_from_rsp, upload_cis_cip_from_bdpm
+import helpers
+import settings
 
-with zipfile.ZipFile(paths.P_MED, "r") as z:
-    filename = z.namelist()[0]
-    with z.open(filename) as f:
-        data = f.read()
-        MED_DICT = json.loads(data.decode("utf-8"))
+engine = connect_db()
+connection = engine.connect()
 
-with zipfile.ZipFile(paths.P_NOTICE, "r") as z:
-    filename = z.namelist()[0]
-    with z.open(filename) as f:
-        data = f.read()
-        NOTICE = json.loads(data.decode("utf-8"))
+EXPOSITION = {
+    "spécialité": {1000: 1, 5000: 2, 15000: 3, 50000: 4},
+    "substance": {5000: 1, 25000: 2, 100000: 3, 500000: 4},
+}
 
 
-def clean_columns(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
+def push_to_table(df: pd.DataFrame, table_name: str, dtypes_dict: Dict):
     """
-    Put column fields in lower case
+    Push dataframe to table
     """
-    df[col_name] = df[col_name].apply(lambda x: x.lower().strip())
-    return df
-
-
-def upload_cis_from_rsp(path: str) -> pd.DataFrame:
-    """
-    Upload RSP CIS table
-    In http://agence-prd.ansm.sante.fr/php/ecodex/telecharger/telecharger.php
-    :return: dataframe
-    """
-    # Read CIS_RSP.txt file and put in dataframe
-    col_names = [
-        "cis",
-        "nom_spe_pharma",
-        "forme_pharma",
-        "voie_admin",
-        "statut_amm",
-        "type_amm",
-        "etat_commercialisation",
-        "code_doc",
-        "v",
-    ]
-    df = pd.read_csv(
-        path,
-        sep="\t",
-        encoding="latin1",
-        names=col_names,
-        header=None,
-        dtype={"cis": str},
+    df.to_sql(
+        table_name,
+        engine,
+        if_exists="replace",
+        index=False,
+        chunksize=500,
+        dtype=dtypes_dict,
     )
-    # Put substance_active field in lower case
-    df = clean_columns(df, "nom_spe_pharma")
-    return df
 
 
-def upload_compo_from_rsp(path: str) -> pd.DataFrame:
-    """
-    Upload RSP COMPO table
-    In http://agence-prd.ansm.sante.fr/php/ecodex/telecharger/telecharger.php
-    :return: dataframe
-    """
-    # Read COMPO_RSP.txt file and put in dataframe
-    col_names = [
-        "cis",
-        "elem_pharma",
-        "code_substance",
-        "substance_active",
-        "dosage",
-        "ref_dosage",
-        "nature_composant",
-        "num_lien",
-        "v",
-    ]
-    df = pd.read_csv(
-        path,
-        sep="\t",
-        encoding="latin1",
-        names=col_names,
-        header=None,
-        dtype={"cis": str, "code_substance": str},
-    )
-    df = df[~df.substance_active.isna()]
-    # Put substance_active field in lower case
-    df = clean_columns(df, "substance_active")
-    return df
-
-
-def upload_cis_cip_from_bdpm(path: str) -> pd.DataFrame:
-    """
-    Upload BDPM compositions database
-    In http://base-donnees-publique.medicaments.gouv.fr/telechargement.php
-    Attention : 4 dernière colonnes retirées car pb d'écriture des nombres
-    ex : comment transformer 4,768,73 en 4768,73 ?
-    :return: dataframe
-    """
-    # Read CIS_CIP_bdpm.txt file and put in dataframe
-    col_names = [
-        "cis",
-        "cip7",
-        "libelle_presentation",
-        "statut_admin_presentation",
-        "etat_commercialisation",
-        "date_declaration_commercialisation",
-        "cip13",
-        "agrement_collectivites",
-        "taux_remboursement",
-        "prix_medicament_euro",
-        "chelou_1",
-        "chelou_2",
-        "indications_remboursement",
-    ]
-    df = pd.read_csv(path, sep="\t", encoding="latin1", names=col_names, header=None)
-    # Retirer les 4 dernières colonnes
-    df = df.drop(
-        ["prix_medicament_euro", "chelou_1", "chelou_2", "indications_remboursement"],
-        axis=1,
-    )
-    # Convertir les dates en format datetime
-    df.date_declaration_commercialisation = df.date_declaration_commercialisation.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y")
-    )
-    return df
-
-
-def get_specialite() -> List[Dict]:
+def create_specialite_table():
     """
     Table specialite, listing all possible CIS codes
     """
-    df_cis = upload_cis_from_rsp(paths.P_CIS_RSP)
+    df_cis = upload_cis_from_bdpm(paths.P_CIS_BDPM)
 
     # Add atc class to df_cis dataframe
     df_atc = pd.read_excel(
         paths.P_CIS_ATC, names=["cis", "atc", "nom_atc"], header=0, dtype={"cis": str}
     )
-    df_atc = df_atc.drop_duplicates()
+    df_atc.nom_atc = df_atc.nom_atc.str.lower()
 
     df_cis = df_cis.merge(df_atc, on="cis", how="left")
-    df_atc.nom_atc = df_atc.nom_atc.str.lower()
     df_cis = df_cis.where(pd.notnull(df_cis), None)
 
-    records = df_cis.to_dict("records")
-
-    values_list = [
+    push_to_table(
+        df_cis,
+        "specialite",
         {
-            k: str(v) if v else None
-            for k, v in zip(
-                (
-                    "cis",
-                    "name",
-                    "forme_pharma",
-                    "voie_admin",
-                    "atc",
-                    "nom_atc",
-                    "type_amm",
-                    "etat_commercialisation",
-                ),
-                (
-                    r["cis"],
-                    r["nom_spe_pharma"],
-                    r["forme_pharma"],
-                    r["voie_admin"],
-                    r["atc"],
-                    r["nom_atc"],
-                    r["type_amm"],
-                    r["etat_commercialisation"],
-                ),
-            )
-        }
-        for r in records
-    ]
-    return values_list
+            "cis": Text,
+            "nom": Text,
+            "forme_pharma": Text,
+            "voie_admin": Text,
+            "atc": Text,
+            "nom_atc": Text,
+            "statut_amm": Text,
+            "type_amm": Text,
+            "etat_commercialisation": Text,
+            "date_amm": Date,
+            "statut_bdpm": Text,
+            "num_autorisation": Text,
+            "titulaires": Text,
+            "surveillance_renforcee": Text,
+        },
+    )
 
 
-def get_substance() -> List[Dict]:
+def create_substance_table():
     """
     Table substance_active
     """
     df_api = upload_compo_from_rsp(paths.P_COMPO_RSP)
+    df_api = df_api[df_api.nature_composant == "SA"]
+    df_api = df_api.rename(columns={"substance_active": "nom"})
+    df_api = df_api[["code", "nom"]]
+    df_api = df_api.drop_duplicates(["code"], keep="last")
 
-    api_list = [
-        {"name": r["substance_active"], "code": r["code_substance"]}
-        for idx, r in df_api.iterrows()
-    ]
-    api_list = [dict(t) for t in {tuple(d.items()) for d in api_list}]
-    return sorted(api_list, key=lambda k: k["name"])
+    push_to_table(
+        df_api,
+        "substance",
+        {
+            "id": Integer,
+            "code": Text,
+            "nom": Text,
+        },
+    )
 
 
-def get_spe_substance() -> List[Dict]:
+def create_spe_substance_table():
     """
     Table specialite_substance
     """
     df = upload_compo_from_rsp(paths.P_COMPO_RSP)
-    df_api = pd.read_sql_table("substance", connection)
-    df = df.merge(
-        df_api,
-        left_on=["code_substance", "substance_active"],
-        right_on=["code", "name"],
-        how="left",
-    )
-    df = df[
-        [
-            "cis",
-            "elem_pharma",
-            "id",
-            "dosage",
-            "ref_dosage",
-            "nature_composant",
-            "num_lien",
-        ]
-    ]
-    df = df.rename(columns={"id": "substance_id"})
-    df = df.where(pd.notnull(df), None)
-    cis_api_list = df.to_dict(orient="records")
-    return sorted(cis_api_list, key=lambda k: k["cis"])
+    df = df[df.nature_composant == "SA"]
+    df = df[["cis", "code", "elem_pharma", "dosage", "ref_dosage"]]
+    df = df.rename(columns={"code": "code_substance"})
+    df = df.drop_duplicates()
 
-
-def get_produit() -> List[Dict]:
-    df_cis = pd.read_csv(
-        "data/corresp_cis_spe_prod_subs_utf8.csv",
-        sep=";",
-        dtype={"codeCIS": str, "codeSubstance": str},
-    )
-    df_cis = df_cis.where(pd.notnull(df_cis), None)
-
-    df_cis.SPECIALITE_CODEX = df_cis.SPECIALITE_CODEX.str.lower()
-    df_cis.PRODUIT_CODEX = df_cis.PRODUIT_CODEX.str.lower()
-
-    df_cis = df_cis.rename(
-        columns={
-            "codeCIS": "cis",
-            "SPECIALITE_CODEX": "specialite",
-            "PRODUIT_CODEX": "produit",
-        }
+    push_to_table(
+        df,
+        "specialite_substance",
+        {
+            "cis": Text,
+            "code_substance": Text,
+            "elem_pharma": Text,
+            "dosage": Text,
+            "ref_dosage": Text,
+        },
     )
 
-    df_produit = df_cis[["cis", "specialite", "produit"]].drop_duplicates()
-    values_list = df_produit.to_dict(orient="records")
 
-    keys_ok = [med.lower() for med in MED_DICT.keys()]
-    return [v for v in values_list if v["produit"] in keys_ok]
-
-
-def get_notice() -> List[Dict]:
-    return NOTICE
-
-
-def get_presentation() -> List[Dict]:
+def create_presentation_table():
     """
     Table listing all possible presentations (CIP13), with corresponding CIS code
     From BDPM
@@ -268,208 +123,30 @@ def get_presentation() -> List[Dict]:
     """
     df = upload_cis_cip_from_bdpm(paths.P_CIS_CIP_BDPM)
     df = df.where(pd.notnull(df), None)
-    records = df.to_dict("records")
 
-    return [
+    push_to_table(
+        df,
+        "presentation",
         {
-            k: str(v)
-            for k, v in zip(
-                ("cis", "cip13", "libelle", "taux_remboursement"),
-                (
-                    r["cis"],
-                    r["cip13"],
-                    r["libelle_presentation"],
-                    r["taux_remboursement"],
-                ),
-            )
-        }
-        for r in records
-    ]
-
-
-def get_substance_data() -> pd.DataFrame:
-    df = pd.read_csv(
-        "~/Documents/GitHub/datamed/ordei/data/bnpv_open_medic1418_sa_codex.csv",
-        encoding="ISO-8859-1",
-        sep=";",
-        dtype={"codeSubstance": str},
-    )
-    df = df.drop("Unnamed: 0", axis=1)
-
-    return df.rename(
-        columns={
-            "ANNEE": "annee",
-            "SEXE": "sexe",
-            "AGE": "age",
-            "SUBSTANCE_CODEX_UNIQUE": "substance_codex_unique",
-            "codeSubstance": "code",
-        }
+            "cis": Text,
+            "cip13": Text,
+            "nom": Text,
+            "taux_remboursement": Text,
+        },
     )
 
 
-def get_substance_annee():
-    df_sa_patients = get_substance_data()
+def save_to_database():
+    """
+    Push data into database tables
+    """
+    create_specialite_table()
 
-    df_annee = (
-        df_sa_patients.groupby(["code", "annee"])
-        .agg({"n_conso": "sum", "n_cas": "sum"})
-        .reset_index()
-    )
-    df_annee["n_conso_annee"] = df_annee.n_conso.apply(lambda x: x if x > 10 else None)
-    df_annee["n_cas_annee"] = df_annee.n_cas.apply(lambda x: x if x > 10 else None)
-    df_annee = df_annee.drop(["n_conso", "n_cas"], axis=1)
+    create_substance_table()
 
-    df = (
-        df_sa_patients.groupby(["code", "annee"])
-        .agg({"n_conso": "sum", "n_cas": "sum"})
-        .groupby("code")
-        .agg({"n_conso": "sum", "n_cas": "sum"})
-        .reset_index()
-    )
-    df.n_cas = df.n_cas.apply(lambda x: x if x >= 10 else None)
-    df["taux_cas"] = df.apply(
-        lambda x: x.n_cas * 100000 / x.n_conso if x.n_cas >= 10 else None, axis=1
-    )
+    create_spe_substance_table()
 
-    return df.merge(df_annee, on="code", how="left")
+    create_presentation_table()
 
-
-def compute_pourcentage(df: pd.DataFrame, substance: pd.Series, field: str) -> float:
-    return substance[field] / df[df.code == substance.code][field].sum()
-
-def get_patients_sexe():
-    df = get_substance_data()
-
-    df_sexe = (
-        df.groupby(["code", "annee", "sexe"])
-        .agg({"n_conso": "sum"})
-        .groupby(["code", "sexe"])
-        .agg({"n_conso": "sum"})
-        .reset_index()
-    )
-    df_sexe["pourcentage_patients"] = df_sexe.apply(
-        lambda x: compute_pourcentage(df_sexe, x, "n_conso") if x.n_conso > 10 else None, axis=1
-    )
-    return df_sexe[["code", "sexe", "pourcentage_patients"]]
-
-
-def get_patients_age():
-    df = get_substance_data()
-
-    df_age = (
-        df.groupby(["code", "annee", "age"])
-        .agg({"n_conso": "sum"})
-        .groupby(["code", "age"])
-        .agg({"n_conso": "sum"})
-        .reset_index()
-    )
-    df_age["pourcentage_patients"] = df_age.apply(
-        lambda x: compute_pourcentage(df_age, x, "n_conso") if x.n_conso > 10, axis=1
-    )
-    return df_age[["code", "age", "pourcentage_patients"]]
-
-
-def get_cas_sexe():
-    df = get_substance_data()
-
-    df_sexe = (
-        df.groupby(["code", "annee", "sexe"])
-        .agg({"n_cas": "sum"})
-        .groupby(["code", "sexe"])
-        .agg({"n_cas": "sum"})
-        .reset_index()
-    )
-    df_sexe["pourcentage_cas"] = df_sexe.apply(
-        lambda x: compute_pourcentage(df_sexe, x, "n_cas") if x.n_cas > 10 else None, axis=1
-    )
-    return df_sexe[["code", "sexe", "pourcentage_cas"]]
-
-
-def get_cas_age():
-    df = get_substance_data()
-
-    df_age = (
-        df.groupby(["code", "annee", "age"])
-            .agg({"n_cas": "sum"})
-            .groupby(["code", "age"])
-            .agg({"n_cas": "sum"})
-            .reset_index()
-    )
-    df_age["pourcentage_cas"] = df_age.apply(
-        lambda x: compute_pourcentage(df_age, x, "n_cas") if x.n_cas > 10 else None, axis=1
-    )
-    return df_age[["code", "age", "pourcentage_cas"]]
-
-
-def get_notificateurs():
-    df = pd.read_csv(
-        "~/Documents/GitHub/datamed/ordei/data/bnpv_notif_sa_codex_open.csv",
-        encoding="ISO-8859-1",
-        sep=";",
-        dtype={"codeSubstance": str},
-    )
-    df = df.drop("Unnamed: 0", axis=1)
-
-    df = df.rename(
-        columns={
-            "TYP_NOTIF": "notificateur",
-            "SEXE": "sexe",
-            "AGE": "age",
-            "SUBSTANCE_CODEX_UNIQUE": "substance_codex_unique",
-            "codeSubstance": "code",
-        }
-    )
-
-    df_notif = df.groupby(["code", "notificateur"]).agg({"n_decla": "sum"}).reset_index()
-    df_notif.n_decla = df_notif.n_decla.apply(lambda x: x if x >= 10 else None)
-    return
-
-engine = connect_db()  # establish connection
-connection = engine.connect()
-Session = sessionmaker(bind=engine)
-session = Session()
-
-
-def save_to_database_orm(session):
-
-    # Création table Specialite
-    cis_list = get_specialite()
-    for cis_dict in cis_list:
-        spe = Specialite(**cis_dict)
-        session.add(spe)
-        session.commit()
-
-    # Création table Substance
-    api_list = get_substance()
-    for api_dict in api_list:
-        api = Substance(**api_dict)
-        session.add(api)
-        session.commit()
-
-    # Création table SpecialiteSubstance
-    spe_api_list = get_spe_substance()
-    for spe_api_dict in spe_api_list:
-        spe_api = SpecialiteSubstance(**spe_api_dict)
-        session.add(spe_api)
-        session.commit()
-
-    # Création table Presentation
-    pres_list = get_presentation()
-    for pres_dict in pres_list:
-        pres = Presentation(**pres_dict)
-        session.add(pres)
-        session.commit()
-
-    # Création table Produit
-    produit_list = get_produit()
-    for produit_dict in produit_list:
-        produit = Produit(**produit_dict)
-        session.add(produit)
-        session.commit()
-
-    # Création table Notice
-    notice_list = get_notice()
-    for notice_dict in notice_list:
-        notice = Notice(**notice_dict)
-        session.add(notice)
-        session.commit()
+    ordei = Ordei()
+    ordei.create_ordei_tables()

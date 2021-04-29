@@ -11,8 +11,8 @@ layout = Div(
     [
         Navbar(),
         MainSearch(),
-        Arrow(),
-        DonneesUne(),
+        # Arrow(),
+        # DonneesUne(),
         Plateforme(),
         Footer(),
     ],
