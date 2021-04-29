@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
@@ -250,6 +251,29 @@ def NoData() -> html.Div:
     )
 
 
+def StackBarGraph(df: pd.DataFrame, cis: str, field: str) -> Graph:
+    if df[df.cis == cis].empty:
+        return NoData()
+    else:
+        fig = px.bar(
+            df[df.cis == cis],
+            x="pourcentage",
+            y="cis",
+            color=field,
+            labels={"pourcentage": "Proportion (%)", field: field.split('_')[0].capitalize()},
+            color_discrete_sequence=PIE_COLORS_SPECIALITE,
+            orientation="h",
+        )
+        fig.update_layout(STACKED_BAR_CHART_LAYOUT)
+        fig.update_layout(barmode="stack")
+        fig.update_yaxes(visible=False, showticklabels=False)
+        return Graph(
+            figure=fig,
+            responsive=True,
+            style={"height": str(len(df[df.cis == cis]) * 50) + "px"}
+        )
+
+
 def ErreursMedicamenteuses(cis: str) -> Component:
     df_ei = specialite.get_erreur_med_effet_indesirable(cis)
     ei_figures = [
@@ -267,48 +291,9 @@ def ErreursMedicamenteuses(cis: str) -> Component:
     ).update_layout(PIE_LAYOUT)
 
     df_cause = fetch_data.fetch_table("erreur_med_cause", "cis").reset_index()
-    if df_cause[df_cause.cis == cis].empty:
-        graph_cause = NoData()
-    else:
-        fig_cause = px.bar(
-            df_cause[df_cause.cis == cis],
-            x="pourcentage",
-            y="cis",
-            color="cause_erreur",
-            labels={"pourcentage": "Proportion (%)", "cause_erreur": "Cause"},
-            color_discrete_sequence=PIE_COLORS_SPECIALITE,
-            orientation="h",
-        )
-        fig_cause.update_layout(STACKED_BAR_CHART_LAYOUT)
-        fig_cause.update_layout(barmode="stack")
-        graph_cause = Graph(
-            figure=fig_cause,
-            responsive=True,
-        )
-
     df_nat = fetch_data.fetch_table("erreur_med_nature", "cis").reset_index()
-    if df_nat[df_nat.cis == cis].empty:
-        graph_nat = NoData()
-    else:
-        fig_nat = px.bar(
-            df_nat[df_nat.cis == cis],
-            x="pourcentage",
-            y="cis",
-            color="nature_erreur",
-            labels={"pourcentage": "Proportion (%)", "nature_erreur": "Nature"},
-            color_discrete_sequence=PIE_COLORS_SPECIALITE,
-            orientation="h",
-        )
-        fig_nat.update_layout(STACKED_BAR_CHART_LAYOUT)
-        fig_nat.update_layout(barmode="stack")
-        graph_nat = Graph(
-            figure=fig_nat,
-            responsive=True,
-        )
 
-    df_denom = fetch_data.fetch_table(
-        "erreur_med_cis_denomination", "cis"
-    ).reset_index()
+    df_denom = fetch_data.fetch_table("erreur_med_cis_denomination", "cis").reset_index()
 
     return TopicSection(
         [
@@ -341,7 +326,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                 [
                     GraphBox(
                         "Cause des erreurs médicamenteuses",
-                        [graph_cause],
+                        [StackBarGraph(df_cause, cis, "cause_erreur")],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -350,7 +335,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
-                        [graph_nat],
+                        [StackBarGraph(df_nat, cis, "nature_erreur")],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
