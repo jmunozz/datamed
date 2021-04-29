@@ -22,7 +22,7 @@ def ArticleTitle(title: str) -> Component:
 def GraphBox(
     title: str, children: List, class_name_wrapper="col-md-12", class_name=""
 ) -> Component:
-    if not title:
+    if title:
         children = [Div(title, className="small-text-bold mb-4")] + children
     return Box(
         children,
