@@ -34,7 +34,7 @@ EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
 
 def get_sexe_figures_from_df(df, column):
     return [
-        {"figure": round(x[column], 2), "caption": SEXE[x["sexe"]]}
+        {"figure": "{}%".format(round(x[column], 2)), "caption": SEXE[x["sexe"]]}
         for x in fetch_data.transform_df_to_series_list(df)
     ]
 
@@ -89,7 +89,6 @@ def Utilisation(df_expo, index):
     utilisation = (
         df_expo.at[index, "exposition"][0] if len(df_expo) > 1 else df_expo.exposition
     )
-    print(utilisation)
     return dbc.Row(
         [
             Box(

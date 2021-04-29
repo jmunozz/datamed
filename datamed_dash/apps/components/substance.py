@@ -262,7 +262,8 @@ def CasDeclares(code: str) -> Component:
                                 [
                                     {
                                         "figure": f"{taux_cas} / 100 000",
-                                        "caption": "Taux de déclaration pour 100 000 patients traités/an sur la période 2014-2018",
+                                        "caption": "Taux de déclaration pour 100 000 patients "
+                                                   "traités/an sur la période 2014-2018",
                                     }
                                 ]
                             )
