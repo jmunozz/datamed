@@ -198,14 +198,14 @@ def Description(cis: str) -> Component:
                 html.Article(
                     [
                         ArticleTitle("Description"),
-                        html.Div(
+                        html.P(
                             "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
                                 df.loc[cis].label.capitalize(),
                                 df.loc[cis].atc,
                             ),
                             className="normal-text",
                         ),
-                        html.Div(
+                        html.P(
                             df_description.loc[cis].description, className="normal-text"
                         ),
                     ]
