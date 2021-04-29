@@ -425,7 +425,7 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
             html.Label(substance, className="color-secondary font-weight-bold"),
             html.A(
                 "Voir les effets indésirables",
-                href="/apps/substance?search={}".format(code),
+                href="/apps/substance?search={}#effets-indesirables".format(code),
                 className="color-three",
             ),
         ],
