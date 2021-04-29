@@ -23,7 +23,7 @@ def GraphBox(
     title: str, children: List, class_name_wrapper="col-md-12", class_name=""
 ) -> Component:
     if title:
-        children = [Div(title, className="small-text-bold mb-4")] + children
+        children = [Div(title, className="normal-text-bold mb-4")] + children
     return Box(
         children,
         class_name_wrapper=class_name_wrapper,
@@ -35,7 +35,7 @@ def FigureGraph(figures: List[Dict]) -> Component:
     l = []
     for f in figures:
         elems = []
-        elems = elems + [Img(src=f["img"])] if "img" in f else []
+        elems = elems + [Img(src=f["img"], className="mb-2")] if "img" in f else []
         elems = elems + [H1(f["figure"])] if "figure" in f else []
         elems = (
             elems

@@ -254,6 +254,7 @@ def CasDeclares(code: str) -> Component:
         graph_age = Graph(
             figure=fig_age,
             responsive=True,
+
         )
     else:
         graph_age = NoData()
@@ -270,7 +271,7 @@ def CasDeclares(code: str) -> Component:
                             FigureGraph(
                                 [
                                     {
-                                        "figure": f"{decla}",
+                                        "figure": f"{decla} déclarations",
                                         "caption": "Nombre de cas déclarés sur la période 2014-2018",
                                     }
                                 ]
@@ -312,7 +313,7 @@ def CasDeclares(code: str) -> Component:
             dbc.Row(
                 [
                     GraphBox(
-                        None,
+                        "Répartition par sexe des cas déclarés",
                         [figure_graph_sexe],
                         class_name_wrapper="col-md-6",
                     ),
