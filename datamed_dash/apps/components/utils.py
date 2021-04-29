@@ -35,10 +35,21 @@ def FigureGraph(figures: List[Dict]) -> Component:
     l = []
     for f in figures:
         elems = []
-        elems = elems + [Img(src=f["img"])] if f.get("img") else []
-        elems = elems + [H1(f["figure"])] if f.get("figure") else []
-        elems = elems + [Label(f["caption"], className="normal-text")] if f.get("caption") else []
-        l += [Div(elems, className="d-flex flex-column align-items-center")]
+        elems = elems + [Img(src=f["img"])] if "img" in f else []
+        elems = elems + [H1(f["figure"])] if "figure" in f else []
+        elems = (
+            elems
+            + [Label(f["caption"], className="normal-text", style={"color": "black"})]
+            if f.get("caption")
+            else []
+        )
+        l += [
+            Div(
+                elems,
+                className="d-flex flex-column align-items-center",
+                style={"color": "#00B3CC"},
+            )
+        ]
     return Div(l, className="d-flex flex-row flex-wrap justify-content-around")
 
 

@@ -27,16 +27,6 @@ from .utils import (
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
 
-UTILISATION = {
-    1: "Utilisation faible",
-    2: "Utilisation faible",
-    3: "Utilisation moyenne",
-    4: "Utilisation élevée",
-    5: "Utilisation élevée",
-}
-
-SEXE = {1: "Hommes", 2: "Femmes"}
-
 EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
 EI_IMG_URL = {
     "Non": app.get_asset_url("healthy_man.svg"),

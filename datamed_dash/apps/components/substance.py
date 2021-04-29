@@ -1,6 +1,7 @@
 import math
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
+import pandas as pd
 import dash
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
@@ -144,8 +145,8 @@ def Description(code: str) -> Component:
         Box(
             [
                 html.Div(
-                    "Spécialités de médicaments contenant : {}".format(
-                        df_sub.loc[code].nom
+                    "Médicaments contenant la substance active {}".format(
+                        df_sub.loc[code].nom.capitalize()
                     ),
                     className="medium-text mt-5",
                 ),
@@ -157,7 +158,8 @@ def Description(code: str) -> Component:
                 dash_table.DataTable(
                     id="substance-specialite-table",
                     columns=[
-                        {"name": i, "id": i} for i in df_cis_sub.loc[code][["nom_specialite"]].columns
+                        {"name": i, "id": i}
+                        for i in df_cis_sub.loc[code][["nom_specialite"]].columns
                     ],
                     data=df_cis_sub.loc[code].to_dict("records"),
                     page_size=10,
@@ -165,7 +167,7 @@ def Description(code: str) -> Component:
                     style_table={"overflowX": "auto"},
                     style_cell={
                         "height": "50px",
-                        'backgroundColor': '#FAFAFA',
+                        "backgroundColor": "#FAFAFA",
                     },
                     style_data={
                         "fontSize": "14px",
@@ -183,19 +185,13 @@ def Description(code: str) -> Component:
     )
 
 
-def CasDeclares(code: str) -> Component:
-    df_decla = substance.get_decla_df(code)
-    if df_decla is None:
-        return html.Div()
-    decla = int(fetch_data.get_one_value(df_decla, code, "cas"))
-    taux_cas = round(fetch_data.get_one_value(df_decla, code, "taux_cas"))
-
+def Curves(df: pd.DataFrame, index: str):
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    if df_decla.loc[code].cas_annee.min() > 10:
+    if df.loc[index].cas_annee.min() > 10:
         fig.add_trace(
             go.Scatter(
-                x=df_decla.loc[code].annee,
-                y=df_decla.loc[code].cas_annee,
+                x=df.loc[index].annee,
+                y=df.loc[index].cas_annee,
                 mode="lines",
                 name="Cas déclarés",
                 line={
@@ -210,8 +206,8 @@ def CasDeclares(code: str) -> Component:
 
     fig.add_trace(
         go.Scatter(
-            x=df_decla.loc[code].annee,
-            y=df_decla.loc[code].conso_annee,
+            x=df.loc[index].annee,
+            y=df.loc[index].conso_annee,
             mode="lines",
             name="Patients traités",
             line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
@@ -226,9 +222,17 @@ def CasDeclares(code: str) -> Component:
         secondary_y=False,
     )
     fig.update_yaxes(title_text="Patients traités", color="#EA336B", secondary_y=True)
-    fig.update_xaxes(title_text="Années")
-    fig.update_xaxes(nticks=len(df_decla.loc[code]))
+    fig.update_xaxes(title_text="Années", nticks=len(df.loc[index]))
     fig.update_layout(CURVE_LAYOUT)
+    return fig
+
+
+def CasDeclares(code: str) -> Component:
+    df_decla = substance.get_decla_df(code)
+    if df_decla is None:
+        return html.Div()
+    decla = int(fetch_data.get_one_value(df_decla, code, "cas"))
+    taux_cas = round(fetch_data.get_one_value(df_decla, code, "taux_cas"))
 
     df_age = substance.get_age_cas_df(code)
     df_sexe = substance.get_sexe_cas_df(code)
@@ -261,7 +265,7 @@ def CasDeclares(code: str) -> Component:
             dbc.Row(
                 [
                     GraphBox(
-                        None,
+                        "",
                         [
                             FigureGraph(
                                 [
@@ -275,7 +279,7 @@ def CasDeclares(code: str) -> Component:
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
-                        None,
+                        "",
                         [
                             FigureGraph(
                                 [
@@ -297,7 +301,7 @@ def CasDeclares(code: str) -> Component:
                         "Nombre de cas déclarés d’effets indésirables et patients traités par année",
                         [
                             Graph(
-                                figure=fig,
+                                figure=Curves(df_decla, code),
                                 responsive=True,
                             )
                         ],
@@ -359,11 +363,11 @@ def SystemesOrganes(code: str) -> Component:
         [
             SectionTitle("Effets indésirables par système d'organe"),
             SectionP(
-                "Les Systèmes d’organes (Système Organe Classe) représentent les 27 classes de disciplines médicales "
-                "selon la hiérarchie MedDRA Sont listés ici les 10 SOC avec le plus d’effets indésirables déclarés. "
-                "Attention : Un cas est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets indésirables "
-                "affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC différents "
-                "(en fonction des effets indésirables déclarés)."
+                "Les Systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines médicales "
+                "selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus grand nombre d’effets "
+                "indésirables déclarés. Attention : Un cas n'est comptabilisé qu’une seule fois par SOC en cas de "
+                "plusieurs effets indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé "
+                "sur plusieurs SOC différents (en fonction des effets indésirables déclarés)."
             ),
             dbc.Row(
                 [
@@ -424,24 +428,24 @@ def toggle_substance_ei_tooltip(n_clicks, is_open):
         return not is_open
 
 
-@app.callback(
-    dd.Output("url", "href"),
-    [
-        dd.Input("substance-specialite-table", "active_cell"),
-        dd.Input("substance-specialite-table", "page_current"),
-        dd.Input("substance-specialite-table", "page_size"),
-    ],
-    dd.State("substance-specialite-table", "data"),
-)
-def getActiveCell(active_cell, page_current, page_size, data):
-    if active_cell:
-        print(active_cell)
-        col = active_cell["column_id"]
-        row = active_cell["row"]
-        cellData = data[(page_current or 0) * page_size + row]["cis"]
-        return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
-    else:
-        raise PreventUpdate
+# @app.callback(
+#     dd.Output("url", "href"),
+#     [
+#         dd.Input("substance-specialite-table", "active_cell"),
+#         dd.Input("substance-specialite-table", "page_current"),
+#         dd.Input("substance-specialite-table", "page_size"),
+#     ],
+#     dd.State("substance-specialite-table", "data"),
+# )
+# def getActiveCell(active_cell, page_current, page_size, data):
+#     if active_cell:
+#         print(active_cell)
+#         col = active_cell["column_id"]
+#         row = active_cell["row"]
+#         cellData = data[(page_current or 0) * page_size + row]["cis"]
+#         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
+#     else:
+#         raise PreventUpdate
 
 
 @app.callback(
@@ -455,7 +459,7 @@ def getActiveCell(active_cell, page_current, page_size, data):
         dd.Input("soc-treemap-container", "n_clicks"),
         dd.Input("close-backdrop", "n_clicks"),
         dd.Input("url", "href"),
-        dd.Input("soc-treemap", "clickData")
+        dd.Input("soc-treemap", "clickData"),
     ],
     [dd.State("selected-soc", "children")],
 )
