@@ -228,3 +228,8 @@ a:hover {
   color: inherit;
   cursor: pointer;
 }
+
+/* Fix dash graph wrapper div to graph default height  */
+.dash-graph {
+  height: 450px;
+}
