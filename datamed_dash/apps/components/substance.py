@@ -106,8 +106,8 @@ def Substance(code: str) -> Component:
                     {"id": "description", "label": "Description"},
                     {"id": "population-concernee", "label": "Population concernée"},
                     {
-                        "id": "erreurs-medicamenteuses",
-                        "label": "Données de pharmacovigilance",
+                        "id": "effets-indesirables",
+                        "label": "Effets indésirables",
                     },
                 ],
                 className="side-menu",
@@ -354,7 +354,7 @@ def CasDeclares(code: str) -> Component:
                 ]
             )
         ],
-        id="",
+        id="effets-indesirables",
     )
 
 

@@ -22,8 +22,6 @@ nav.side-menu {
   text-transform: uppercase;
   align-self: flex-start;
   overflow: hidden;
-  height: 100vh;
-  background-color: #fbfcfd;
 }
 
 nav.side-menu ul {
