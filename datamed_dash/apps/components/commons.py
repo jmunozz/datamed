@@ -92,9 +92,8 @@ def Accordion() -> Component:
 
 
 def Utilisation(df_expo, index):
-    utilisation = (
-        df_expo.at[index, "exposition"][0] if len(df_expo) > 1 else df_expo.exposition
-    )
+    series_exposition = fetch_data.as_series(df_expo)
+    exposition = series_exposition.exposition
     return dbc.Row(
         [
             Box(
@@ -112,7 +111,7 @@ def Utilisation(df_expo, index):
                             ),
                             html.Div(
                                 [
-                                    html.H1(f"{utilisation}/5"),
+                                    html.H1(f"{exposition}/5"),
                                 ],
                                 className="d-flex",
                             ),
@@ -123,7 +122,7 @@ def Utilisation(df_expo, index):
                     html.Div(
                         [
                             html.H2(
-                                UTILISATION[utilisation], className="color-secondary"
+                                UTILISATION[exposition], className="color-secondary"
                             ),
                             html.P("Nombre de patients traités par an en France"),
                             html.A(

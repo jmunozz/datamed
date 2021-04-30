@@ -1,9 +1,9 @@
 from .fetch_data import fetch_table, return_sub_df_or_none
 
 
-def list_substances(substances_codes_list):
-    substances_df = fetch_table("substance", "code")
-    return return_sub_df_or_none(substances_df, substances_codes_list)
+# codes can be a str or a list
+def get_substance_df(codes):
+    return return_sub_df_or_none(fetch_table("substance", "code"), codes)
 
 def get_df():
     return fetch_table("substance", "code")

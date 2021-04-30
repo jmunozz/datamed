@@ -22,7 +22,19 @@ def get_one_value(df, index, column):
 
 
 def return_sub_df_or_none(df, key):
+    # use of [[]] always return a df otherwise, could be a series
+    if isinstance(key, str):
+        key = [key]
     try:
         return df.loc[key]
     except KeyError:
         return None
+
+
+# return the index column of a dataframe as a list
+def as_index_list(df):
+    return df.index.values
+
+# return the first row of a dataframe as a series
+def as_series(df):
+    return df.iloc[0]

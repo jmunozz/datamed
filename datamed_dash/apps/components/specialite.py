@@ -128,10 +128,12 @@ def Specialite(cis: str) -> Component:
 
 
 def Header(cis: str) -> Component:
-    spe = specialite.get_specialite(cis).nom
+    df_spe = specialite.get_specialite_df(cis)
+    series_spe = fetch_data.as_series(df_spe)
+
     return html.Div(
         [
-            html.Div(spe.capitalize(), className="heading-4"),
+            html.Div(series_spe.nom.capitalize(), className="heading-4"),
             html.Div("Spécialité de médicament", className="large-text"),
             html.A("Qu'est-ce qu'une spécialité de médicament ?"),
         ],
@@ -140,36 +142,27 @@ def Header(cis: str) -> Component:
 
 
 def SubstanceLinks(cis: str) -> Component:
-    df_sub_spe = specialite.get_specialite_substance_df(cis)
-    substances_codes_list = (
-        df_sub_spe.code_substance.unique()
-        if not isinstance(df_sub_spe.code_substance, str)
-        else [df_sub_spe.code_substance]
-    )
-    df_sub = substance.list_substances(substances_codes_list)
-    # df_sub = specialite.list_substances(cis)
+    df_sub = specialite.list_substances(cis)
     return html.Div(
         [
             html.A(
-                nom_dict["nom"].upper(),
+                series.nom.upper(),
                 href="/apps/substance?search={}".format(code),
                 className="normal-text link d-block",
                 id="refresh-substances",
             )
-            for code, nom_dict in df_sub.to_dict(orient="index").items()
+            for code, series in df_sub.iterrows()
         ]
     )
 
 
 def Description(cis: str) -> Component:
-    current_specialite_series = specialite.get_specialite(cis)
-    df_description = fetch_data.fetch_table("description", "cis")
-
-    df_cis_atc = fetch_data.fetch_table("specialite_atc", "cis").reset_index()
-    df_atc = fetch_data.fetch_table("classes_atc", "code")
-    df = df_cis_atc.merge(df_atc, left_on="atc", right_on="code", how="left").set_index(
-        "cis"
-    )
+    df_spe = specialite.get_specialite_df(cis)
+    series_spe = fetch_data.as_series(df_spe)
+    df_desc = specialite.get_description_df(cis)
+    series_desc = fetch_data.as_series(df_desc)
+    df_atc = specialite.get_atc_df(cis)
+    series_atc = fetch_data.as_series(df_atc)
 
     return TopicSection(
         Box(
@@ -181,7 +174,7 @@ def Description(cis: str) -> Component:
                     [
                         ArticleTitle("Statut de la spécialité de médicament"),
                         html.Div(
-                            current_specialite_series.etat_commercialisation.upper(),
+                            series_spe.etat_commercialisation.upper(),
                             className="normal-text-cap d-block",
                             id="refresh-substances",
                         ),
@@ -192,13 +185,13 @@ def Description(cis: str) -> Component:
                         ArticleTitle("Description"),
                         html.P(
                             "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
-                                df.loc[cis].label.capitalize(),
-                                df.loc[cis].atc,
+                                series_atc.label.capitalize(),
+                                series_atc.atc,
                             ),
                             className="normal-text",
                         ),
                         html.P(
-                            df_description.loc[cis].description, className="normal-text"
+                            series_desc.description, className="normal-text"
                         ),
                     ]
                 ),
@@ -207,7 +200,7 @@ def Description(cis: str) -> Component:
                         ArticleTitle("Recommandation HAS"),
                         ExternalLink(
                             "Afficher les recommandations",
-                            get_has_guideline_link(current_specialite_series),
+                            get_has_guideline_link(series_spe),
                         ),
                     ]
                 ),
@@ -248,14 +241,13 @@ def NoData() -> html.Div:
     )
 
 
-def StackBarGraph(df: pd.DataFrame, cis: str, field: str) -> Graph:
-    if df[df.cis == cis].empty:
+def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
+    if df is None:
         return NoData()
     else:
         fig = px.bar(
-            df[df.cis == cis],
+            df,
             x="pourcentage",
-            y="cis",
             color=field,
             labels={
                 "pourcentage": "Proportion (%)",
@@ -277,28 +269,26 @@ def ErreursMedicamenteuses(cis: str) -> Component:
     df_ei = specialite.get_erreur_med_effet_indesirable(cis)
     ei_figures = [
         {
-            "figure": "{}%".format(round(x["pourcentage"], 2)),
-            "caption": EI[x["effet_indesirable"]],
-            "img": EI_IMG_URL[x["effet_indesirable"]],
+            "figure": "{}%".format(round(series.pourcentage, 2)),
+            "caption": EI[series.effet_indesirable],
+            "img": EI_IMG_URL[series.effet_indesirable],
         }
-        for x in fetch_data.transform_df_to_series_list(df_ei)
+        for cis, series in df_ei.iterrows()
     ]
 
-    df_pop = fetch_data.fetch_table("erreur_med_population", "cis").reset_index()
+    df_pop = specialite.get_erreur_med_population(cis)
     fig_pop = go.Figure(
         go.Pie(
-            labels=df_pop[df_pop.cis == cis].population_erreur,
-            values=df_pop[df_pop.cis == cis].pourcentage,
+            labels=df_pop.population_erreur,
+            values=df_pop.pourcentage,
             marker_colors=PIE_COLORS_SPECIALITE,
         )
     ).update_layout(PIE_LAYOUT)
 
-    df_cause = fetch_data.fetch_table("erreur_med_cause", "cis").reset_index()
-    df_nat = fetch_data.fetch_table("erreur_med_nature", "cis").reset_index()
+    df_cause = specialite.get_erreur_med_cause(cis)
+    df_nat = specialite.get_erreur_med_nature(cis)
+    df_denom = specialite.get_erreur_med_denom(cis)
 
-    df_denom = fetch_data.fetch_table(
-        "erreur_med_cis_denomination", "cis"
-    ).reset_index()
     df_denom.denomination = df_denom.denomination.str.capitalize()
 
     return TopicSection(
@@ -337,7 +327,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                 [
                     GraphBox(
                         "Cause des erreurs médicamenteuses",
-                        [StackBarGraph(df_cause, cis, "cause_erreur")],
+                        [StackBarGraph(df_cause, "cause_erreur")],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -346,7 +336,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
-                        [StackBarGraph(df_nat, cis, "nature_erreur")],
+                        [StackBarGraph(df_nat, "nature_erreur")],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -360,11 +350,11 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                                 id="denomination-table",
                                 columns=[
                                     {"name": i, "id": i}
-                                    for i in df_denom[df_denom.cis == cis][
+                                    for i in df_denom[
                                         ["denomination"]
                                     ].columns
                                 ],
-                                data=df_denom[df_denom.cis == cis].to_dict("records"),
+                                data=df_denom.to_dict("records"),
                                 page_size=10,
                                 style_as_list_view=True,
                                 style_table={"overflowX": "auto"},
@@ -392,13 +382,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
 
 
 def EffetsIndesirables(cis: str) -> Component:
-    df_sub_spe = specialite.get_specialite_substance_df(cis)
-    substances_codes_list = (
-        df_sub_spe.code_substance.unique()
-        if not isinstance(df_sub_spe.code_substance, str)
-        else [df_sub_spe.code_substance]
-    )
-    df_sub = substance.list_substances(substances_codes_list)
+    df_sub = specialite.list_substances(cis)
 
     return TopicSection(
         [
@@ -410,8 +394,8 @@ def EffetsIndesirables(cis: str) -> Component:
             ),
             dbc.Row(
                 [
-                    AdverseEffectLink(nom_dict["nom"].capitalize(), code)
-                    for code, nom_dict in df_sub.to_dict(orient="index").items()
+                    AdverseEffectLink(sub.nom.capitalize(), code)
+                    for code, sub in df_sub.iterrows()
                 ]
             ),
         ],
