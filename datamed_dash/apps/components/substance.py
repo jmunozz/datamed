@@ -369,7 +369,7 @@ def CasDeclares(
             dbc.Row(
                 [
                     GraphBox(
-                        "",
+                        "Répartition par sexe des cas déclarés",
                         [figure_graph_sexe],
                         class_name_wrapper="col-md-6",
                     ),
