@@ -26,7 +26,8 @@ def return_sub_df_or_none(df, key):
     if isinstance(key, str):
         key = [key]
     try:
-        return df.loc[key]
+        df = df.loc[df.index.intersection(key)]
+        return None if df.empty else df
     except KeyError:
         return None
 

@@ -33,19 +33,20 @@ from .utils import Box, FigureGraph, GraphBox, TopicSection, SectionTitle, Secti
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
-NOTIF_IMAGE_URL = {
-    "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
-    "Dentiste": app.get_asset_url("./surgeon_1.svg"),
-    "Infirmière": app.get_asset_url("./nurse_1.svg"),
-    "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
-    "Pharmacien": app.get_asset_url("./pharmacist.svg"),
-    "Inconnu": app.get_asset_url("./face.svg"),
-    "Non professionnel de santé": app.get_asset_url("./face.svg"),
-    "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
-}
-
 
 def get_notif_figures_from_df(df):
+
+    NOTIF_IMAGE_URL = {
+        "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
+        "Dentiste": app.get_asset_url("./surgeon_1.svg"),
+        "Infirmière": app.get_asset_url("./nurse_1.svg"),
+        "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
+        "Pharmacien": app.get_asset_url("./pharmacist.svg"),
+        "Inconnu": app.get_asset_url("./face.svg"),
+        "Non professionnel de santé": app.get_asset_url("./face.svg"),
+        "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
+    }
+
     return [
         {
             "figure": "{}%".format(round(x["pourcentage_notif"])),
@@ -97,37 +98,16 @@ def EffetsIndesirablesTooltip() -> Component:
 
 def Substance(code: str) -> Component:
 
-    divs = [
-        Header(code),
-        Description(code),
-    ]
-
-    if code in set(fetch_data.fetch_table("substance_exposition", "code").index):
-        # Load patients traités dataframes
-        df_age = substance.get_age_df(code)
-        df_sexe = substance.get_sexe_df(code)
-        df_expo = substance.get_exposition_df(code)
-        divs.append(
-            PatientsTraites(
-                df_age=df_age,
-                df_sexe=df_sexe,
-                df_expo=df_expo,
-                index=code,
-                pie_colors=PIE_COLORS_SUBSTANCE,
-                type="substance",
-            )
-        )
-
-        # Load cas déclarés EI dataframes
-        df_decla = substance.get_decla_df(code)
-        df_notif = substance.get_notif_df(code)
-        df_cas_age = substance.get_age_cas_df(code)
-        df_cas_sexe = substance.get_sexe_cas_df(code)
-        divs.append(CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe, code))
-
-        # Load SOC dataframe
-        df_soc = fetch_data.fetch_table("substance_soclong_ordei", "code")
-        divs.append(SystemesOrganes(df_soc, code))
+    df_sub = substance.get_substance_df(code)
+    df_sub_spe = substance.list_specialite(code)
+    df_age = substance.get_age_df(code)
+    df_sexe = substance.get_sexe_df(code)
+    df_expo = substance.get_exposition_df(code)
+    df_decla = substance.get_decla_df(code)
+    df_notif = substance.get_notif_df(code)
+    df_cas_age = substance.get_age_cas_df(code)
+    df_cas_sexe = substance.get_sexe_cas_df(code)
+    df_soc = substance.get_soc_df(code)
 
     return html.Div(
         [
@@ -141,20 +121,35 @@ def Substance(code: str) -> Component:
                 className="side-menu",
             ),
             html.Div(
-                divs,
-                className="container side-content",
+                html.Div(
+                    [
+                        Header(df_sub),
+                        Description(df_sub, df_sub_spe),
+                        PatientsTraites(
+                            df_age=df_age,
+                            df_sexe=df_sexe,
+                            df_expo=df_expo,
+                            pie_colors=PIE_COLORS_SUBSTANCE,
+                            type="substance",
+                        ),
+                        CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
+                        SystemesOrganes(df_soc),
+                    ],
+                    className="container-fluid",
+                    style={"padding-left": "80px"},
+                ),
+                className="container-fluid side-content",
             ),
         ],
         className="container-fluid p-0 content",
     )
 
 
-def Header(code: str) -> Component:
-    df_sub = fetch_data.fetch_table("substance", "code")
-    sub = df_sub.loc[code].nom
+def Header(df_sub: pd.DataFrame) -> Component:
+    series_sub = fetch_data.as_series(df_sub)
     return html.Div(
         [
-            html.Div(sub.capitalize(), className="heading-4"),
+            html.Div(series_sub.nom.capitalize(), className="heading-4"),
             html.Div("Substance active", className="large-text"),
             html.A("Qu'est-ce qu'une substance active ?"),
         ],
@@ -162,53 +157,31 @@ def Header(code: str) -> Component:
     )
 
 
-def Description(code: str) -> Component:
-    df_sub = fetch_data.fetch_table("substance", "code")
-    df_cis_sub = fetch_data.fetch_table(
-        "specialite_substance", "code_substance"
-    ).reset_index()
-    df_cis = fetch_data.fetch_table("specialite", "cis").reset_index()
-    df_cis_sub = (
-        df_cis_sub[["code_substance", "cis"]]
-        .merge(df_cis[["cis", "nom"]], on="cis")
-        .rename(columns={"nom": "nom_specialite"})
-    ).sort_values(by="nom_specialite")
-    df_cis_sub.nom_specialite = df_cis_sub.nom_specialite.str.capitalize()
+def Description(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
+    series_sub = fetch_data.as_series(df_sub)
 
     return TopicSection(
         Box(
             [
                 html.Div(
                     "Spécialités de médicaments contenant : {}".format(
-                        df_sub.loc[code].nom
+                        series_sub.nom.capitalize()
                     ),
                     className="medium-text mt-5",
                 ),
                 html.Div(
-                    "{} médicaments identifiés".format(
-                        len(df_cis_sub[df_cis_sub.code_substance == code])
-                    ),
+                    "{} médicaments identifiés".format(len(df_sub_spe)),
                     className="normal-text mt-3",
                     style={"color": "#33C2D6"},
                 ),
                 dash_table.DataTable(
                     id="substance-specialite-table",
-                    columns=[
-                        {"name": i, "id": i}
-                        for i in df_cis_sub[df_cis_sub.code_substance == code][
-                            ["nom_specialite"]
-                        ].columns
-                    ],
-                    data=df_cis_sub[df_cis_sub.code_substance == code].to_dict(
-                        "records"
-                    ),
+                    columns=[{"name": "nom", "id": "nom"}],
+                    data=df_sub_spe.to_dict("records"),
                     page_size=10,
                     style_as_list_view=True,
                     style_table={"overflowX": "auto"},
-                    style_cell={
-                        "height": "50px",
-                        "backgroundColor": "#FAFAFA",
-                    },
+                    style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
                     style_data={
                         "fontSize": "14px",
                         "fontWeight": "400",
@@ -225,34 +198,44 @@ def Description(code: str) -> Component:
     )
 
 
-def CasDeclares(
-    df: pd.DataFrame,
-    df_notif: pd.DataFrame,
-    df_cas_age: pd.DataFrame,
-    df_cas_sexe: pd.DataFrame,
-    code: str,
-) -> Component:
-    decla = int(fetch_data.get_one_value(df, code, "cas"))
-    taux_cas = round(fetch_data.get_one_value(df, code, "taux_cas"))
-
-    # Notificators graph
-    figure_graph_notif = (
-        FigureGraph(
-            get_notif_figures_from_df(df_notif),
-            height="80px",
-            class_name="justify-content-start",
-        )
-        if not df_notif.empty
-        else NoData()
+def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
+    if df_decla is None:
+        return NoData()
+    series_decla = fetch_data.as_series(df_decla)
+    return FigureGraph(
+        [
+            {
+                "figure": f"{int(series_decla.cas)}",
+                "caption": "Nombre de cas déclarés sur la période 2014-2018",
+            }
+        ]
     )
 
-    # Consumers curves graphs
+
+def TauxDeclarationBox(df_decla) -> Component:
+    if df_decla is None:
+        return NoData()
+    series_decla = fetch_data.as_series(df_decla)
+    return FigureGraph(
+        [
+            {
+                "figure": f"{int(series_decla.taux_cas)} / 100 000",
+                "caption": "Taux de déclaration pour 100 000 patients "
+                "traités/an sur la période 2014-2018",
+            }
+        ]
+    )
+
+
+def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
+    if df_decla is None:
+        return NoData()
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    if df.cas_annee.min() > 10:
+    if df_decla.cas_annee.min() > 10:
         fig.add_trace(
             go.Scatter(
-                x=df.annee,
-                y=df.cas_annee,
+                x=df_decla.annee,
+                y=df_decla.cas_annee,
                 mode="lines",
                 name="Cas déclarés",
                 line={
@@ -267,8 +250,8 @@ def CasDeclares(
 
     fig.add_trace(
         go.Scatter(
-            x=df.annee,
-            y=df.conso_annee,
+            x=df_decla.annee,
+            y=df_decla.conso_annee,
             mode="lines",
             name="Patients traités",
             line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
@@ -283,21 +266,27 @@ def CasDeclares(
         secondary_y=False,
     )
     fig.update_yaxes(title_text="Patients traités", color="#EA336B", secondary_y=True)
-    fig.update_xaxes(title_text="Années", nticks=len(df.loc[code]))
+    fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
     fig.update_layout(CURVE_LAYOUT)
 
-    # Sex repartition graph
-    figure_graph_sexe = (
-        NoData()
-        if df_cas_sexe.empty
-        else FigureGraph(
+    return Graph(figure=fig, responsive=True,)
+
+
+def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
+    if df_cas_sexe is None:
+        return NoData()
+    else:
+        return FigureGraph(
             commons.get_sexe_figures_from_df(df_cas_sexe, "pourcentage_cas")
         )
-    )
 
-    # Age repartition graph
+
+def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
     # Check if percentages are NaN values
-    if not np.isnan(df_cas_age.pourcentage_cas.unique()).any():
+    if (
+        df_cas_age is not None
+        and not np.isnan(df_cas_age.pourcentage_cas.unique()).any()
+    ):
         fig_age = go.Figure(
             go.Pie(
                 labels=df_cas_age.age,
@@ -305,9 +294,28 @@ def CasDeclares(
                 marker_colors=PIE_COLORS_SUBSTANCE,
             )
         ).update_layout(PIE_LAYOUT)
-        graph_age = Graph(figure=fig_age, responsive=True,)
+        return Graph(figure=fig_age, responsive=True,)
     else:
-        graph_age = NoData()
+        return NoData()
+
+
+def NotifFigureGraph(df_notif: pd.DataFrame) -> Component:
+    if df_notif is None:
+        return NoData()
+    else:
+        return FigureGraph(
+            get_notif_figures_from_df(df_notif),
+            height="80px",
+            class_name="justify-content-start",
+        )
+
+
+def CasDeclares(
+    df_decla: pd.DataFrame,
+    df_notif: pd.DataFrame,
+    df_cas_age: pd.DataFrame,
+    df_cas_sexe: pd.DataFrame,
+) -> Component:
 
     return TopicSection(
         [
@@ -317,31 +325,12 @@ def CasDeclares(
                 [
                     GraphBox(
                         "",
-                        [
-                            FigureGraph(
-                                [
-                                    {
-                                        "figure": f"{decla}",
-                                        "caption": "Nombre de cas déclarés sur la période 2014-2018",
-                                    }
-                                ]
-                            )
-                        ],
+                        [CasDeclareFigureBox(df_decla)],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         "",
-                        [
-                            FigureGraph(
-                                [
-                                    {
-                                        "figure": f"{taux_cas} / 100 000",
-                                        "caption": "Taux de déclaration pour 100 000 patients "
-                                        "traités/an sur la période 2014-2018",
-                                    }
-                                ]
-                            )
-                        ],
+                        [TauxDeclarationBox(df_decla)],
                         class_name_wrapper="col-md-6",
                     ),
                 ]
@@ -350,7 +339,7 @@ def CasDeclares(
                 [
                     GraphBox(
                         "Nombre de cas déclarés d’effets indésirables et patients traités par année",
-                        [Graph(figure=fig, responsive=True,)],
+                        [CasDeclaresGraphBox(df_decla)],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -359,12 +348,12 @@ def CasDeclares(
                 [
                     GraphBox(
                         "Répartition par sexe des cas déclarés",
-                        [figure_graph_sexe],
+                        [RepartitionSexeFigureBox(df_cas_sexe)],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         "Répartition par âge des cas déclarés",
-                        [graph_age],
+                        [RepartitionAgeGraphBox(df_cas_age)],
                         class_name_wrapper="col-md-6",
                     ),
                 ]
@@ -373,7 +362,7 @@ def CasDeclares(
                 [
                     GraphBox(
                         "Répartition par type de notificateur",
-                        [figure_graph_notif],
+                        [NotifFigureGraph(df_notif)],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -383,9 +372,12 @@ def CasDeclares(
     )
 
 
-def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
+def SocTreemap(df_soc: pd.DataFrame) -> Component:
+    if df_soc is None:
+        return NoData()
+
     fig = px.treemap(
-        df.loc[code].sort_values(by="pourcentage_cas", ascending=False).head(10),
+        df_soc.sort_values(by="pourcentage_cas", ascending=False).head(10),
         path=["soc_long"],
         values="pourcentage_cas",
         color_discrete_sequence=TREE_COLORS,
@@ -413,6 +405,11 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
         hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
     )
 
+    return Graph(figure=fig, responsive=True, id="soc-treemap")
+
+
+def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
+
     return TopicSection(
         [
             SectionTitle("Effets indésirables par système d'organe"),
@@ -428,14 +425,7 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
                     GraphBox(
                         "",
                         [
-                            html.Div(
-                                Graph(
-                                    figure=fig,
-                                    responsive=True,
-                                    id="soc-treemap",
-                                ),
-                                id="soc-treemap-container",
-                            ),
+                            html.Div(SocTreemap(df_soc), id="soc-treemap-container",),
                             html.Div(id="selected-soc", className="d-none"),
                             HltModal(),
                         ],
@@ -568,16 +558,3 @@ def update_callback(
         )
     else:
         return False, "", "", ""
-
-
-# @app.callback(
-#     dd.Output("collapse-1", "is_open"),
-#     dd.Input("group-1-toggle", "n_clicks"),
-#     dd.State("collapse-1", "is_open"),
-# )
-# def toggle_accordion(n_clicks, is_open):
-#     ctx = dash.callback_context
-#     if not ctx.triggered:
-#         return False
-#     if n_clicks:
-#         return not is_open

@@ -203,7 +203,9 @@ def RepartitionAgeBox(df_age, pie_colors) -> Component:
     )
 
 
-def PatientsTraites(df_age, df_sexe, df_expo, pie_colors, type="specialite") -> Component:
+def PatientsTraites(
+    df_age, df_sexe, df_expo, pie_colors, type="specialite"
+) -> Component:
     return TopicSection(
         [
             SectionTitle("Patients traités"),
