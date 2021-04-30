@@ -24,7 +24,7 @@ def SearchBar(search_bar_class_names: str, search_bar_id: str) -> Component:
             id=search_bar_id,
             placeholder="Médicament (par spécialité), substance active",
             className="normal-text main-dropdown",
-            style = {'background-color': '#E8E8E8'}
+            style={"background-color": "#E8E8E8"},
         ),
         autoComplete="off",
         className=search_bar_class_names,
@@ -37,14 +37,8 @@ def MainSearch() -> Component:
             MainSearchTitle(),
             Div(
                 [
-                    Span(
-                        "Trouvez des données",
-                        className="heading-4 d-block",
-                    ),
-                    Span(
-                        "autour du médicament",
-                        className="heading-4 d-block",
-                    ),
+                    Span("Trouvez des données", className="heading-4 d-block",),
+                    Span("autour du médicament", className="heading-4 d-block",),
                     SearchBar(
                         "search-bar ml-auto flex-nowrap mt-4 align-items-center",
                         "search-bar",
@@ -68,8 +62,7 @@ def MainSearch() -> Component:
 
 
 @app.callback(
-    dd.Output("search-bar", "options"),
-    dd.Input("search-bar", "search_value"),
+    dd.Output("search-bar", "options"), dd.Input("search-bar", "search_value"),
 )
 def update_search_bar_options(search_value):
     # Execute at first call to load data into cache
@@ -77,17 +70,21 @@ def update_search_bar_options(search_value):
     if not search_value:
         raise PreventUpdate
     search_value = search_value.lower()
-    suggestions = [s for s in specialite_nom_series.iteritems() if s[1].lower().startswith(search_value)]
+    suggestions = [
+        s
+        for s in specialite_nom_series.iteritems()
+        if s[1].lower().startswith(search_value)
+    ]
     suggestions.sort(key=len)
 
     return [
-        {"label": v[1][:50] + "..." if len(v[1]) > 50 else v[1], "value": v[0]} for v in suggestions
+        {"label": v[1][:50] + "..." if len(v[1]) > 50 else v[1], "value": v[0]}
+        for v in suggestions
     ]
 
 
 @app.callback(
-    dd.Output("rechercher-button", "href"),
-    dd.Input("search-bar", "value"),
+    dd.Output("rechercher-button", "href"), dd.Input("search-bar", "value"),
 )
 def update_path(value):
     if value:

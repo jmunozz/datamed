@@ -16,12 +16,9 @@ app = DashProxy(
     ],
     suppress_callback_exceptions=True,
     title="Dashboard - DataMed",
-    transforms=[MultiplexerTransform()]
+    transforms=[MultiplexerTransform()],
 )
 
-cache = Cache(app.server, config={
-    'CACHE_TYPE': 'filesystem',
-    "CACHE_DIR": "/tmp"
-})
+cache = Cache(app.server, config={"CACHE_TYPE": "filesystem", "CACHE_DIR": "/tmp"})
 
 server = app.server

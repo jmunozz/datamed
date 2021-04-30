@@ -31,7 +31,7 @@ from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
 
-NOTIF_IMAGE_URL={
+NOTIF_IMAGE_URL = {
     "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
     "Dentiste": app.get_asset_url("./surgeon_1.svg"),
     "Infirmière": app.get_asset_url("./nurse_1.svg"),
@@ -42,6 +42,7 @@ NOTIF_IMAGE_URL={
     "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
 }
 
+
 def get_notif_figures_from_df(df):
     print(fetch_data.transform_df_to_series_list(df))
     return [
@@ -50,7 +51,8 @@ def get_notif_figures_from_df(df):
             "caption": x["notificateur"],
             "img": NOTIF_IMAGE_URL[x["notificateur"]],
         }
-        for x in fetch_data.transform_df_to_series_list(df) if not math.isnan(x["pourcentage_notif"])
+        for x in fetch_data.transform_df_to_series_list(df)
+        if not math.isnan(x["pourcentage_notif"])
     ]
 
 
@@ -105,10 +107,7 @@ def Substance(code: str) -> Component:
                 items=[
                     {"id": "description", "label": "Description"},
                     {"id": "population-concernee", "label": "Population concernée"},
-                    {
-                        "id": "effets-indesirables",
-                        "label": "Effets indésirables",
-                    },
+                    {"id": "effets-indesirables", "label": "Effets indésirables",},
                 ],
                 className="side-menu",
             ),
@@ -180,16 +179,14 @@ def Description(code: str) -> Component:
                 dash_table.DataTable(
                     id="substance-specialite-table",
                     columns=[
-                        {"name": i, "id": i} for i in df_cis_sub.loc[code][["nom_specialite"]].columns
+                        {"name": i, "id": i}
+                        for i in df_cis_sub.loc[code][["nom_specialite"]].columns
                     ],
                     data=df_cis_sub.loc[code].to_dict("records"),
                     page_size=10,
                     style_as_list_view=True,
                     style_table={"overflowX": "auto"},
-                    style_cell={
-                        "height": "50px",
-                        'backgroundColor': '#FAFAFA',
-                    },
+                    style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
                     style_data={
                         "fontSize": "14px",
                         "fontWeight": "400",
@@ -213,7 +210,15 @@ def CasDeclares(code: str) -> Component:
     decla = int(fetch_data.get_one_value(df_decla, code, "cas"))
     taux_cas = round(fetch_data.get_one_value(df_decla, code, "taux_cas"))
     notif_df = substance.get_notif_df(code)
-    figure_graph_notif = FigureGraph(get_notif_figures_from_df(notif_df), height="80px", class_name="justify-content-start") if notif_df is not None else NoData()    
+    figure_graph_notif = (
+        FigureGraph(
+            get_notif_figures_from_df(notif_df),
+            height="80px",
+            class_name="justify-content-start",
+        )
+        if notif_df is not None
+        else NoData()
+    )
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     if df_decla.loc[code].cas_annee.min() > 10:
@@ -272,10 +277,7 @@ def CasDeclares(code: str) -> Component:
                 marker_colors=PIE_COLORS_SUBSTANCE,  # px.colors.qualitative.Set3,
             )
         ).update_layout(PIE_LAYOUT)
-        graph_age = Graph(
-            figure=fig_age,
-            responsive=True,
-        )
+        graph_age = Graph(figure=fig_age, responsive=True,)
     else:
         graph_age = NoData()
 
@@ -320,23 +322,14 @@ def CasDeclares(code: str) -> Component:
                 [
                     GraphBox(
                         "Nombre de cas déclarés d’effets indésirables et patients traités par année",
-                        [
-                            Graph(
-                                figure=fig,
-                                responsive=True,
-                            )
-                        ],
+                        [Graph(figure=fig, responsive=True,)],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
             ),
             dbc.Row(
                 [
-                    GraphBox(
-                        None,
-                        [figure_graph_sexe],
-                        class_name_wrapper="col-md-6",
-                    ),
+                    GraphBox(None, [figure_graph_sexe], class_name_wrapper="col-md-6",),
                     GraphBox(
                         "Répartition par âge des cas déclarés",
                         [graph_age],
@@ -352,7 +345,7 @@ def CasDeclares(code: str) -> Component:
                         class_name_wrapper="col-md-12",
                     ),
                 ]
-            )
+            ),
         ],
         id="effets-indesirables",
     )
@@ -406,9 +399,7 @@ def SystemesOrganes(code: str) -> Component:
                         [
                             html.Div(
                                 Graph(
-                                    figure=fig_soc,
-                                    responsive=True,
-                                    id="soc-treemap",
+                                    figure=fig_soc, responsive=True, id="soc-treemap",
                                 ),
                                 id="soc-treemap-container",
                             ),
@@ -460,7 +451,7 @@ def toggle_substance_ei_tooltip(n_clicks, is_open):
 
 @app.callback(
     dd.Output("url", "href"),
-    dd.Input("substance-specialite-table", "active_cell"), 
+    dd.Input("substance-specialite-table", "active_cell"),
     dd.State("substance-specialite-table", "page_current"),
     dd.State("substance-specialite-table", "page_size"),
     dd.State("substance-specialite-table", "data"),
@@ -486,7 +477,7 @@ def getActiveCell(active_cell, page_current, page_size, data):
         dd.Input("soc-treemap-container", "n_clicks"),
         dd.Input("close-backdrop", "n_clicks"),
         dd.Input("url", "href"),
-        dd.Input("soc-treemap", "clickData")
+        dd.Input("soc-treemap", "clickData"),
     ],
     [dd.State("selected-soc", "children")],
 )
@@ -517,10 +508,7 @@ def update_callback(
 
         return (
             True,
-            Graph(
-                figure=fig_hlt,
-                responsive=True,
-            ),
+            Graph(figure=fig_hlt, responsive=True,),
             selected_soc,
             selected_soc,
         )

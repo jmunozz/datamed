@@ -55,8 +55,7 @@ def update_options(search_value: str):
 
 
 @app.callback(
-    dd.Output("url", "href"),
-    dd.Input("search-dropdown", "value"),
+    dd.Output("url", "href"), dd.Input("search-dropdown", "value"),
 )
 def update_path(value: str):
     ctx = dash.callback_context

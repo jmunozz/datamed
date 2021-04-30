@@ -48,12 +48,9 @@ def get_sexe_figures_from_df(df, column):
 
 def makePie(labels, values, pie_colors):
     return go.Figure(
-        go.Pie(
-            labels=labels,
-            values=values,
-            marker_colors=pie_colors,
-        )
+        go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
     ).update_layout(PIE_LAYOUT)
+
 
 def NoData() -> html.Div:
     return html.Div(
@@ -110,10 +107,10 @@ def Accordion() -> Component:
 
 
 def Utilisation(df_expo, index):
-    if df_expo: 
+    if df_expo:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = series_exposition.exposition
-    else: 
+    else:
         exposition = "-"
     return dbc.Row(
         [
@@ -131,10 +128,7 @@ def Utilisation(df_expo, index):
                                 className="d-flex flex-column",
                             ),
                             html.Div(
-                                [
-                                    html.H1(f"{exposition}/5"),
-                                ],
-                                className="d-flex",
+                                [html.H1(f"{exposition}/5"),], className="d-flex",
                             ),
                         ],
                         style={"flex": 1},
@@ -163,26 +157,26 @@ def Utilisation(df_expo, index):
 
 
 def RepartitionSexeBox(df_sexe) -> Component:
-    if df_sexe is None: 
+    if df_sexe is None:
         return NoData()
     return FigureGraph(get_sexe_figures_from_df(df_sexe, "poucentage_patients"))
 
-def RepartitionAgeBox(df_age, pie_colors) -> Component: 
-    if df_age is None: 
-        return NoData()
-    return  Graph(
-                                figure=makePie(
-                                    df_age.age, df_age.pourcentage_patients, pie_colors
-                                ),
-                                responsive=True,
-                            )
 
-def PatientsTraites(df_age, df_sexe, df_expo, index, pie_colors: List) -> Component:
+def RepartitionAgeBox(df_age, pie_colors) -> Component:
+    if df_age is None:
+        return NoData()
+    return Graph(
+        figure=makePie(df_age.age, df_age.pourcentage_patients, pie_colors),
+        responsive=True,
+    )
+
+
+def PatientsTraites(df_age, df_sexe, df_expo, pie_colors: List) -> Component:
     return TopicSection(
         [
             SectionTitle("Patients traités"),
             Accordion(),
-            Utilisation(df_expo, index),
+            Utilisation(df_expo),
             dbc.Row(
                 [
                     GraphBox(
@@ -192,9 +186,7 @@ def PatientsTraites(df_age, df_sexe, df_expo, index, pie_colors: List) -> Compon
                     ),
                     GraphBox(
                         "Répartition par âge des patients traités",
-                        [
-                            RepartitionAgeBox(df_age, pie_colors)
-                        ],
+                        [RepartitionAgeBox(df_age, pie_colors)],
                         class_name_wrapper="col-md-6",
                     ),
                 ]
@@ -215,4 +207,3 @@ def toggle_accordion(n_clicks, is_open):
         return False
     if n_clicks:
         return not is_open
-

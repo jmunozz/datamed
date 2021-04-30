@@ -1,9 +1,6 @@
 BAR_LAYOUT = {
     "xaxis": dict(
-        showgrid=False,
-        showline=False,
-        showticklabels=False,
-        zeroline=False,
+        showgrid=False, showline=False, showticklabels=False, zeroline=False,
     ),
     "yaxis": dict(
         showgrid=False,
@@ -44,11 +41,7 @@ PIE_LAYOUT = {
 }
 
 STACKED_BAR_CHART_LAYOUT = {
-    "xaxis": dict(
-        showgrid=False,
-        showline=False,
-        zeroline=False,
-    ),
+    "xaxis": dict(showgrid=False, showline=False, zeroline=False,),
     "yaxis": dict(
         showgrid=False,
         showline=False,

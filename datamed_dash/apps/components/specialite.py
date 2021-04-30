@@ -1,16 +1,17 @@
+import requests
+
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import requests
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
 from dash_core_components import Graph
+
 from db import specialite, substance, fetch_data
 from sm import SideMenu
-
 from app import app
 
 from .commons import PatientsTraites, NoData
@@ -27,21 +28,14 @@ from .utils import (
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
 
-EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
-EI_IMG_URL = {
-    "Non": app.get_asset_url("healthy_man.svg"),
-    "Oui": app.get_asset_url("sick_man.svg"),
-}
 
-
-def get_has_guideline_link(current_specialite: pd.Series) -> str:
-    cis = current_specialite.name
+def get_has_guideline_link(cis: str) -> str:
     return "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(
         cis
     )
 
 
-def get_rcp_link(cis) -> str:
+def get_rcp_link(cis: str) -> str:
     link = "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=R".format(
         cis
     )
@@ -59,7 +53,7 @@ def get_rcp_link(cis) -> str:
     )
 
 
-def get_notice_link(cis) -> str:
+def get_notice_link(cis: str) -> str:
     link = "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(
         cis
     )
@@ -107,19 +101,23 @@ def Specialite(cis: str) -> Component:
                 className="side-menu",
             ),
             html.Div(
-                html.Div([
-                    Header(df_spe),
-                    Description(df_spe, df_desc, df_atc, df_sub),
-                    PatientsTraites(
-                        df_age=df_age,
-                        df_sexe=df_sexe,
-                        df_expo=df_expo,
-                        index=cis,
-                        pie_colors=PIE_COLORS_SPECIALITE,
-                     ),
-                    ErreursMedicamenteuses(df_ei, df_pop, df_cause, df_nat, df_denom),
-                    EffetsIndesirables(df_sub),
-                ], className="container-fluid", style={"padding-left": "80px"}
+                html.Div(
+                    [
+                        Header(df_spe),
+                        Description(df_spe, df_desc, df_atc, df_sub),
+                        PatientsTraites(
+                            df_age=df_age,
+                            df_sexe=df_sexe,
+                            df_expo=df_expo,
+                            pie_colors=PIE_COLORS_SPECIALITE,
+                        ),
+                        ErreursMedicamenteuses(
+                            df_ei, df_pop, df_cause, df_nat, df_denom
+                        ),
+                        EffetsIndesirables(df_sub),
+                    ],
+                    className="container-fluid",
+                    style={"padding-left": "80px"},
                 ),
                 className="container-fluid side-content",
             ),
@@ -155,7 +153,12 @@ def SubstanceLinks(df_sub: pd.DataFrame) -> Component:
     )
 
 
-def Description(df_spe: pd.DataFrame, df_desc: pd.DataFrame, df_atc: pd.DataFrame, df_sub: pd.DataFrame) -> Component:
+def Description(
+    df_spe: pd.DataFrame,
+    df_desc: pd.DataFrame,
+    df_atc: pd.DataFrame,
+    df_sub: pd.DataFrame,
+) -> Component:
     series_spe = fetch_data.as_series(df_spe)
     series_desc = fetch_data.as_series(df_desc)
     series_atc = fetch_data.as_series(df_atc)
@@ -182,22 +185,18 @@ def Description(df_spe: pd.DataFrame, df_desc: pd.DataFrame, df_atc: pd.DataFram
                         ArticleTitle("Description"),
                         html.P(
                             "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
-                                series_atc.label.capitalize(),
-                                series_atc.atc,
+                                series_atc.label.capitalize(), series_atc.atc,
                             ),
                             className="normal-text",
                         ),
-                        html.P(
-                            series_desc.description, className="normal-text"
-                        ),
+                        html.P(series_desc.description, className="normal-text"),
                     ]
                 ),
                 html.Article(
                     [
                         ArticleTitle("Recommandation HAS"),
                         ExternalLink(
-                            "Afficher les recommandations",
-                            get_has_guideline_link(series_spe),
+                            "Afficher les recommandations", get_has_guideline_link(cis),
                         ),
                     ]
                 ),
@@ -238,24 +237,30 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
         fig.update_layout(barmode="stack")
         fig.update_yaxes(visible=False, showticklabels=False)
-        return Graph(
-            figure=fig,
-            responsive=False,
-        )
+        return Graph(figure=fig, responsive=False,)
 
 
-def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component: 
-    if df_ei is None: 
+def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
+    if df_ei is None:
         return NoData()
 
-    return FigureGraph([
-        {
-            "figure": "{}%".format(round(series.pourcentage, 2)),
-            "caption": EI[series.effet_indesirable],
-            "img": EI_IMG_URL[series.effet_indesirable],
-        }
-        for cis, series in df_ei.iterrows()
-    ])
+    EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
+    EI_IMG_URL = {
+        "Non": app.get_asset_url("healthy_man.svg"),
+        "Oui": app.get_asset_url("sick_man.svg"),
+    }
+
+    return FigureGraph(
+        [
+            {
+                "figure": "{}%".format(round(series.pourcentage, 2)),
+                "caption": EI[series.effet_indesirable],
+                "img": EI_IMG_URL[series.effet_indesirable],
+            }
+            for cis, series in df_ei.iterrows()
+        ]
+    )
+
 
 def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
     if df_pop is None:
@@ -269,26 +274,19 @@ def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
     ).update_layout(PIE_LAYOUT)
     return Graph(figure=fig_pop, responsive=True,)
 
-def BoxListDenomination(df_denom): 
+
+def BoxListDenomination(df_denom):
     if df_denom is None:
         return NoData()
     df_denom.denomination = df_denom.denomination.str.capitalize()
     return dash_table.DataTable(
         id="denomination-table",
-        columns=[
-            {"name": i, "id": i}
-            for i in df_denom[
-                ["denomination"]
-            ].columns
-        ],
+        columns=[{"name": i, "id": i} for i in df_denom[["denomination"]].columns],
         data=df_denom.to_dict("records"),
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={
-            "height": "50px",
-            "backgroundColor": "#FAFAFA",
-        },
+        style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -300,7 +298,13 @@ def BoxListDenomination(df_denom):
     )
 
 
-def ErreursMedicamenteuses(df_ei: pd.DataFrame, df_pop: pd.DataFrame, df_cause: pd.DataFrame, df_nat: pd.DataFrame, df_denom: pd.DataFrame) -> Component:
+def ErreursMedicamenteuses(
+    df_ei: pd.DataFrame,
+    df_pop: pd.DataFrame,
+    df_cause: pd.DataFrame,
+    df_nat: pd.DataFrame,
+    df_denom: pd.DataFrame,
+) -> Component:
 
     return TopicSection(
         [
@@ -351,9 +355,7 @@ def ErreursMedicamenteuses(df_ei: pd.DataFrame, df_pop: pd.DataFrame, df_cause: 
                 [
                     GraphBox(
                         "Liste des dénominations des médicaments concernés par ces erreurs médicamenteuses",
-                        [
-                            BoxListDenomination(df_denom)
-                        ],
+                        [BoxListDenomination(df_denom)],
                         class_name_wrapper="col-md-12",
                     ),
                 ]

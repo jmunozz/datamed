@@ -12,7 +12,7 @@ from dash_html_components import Div, A, P, I
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .specialite import SectionTitle    #, Indicateur
+from .specialite import SectionTitle  # , Indicateur
 from ..constants.colors import BAR_CHART_COLORS
 from ..constants.layouts import BAR_LAYOUT
 
@@ -72,10 +72,7 @@ def DescriptionRuptures() -> Component:
                             className="normal-text link",
                             id="refresh-substances",
                         ),
-                        Div(
-                            "Description",
-                            className="small-text-bold",
-                        ),
+                        Div("Description", className="small-text-bold",),
                         P(
                             "L’ANSM a pour mission d’observer tout au long de l’année l’état des ruptures de stock "
                             "de médicaments présents dans les circuits Ville et Hôpital et de s’assurer du maintien "
@@ -84,10 +81,7 @@ def DescriptionRuptures() -> Component:
                             "pour y remédier et maintenir ainsi l’alimentation des officines au niveau national.",
                             className="normal-text text-justify",
                         ),
-                        Div(
-                            "Avertissement",
-                            className="small-text-bold",
-                        ),
+                        Div("Avertissement", className="small-text-bold",),
                         P(
                             "Les chiffres présentés ici ont pour but d’ouvrir les données au grand public afin de "
                             "communiquer les actions de l’Agence. Leur interprétation et leur diffusion est soumise à "
@@ -97,10 +91,7 @@ def DescriptionRuptures() -> Component:
                             "vous contribuerez alors directement à l’amélioration de l’information diffusée.",
                             className="normal-text text-justify",
                         ),
-                        Div(
-                            "Réutilisation des données",
-                            className="small-text-bold",
-                        ),
+                        Div("Réutilisation des données", className="small-text-bold",),
                         A(
                             "Analyse thématique",
                             href="/apps/ruptures",
@@ -272,20 +263,14 @@ def Ruptures() -> Component:
                 ],
                 className="side-menu",
             ),
-            Div(
-                [
-                    DescriptionRuptures(),
-                    NatureSignalements(),
-                ]
-            ),
+            Div([DescriptionRuptures(), NatureSignalements(),]),
         ],
         className="side-menu-container",
     )
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"),
-    dd.Input("annee-dropdown", "value"),
+    dd.Output("atc-bar-chart", "figure"), dd.Input("annee-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:

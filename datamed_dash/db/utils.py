@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 
 engine = None
 
+
 def connect_db():
     global engine
     # On Heroku DATABASE_URL is automatically populated with postgres plugin url connection
