@@ -93,13 +93,13 @@ def Specialite(cis: str) -> Component:
                 df_expo=df_expo,
                 index=cis,
                 pie_colors=PIE_COLORS_SPECIALITE,
-                type="spécialité"
+                type="spécialité",
             )
         )
 
     df_emed = fetch_data.fetch_table("erreur_med_cis_denomination", "cis")
     if cis in df_emed.index.tolist():
-        divs.append(ErreursMedicamenteuses(cis))
+        divs.append(ErreursMedicamenteuses(cis, df_emed))
 
     divs.append(EffetsIndesirables(cis))
 
@@ -274,33 +274,73 @@ def StackBarGraph(df: pd.DataFrame, cis: str, field: str) -> Graph:
         )
 
 
-def ErreursMedicamenteuses(cis: str) -> Component:
-    df_ei = specialite.get_erreur_med_effet_indesirable(cis)
-    ei_figures = [
-        {
-            "figure": "{}%".format(round(x["pourcentage"], 2)),
-            "caption": EI[x["effet_indesirable"]],
-            "img": EI_IMG_URL[x["effet_indesirable"]],
-        }
-        for x in fetch_data.transform_df_to_series_list(df_ei)
-    ]
+def ErreursMedicamenteuses(cis: str, df_emed: pd.DataFrame) -> Component:
+    # We show the data only if there are more than 10 declarations
+    if len(df_emed.loc[cis]) > 10:
+        df_ei = specialite.get_erreur_med_effet_indesirable(cis)
+        ei_figures = [
+            {
+                "figure": "{}%".format(round(x["pourcentage"], 2)),
+                "caption": EI[x["effet_indesirable"]],
+                "img": EI_IMG_URL[x["effet_indesirable"]],
+            }
+            for x in fetch_data.transform_df_to_series_list(df_ei)
+        ]
+        graph_ei = FigureGraph(ei_figures)
 
-    df_pop = fetch_data.fetch_table("erreur_med_population", "cis").reset_index()
-    fig_pop = go.Figure(
-        go.Pie(
-            labels=df_pop[df_pop.cis == cis].population_erreur,
-            values=df_pop[df_pop.cis == cis].pourcentage,
-            marker_colors=PIE_COLORS_SPECIALITE,
+        df_pop = fetch_data.fetch_table("erreur_med_population", "cis").reset_index()
+        fig_pop = go.Figure(
+            go.Pie(
+                labels=df_pop[df_pop.cis == cis].population_erreur,
+                values=df_pop[df_pop.cis == cis].pourcentage,
+                marker_colors=PIE_COLORS_SPECIALITE,
+            )
+        ).update_layout(PIE_LAYOUT)
+        graph_pop = (
+            Graph(figure=fig_pop, responsive=True)
+            if not df_pop[df_pop.cis == cis].empty
+            else NoData()
         )
-    ).update_layout(PIE_LAYOUT)
 
-    df_cause = fetch_data.fetch_table("erreur_med_cause", "cis").reset_index()
-    df_nat = fetch_data.fetch_table("erreur_med_nature", "cis").reset_index()
+        df_cause = fetch_data.fetch_table("erreur_med_cause", "cis").reset_index()
+        graph_cause = StackBarGraph(df_cause, cis, "cause_erreur")
 
-    df_denom = fetch_data.fetch_table(
-        "erreur_med_cis_denomination", "cis"
-    ).reset_index()
-    df_denom.denomination = df_denom.denomination.str.capitalize()
+        df_nat = fetch_data.fetch_table("erreur_med_nature", "cis").reset_index()
+        graph_nat = StackBarGraph(df_nat, cis, "nature_erreur")
+
+        df_denom = fetch_data.fetch_table(
+            "erreur_med_cis_denomination", "cis"
+        ).reset_index()
+        df_denom.denomination = df_denom.denomination.str.capitalize()
+        graph_denom = dash_table.DataTable(
+            id="denomination-table",
+            columns=[
+                {"name": i, "id": i}
+                for i in df_denom[df_denom.cis == cis][["denomination"]].columns
+            ],
+            data=df_denom[df_denom.cis == cis].to_dict("records"),
+            page_size=10,
+            style_as_list_view=True,
+            style_table={"overflowX": "auto"},
+            style_cell={
+                "height": "50px",
+                "backgroundColor": "#FAFAFA",
+            },
+            style_data={
+                "fontSize": "14px",
+                "fontWeight": "400",
+                "font-family": "Roboto",
+                "lineHeight": "18px",
+                "textAlign": "left",
+            },
+            style_header={"display": "none"},
+        )
+    else:
+        graph_ei = NoData()
+        graph_pop = NoData()
+        graph_cause = NoData()
+        graph_nat = NoData()
+        graph_denom = NoData()
 
     return TopicSection(
         [
@@ -308,28 +348,23 @@ def ErreursMedicamenteuses(cis: str) -> Component:
             SectionP(
                 "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
                 "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles sont "
-                "déclarées par les patients ou les professionnels de santé notamment via le portail : "
+                "déclarées par les patients ou les professionnels de santé, notamment via le portail : "
                 "https://signalement.social-sante.gouv.fr"
             ),
             SectionP(
-                "Les Erreurs Médicamenteuses se classifient en fonction du stade (Erreur de prescription, "
-                "Erreur de délivrance, Erreur d’administration), du type et de la cause. "
+                "Les Erreurs Médicamenteuses se classifient en fonction du stade (erreur de prescription, "
+                "erreur de délivrance, erreur d’administration), de la nature et de la cause."
             ),
             dbc.Row(
                 [
                     GraphBox(
                         "Existence d’effets indésirables suite aux erreurs médicamenteuses",
-                        [FigureGraph(ei_figures)],
+                        [graph_ei],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         "Répartition de la population concernée",
-                        [
-                            Graph(
-                                figure=fig_pop,
-                                responsive=True,
-                            )
-                        ],
+                        [graph_pop],
                         class_name_wrapper="col-md-6",
                     ),
                 ]
@@ -338,7 +373,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                 [
                     GraphBox(
                         "Cause des erreurs médicamenteuses",
-                        [StackBarGraph(df_cause, cis, "cause_erreur")],
+                        [graph_cause],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -347,7 +382,7 @@ def ErreursMedicamenteuses(cis: str) -> Component:
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
-                        [StackBarGraph(df_nat, cis, "nature_erreur")],
+                        [graph_nat],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
@@ -355,34 +390,8 @@ def ErreursMedicamenteuses(cis: str) -> Component:
             dbc.Row(
                 [
                     GraphBox(
-                        "Liste des dénominations des médicaments concernés par ces erreurs médicamenteuses",
-                        [
-                            dash_table.DataTable(
-                                id="denomination-table",
-                                columns=[
-                                    {"name": i, "id": i}
-                                    for i in df_denom[df_denom.cis == cis][
-                                        ["denomination"]
-                                    ].columns
-                                ],
-                                data=df_denom[df_denom.cis == cis].to_dict("records"),
-                                page_size=10,
-                                style_as_list_view=True,
-                                style_table={"overflowX": "auto"},
-                                style_cell={
-                                    "height": "50px",
-                                    "backgroundColor": "#FAFAFA",
-                                },
-                                style_data={
-                                    "fontSize": "14px",
-                                    "fontWeight": "400",
-                                    "font-family": "Roboto",
-                                    "lineHeight": "18px",
-                                    "textAlign": "left",
-                                },
-                                style_header={"display": "none"},
-                            )
-                        ],
+                        "Dénominations des médicaments concernés par ces erreurs médicamenteuses",
+                        [graph_denom],
                         class_name_wrapper="col-md-12",
                     ),
                 ]
