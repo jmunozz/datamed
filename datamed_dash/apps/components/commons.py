@@ -106,7 +106,7 @@ def Accordion() -> Component:
     )
 
 
-def Utilisation(df_expo, index):
+def Utilisation(df_expo):
     if df_expo:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = series_exposition.exposition
