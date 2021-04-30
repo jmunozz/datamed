@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Dict
 
 import dash
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+import pandas as pd
 import plotly.graph_objects as go
 from app import app
 from dash.development.base_component import Component
@@ -57,18 +58,22 @@ SEXE_IMG_URL = {
 }
 
 
-def get_sexe_figures_from_df(df, column):
+def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
+    df = df.where(pd.notnull(df), None)
+    sexe_percentage_data = fetch_data.transform_df_to_series_list(df)
     return [
         {
-            "figure": "{}%".format(round(x[column], 2)),
+            "figure": "{}%".format(round(x[column]))
+            if x[column]
+            else "Données insuffisantes",
             "caption": SEXE[x["sexe"]],
             "img": SEXE_IMG_URL[x["sexe"]],
         }
-        for x in fetch_data.transform_df_to_series_list(df)
+        for x in sexe_percentage_data
     ]
 
 
-def makePie(labels, values, pie_colors):
+def makePie(labels, values, pie_colors: List):
     return go.Figure(
         go.Pie(
             labels=labels,
@@ -114,7 +119,7 @@ def Accordion() -> Component:
     )
 
 
-def Utilisation(df_expo, index, type: str):
+def Utilisation(df_expo, index: str, type: str):
     utilisation = (
         df_expo.at[index, "exposition"][0] if len(df_expo) > 1 else df_expo.exposition
     )
@@ -166,7 +171,12 @@ def Utilisation(df_expo, index, type: str):
 
 
 def PatientsTraites(
-    df_age, df_sexe, df_expo, index, pie_colors: List, type: str
+    df_age: pd.DataFrame,
+    df_sexe: pd.DataFrame,
+    df_expo: pd.DataFrame,
+    index: str,
+    pie_colors: List,
+    type: str,
 ) -> Component:
     sexe_figures = get_sexe_figures_from_df(df_sexe, "pourcentage_patients")
     return TopicSection(
