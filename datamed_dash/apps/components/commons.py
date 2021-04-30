@@ -31,24 +31,28 @@ UTILISATION = {
 
 FOURCHETTES = {
     1: {
-        "spécialité": "Nombre de patients traités par an en France inférieur à 1000",
+        "specialite": "Nombre de patients traités par an en France inférieur à 1000",
         "substance": "Nombre de patients traités par an en France inférieur à 5000",
     },
     2: {
-        "spécialité": "Nombre de patients traités par an en France entre 1000 et 5000",
+        "specialite": "Nombre de patients traités par an en France entre 1000 et 5000",
         "substance": "Nombre de patients traités par an en France entre 5000 et 25000",
     },
     3: {
-        "spécialité": "Nombre de patients traités par an en France entre 5000 et 15000",
+        "specialite": "Nombre de patients traités par an en France entre 5000 et 15000",
         "substance": "Nombre de patients traités par an en France entre 25000 et 100000",
     },
     4: {
-        "spécialité": "Nombre de patients traités par an en France entre 15000 et 50000",
+        "specialite": "Nombre de patients traités par an en France entre 15000 et 50000",
         "substance": "Nombre de patients traités par an en France entre 100000 et 500000",
     },
     5: {
-        "spécialité": "Nombre de patients traités par an en France supérieur à 50000",
+        "specialite": "Nombre de patients traités par an en France supérieur à 50000",
         "substance": "Nombre de patients traités par an en France supérieur à 500000",
+    },
+    "-": {
+        "specialite": "Nombre de patients traités par an inconnu",
+        "substance": "Nombre de patients traités par an en France inconnu",
     },
 }
 
@@ -134,8 +138,8 @@ def Accordion() -> Component:
     )
 
 
-def Utilisation(df_expo):
-    if df_expo:
+def Utilisation(df_expo, type):
+    if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = series_exposition.exposition
     else:
@@ -167,7 +171,7 @@ def Utilisation(df_expo):
                             html.H2(
                                 UTILISATION[exposition], className="color-secondary"
                             ),
-                            html.P(FOURCHETTES[utilisation][type]),
+                            html.P(FOURCHETTES[exposition][type]),
                             html.A(
                                 "En savoir plus sur le taux d'exposition",
                                 className="color-secondary",
@@ -187,7 +191,7 @@ def Utilisation(df_expo):
 def RepartitionSexeBox(df_sexe) -> Component:
     if df_sexe is None:
         return NoData()
-    return FigureGraph(get_sexe_figures_from_df(df_sexe, "poucentage_patients"))
+    return FigureGraph(get_sexe_figures_from_df(df_sexe, "pourcentage_patients"))
 
 
 def RepartitionAgeBox(df_age, pie_colors) -> Component:
@@ -199,12 +203,12 @@ def RepartitionAgeBox(df_age, pie_colors) -> Component:
     )
 
 
-def PatientsTraites(df_age, df_sexe, df_expo, pie_colors: List) -> Component:
+def PatientsTraites(df_age, df_sexe, df_expo, pie_colors, type="specialite") -> Component:
     return TopicSection(
         [
             SectionTitle("Patients traités"),
             Accordion(),
-            Utilisation(df_expo),
+            Utilisation(df_expo, type),
             dbc.Row(
                 [
                     GraphBox(

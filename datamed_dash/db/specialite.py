@@ -1,11 +1,10 @@
 from app import cache
-from db import substance
 
 import pandas as pd
 from .fetch_data import fetch_table, return_sub_df_or_none, as_index_list
 from db import fetch_data
 
-
+#cis can be a str or a list
 @cache.memoize(300)
 def get_specialite_df(cis):
     return return_sub_df_or_none(fetch_table("specialite", "cis"), cis)
@@ -73,5 +72,6 @@ def get_atc_df(cis) -> pd.DataFrame:
 
 
 def list_substances(cis):
+    from .substance import get_substance_df
     df_spe_sub = get_specialite_substance_df(cis)
-    return substance.get_substance_df(df_spe_sub["code_substance"].values)
+    return get_substance_df(df_spe_sub["code_substance"].values)
