@@ -6,6 +6,7 @@ def get_substance_df(codes):
     return return_sub_df_or_none(fetch_table("substance", "code"), codes)
 
 
+
 def get_df():
     return fetch_table("substance", "code")
 

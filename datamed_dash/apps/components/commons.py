@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Dict
 
 import dash
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+import pandas as pd
 import plotly.graph_objects as go
 from app import app
 from dash.development.base_component import Component
@@ -28,6 +29,29 @@ UTILISATION = {
     "-": "Utilisation inconnue",
 }
 
+FOURCHETTES = {
+    1: {
+        "spécialité": "Nombre de patients traités par an en France inférieur à 1000",
+        "substance": "Nombre de patients traités par an en France inférieur à 5000",
+    },
+    2: {
+        "spécialité": "Nombre de patients traités par an en France entre 1000 et 5000",
+        "substance": "Nombre de patients traités par an en France entre 5000 et 25000",
+    },
+    3: {
+        "spécialité": "Nombre de patients traités par an en France entre 5000 et 15000",
+        "substance": "Nombre de patients traités par an en France entre 25000 et 100000",
+    },
+    4: {
+        "spécialité": "Nombre de patients traités par an en France entre 15000 et 50000",
+        "substance": "Nombre de patients traités par an en France entre 100000 et 500000",
+    },
+    5: {
+        "spécialité": "Nombre de patients traités par an en France supérieur à 50000",
+        "substance": "Nombre de patients traités par an en France supérieur à 500000",
+    },
+}
+
 SEXE = {1: "Hommes", 2: "Femmes"}
 SEXE_IMG_URL = {
     1: app.get_asset_url("man_img.svg"),
@@ -35,18 +59,22 @@ SEXE_IMG_URL = {
 }
 
 
-def get_sexe_figures_from_df(df, column):
+def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
+    df = df.where(pd.notnull(df), None)
+    sexe_percentage_data = fetch_data.transform_df_to_series_list(df)
     return [
         {
-            "figure": "{}%".format(round(x[column], 2)),
+            "figure": "{}%".format(round(x[column]))
+            if x[column]
+            else "Données insuffisantes",
             "caption": SEXE[x["sexe"]],
             "img": SEXE_IMG_URL[x["sexe"]],
         }
-        for x in fetch_data.transform_df_to_series_list(df)
+        for x in sexe_percentage_data
     ]
 
 
-def makePie(labels, values, pie_colors):
+def makePie(labels, values, pie_colors: List):
     return go.Figure(
         go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
     ).update_layout(PIE_LAYOUT)
@@ -139,7 +167,7 @@ def Utilisation(df_expo):
                             html.H2(
                                 UTILISATION[exposition], className="color-secondary"
                             ),
-                            html.P("Nombre de patients traités par an en France"),
+                            html.P(FOURCHETTES[utilisation][type]),
                             html.A(
                                 "En savoir plus sur le taux d'exposition",
                                 className="color-secondary",
