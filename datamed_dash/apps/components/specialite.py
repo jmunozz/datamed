@@ -13,7 +13,7 @@ from sm import SideMenu
 
 from app import app
 
-from .commons import PatientsTraites
+from .commons import PatientsTraites, NoData
 from .utils import (
     Box,
     GraphBox,
@@ -217,24 +217,6 @@ def Description(df_spe: pd.DataFrame, df_desc: pd.DataFrame, df_atc: pd.DataFram
             class_name_wrapper="overlap-top-content",
         ),
         id="description",
-    )
-
-
-def NoData() -> html.Div:
-    return html.Div(
-        [
-            html.Img(
-                src=app.get_sasset_url("illu_no_data.svg"),
-                className="img-fluid",
-                alt="Responsive image",
-            ),
-            html.Div(
-                "Données insuffisantes pour affichage",
-                className="small-text",
-                style={"color": "#9e9e9e"},
-            ),
-        ],
-        className="d-flex flex-column align-items-center",
     )
 
 
