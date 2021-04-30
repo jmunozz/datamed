@@ -241,7 +241,7 @@ def CasDeclares(
     # Notificators graph
     figure_graph_notif = (
         FigureGraph(
-            get_notif_figures_from_df(df_notif),
+            get_notif_figures_from_df(df_notif.sort_values(by="pourcentage_notif", ascending=False)),
             height="80px",
             class_name="justify-content-start",
         )
