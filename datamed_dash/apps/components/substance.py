@@ -267,7 +267,7 @@ def CasDeclares(
                     "shape": "spline",
                     "smoothing": 1,
                     "width": 4,
-                    "color": "#F599B5",
+                    "color": "#F29733",
                 },
             ),
             secondary_y=False,
@@ -287,7 +287,7 @@ def CasDeclares(
 
     fig.update_yaxes(
         title_text="Déclarations d'effets indésirables",
-        color="#F599B5",
+        color="#F29733",
         secondary_y=False,
     )
     fig.update_yaxes(title_text="Patients traités", color="#EA336B", secondary_y=True)
