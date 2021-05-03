@@ -21,7 +21,6 @@ from dash_bootstrap_components import (
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Table,
 )
 from dash_core_components import Graph
 from db import substance, fetch_data
@@ -245,7 +244,9 @@ def CasDeclares(
     # Notificators graph
     figure_graph_notif = (
         FigureGraph(
-            get_notif_figures_from_df(df_notif.sort_values(by="pourcentage_notif", ascending=False)),
+            get_notif_figures_from_df(
+                df_notif.sort_values(by="pourcentage_notif", ascending=False)
+            ),
             height="80px",
             class_name="justify-content-start",
         )
@@ -447,7 +448,9 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
                         [
                             html.Div(
                                 Graph(
-                                    figure=Treemap(df, code, "soc_long", "pourcentage_cas"),
+                                    figure=Treemap(
+                                        df, code, "soc_long", "pourcentage_cas"
+                                    ),
                                     responsive=True,
                                     id="soc-treemap",
                                 ),
@@ -459,7 +462,7 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
                         className="col-md-12",
                     ),
                 ],
-            )
+            ),
         ],
         id="population-concernee",
     )

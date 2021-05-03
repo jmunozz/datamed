@@ -16,14 +16,14 @@ BAR_CHART_COLORS = [
 ]
 
 TREE_COLORS = [
-    "#E50046",
-    "#EA336B",
-    "#EF6690",
-    "#F599B5",
-    "#FACCDA",
-    "#A03189",
-    "#B35AA1",
-    "#C683B8",
-    "#D9ADD0",
+    "#5E2A7E",
+    "#7E5598",
+    "#9E7FB2",
+    "#BFAACB",
+    "#DFD4E5",
     "#ECD6E7",
+    "#D9ADD0",
+    "#C683B8",
+    "#B35AA1",
+    "#A03189",
 ]
