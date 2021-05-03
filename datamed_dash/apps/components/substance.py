@@ -34,25 +34,22 @@ from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
 
-def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
-
-    NOTIF_IMAGE_URL = {
-        "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
-        "Dentiste": app.get_asset_url("./surgeon_1.svg"),
-        "Infirmière": app.get_asset_url("./nurse_1.svg"),
-        "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
-        "Pharmacien": app.get_asset_url("./pharmacist.svg"),
-        "Inconnu": app.get_asset_url("./face.svg"),
-        "Non professionnel de santé": app.get_asset_url("./face.svg"),
-        "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
-    }
-
+NOTIF_IMAGE_URL = {
+    "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
+    "Dentiste": app.get_asset_url("./surgeon_1.svg"),
+    "Infirmière": app.get_asset_url("./nurse_1.svg"),
+    "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
+    "Pharmacien": app.get_asset_url("./pharmacist.svg"),
+    "Inconnu": app.get_asset_url("./face.svg"),
+    "Non professionnel de santé": app.get_asset_url("./face.svg"),
+    "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
+}
 
 df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
 df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
 
 
-def get_notif_figures_from_df(df):
+def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
     return [
         {
             "figure": "{}%".format(round(x["pourcentage_notif"])),
@@ -390,7 +387,6 @@ def CasDeclares(
     )
 
 
-
 def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
     fig = px.treemap(
         df.loc[code].sort_values(by=values, ascending=False).head(10),
@@ -422,7 +418,7 @@ def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
     )
     return fig
 
-  
+
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
     return TopicSection(
         [
