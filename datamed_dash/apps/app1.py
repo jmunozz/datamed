@@ -10,11 +10,11 @@ from .components.plateforme import Plateforme
 layout = Div(
     [
         Navbar(),
-        MainSearch(),
+        # MainSearch(),
         # Arrow(),
         # DonneesUne(),
-        Plateforme(),
-        Footer(),
+        # Plateforme(),
+        # Footer(),
     ],
     className="layout",
     id="layout_landing_page",
