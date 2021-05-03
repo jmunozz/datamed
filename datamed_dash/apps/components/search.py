@@ -1,3 +1,4 @@
+from typing import List, Dict
 from urllib.parse import urlencode, quote_plus
 
 import dash
@@ -15,19 +16,17 @@ def first_load_specialite():
     specialite.list_specialite()
 
 
-def load_specialites_into_options(search: str):
+def load_specialites_into_options(search: str) -> List[Dict]:
     search = search.lower()
     spe_series = specialite.list_specialite()["nom"]
     spe_series = spe_series[spe_series.str.startswith(search)]
     spe_series = spe_series.sort_values()
     return [
         {
-            "label": v[1][:spe_name_max_len] + "..."
-            if len(v[1]) > spe_name_max_len
-            else v[1],
-            "value": v[0],
+            "label": v[:spe_name_max_len] + "..." if len(v) > spe_name_max_len else v,
+            "value": k,
         }
-        for v in spe_series.items()
+        for k, v in spe_series.items()
     ]
 
 

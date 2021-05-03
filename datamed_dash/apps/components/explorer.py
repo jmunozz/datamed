@@ -45,10 +45,7 @@ def BddCard(
                                 className="button-text d-inline-block text-justify col-6",
                             ),
                             Div(
-                                [
-                                    B("Source de données : "),
-                                    source_bdd,
-                                ],
+                                [B("Source de données : "), source_bdd,],
                                 className="button-text d-inline-block col-6",
                             ),
                         ],
@@ -69,12 +66,7 @@ def BddCard(
 
 def Modalites() -> Component:
     return Div(
-        [
-            Div(
-                "Modalités d'utilisation",
-                className="heading-4 text-center",
-            )
-        ],
+        [Div("Modalités d'utilisation", className="heading-4 text-center",)],
         style={"margin-top": "376px"},
     )
 

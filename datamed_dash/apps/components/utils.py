@@ -32,11 +32,20 @@ def GraphBox(
 
 
 def FigureGraph(figures: List[Dict], height="150px", class_name="") -> Component:
-    class_name= " ".join((["d-flex", "flex-row", "flex-wrap", "justify-content-around"]+class_name.split(" ")))
+    class_name = " ".join(
+        (
+            ["d-flex", "flex-row", "flex-wrap", "justify-content-around"]
+            + class_name.split(" ")
+        )
+    )
     l = []
     for f in figures:
         elems = []
-        elems = elems + [Img(src=f["img"], className="mb-2", style={"height": height})] if "img" in f else []
+        elems = (
+            elems + [Img(src=f["img"], className="mb-2", style={"height": height})]
+            if "img" in f
+            else []
+        )
         elems = elems + [H1(f["figure"])] if "figure" in f else []
         elems = (
             elems
