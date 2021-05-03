@@ -1,6 +1,6 @@
 import math
 from os import path
-from typing import Dict
+from typing import Dict, Optional
 
 import pandas as pd
 from tqdm import tqdm
@@ -78,7 +78,9 @@ def create_table_cis_cip_bdpm(_settings: Dict):
 # ORDEI
 
 
-def round_small_values(conso_value: int) -> int:
+def round_small_values(conso_value: int) -> Optional[int]:
+    if conso_value <= 10:
+        return None
     if 10 < conso_value < 50:
         return 50
     elif 50 <= conso_value < 95:
