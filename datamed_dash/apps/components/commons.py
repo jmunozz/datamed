@@ -80,7 +80,11 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 def makePie(labels, values, pie_colors: List):
     return go.Figure(
-        go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
+        go.Pie(
+            labels=labels,
+            values=values,
+            marker_colors=pie_colors,
+        )
     ).update_layout(PIE_LAYOUT)
 
 
@@ -138,7 +142,7 @@ def Accordion() -> Component:
     )
 
 
-def Utilisation(df_expo, type):
+def Utilisation(df_expo: pd.DataFrame, type: str) -> Component:
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = series_exposition.exposition
@@ -160,7 +164,10 @@ def Utilisation(df_expo, type):
                                 className="d-flex flex-column",
                             ),
                             html.Div(
-                                [html.H1(f"{exposition}/5"),], className="d-flex",
+                                [
+                                    html.H1(f"{exposition}/5"),
+                                ],
+                                className="d-flex",
                             ),
                         ],
                         style={"flex": 1},
@@ -188,13 +195,13 @@ def Utilisation(df_expo, type):
     )
 
 
-def RepartitionSexeBox(df_sexe) -> Component:
+def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
     if df_sexe is None:
         return NoData()
     return FigureGraph(get_sexe_figures_from_df(df_sexe, "pourcentage_patients"))
 
 
-def RepartitionAgeBox(df_age, pie_colors) -> Component:
+def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
     if df_age is None:
         return NoData()
     return Graph(
@@ -204,7 +211,11 @@ def RepartitionAgeBox(df_age, pie_colors) -> Component:
 
 
 def PatientsTraites(
-    df_age, df_sexe, df_expo, pie_colors, type="specialite"
+    df_age: pd.DataFrame,
+    df_sexe: pd.DataFrame,
+    df_expo: pd.DataFrame,
+    pie_colors: List,
+    type: str,
 ) -> Component:
     return TopicSection(
         [

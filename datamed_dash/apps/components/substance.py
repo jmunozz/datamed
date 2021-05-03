@@ -1,4 +1,5 @@
 import math
+from typing import List, Dict
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
 import dash
@@ -34,7 +35,7 @@ from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
 
-def get_notif_figures_from_df(df):
+def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
 
     NOTIF_IMAGE_URL = {
         "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
@@ -116,7 +117,10 @@ def Substance(code: str) -> Component:
                 items=[
                     {"id": "description", "label": "Description"},
                     {"id": "population-concernee", "label": "Population concernée"},
-                    {"id": "effets-indesirables", "label": "Effets indésirables",},
+                    {
+                        "id": "effets-indesirables",
+                        "label": "Effets indésirables",
+                    },
                 ],
                 className="side-menu",
             ),
@@ -181,7 +185,10 @@ def Description(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
                     page_size=10,
                     style_as_list_view=True,
                     style_table={"overflowX": "auto"},
-                    style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
+                    style_cell={
+                        "height": "50px",
+                        "backgroundColor": "#FAFAFA",
+                    },
                     style_data={
                         "fontSize": "14px",
                         "fontWeight": "400",
@@ -212,7 +219,7 @@ def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
     )
 
 
-def TauxDeclarationBox(df_decla) -> Component:
+def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     series_decla = fetch_data.as_series(df_decla)
@@ -269,7 +276,10 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
     fig.update_layout(CURVE_LAYOUT)
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(
+        figure=fig,
+        responsive=True,
+    )
 
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
@@ -294,7 +304,10 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
                 marker_colors=PIE_COLORS_SUBSTANCE,
             )
         ).update_layout(PIE_LAYOUT)
-        return Graph(figure=fig_age, responsive=True,)
+        return Graph(
+            figure=fig_age,
+            responsive=True,
+        )
     else:
         return NoData()
 
@@ -425,7 +438,10 @@ def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
                     GraphBox(
                         "",
                         [
-                            html.Div(SocTreemap(df_soc), id="soc-treemap-container",),
+                            html.Div(
+                                SocTreemap(df_soc),
+                                id="soc-treemap-container",
+                            ),
                             html.Div(id="selected-soc", className="d-none"),
                             HltModal(),
                         ],

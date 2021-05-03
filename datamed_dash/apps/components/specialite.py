@@ -1,18 +1,16 @@
-import requests
-
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import requests
+from app import app
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
 from dash_core_components import Graph
-
-from db import specialite, substance, fetch_data
+from db import specialite, fetch_data
 from sm import SideMenu
-from app import app
 
 from .commons import PatientsTraites, NoData
 from .utils import (
@@ -185,7 +183,8 @@ def Description(
                         ArticleTitle("Description"),
                         html.P(
                             "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
-                                series_atc.label.capitalize(), series_atc.atc,
+                                series_atc.label.capitalize(),
+                                series_atc.atc,
                             ),
                             className="normal-text",
                         ),
@@ -196,7 +195,8 @@ def Description(
                     [
                         ArticleTitle("Recommandation HAS"),
                         ExternalLink(
-                            "Afficher les recommandations", get_has_guideline_link(cis),
+                            "Afficher les recommandations",
+                            get_has_guideline_link(cis),
                         ),
                     ]
                 ),
@@ -237,7 +237,10 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
         fig.update_layout(barmode="stack")
         fig.update_yaxes(visible=False, showticklabels=False)
-        return Graph(figure=fig, responsive=False,)
+        return Graph(
+            figure=fig,
+            responsive=False,
+        )
 
 
 def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
@@ -253,7 +256,7 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
     return FigureGraph(
         [
             {
-                "figure": "{}%".format(round(series.pourcentage, 2)),
+                "figure": "{}%".format(round(series.pourcentage)),
                 "caption": EI[series.effet_indesirable],
                 "img": EI_IMG_URL[series.effet_indesirable],
             }
@@ -272,7 +275,10 @@ def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
             marker_colors=PIE_COLORS_SPECIALITE,
         )
     ).update_layout(PIE_LAYOUT)
-    return Graph(figure=fig_pop, responsive=True,)
+    return Graph(
+        figure=fig_pop,
+        responsive=True,
+    )
 
 
 def BoxListDenomination(df_denom):
@@ -286,7 +292,10 @@ def BoxListDenomination(df_denom):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
+        style_cell={
+            "height": "50px",
+            "backgroundColor": "#FAFAFA",
+        },
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
