@@ -22,7 +22,6 @@ from dash_bootstrap_components import (
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Table,
 )
 from dash_core_components import Graph
 from db import substance, fetch_data
@@ -48,6 +47,12 @@ def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
         "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
     }
 
+
+df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
+df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
+
+
+def get_notif_figures_from_df(df):
     return [
         {
             "figure": "{}%".format(round(x["pourcentage_notif"])),
@@ -249,7 +254,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
                     "shape": "spline",
                     "smoothing": 1,
                     "width": 4,
-                    "color": "#F599B5",
+                    "color": "#F29733",
                 },
             ),
             secondary_y=False,
@@ -269,7 +274,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
 
     fig.update_yaxes(
         title_text="Déclarations d'effets indésirables",
-        color="#F599B5",
+        color="#F29733",
         secondary_y=False,
     )
     fig.update_yaxes(title_text="Patients traités", color="#EA336B", secondary_y=True)
@@ -385,16 +390,14 @@ def CasDeclares(
     )
 
 
-def SocTreemap(df_soc: pd.DataFrame) -> Component:
-    if df_soc is None:
-        return NoData()
 
+def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
     fig = px.treemap(
-        df_soc.sort_values(by="pourcentage_cas", ascending=False).head(10),
-        path=["soc_long"],
-        values="pourcentage_cas",
+        df.loc[code].sort_values(by=values, ascending=False).head(10),
+        path=[path],
+        values=values,
         color_discrete_sequence=TREE_COLORS,
-        hover_name="soc_long",
+        hover_name=path,
     )
 
     fig.update_layout(
@@ -417,12 +420,10 @@ def SocTreemap(df_soc: pd.DataFrame) -> Component:
         textfont_size=18,
         hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
     )
+    return fig
 
-    return Graph(figure=fig, responsive=True, id="soc-treemap")
-
-
-def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
-
+  
+def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Effets indésirables par système d'organe"),
@@ -435,19 +436,24 @@ def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
             ),
             dbc.Row(
                 [
-                    GraphBox(
-                        "",
+                    html.Div(
                         [
                             html.Div(
-                                SocTreemap(df_soc),
+                                Graph(
+                                    figure=Treemap(
+                                        df, code, "soc_long", "pourcentage_cas"
+                                    ),
+                                    responsive=True,
+                                    id="soc-treemap",
+                                ),
                                 id="soc-treemap-container",
                             ),
                             html.Div(id="selected-soc", className="d-none"),
                             HltModal(),
                         ],
-                        class_name_wrapper="col-md-12",
+                        className="col-md-12",
                     ),
-                ]
+                ],
             ),
         ],
         id="population-concernee",
@@ -472,6 +478,7 @@ def HltModal() -> Modal:
         scrollable=True,
         centered=True,
         id="update-on-click-data",
+        size="xl",
     )
 
 
@@ -534,41 +541,18 @@ def update_callback(
         query = parse_qs(parsed_url.query)
         code = query["search"][0]
 
-        df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
-        df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
         df_hlt_details = (
             df_hlt[df_hlt.soc_long == selected_soc]
             .loc[code]
             .sort_values(by="pourcentage_cas", ascending=False)
-        ).reset_index()
-        df_hlt_details.pourcentage_cas = df_hlt_details.pourcentage_cas.apply(
-            lambda x: "{}%".format(round(x)) if x else ""
         )
-        df_hlt_details = df_hlt_details.rename(
-            columns={"effet_hlt": "High-Level-Term", "pourcentage_cas": "Pourcentage"}
-        )
-
-        # fig_hlt = px.treemap(
-        #     df_hlt_details.sort_values(by="pourcentage_cas", ascending=False).head(10),
-        #     path=["effet_hlt"],
-        #     values="pourcentage_cas",
-        #     color_discrete_sequence=TREE_COLORS,
-        #     hover_name="effet_hlt",
-        # )
 
         return (
             True,
-            Table.from_dataframe(
-                df_hlt_details[["High-Level-Term", "Pourcentage"]],
-                striped=True,
-                bordered=True,
-                hover=True,
+            Graph(
+                figure=Treemap(df_hlt_details, code, "effet_hlt", "pourcentage_cas"),
                 responsive=True,
             ),
-            # Graph(
-            #     figure=fig_hlt,
-            #     responsive=True,
-            # ),
             selected_soc,
             selected_soc,
         )

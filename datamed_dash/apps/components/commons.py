@@ -142,12 +142,16 @@ def Accordion() -> Component:
     )
 
 
-def Utilisation(df_expo: pd.DataFrame, type: str) -> Component:
+
+def Utilisation(df_expo, type: str):
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = series_exposition.exposition
+        patients = "{} patients / an".format(series_exposition.conso_an_trunc)
     else:
         exposition = "-"
+        patients = "Données insuffisantes"
+
     return dbc.Row(
         [
             Box(
@@ -176,7 +180,7 @@ def Utilisation(df_expo: pd.DataFrame, type: str) -> Component:
                     html.Div(
                         [
                             html.H2(
-                                UTILISATION[exposition], className="color-secondary"
+                                patients, className="color-secondary"
                             ),
                             html.P(FOURCHETTES[exposition][type]),
                             html.A(
