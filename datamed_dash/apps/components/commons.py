@@ -147,7 +147,7 @@ def Utilisation(df_expo, type: str):
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = series_exposition.exposition
-        patients = "{} patients / an".format(series_exposition.conso_an_trunc)
+        patients = "{} patients / an".format(int(series_exposition.conso_an_trunc))
     else:
         exposition = "-"
         patients = "Données insuffisantes"
@@ -169,7 +169,7 @@ def Utilisation(df_expo, type: str):
                             ),
                             html.Div(
                                 [
-                                    html.H1(f"{exposition}/5"),
+                                    html.H1(f"{int(exposition)}/5"),
                                 ],
                                 className="d-flex",
                             ),

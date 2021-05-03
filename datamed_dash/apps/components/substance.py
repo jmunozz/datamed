@@ -139,7 +139,7 @@ def Substance(code: str) -> Component:
                             type="substance",
                         ),
                         CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
-                        SystemesOrganes(df_soc),
+                        SystemesOrganes(df_soc, code),
                     ],
                     className="container-fluid",
                     style={"padding-left": "80px"},
