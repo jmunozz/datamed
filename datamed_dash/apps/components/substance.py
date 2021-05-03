@@ -45,6 +45,10 @@ NOTIF_IMAGE_URL = {
 }
 
 
+df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
+df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
+
+
 def get_notif_figures_from_df(df):
     return [
         {
@@ -394,13 +398,13 @@ def CasDeclares(
     )
 
 
-def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
+def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
     fig = px.treemap(
-        df.loc[code].sort_values(by="pourcentage_cas", ascending=False).head(10),
-        path=["soc_long"],
-        values="pourcentage_cas",
+        df.loc[code].sort_values(by=values, ascending=False).head(10),
+        path=[path],
+        values=values,
         color_discrete_sequence=TREE_COLORS,
-        hover_name="soc_long",
+        hover_name=path,
     )
 
     fig.update_layout(
@@ -423,7 +427,10 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
         textfont_size=18,
         hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
     )
+    return fig
 
+
+def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Effets indésirables par système d'organe"),
@@ -436,12 +443,11 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
             ),
             dbc.Row(
                 [
-                    GraphBox(
-                        "",
+                    html.Div(
                         [
                             html.Div(
                                 Graph(
-                                    figure=fig,
+                                    figure=Treemap(df, code, "soc_long", "pourcentage_cas"),
                                     responsive=True,
                                     id="soc-treemap",
                                 ),
@@ -450,10 +456,10 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
                             html.Div(id="selected-soc", className="d-none"),
                             HltModal(),
                         ],
-                        class_name_wrapper="col-md-12",
+                        className="col-md-12",
                     ),
-                ]
-            ),
+                ],
+            )
         ],
         id="population-concernee",
     )
@@ -477,6 +483,7 @@ def HltModal() -> Modal:
         scrollable=True,
         centered=True,
         id="update-on-click-data",
+        size="xl",
     )
 
 
@@ -539,41 +546,18 @@ def update_callback(
         query = parse_qs(parsed_url.query)
         code = query["search"][0]
 
-        df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
-        df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
         df_hlt_details = (
             df_hlt[df_hlt.soc_long == selected_soc]
             .loc[code]
             .sort_values(by="pourcentage_cas", ascending=False)
-        ).reset_index()
-        df_hlt_details.pourcentage_cas = df_hlt_details.pourcentage_cas.apply(
-            lambda x: "{}%".format(round(x)) if x else ""
         )
-        df_hlt_details = df_hlt_details.rename(
-            columns={"effet_hlt": "High-Level-Term", "pourcentage_cas": "Pourcentage"}
-        )
-
-        # fig_hlt = px.treemap(
-        #     df_hlt_details.sort_values(by="pourcentage_cas", ascending=False).head(10),
-        #     path=["effet_hlt"],
-        #     values="pourcentage_cas",
-        #     color_discrete_sequence=TREE_COLORS,
-        #     hover_name="effet_hlt",
-        # )
 
         return (
             True,
-            Table.from_dataframe(
-                df_hlt_details[["High-Level-Term", "Pourcentage"]],
-                striped=True,
-                bordered=True,
-                hover=True,
+            Graph(
+                figure=Treemap(df_hlt_details, code, "effet_hlt", "pourcentage_cas"),
                 responsive=True,
             ),
-            # Graph(
-            #     figure=fig_hlt,
-            #     responsive=True,
-            # ),
             selected_soc,
             selected_soc,
         )
