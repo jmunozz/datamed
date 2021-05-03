@@ -67,7 +67,7 @@ def get_table_df(df: pd.DataFrame, df_spe: pd.DataFrame, col: str) -> pd.DataFra
         df_erreurs = get_denom_linked_to_specialite(df, specialite)
         df_erreurs = df_erreurs[df_erreurs[col] != "Non renseigné"]
 
-        if not df_erreurs.empty:
+        if len(df_erreurs) > 10:
             frames.append(get_erreur_df(df_erreurs, cis, col))
 
     return pd.concat(frames).reset_index(drop=True).set_index("cis")

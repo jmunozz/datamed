@@ -312,12 +312,12 @@ def ErreursMedicamenteuses(
             SectionP(
                 "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
                 "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles sont "
-                "déclarées par les patients ou les professionnels de santé notamment via le portail : "
+                "déclarées par les patients ou les professionnels de santé, notamment via le portail : "
                 "https://signalement.social-sante.gouv.fr"
             ),
             SectionP(
-                "Les Erreurs Médicamenteuses se classifient en fonction du stade (Erreur de prescription, "
-                "Erreur de délivrance, Erreur d’administration), du type et de la cause. "
+                "Les Erreurs Médicamenteuses se classifient en fonction du stade (erreur de prescription, "
+                "erreur de délivrance, erreur d’administration), de la nature et de la cause."
             ),
             dbc.Row(
                 [
