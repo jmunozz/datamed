@@ -20,6 +20,7 @@ from .utils import (
 )
 from ..constants.layouts import PIE_LAYOUT
 
+
 UTILISATION = {
     1: "Utilisation faible",
     2: "Utilisation faible",
@@ -142,11 +143,10 @@ def Accordion() -> Component:
     )
 
 
-
 def Utilisation(df_expo, type: str):
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
-        exposition = series_exposition.exposition
+        exposition = int(series_exposition.exposition)
         patients = "{} patients / an".format(int(series_exposition.conso_an_trunc))
     else:
         exposition = "-"
@@ -169,7 +169,7 @@ def Utilisation(df_expo, type: str):
                             ),
                             html.Div(
                                 [
-                                    html.H1(f"{int(exposition)}/5"),
+                                    html.H1(f"{exposition}/5"),
                                 ],
                                 className="d-flex",
                             ),
@@ -179,9 +179,7 @@ def Utilisation(df_expo, type: str):
                     ),
                     html.Div(
                         [
-                            html.H2(
-                                patients, className="color-secondary"
-                            ),
+                            html.H2(patients, className="color-secondary"),
                             html.P(FOURCHETTES[exposition][type]),
                             html.A(
                                 "En savoir plus sur le taux d'exposition",

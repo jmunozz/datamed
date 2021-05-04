@@ -183,7 +183,7 @@ def Description(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
                 dash_table.DataTable(
                     id="substance-specialite-table",
                     columns=[{"name": "nom", "id": "nom"}],
-                    data=df_sub_spe.to_dict("records"),
+                    data=df_sub_spe.reset_index().to_dict("records"),
                     page_size=10,
                     style_as_list_view=True,
                     style_table={"overflowX": "auto"},
@@ -448,7 +448,9 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
                             HltModal(),
                         ],
                         className="col-md-12",
-                    ),
+                    )
+                    if df is not None
+                    else GraphBox("", NoData()),
                 ],
             ),
         ],
@@ -500,7 +502,6 @@ def toggle_substance_ei_tooltip(n_clicks, is_open):
 )
 def getActiveCell(active_cell, page_current, page_size, data):
     if active_cell:
-        col = active_cell["column_id"]
         row = active_cell["row"]
         cellData = data[(page_current or 0) * page_size + row]["cis"]
         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
