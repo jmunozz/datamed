@@ -1,8 +1,12 @@
 import dash
 import dash_bootstrap_components as dbc
+from dotenv import load_dotenv
+
 
 from dash_extensions.enrich import DashProxy, MultiplexerTransform
 from flask_caching import Cache
+
+load_dotenv()
 
 app = DashProxy(
     __name__,
