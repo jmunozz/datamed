@@ -174,7 +174,6 @@ def Substance(code: str) -> Component:
                             df_sexe=df_sexe,
                             df_expo=df_expo,
                             pie_colors=PIE_COLORS_SUBSTANCE,
-                            type="substance",
                         ),
                         CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
                         SystemesOrganes(df_soc, code),
@@ -359,10 +358,11 @@ def NotifFigureGraph(df_notif: pd.DataFrame) -> Component:
     if df_notif is None:
         return NoData()
     else:
+        df_notif = df_notif.sort_values(by="pourcentage_notif", ascending=False)
         return FigureGraph(
             get_notif_figures_from_df(df_notif),
             height="80px",
-            class_name="justify-content-start",
+            class_name="justify-content-between",
         )
 
 

@@ -111,7 +111,6 @@ def Specialite(cis: str) -> Component:
                             df_sexe=df_sexe,
                             df_expo=df_expo,
                             pie_colors=PIE_COLORS_SPECIALITE,
-                            type="specialite",
                         ),
                         ErreursMedicamenteuses(
                             df_ei, df_pop, df_cause, df_nat, df_denom, nom_specialite

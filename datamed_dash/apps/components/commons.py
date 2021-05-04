@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import dash
 import dash.dependencies as dd
@@ -53,7 +53,7 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
     ]
 
 
-def makePie(labels, values, pie_colors: List):
+def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return go.Figure(
         go.Pie(
             labels=labels,
@@ -133,7 +133,7 @@ def Accordion() -> Component:
     )
 
 
-def Utilisation(df_expo, type: str):
+def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = int(series_exposition.exposition)
@@ -209,13 +209,12 @@ def PatientsTraites(
     df_sexe: pd.DataFrame,
     df_expo: pd.DataFrame,
     pie_colors: List,
-    type: str,
 ) -> Component:
     return TopicSection(
         [
             SectionTitle("Patients traités"),
             Accordion(),
-            Utilisation(df_expo, type),
+            Utilisation(df_expo),
             dbc.Row(
                 [
                     GraphBox(
