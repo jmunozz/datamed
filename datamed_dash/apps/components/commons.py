@@ -122,17 +122,33 @@ def Accordion() -> Component:
             dbc.Collapse(
                 dbc.CardBody(
                     [
-                        html.P(
-                            "Estimations obtenues à partir des données Open-Medic portant sur l’usage du "
-                            "médicament, délivré en pharmacie de ville en 2014 à 2018 et remboursé par l’Assurance "
-                            "Maladie. Pour plus d’informations, consultez : "
-                            "http://open-data-assurance-maladie.ameli.fr/medicaments/index.php"
+                        html.Div(
+                            [
+                                html.Span(
+                                    "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
+                                    "médicament, délivré en pharmacie de ville entre 2014 et 2018 et remboursé par "
+                                    "l’Assurance Maladie. Pour plus d’informations, consultez : ",
+                                    className="normal-text",
+                                ),
+                                html.A(
+                                    "open-data-assurance-maladie.ameli.fr",
+                                    href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
+                                    className="normal-text link",
+                                ),
+                            ]
                         ),
                         html.P(
-                            "Attention : Les patients étant restitués par présentation dans les données Open Medic, "
-                            "ils sont comptabilisés autant de fois qu’ils ont eu de remboursements de présentations "
-                            "différentes d’un même produit/substance active. Les indicateurs restitués pourraient être "
-                            "surestimés pour certains médicaments."
+                            [
+                                html.Strong("Attention", className="normal-text-bold"),
+                                html.Span(
+                                    " : l’estimation du nombre de patients repose sur des données agrégées au niveau "
+                                    "de la présentation du médicament (code CIP). Les patients sont donc comptabilisés "
+                                    "autant de fois qu’ils ont eu de remboursements de présentations différentes d’une "
+                                    "même spécialité/substance active.",
+                                    className="normal-text",
+                                ),
+                            ],
+                            className="mt-3"
                         ),
                     ]
                 ),
@@ -147,7 +163,9 @@ def Utilisation(df_expo, type: str):
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = int(series_exposition.exposition)
-        patients = "{:,} patients / an".format(int(series_exposition.conso_an_trunc)).replace(",", " ")
+        patients = "{:,} patients / an".format(
+            int(series_exposition.conso_an_trunc)
+        ).replace(",", " ")
     else:
         exposition = "-"
         patients = "Données insuffisantes"

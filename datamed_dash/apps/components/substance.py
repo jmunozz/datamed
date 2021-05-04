@@ -45,6 +45,17 @@ NOTIF_IMAGE_URL = {
     "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
 }
 
+NOTIF_NOM = {
+    "Autre professionnel de santé": "Autre professionnel de santé",
+    "Dentiste": "Dentiste",
+    "Infirmière": "Infirmier",
+    "Médecin généraliste": "Médecin généraliste",
+    "Pharmacien": "Pharmacien",
+    "Inconnu": "Inconnu",
+    "Non professionnel de santé": "Non professionnel de santé",
+    "Médecin spécialiste": "Médecin spécialiste",
+}
+
 df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
 df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
 
@@ -52,12 +63,12 @@ df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
 def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
     return [
         {
-            "figure": "{}%".format(round(x["pourcentage_notif"])),
-            "caption": x["notificateur"],
+            "figure": "{}%".format(round(x["pourcentage_notif"])).replace(".", ","),
+            "caption": NOTIF_NOM[x["notificateur"]],
             "img": NOTIF_IMAGE_URL[x["notificateur"]],
         }
         for x in fetch_data.transform_df_to_series_list(df)
-        if not math.isnan(x["pourcentage_notif"])
+        if not math.isnan(x["pourcentage_notif"]) and round(x["pourcentage_notif"])
     ]
 
 
@@ -66,7 +77,7 @@ def EffetsIndesirablesTooltip() -> Component:
         [
             html.H2(
                 dbc.Button(
-                    "Comment sont calculés ces indicateurs ?",
+                    "Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
                     color="link",
                     id="group-substance-ei-tooltip-toggle",
                     className="color-secondary",
@@ -76,19 +87,46 @@ def EffetsIndesirablesTooltip() -> Component:
             dbc.Collapse(
                 dbc.CardBody(
                     [
-                        html.P(
-                            "Nombre de cas notifiés d’effets indésirables en France estimé à partir des données de "
-                            "la Base Nationale de PharmacoVigilance (BNPV). La BNPV est alimentée par les centres "
-                            "régionaux de pharmacovigilance qui sont notifiés par les professionnels de santé ou par "
-                            "les patients et association agréées via un portail "
-                            "dédié : https://signalement.social-sante.gouv.fr"
+                        html.Div(
+                            [
+                                html.Div(
+                                    "Nombre de cas notifiés d’effets indésirables en France estimé à partir des "
+                                    "données de la Base Nationale de Pharmacovigilance (BNPV).",
+                                    className="normal-text",
+                                ),
+                                html.Span(
+                                    "La BNPV est alimentée par les centres régionaux de pharmacovigilance qui sont "
+                                    "notifiés par les professionnels de santé ou par les patients et association "
+                                    "agréées via un portail dédié : ",
+                                    className="normal-text",
+                                ),
+                                html.A(
+                                    "signalement.social-sante.gouv.fr",
+                                    href="https://signalement.social-sante.gouv.fr",
+                                    className="normal-text link",
+                                ),
+                            ],
+                            className="mb-3",
                         ),
-                        html.P(
-                            "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
-                            "d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou "
-                            "erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts. "
-                            "Pour plus d’informations, "
-                            "consultez : https://ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments"
+                        html.Div(
+                            [
+                                html.Span(
+                                    "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
+                                    "d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, "
+                                    "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
+                                    "un comité d’experts. ",
+                                    className="normal-text",
+                                ),
+                                html.Span(
+                                    "Pour plus d’informations, consultez : ",
+                                    className="normal-text",
+                                ),
+                                html.A(
+                                    "ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments",
+                                    href="https://ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments",
+                                    className="normal-text link",
+                                ),
+                            ]
                         ),
                     ]
                 ),
@@ -211,10 +249,11 @@ def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     series_decla = fetch_data.as_series(df_decla)
+    cas_str = "{:,}".format(int(series_decla.cas)).replace(",", " ")
     return FigureGraph(
         [
             {
-                "figure": f"{int(series_decla.cas)}",
+                "figure": cas_str,
                 "caption": "Nombre de cas déclarés sur la période 2014-2018",
             }
         ]
@@ -225,12 +264,13 @@ def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     series_decla = fetch_data.as_series(df_decla)
+    taux_str = "{:,}".format(int(series_decla.taux_cas)).replace(",", " ")
     return FigureGraph(
         [
             {
-                "figure": f"{int(series_decla.taux_cas)} / 100 000",
+                "figure": "{} / 100 000".format(taux_str),
                 "caption": "Taux de déclaration pour 100 000 patients "
-                "traités/an sur la période 2014-2018",
+                "traités par an sur la période 2014-2018",
             }
         ]
     )
@@ -265,7 +305,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
             name="Patients traités",
             line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
             hoverlabel={"namelength": -1},
-            hovertemplate='%{y:int}',
+            hovertemplate="%{y:int}",
         ),
         secondary_y=True,
     )
@@ -425,9 +465,12 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
         [
             SectionTitle("Effets indésirables par système d'organe"),
             SectionP(
-                "Les Systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
-                "médicales selon la hiérarchie MedDRA Sont listés ici les 10 SOC avec le plus d’effets indésirables "
-                "déclarés. Attention : Un cas est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
+                "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
+                "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
+                "déclarés."
+            ),
+            SectionP(
+                "Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
                 "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
                 "différents (en fonction des effets indésirables déclarés)."
             ),

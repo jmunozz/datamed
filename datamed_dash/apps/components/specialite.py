@@ -72,6 +72,9 @@ def get_notice_link(cis: str) -> str:
 def Specialite(cis: str) -> Component:
 
     df_spe = specialite.get_specialite_df(cis)
+    series_spe = fetch_data.as_series(df_spe)
+    nom_specialite = series_spe.nom.capitalize()
+
     df_sub = specialite.list_substances(cis)
     df_age = specialite.get_age_df(cis)
     df_sexe = specialite.get_sexe_df(cis)
@@ -101,7 +104,7 @@ def Specialite(cis: str) -> Component:
             html.Div(
                 html.Div(
                     [
-                        Header(df_spe),
+                        Header(nom_specialite),
                         Description(df_spe, df_desc, df_atc, df_sub),
                         PatientsTraites(
                             df_age=df_age,
@@ -111,7 +114,7 @@ def Specialite(cis: str) -> Component:
                             type="specialite",
                         ),
                         ErreursMedicamenteuses(
-                            df_ei, df_pop, df_cause, df_nat, df_denom
+                            df_ei, df_pop, df_cause, df_nat, df_denom, nom_specialite
                         ),
                         EffetsIndesirables(df_sub),
                     ],
@@ -125,12 +128,10 @@ def Specialite(cis: str) -> Component:
     )
 
 
-def Header(df_spe: pd.DataFrame) -> Component:
-    series_spe = fetch_data.as_series(df_spe)
-
+def Header(nom_specialite: str) -> Component:
     return html.Div(
         [
-            html.Div(series_spe.nom.capitalize(), className="heading-4"),
+            html.Div(nom_specialite, className="heading-4"),
             html.Div("Spécialité de médicament", className="large-text"),
             html.A("Qu'est-ce qu'une spécialité de médicament ?"),
         ],
@@ -224,24 +225,21 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
     if df is None:
         return NoData()
     else:
+        df.pourcentage = df.pourcentage / 100
         fig = px.bar(
             df,
             x="pourcentage",
             color=field,
             labels={
-                "pourcentage": "Proportion (%)",
+                "pourcentage": "Proportion",
                 field: field.split("_")[0].capitalize(),
             },
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
         )
+
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
-        fig.update_layout(barmode="stack")
-        fig.update_yaxes(visible=False, showticklabels=False)
-        return Graph(
-            figure=fig,
-            responsive=False,
-        )
+        return Graph(figure=fig, responsive=True, id="stack-bar")
 
 
 def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
@@ -314,30 +312,43 @@ def ErreursMedicamenteuses(
     df_cause: pd.DataFrame,
     df_nat: pd.DataFrame,
     df_denom: pd.DataFrame,
+    nom_specialite: str,
 ) -> Component:
 
     return TopicSection(
         [
             SectionTitle("Erreurs médicamenteuses"),
-            SectionP(
-                "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
-                "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles sont "
-                "déclarées par les patients ou les professionnels de santé, notamment via le portail : "
-                "https://signalement.social-sante.gouv.fr"
+            dbc.Row(
+                html.Div(
+                    [
+                        html.Span(
+                            "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
+                            "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
+                            "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
+                            className="normal-text",
+                        ),
+                        html.A(
+                            "portail des signalements",
+                            href="https://signalement.social-sante.gouv.fr",
+                            className="normal-text link",
+                        ),
+                    ],
+                ),
+                className="col-12",
             ),
             SectionP(
-                "Les Erreurs Médicamenteuses se classifient en fonction du stade (erreur de prescription, "
-                "erreur de délivrance, erreur d’administration), de la nature et de la cause."
+                "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
+                "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur."
             ),
             dbc.Row(
                 [
                     GraphBox(
-                        "Existence d’effets indésirables",
+                        "Existence d’effets indésirables suite aux erreurs médicamenteuses",
                         [BoxPourcentageEffetsIndesirable(df_ei)],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
-                        "Répartition de la population concernée",
+                        "Répartition de la population concernée par les erreurs médicamenteuses",
                         [BoxRepartitionPopulationConcernee(df_pop)],
                         class_name_wrapper="col-md-6",
                     ),
@@ -365,7 +376,23 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Liste des dénominations des médicaments concernés par ces erreurs médicamenteuses",
-                        [BoxListDenomination(df_denom)],
+                        [
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Certains médicaments peuvent être confondus lors de leur prise car leurs "
+                                        "dénominations sont proches. La liste ci-dessous rassemble les spécialités de "
+                                        "médicaments les plus souvent confondues avec ",
+                                        className="normal-text",
+                                    ),
+                                    html.Strong(
+                                        "{}.".format(nom_specialite),
+                                        className="normal-text-bold",
+                                    ),
+                                ],
+                            ),
+                            BoxListDenomination(df_denom),
+                        ],
                         class_name_wrapper="col-md-12",
                     ),
                 ]

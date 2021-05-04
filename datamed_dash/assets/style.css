@@ -233,3 +233,7 @@ a:hover {
 .dash-graph {
   height: 450px;
 }
+
+#stack-bar.dash-graph {
+  height: 300px;
+}
