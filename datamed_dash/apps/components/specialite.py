@@ -28,7 +28,7 @@ from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
 
 
 def get_has_guideline_link(cis: str) -> str:
-    return "https://base-donnees-publique.medicaments.gouv.fr/affichageDoc.php?specid={}&typedoc=N".format(
+    return "https://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid={}".format(
         cis
     )
 
@@ -195,9 +195,9 @@ def Description(
                 ),
                 html.Article(
                     [
-                        ArticleTitle("Recommandation HAS"),
+                        ArticleTitle("Avis de la Commission de la Transparence de la HAS"),
                         ExternalLink(
-                            "Afficher les recommandations",
+                            "Afficher l'avis",
                             get_has_guideline_link(cis),
                         ),
                     ]

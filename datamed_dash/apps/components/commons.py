@@ -30,32 +30,6 @@ UTILISATION = {
     "-": "Utilisation inconnue",
 }
 
-FOURCHETTES = {
-    1: {
-        "specialite": "Nombre de patients traités par an en France inférieur à 1000",
-        "substance": "Nombre de patients traités par an en France inférieur à 5000",
-    },
-    2: {
-        "specialite": "Nombre de patients traités par an en France entre 1000 et 5000",
-        "substance": "Nombre de patients traités par an en France entre 5000 et 25000",
-    },
-    3: {
-        "specialite": "Nombre de patients traités par an en France entre 5000 et 15000",
-        "substance": "Nombre de patients traités par an en France entre 25000 et 100000",
-    },
-    4: {
-        "specialite": "Nombre de patients traités par an en France entre 15000 et 50000",
-        "substance": "Nombre de patients traités par an en France entre 100000 et 500000",
-    },
-    5: {
-        "specialite": "Nombre de patients traités par an en France supérieur à 50000",
-        "substance": "Nombre de patients traités par an en France supérieur à 500000",
-    },
-    "-": {
-        "specialite": "Nombre de patients traités par an inconnu",
-        "substance": "Nombre de patients traités par an en France inconnu",
-    },
-}
 
 SEXE = {1: "Hommes", 2: "Femmes"}
 SEXE_IMG_URL = {
@@ -198,9 +172,9 @@ def Utilisation(df_expo, type: str):
                     html.Div(
                         [
                             html.H2(patients, className="color-secondary"),
-                            html.P(FOURCHETTES[exposition][type]),
+                            html.P("Approximation du nombre de patients traités sur la période 2014-2018"),
                             html.A(
-                                "En savoir plus sur le taux d'exposition",
+                                "En savoir plus",
                                 className="color-secondary",
                             ),
                         ],
