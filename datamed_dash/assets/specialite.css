@@ -106,7 +106,6 @@
 }
 
 .content-header {
-  max-width: 1000px;
   height: 486px;
   color: #fff;
   width: 100%;
@@ -115,8 +114,5 @@
   flex-direction: column;
   justify-content: center;
   padding: 1rem;
-  position: relative;
-  right: 50px;
-  padding-left: 50px;
   border-radius: 3px;
 }

@@ -14,14 +14,14 @@ html {
 
 nav.side-menu {
   padding-top: 15px;
-  position: fixed;
-  left: 0;
+  position: sticky;
   z-index: 5;
   outline: none;
   width: 270px;
   text-transform: uppercase;
-  align-self: flex-start;
   overflow: hidden;
+  float: left;
+  top: 90px;
 }
 
 nav.side-menu ul {

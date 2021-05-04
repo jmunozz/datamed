@@ -86,7 +86,7 @@ def Specialite(cis: str) -> Component:
     df_pop = specialite.get_erreur_med_population(cis)
     df_denom = specialite.get_erreur_med_denom(cis)
 
-    return html.Div(
+    return Header(df_spe), html.Div(
         [
             SideMenu(
                 id="side-menu",
@@ -103,7 +103,6 @@ def Specialite(cis: str) -> Component:
             html.Div(
                 html.Div(
                     [
-                        Header(df_spe),
                         Description(df_spe, df_desc, df_atc, df_sub),
                         PatientsTraites(
                             df_age=df_age,
