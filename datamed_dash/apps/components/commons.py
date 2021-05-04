@@ -147,7 +147,7 @@ def Utilisation(df_expo, type: str):
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         exposition = int(series_exposition.exposition)
-        patients = "{} patients / an".format(int(series_exposition.conso_an_trunc))
+        patients = "{:,} patients / an".format(int(series_exposition.conso_an_trunc)).replace(",", " ")
     else:
         exposition = "-"
         patients = "Données insuffisantes"

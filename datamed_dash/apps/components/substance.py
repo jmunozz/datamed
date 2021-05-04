@@ -265,6 +265,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
             name="Patients traités",
             line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
             hoverlabel={"namelength": -1},
+            hovertemplate='%{y:int}',
         ),
         secondary_y=True,
     )
