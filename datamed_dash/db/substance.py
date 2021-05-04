@@ -1,5 +1,10 @@
 from .fetch_data import fetch_table, return_sub_df_or_none
 
+
+def list_substance():
+    return fetch_table("substance", "code")
+
+
 # codes can be a str or a list
 def get_substance_df(codes):
     return return_sub_df_or_none(fetch_table("substance", "code"), codes)
