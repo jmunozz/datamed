@@ -8,7 +8,7 @@ app = dash.Dash(__name__)
 
 
 
-opts = [{"label": "jordan", "value": 1, "type": "specialite"}, {"label": "romain", "value": 2, "type": "specialite"}, {"label": "theo", "value": 4, "type": "substance"}, {"label": "jordan", "value": 1, "type": "specialite"}, {"label": "jordan", "value": 1, "type": "specialite"}]
+opts = [{"label": "jordan", "value": "1", "type": "specialite"}, {"label": "romain", "value": "2", "type": "specialite"}, {"label": "theo", "value": "4", "type": "substance"}, {"label": "jordan", "value": 1, "type": "specialite"}, {"label": "jordan", "value": 1, "type": "specialite"}]
 
 app.layout = html.Div([
     dcc.SearchBar(
@@ -23,7 +23,7 @@ app.layout = html.Div([
 def display_output(value):
     if value is not None:
         print(value)
-        return 'You have entered {}'.format(value.value)
+        return 'You have entered {}'.format(value)
     else: 
         return 'Nothing entered'
 
