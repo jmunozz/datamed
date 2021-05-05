@@ -73,8 +73,6 @@ def Specialite(cis: str) -> Component:
 
     df_spe = specialite.get_specialite_df(cis)
     series_spe = fetch_data.as_series(df_spe)
-    nom_specialite = series_spe.nom.capitalize()
-
     df_sub = specialite.list_substances(cis)
     df_age = specialite.get_age_df(cis)
     df_sexe = specialite.get_sexe_df(cis)
@@ -88,7 +86,7 @@ def Specialite(cis: str) -> Component:
     df_denom = specialite.get_erreur_med_denom(cis)
 
     return (
-        Header(df_spe),
+        Header(series_spe),
         html.Div(
             [
                 SideMenu(
@@ -114,12 +112,7 @@ def Specialite(cis: str) -> Component:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_ei,
-                                df_pop,
-                                df_cause,
-                                df_nat,
-                                df_denom,
-                                nom_specialite,
+                                df_ei, df_pop, df_cause, df_nat, df_denom, series_spe,
                             ),
                             EffetsIndesirables(df_sub),
                         ],
@@ -134,10 +127,10 @@ def Specialite(cis: str) -> Component:
     )
 
 
-def Header(nom_specialite: str) -> Component:
+def Header(series_spe: pd.Series) -> Component:
     return html.Div(
         [
-            html.Div(nom_specialite, className="heading-4"),
+            html.Div(series_spe.nom.capitalize(), className="heading-4"),
             html.Div("Spécialité de médicament", className="large-text"),
             html.A("Qu'est-ce qu'une spécialité de médicament ?"),
         ],
@@ -310,7 +303,7 @@ def ErreursMedicamenteuses(
     df_cause: pd.DataFrame,
     df_nat: pd.DataFrame,
     df_denom: pd.DataFrame,
-    nom_specialite: str,
+    series_spe: pd.DataFrame,
 ) -> Component:
 
     return TopicSection(
@@ -384,7 +377,7 @@ def ErreursMedicamenteuses(
                                         className="normal-text",
                                     ),
                                     html.Strong(
-                                        "{}.".format(nom_specialite),
+                                        "{}.".format(series_spe.nom.capitalize()),
                                         className="normal-text-bold",
                                     ),
                                 ],
