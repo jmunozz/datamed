@@ -224,6 +224,14 @@ a:hover {
   cursor: pointer;
 }
 
+a.btn {
+  text-decoration: none;
+}
+
+a.btn-lg {
+  text-decoration: none;
+}
+
 /* Fix dash graph wrapper div to graph default height  */
 .dash-graph {
   height: 450px;
@@ -231,4 +239,14 @@ a:hover {
 
 #stack-bar.dash-graph {
   height: 300px;
+}
+
+.stacked {
+  display: flex;
+  flex-direction: column;
+}
+
+.stacked * {
+  margin: auto;
+  margin-bottom: 15px;
 }
