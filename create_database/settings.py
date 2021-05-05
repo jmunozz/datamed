@@ -139,7 +139,15 @@ files = {
             "name": "classes_atc",
             "if_exists": "replace",
             "index": True,
-            "dtype": {"code_atc": String(16)},
+            "dtype": {"code": String(16)},
+        },
+    },
+    "description": {
+        "to_sql": {
+            "name": "description",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {"cis": String(16)},
         },
     },
     "cis_cip_bdpm": {
@@ -186,10 +194,14 @@ files = {
                 "names": ["index", "cis", "sexe", "age", "conso", "n_conso_an", "SEXE"],
             },
             "to_sql": {
-                "name": "specialite_ordei",
+                "name": "specialite_exposition",
                 "if_exists": "replace",
                 "index": True,
-                "dtype": {"cis": String(16), "exposition": Integer},
+                "dtype": {
+                    "cis": String(16),
+                    "conso_an_trunc": Integer,
+                    "exposition": Integer,
+                },
             },
         },
         {
@@ -249,7 +261,7 @@ files = {
                 ],
             },
             "to_sql": {
-                "name": "substance_ordei",
+                "name": "substance_exposition",
                 "if_exists": "replace",
                 "index": True,
                 "dtype": {
@@ -260,6 +272,7 @@ files = {
                     "annee": Integer,
                     "conso_annee": Integer,
                     "cas_annee": Integer,
+                    "conso_an_trunc": Integer,
                 },
             },
         },
@@ -349,7 +362,7 @@ files = {
             "dtype": {
                 "code": String(16),
                 "notificateur": Text,
-                "pourcentage_decla": Float,
+                "pourcentage_notif": Float,
             },
         },
     },

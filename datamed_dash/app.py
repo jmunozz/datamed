@@ -1,8 +1,12 @@
 import dash
 import dash_bootstrap_components as dbc
+from dotenv import load_dotenv
+
 
 from dash_extensions.enrich import DashProxy, MultiplexerTransform
 from flask_caching import Cache
+
+load_dotenv()
 
 app = DashProxy(
     __name__,
@@ -16,12 +20,9 @@ app = DashProxy(
     ],
     suppress_callback_exceptions=True,
     title="Dashboard - DataMed",
-    transforms=[MultiplexerTransform()]
+    transforms=[MultiplexerTransform()],
 )
 
-cache = Cache(app.server, config={
-    'CACHE_TYPE': 'filesystem',
-    "CACHE_DIR": "/tmp"
-})
+cache = Cache(app.server, config={"CACHE_TYPE": "filesystem", "CACHE_DIR": "/tmp"})
 
 server = app.server

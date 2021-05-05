@@ -1,0 +1,7 @@
+include datamed_custom_components/datamed_custom_components.min.js
+include datamed_custom_components/datamed_custom_components.min.js.map
+include datamed_custom_components/metadata.json
+include datamed_custom_components/package-info.json
+include README.md
+include LICENSE
+include package.json

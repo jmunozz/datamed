@@ -1,3 +1,5 @@
+from typing import Dict
+
 import pandas as pd
 import unidecode
 from nltk.corpus import stopwords
@@ -65,7 +67,39 @@ def get_table_df(df: pd.DataFrame, df_spe: pd.DataFrame, col: str) -> pd.DataFra
         df_erreurs = get_denom_linked_to_specialite(df, specialite)
         df_erreurs = df_erreurs[df_erreurs[col] != "Non renseigné"]
 
-        if not df_erreurs.empty:
+        if len(df_erreurs) > 10:
             frames.append(get_erreur_df(df_erreurs, cis, col))
 
     return pd.concat(frames).reset_index(drop=True).set_index("cis")
+
+
+def clean_emed_df(df: pd.DataFrame, _settings: Dict) -> pd.DataFrame:
+    # Cleaning
+    df = df[~df.denomination.isna()]
+    df.denomination = df.denomination.apply(lambda x: x.lower().strip() if x else None)
+    df.lieu_erreur = df.lieu_erreur.apply(lambda x: _settings["noms_lieux"].get(x, x))
+
+    df[_settings["no_info"]] = df[_settings["no_info"]].where(
+        pd.notnull(df), "Non renseigné"
+    )
+    df.population_erreur = df.population_erreur.apply(
+        lambda x: "Non renseigné" if x == "NR" else x
+    )
+    df.lieu_erreur = df.lieu_erreur.apply(lambda x: "Non renseigné" if x == "NR" else x)
+    df.effet_indesirable = df.effet_indesirable.apply(
+        lambda x: "Non renseigné" if x == "NR" else x
+    )
+    df.gravite = df.gravite.apply(lambda x: "Non renseigné" if x == "NR" else x)
+    df.initial_erreur = df.initial_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+    df.nature_erreur = df.nature_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+    df.cause_erreur = df.cause_erreur.apply(
+        lambda x: "Non renseigné" if x == "NI" else x
+    )
+
+    df["produit_denom"] = df.denomination.apply(get_produit_denom)
+    df["forme_denom"] = df.denomination.apply(get_forme_denom)
+    return df

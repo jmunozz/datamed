@@ -1,0 +1,13 @@
+Package: datamedCustomComponents
+Title: Datamed Custom Components - SearchBar
+Version: 0.0.1
+Description: Datamed Custom Components - SearchBar
+Depends: R (>= 3.0.2)
+Imports: 
+Suggests: 
+License:  + file LICENSE
+URL: 
+BugReports: 
+Encoding: UTF-8
+LazyData: true
+KeepSource: true
