@@ -10,7 +10,8 @@ from urllib.parse import urlencode, quote_plus
 
 from app import app
 from db import specialite, substance
-from custom_components import SearchBar
+
+from datamed_custom_components import SearchBar
 
 
 search_item_max_len = 30
