@@ -508,6 +508,7 @@ files = {
             "encoding": "utf-8",
             "sep": ";",
             "header": 0,
+            "index_col": "numero",
             "usecols": [
                 0,
                 1,
