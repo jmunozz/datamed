@@ -17,7 +17,7 @@ DBHOSTNAME = config("DBHOSTNAME")
 DBUSERNAME = config("DBUSERNAME")
 DBPWD = config("DBPWD")
 DBNAME = config("DBNAME")
-DBURL = config("DBURL")
+DBURL = config("DB_URL")
 FILTER_THREESHOLD = config("FILTER_THREESHOLD", default=10, cast=int)
 
 EXPOSITION = {
@@ -500,6 +500,74 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {"cis": String(16)},
+        },
+    },
+    "ruptures": {
+        "source": {"pattern": "Dossier_de_rupture_040521.csv"},
+        "read_csv": {
+            "encoding": "utf-8",
+            "sep": ";",
+            "header": 0,
+            "usecols": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                14,
+                17,
+                18,
+                19,
+                20,
+                21,
+                23,
+                45,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                60,
+                62,
+            ],
+            "names": [
+                "numero",
+                "etat",
+                "date",
+                "classification",
+                "laboratoire",
+                "indications",
+                "cip13",
+                "nom",
+                "dci",
+                "atc",
+                "presentation",
+                "nom_atc",
+                "circuit",
+                "debut_ville",
+                "remise_dispo_ville",
+                "prevision_remise_dispo_ville",
+                "debut_hopital",
+                "remise_dispo_hopital",
+                "prevision_remise_dispo_hopital",
+                "generique_ville",
+                "generique_hopital",
+            ],
+            "parse_dates": [2, 14, 16, 17, 19],
+        },
+        "to_sql": {
+            "name": "ruptures",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "cip13": String(16),
+                "date": Date,
+                "debut_ville": Date,
+                "prevision_remise_dispo_ville": Date,
+                "debut_hopital": Date,
+                "prevision_remise_dispo_hopital": Date
+            },
         },
     },
 }
