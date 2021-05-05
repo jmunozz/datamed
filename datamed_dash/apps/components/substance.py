@@ -24,7 +24,8 @@ from dash_bootstrap_components import (
     ModalFooter,
 )
 from dash_core_components import Graph
-from db import substance, fetch_data
+import db.substance as substance
+import db.fetch_data as fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
@@ -140,6 +141,7 @@ def EffetsIndesirablesTooltip() -> Component:
 def Substance(code: str) -> Component:
 
     df_sub = substance.get_substance_df(code)
+    series_sub = fetch_data.as_series(df_sub)
     df_sub_spe = substance.list_specialite(code)
     df_age = substance.get_age_df(code)
     df_sexe = substance.get_sexe_df(code)
@@ -150,46 +152,44 @@ def Substance(code: str) -> Component:
     df_cas_sexe = substance.get_sexe_cas_df(code)
     df_soc = substance.get_soc_df(code)
 
-    return html.Div(
-        [
-            SideMenu(
-                id="side-menu",
-                items=[
-                    {"id": "description", "label": "Description"},
-                    {"id": "population-concernee", "label": "Population concernée"},
-                    {
-                        "id": "effets-indesirables",
-                        "label": "Effets indésirables",
-                    },
-                ],
-                className="side-menu",
-            ),
-            html.Div(
-                html.Div(
-                    [
-                        Header(df_sub),
-                        Description(df_sub, df_sub_spe),
-                        PatientsTraites(
-                            df_age=df_age,
-                            df_sexe=df_sexe,
-                            df_expo=df_expo,
-                            pie_colors=PIE_COLORS_SUBSTANCE,
-                        ),
-                        CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
-                        SystemesOrganes(df_soc, code),
+    return (
+        Header(series_sub),
+        html.Div(
+            [
+                SideMenu(
+                    id="side-menu",
+                    items=[
+                        {"id": "description", "label": "Description"},
+                        {"id": "population-concernee", "label": "Population concernée"},
+                        {"id": "effets-indesirables", "label": "Effets indésirables",},
                     ],
-                    className="container-fluid",
-                    style={"padding-left": "80px"},
+                    className="side-menu",
                 ),
-                className="container-fluid side-content",
-            ),
-        ],
-        className="container-fluid p-0 content",
+                html.Div(
+                    html.Div(
+                        [
+                            Description(df_sub, df_sub_spe),
+                            PatientsTraites(
+                                df_age=df_age,
+                                df_sexe=df_sexe,
+                                df_expo=df_expo,
+                                pie_colors=PIE_COLORS_SUBSTANCE,
+                            ),
+                            CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
+                            SystemesOrganes(df_soc, code),
+                        ],
+                        className="container-fluid",
+                        style={"padding-left": "80px"},
+                    ),
+                    className="container-fluid side-content",
+                ),
+            ],
+            className="container-fluid p-0 content",
+        ),
     )
 
 
-def Header(df_sub: pd.DataFrame) -> Component:
-    series_sub = fetch_data.as_series(df_sub)
+def Header(series_sub: pd.Series) -> Component:
     return html.Div(
         [
             html.Div(series_sub.nom.capitalize(), className="heading-4"),
@@ -224,10 +224,7 @@ def Description(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
                     page_size=10,
                     style_as_list_view=True,
                     style_table={"overflowX": "auto"},
-                    style_cell={
-                        "height": "50px",
-                        "backgroundColor": "#FAFAFA",
-                    },
+                    style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
                     style_data={
                         "fontSize": "14px",
                         "fontWeight": "400",
@@ -318,10 +315,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
     fig.update_layout(CURVE_LAYOUT)
 
-    return Graph(
-        figure=fig,
-        responsive=True,
-    )
+    return Graph(figure=fig, responsive=True,)
 
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
@@ -346,10 +340,7 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
                 marker_colors=PIE_COLORS_SUBSTANCE,
             )
         ).update_layout(PIE_LAYOUT)
-        return Graph(
-            figure=fig_age,
-            responsive=True,
-        )
+        return Graph(figure=fig_age, responsive=True,)
     else:
         return NoData()
 

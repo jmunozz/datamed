@@ -14,7 +14,7 @@ def Layout(parsed_url: Union[ParseResultBytes, ParseResult]) -> Component:
     code_substance = query["search"][0]
 
     return Div(
-        [Navbar(), Substance(code_substance), Footer(),],
+        [Navbar(), *Substance(code_substance), Footer(),],
         className="layout",
         id="layout_specialite",
     )
