@@ -4,13 +4,13 @@ import dash_html_components as html
 import dash.dependencies as dd
 from dash.development.base_component import Component
 from pandas.core.frame import DataFrame
-import datamed_custom_components as custom
 from dash.exceptions import PreventUpdate
 from urllib.parse import urlencode, quote_plus
 
 
 from app import app
-from db import specialite, substance, fetch_data
+from db import specialite, substance
+from custom_components import SearchBar
 
 
 search_item_max_len = 30
@@ -67,7 +67,7 @@ def Navbar() -> Component:
             MenuItem("Analyses thématiques", "/"),
             MenuItem("Explorer", "/apps/explorer"),
             MenuItem("À propos", "/"),
-            custom.SearchBar(id="search-bar", opts=opts),
+            SearchBar(id="search-bar", opts=opts),
         ],
         className="navbar",
     )

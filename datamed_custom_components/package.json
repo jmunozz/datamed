@@ -1,6 +1,6 @@
 {
   "name": "datamed_custom_components",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Project Description",
   "main": "build/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "build:js": "webpack --mode production",
     "build:backends": "dash-generate-components ./src/lib/components datamed_custom_components -p package-info.json --r-prefix '' --jl-prefix ''",
     "build:backends-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:py_and_r)",
-    "build": "npm run build:js && npm run build:backends",
+    "build": "npm run build:js && npm run build:backends && cp -r datamed_custom_components",
     "build:activated": "npm run build:js && npm run build:backends-activated"
   },
   "author": "jmunozz <j1805@hotmail.com>",
