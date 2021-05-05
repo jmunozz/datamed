@@ -330,6 +330,16 @@ def create_table_emed(_settings: Dict):
         db.create_table_from_df(df_table, args)
 
 
+def create_table_ruptures(_settings: Dict):
+    df = helpers.load_csv_to_df(_settings)
+    df = df.where(pd.notnull(df), None)
+    helpers.serie_to_lowercase(
+        df, ["etat", "classification", "nom", "nom_atc", "circuit"]
+    )
+    df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
+    db.create_table_from_df(df, _settings["to_sql"])
+
+
 create_table_bdpm_cis(settings.files["bdpm_cis"])
 create_tables_rsp_compo(settings.files["rsp_compo"])
 create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
@@ -351,3 +361,6 @@ create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_
 
 # Erreurs médicamenteuses
 create_table_emed(settings.files["erreurs_med"])
+
+# TrustMed
+create_table_ruptures(settings.files["ruptures"])
