@@ -1,4 +1,5 @@
 from typing import Dict
+from os import path
 
 import pandas as pd
 from sqlalchemy.types import Integer, Text, Date
@@ -7,6 +8,8 @@ import paths
 from models import connect_db
 from ordei import Ordei
 from utils import upload_cis_from_bdpm, upload_compo_from_rsp, upload_cis_cip_from_bdpm
+import helpers
+import settings
 
 engine = connect_db()
 connection = engine.connect()
@@ -48,7 +51,7 @@ def create_specialite_table():
 
     push_to_table(
         df_cis,
-        "substance",
+        "specialite",
         {
             "cis": Text,
             "nom": Text,

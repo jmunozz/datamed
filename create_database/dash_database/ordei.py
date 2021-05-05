@@ -92,10 +92,11 @@ class Ordei:
 
         df = df.groupby("cis")["conso"].sum().reset_index()
         df["exposition"] = df.conso.apply(
-            lambda x: max(EXPOSITION["spécialité"].items(), key=lambda y: x <= y[0])[1]
-            if x <= 50000
+            lambda x: max(EXPOSITION["spécialité"].items(), key=lambda y: x / 5 <= y[0])[1]
+            if x / 5 <= 50000
             else 5
         )
+        df = df.drop(columns=["conso"])
 
         push_to_table(
             df,
@@ -118,13 +119,14 @@ class Ordei:
             axis=1,
         )
 
+        df_sexe = df_sexe.drop(columns=["conso"])
+
         push_to_table(
             df_sexe,
             "specialite_patient_sexe_ordei",
             {
                 "cis": Text,
                 "sexe": Text,
-                "conso": Integer,
                 "pourcentage_patients": Float,
             },
         )
@@ -141,13 +143,14 @@ class Ordei:
             axis=1,
         )
 
+        df_age = df_age.drop(columns=["conso"])
+
         push_to_table(
             df_age,
             "specialite_patient_age_ordei",
             {
                 "cis": Text,
                 "age": Text,
-                "conso": Integer,
                 "pourcentage_patients": Float,
             },
         )
@@ -173,8 +176,8 @@ class Ordei:
             .reset_index()
         )
         df["exposition"] = df.conso.apply(
-            lambda x: max(EXPOSITION["substance"].items(), key=lambda y: x <= y[0])[1]
-            if x <= 500000
+            lambda x: max(EXPOSITION["substance"].items(), key=lambda y: x / 5 <= y[0])[1]
+            if x / 5 <= 500000
             else 5
         )
 
@@ -184,6 +187,7 @@ class Ordei:
         )
 
         df = df.merge(df_annee, on="code", how="left")
+        df = df.drop(columns=["conso"])
 
         push_to_table(
             df,
@@ -219,7 +223,6 @@ class Ordei:
             {
                 "code": Text,
                 "sexe": Text,
-                "conso": Integer,
                 "pourcentage_patients": Float,
             },
         )
@@ -235,6 +238,7 @@ class Ordei:
             else None,
             axis=1,
         )
+
         df_age = df_age[["code", "age", "pourcentage_patients"]]
 
         push_to_table(
@@ -243,7 +247,6 @@ class Ordei:
             {
                 "code": Text,
                 "age": Text,
-                "conso": Integer,
                 "pourcentage_patients": Float,
             },
         )

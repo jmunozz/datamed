@@ -61,10 +61,4 @@ def FooterRight():
 
 
 def Footer() -> Component:
-    return Div(
-        [
-            Logos(),
-            FooterRight(),
-        ],
-        className="footer",
-    )
+    return Div([Logos(), FooterRight(),], className="footer",)

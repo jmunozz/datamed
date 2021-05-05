@@ -47,7 +47,7 @@ def DonneesUne() -> Component:
                     Span(
                         "Les données à la une",
                         className="heading-4 m-auto nav-title",
-                        id="donnees-une"
+                        id="donnees-une",
                     ),
                     Div(
                         [

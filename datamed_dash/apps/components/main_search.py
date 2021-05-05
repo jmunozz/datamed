@@ -8,9 +8,7 @@ from dash.exceptions import PreventUpdate
 from dash_bootstrap_components import Button
 from dash_core_components import Dropdown
 from dash_html_components import Div, Span, Form
-
-file_liste_spe_sa = open("./data/spe_sa_dict.json", "r")
-SPE_SA_DICT = json.loads(file_liste_spe_sa.read())
+from db import specialite
 
 
 def MainSearchTitle() -> Component:
@@ -26,7 +24,7 @@ def SearchBar(search_bar_class_names: str, search_bar_id: str) -> Component:
             id=search_bar_id,
             placeholder="Médicament (par spécialité), substance active",
             className="normal-text main-dropdown",
-            style = {'background-color': '#E8E8E8'}
+            style={"background-color": "#E8E8E8"},
         ),
         autoComplete="off",
         className=search_bar_class_names,
@@ -39,14 +37,8 @@ def MainSearch() -> Component:
             MainSearchTitle(),
             Div(
                 [
-                    Span(
-                        "Trouvez des données",
-                        className="heading-4 d-block",
-                    ),
-                    Span(
-                        "autour du médicament",
-                        className="heading-4 d-block",
-                    ),
+                    Span("Trouvez des données", className="heading-4 d-block",),
+                    Span("autour du médicament", className="heading-4 d-block",),
                     SearchBar(
                         "search-bar ml-auto flex-nowrap mt-4 align-items-center",
                         "search-bar",
@@ -70,29 +62,29 @@ def MainSearch() -> Component:
 
 
 @app.callback(
-    dd.Output("search-bar", "options"),
-    dd.Input("search-bar", "search_value"),
+    dd.Output("search-bar", "options"), dd.Input("search-bar", "search_value"),
 )
 def update_search_bar_options(search_value):
+    # Execute at first call to load data into cache
+    specialite_nom_series = specialite.list_specialite()["nom"]
     if not search_value:
         raise PreventUpdate
-
     search_value = search_value.lower()
-
-    values_list = [v for v in SPE_SA_DICT.keys() if v.lower().startswith(search_value)]
-    if (len(values_list)<10):
-        values_list = values_list + [v for v in SPE_SA_DICT.keys() if search_value in v.lower()][:(10-len(values_list))]
-    values_list.sort()
-    values_list = sorted(values_list, key=len)
+    suggestions = [
+        s
+        for s in specialite_nom_series.iteritems()
+        if s[1].lower().startswith(search_value)
+    ]
+    suggestions.sort(key=len)
 
     return [
-        {"label": v[:50] + "..." if len(v) > 50 else v, "value": v} for v in values_list
+        {"label": v[1][:50] + "..." if len(v[1]) > 50 else v[1], "value": v[0]}
+        for v in suggestions
     ]
 
 
 @app.callback(
-    dd.Output("rechercher-button", "href"),
-    dd.Input("search-bar", "value"),
+    dd.Output("rechercher-button", "href"), dd.Input("search-bar", "value"),
 )
 def update_path(value):
     if value:

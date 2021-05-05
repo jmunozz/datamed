@@ -8,11 +8,5 @@ from .components.explorer import Explorer
 
 def Layout() -> Component:
     return Div(
-        [
-            Navbar(),
-            Explorer(),
-            Footer(),
-        ],
-        className="layout",
-        id="layout_explorer",
+        [Navbar(), Explorer(), Footer(),], className="layout", id="layout_explorer",
     )

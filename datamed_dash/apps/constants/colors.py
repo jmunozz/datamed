@@ -1,4 +1,6 @@
-PIE_COLORS = ["#DFD4E5", "#BFAACB", "#5E2A7E"]
+PIE_COLORS_SPECIALITE = ["#DFD4E5", "#BFAACB", "#5E2A7E", "#9E7FB2", "#7E5598"]
+
+PIE_COLORS_SUBSTANCE = ["#FACCDA", "#F599B5", "#EF6690", "#EA336B", "#E50046"]
 
 BAR_CHART_COLORS = [
     "rgba(51,171,102,1)",
@@ -11,4 +13,17 @@ BAR_CHART_COLORS = [
     "rgba(239,244,206,1)",
     "rgba(51,194,214,1)",
     "rgba(102,209,224,1)",
+]
+
+TREE_COLORS = [
+    "#5E2A7E",
+    "#7E5598",
+    "#9E7FB2",
+    "#BFAACB",
+    "#DFD4E5",
+    "#ECD6E7",
+    "#D9ADD0",
+    "#C683B8",
+    "#B35AA1",
+    "#A03189",
 ]
