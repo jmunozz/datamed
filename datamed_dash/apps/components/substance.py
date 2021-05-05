@@ -29,7 +29,7 @@ import db.fetch_data as fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import PatientsTraites
+from .commons import PatientsTraites, Header
 from .utils import Box, FigureGraph, GraphBox, TopicSection, SectionTitle, SectionP
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
@@ -153,7 +153,7 @@ def Substance(code: str) -> Component:
     df_soc = substance.get_soc_df(code)
 
     return (
-        Header(series_sub),
+        Header(series_sub, type="substance"),
         html.Div(
             [
                 SideMenu(
@@ -186,17 +186,6 @@ def Substance(code: str) -> Component:
             ],
             className="container-fluid p-0 content",
         ),
-    )
-
-
-def Header(series_sub: pd.Series) -> Component:
-    return html.Div(
-        [
-            html.Div(series_sub.nom.capitalize(), className="heading-4"),
-            html.Div("Substance active", className="large-text"),
-            html.A("Qu'est-ce qu'une substance active ?"),
-        ],
-        className="content-header",
     )
 
 

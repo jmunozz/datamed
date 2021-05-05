@@ -183,11 +183,6 @@
   height: 100% !important;
 } */
 
-.content {
-  margin-top: 88px;
-  z-index: 1;
-}
-
 .box-border {
   box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.24);
   border-radius: 3px;

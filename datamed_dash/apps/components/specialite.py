@@ -12,7 +12,7 @@ from dash_core_components import Graph
 from db import specialite, fetch_data
 from sm import SideMenu
 
-from .commons import PatientsTraites, NoData
+from .commons import PatientsTraites, NoData, Header
 from .utils import (
     Box,
     GraphBox,
@@ -124,17 +124,6 @@ def Specialite(cis: str) -> Component:
             ],
             className="container-fluid p-0 content",
         ),
-    )
-
-
-def Header(series_spe: pd.Series) -> Component:
-    return html.Div(
-        [
-            html.Div(series_spe.nom.capitalize(), className="heading-4"),
-            html.Div("Spécialité de médicament", className="large-text"),
-            html.A("Qu'est-ce qu'une spécialité de médicament ?"),
-        ],
-        className="content-header",
     )
 
 

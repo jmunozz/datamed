@@ -55,11 +55,7 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return go.Figure(
-        go.Pie(
-            labels=labels,
-            values=values,
-            marker_colors=pie_colors,
-        )
+        go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
     ).update_layout(PIE_LAYOUT)
 
 
@@ -122,7 +118,7 @@ def Accordion() -> Component:
                                     className="normal-text",
                                 ),
                             ],
-                            className="mt-3"
+                            className="mt-3",
                         ),
                     ]
                 ),
@@ -160,10 +156,7 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                                 className="d-flex flex-column",
                             ),
                             html.Div(
-                                [
-                                    html.H1(f"{exposition}/5"),
-                                ],
-                                className="d-flex",
+                                [html.H1(f"{exposition}/5"),], className="d-flex",
                             ),
                         ],
                         style={"flex": 1},
@@ -172,11 +165,10 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                     html.Div(
                         [
                             html.H2(patients, className="color-secondary"),
-                            html.P("Approximation du nombre de patients traités sur la période 2014-2018"),
-                            html.A(
-                                "En savoir plus",
-                                className="color-secondary",
+                            html.P(
+                                "Approximation du nombre de patients traités sur la période 2014-2018"
                             ),
+                            html.A("En savoir plus", className="color-secondary",),
                         ],
                         style={"flex": 3},
                         className="p-3",
@@ -231,6 +223,41 @@ def PatientsTraites(
             ),
         ],
         id="population-concernee",
+    )
+
+
+def Header(series_spe: pd.Series, type="specialite") -> Component:
+    background_color = "#5E2A7E" if type == "specialite" else "#A03189"
+    icon_url = (
+        app.get_asset_url("pill.svg")
+        if type == "specialite"
+        else app.get_asset_url("substance_icon.svg")
+    )
+    type_label = (
+        "Spécialité de médicament" if type == "specialite" else "Substance active"
+    )
+    help_link_component = (
+        html.A("Qu'est-ce qu'une spécialité de médicament ?")
+        if type == "specialite"
+        else html.A("Qu'est-ce qu'une substance active ?")
+    )
+    return html.Div(
+        html.Div(
+            [
+                html.Div(html.Img(src=icon_url), className="content-header-img",),
+                html.Div(
+                    [
+                        html.Div(series_spe.nom.capitalize(), className="heading-4"),
+                        html.Div(type_label, className="large-text"),
+                        help_link_component,
+                    ],
+                    className="content-header-text",
+                ),
+            ],
+            className="content-header-content",
+        ),
+        className="content-header",
+        style={"backgroundColor": background_color},
     )
 
 
