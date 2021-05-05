@@ -10,39 +10,32 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-sys.path.append('/Users/linerahal/Documents/GitHub/datamed/create_database')
-from db import connect_db
-
-
-# In[2]:
-
-
-engine = connect_db()
+sys.path.append('/Users/linerahal/Documents/GitHub/datamed/datamed_dash/')
+from db import fetch_data
 
 
 # # Choix de la spécialité
 
-# In[3]:
+# In[2]:
 
 
 # specialite = "valium roche 2 mg, comprimé sécable"
 specialite = "doliprane 500 mg, comprimé"
 
 
+# In[3]:
+
+
+df_spe = fetch_data.fetch_table("specialite", "cis")
+
+
 # In[4]:
 
 
-df_spe = pd.read_sql("specialite", con=engine)
-df_spe = df_spe.set_index("cis")
+cis = "60234100"   # df_spe[df_spe.nom == specialite].index[0]
 
 
 # In[5]:
-
-
-cis = df_spe[df_spe.nom == specialite].index[0]
-
-
-# In[6]:
 
 
 df_spe[df_spe.nom == specialite]
@@ -52,7 +45,7 @@ df_spe[df_spe.nom == specialite]
 
 # ## Layouts
 
-# In[7]:
+# In[6]:
 
 
 BAR_CHART_COLORS = [
@@ -116,18 +109,21 @@ STACKED_BAR_CHART_LAYOUT = {
         ticks="outside",
         tickcolor="white",
         ticklen=1,
+        visible=False,
+        showticklabels=False,
     ),
     "plot_bgcolor": "#FAFAFA",
     "paper_bgcolor": "#FAFAFA",
     "margin": dict(l=0, r=0, t=0, b=0),
     "font": {"size": 12, "color": "black"},
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    "barmode": "stack",
 }
 
 
 # # Spécialité
 
-# In[8]:
+# In[7]:
 
 
 # DOLIPRANE 500 mg, gélule
@@ -138,38 +134,38 @@ STACKED_BAR_CHART_LAYOUT = {
 
 # ### Exposition
 
-# In[9]:
+# In[8]:
 
 
-df_expo = pd.read_sql("specialite_exposition", con=engine, index_col="cis")
-df_expo.loc[cis]
+df_expo = fetch_data.fetch_table("specialite_exposition", "cis")
+df_expo.loc[cis].exposition
 
 
 # ### Sexe
 
-# In[10]:
+# In[9]:
 
 
-df_sexe = pd.read_sql("specialite_patient_sexe_ordei", con=engine)
-df_sexe[df_sexe.cis == cis].head(2)
+df_sexe = fetch_data.fetch_table("specialite_patient_sexe_ordei", "cis")
+df_sexe.loc[cis].head(2)
 
 
 # ### Âge
 
-# In[11]:
+# In[10]:
 
 
-df_age = pd.read_sql("specialite_patient_age_ordei", con=engine)
+df_age = fetch_data.fetch_table("specialite_patient_age_ordei", "cis")
 df_age.head(2)
 
 
-# In[12]:
+# In[11]:
 
 
 fig = go.Figure(
     go.Pie(
-        labels=df_age[df_age.cis == cis].age,
-        values=df_age[df_age.cis == cis].pourcentage_patients,
+        labels=df_age.loc[cis].age,
+        values=df_age.loc[cis].pourcentage_patients,
         marker_colors=PIE_COLORS,    #px.colors.qualitative.Set3,
     )
 ).update_layout(PIE_LAYOUT)
@@ -181,35 +177,35 @@ fig.show()
 
 # ### Effets indésirables
 
-# In[13]:
+# In[12]:
 
 
-df_ei = pd.read_sql("erreur_med_effet_indesirable", con=engine)
+df_ei = fetch_data.fetch_table("erreur_med_effet_indesirable", "cis")
 df_ei.head(2)
 
 
-# In[14]:
+# In[13]:
 
 
-df_ei[df_ei.cis == cis]
+df_ei.loc[cis]
 
 
 # ### Population erreurs med
 
-# In[15]:
+# In[14]:
 
 
-df_pop = pd.read_sql("erreur_med_population", con=engine)
+df_pop = fetch_data.fetch_table("erreur_med_population", "cis")
 df_pop.head(2)
 
 
-# In[16]:
+# In[15]:
 
 
 fig = go.Figure(
     go.Pie(
-        labels=df_pop[df_pop.cis == cis].population_erreur,
-        values=df_pop[df_pop.cis == cis].pourcentage,
+        labels=df_pop.loc[cis].population_erreur,
+        values=df_pop.loc[cis].pourcentage,
         marker_colors=PIE_COLORS,    #px.colors.qualitative.Set3,
     )
 ).update_layout(PIE_LAYOUT)
@@ -219,81 +215,89 @@ fig.show()
 
 # ### Cause des erreurs
 
+# In[16]:
+
+
+df_cause = fetch_data.fetch_table("erreur_med_cause", "cis")
+df_cause.loc[cis]
+
+
 # In[17]:
 
 
-df_cause = pd.read_sql("erreur_med_cause", con=engine)
-df_cause[df_cause.cis == cis]
-
-
-# In[18]:
-
-
 fig = px.bar(
-    df_cause[df_cause.cis == cis],
+    df_cause.loc[cis],
     x="pourcentage",
-    y="cis",
     color="cause_erreur",
     labels={'pourcentage':'Proportion (%)', 'cause_erreur': "Cause"},
     color_discrete_sequence=PIE_COLORS,
-    orientation="h"
+    orientation="h",
+    height=250,
 )
 fig.update_layout(STACKED_BAR_CHART_LAYOUT)
-fig.update_layout(barmode='stack')
 
 fig.show()
 
 
 # ### Nature des erreurs
 
+# In[18]:
+
+
+df_nat = fetch_data.fetch_table("erreur_med_nature", "cis")
+df_nat.loc[cis]
+
+
 # In[19]:
 
 
-df_nat = pd.read_sql("erreur_med_nature", con=engine)
-df_nat[df_nat.cis == cis]
-
-
-# In[20]:
-
-
 fig = px.bar(
-    df_nat[df_nat.cis == cis],
+    df_nat.loc[cis],
     x="pourcentage",
-    y="cis",
     color="nature_erreur",
     labels={'pourcentage':'Proportion (%)', 'nature_erreur': "Nature"},
     color_discrete_sequence=PIE_COLORS,
     orientation="h"
 )
 fig.update_layout(STACKED_BAR_CHART_LAYOUT)
-fig.update_layout(barmode='stack')
 
 fig.show()
 
 
 # ### Liste des dénominations d'erreurs médicamenteuses
 
-# In[21]:
+# In[20]:
 
 
-df_denom = pd.read_sql("erreur_med_cis_denomination", con=engine)
-df_denom[df_denom.cis == cis]
+df_denom = fetch_data.fetch_table("erreur_med_cis_denomination", "cis")
+df_denom.loc[cis].columns
 
 
 # # Substances actives correspondant à la spécialité
 
+# In[21]:
+
+
+df_cis_sub = fetch_data.fetch_table("specialite_substance", "cis").reset_index()
+df_sub = fetch_data.fetch_table("substance", "code").reset_index()
+
+
 # In[22]:
 
 
-df_cis_sub = pd.read_sql("specialite_substance", engine)
-df_sub = pd.read_sql("substance", engine)
+df = df_cis_sub[df_cis_sub.cis == cis].merge(df_sub, left_on="code_substance", right_on="code", how="left")
 
 
 # In[23]:
 
 
-df = df_cis_sub[df_cis_sub.cis == cis].merge(df_sub, left_on="code_substance", right_on="code", how="left")
-df
+substances_list = df.nom.unique()
+
+
+# In[24]:
+
+
+substances_list[0].capitalize()
 
 
 # In[ ]:

@@ -1,4 +1,5 @@
 import math
+from typing import List, Dict
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
 import dash
@@ -21,7 +22,6 @@ from dash_bootstrap_components import (
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Table,
 )
 from dash_core_components import Graph
 from db import substance, fetch_data
@@ -34,27 +34,41 @@ from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
 
 
-def get_notif_figures_from_df(df):
+NOTIF_IMAGE_URL = {
+    "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
+    "Dentiste": app.get_asset_url("./surgeon_1.svg"),
+    "Infirmière": app.get_asset_url("./nurse_1.svg"),
+    "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
+    "Pharmacien": app.get_asset_url("./pharmacist.svg"),
+    "Inconnu": app.get_asset_url("./face.svg"),
+    "Non professionnel de santé": app.get_asset_url("./face.svg"),
+    "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
+}
 
-    NOTIF_IMAGE_URL = {
-        "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
-        "Dentiste": app.get_asset_url("./surgeon_1.svg"),
-        "Infirmière": app.get_asset_url("./nurse_1.svg"),
-        "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
-        "Pharmacien": app.get_asset_url("./pharmacist.svg"),
-        "Inconnu": app.get_asset_url("./face.svg"),
-        "Non professionnel de santé": app.get_asset_url("./face.svg"),
-        "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
-    }
+NOTIF_NOM = {
+    "Autre professionnel de santé": "Autre professionnel de santé",
+    "Dentiste": "Dentiste",
+    "Infirmière": "Infirmier",
+    "Médecin généraliste": "Médecin généraliste",
+    "Pharmacien": "Pharmacien",
+    "Inconnu": "Inconnu",
+    "Non professionnel de santé": "Non professionnel de santé",
+    "Médecin spécialiste": "Médecin spécialiste",
+}
 
+df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
+df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
+
+
+def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
     return [
         {
-            "figure": "{}%".format(round(x["pourcentage_notif"])),
-            "caption": x["notificateur"],
+            "figure": "{}%".format(round(x["pourcentage_notif"])).replace(".", ","),
+            "caption": NOTIF_NOM[x["notificateur"]],
             "img": NOTIF_IMAGE_URL[x["notificateur"]],
         }
         for x in fetch_data.transform_df_to_series_list(df)
-        if not math.isnan(x["pourcentage_notif"])
+        if not math.isnan(x["pourcentage_notif"]) and round(x["pourcentage_notif"])
     ]
 
 
@@ -63,7 +77,7 @@ def EffetsIndesirablesTooltip() -> Component:
         [
             html.H2(
                 dbc.Button(
-                    "Comment sont calculés ces indicateurs ?",
+                    "Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
                     color="link",
                     id="group-substance-ei-tooltip-toggle",
                     className="color-secondary",
@@ -73,19 +87,46 @@ def EffetsIndesirablesTooltip() -> Component:
             dbc.Collapse(
                 dbc.CardBody(
                     [
-                        html.P(
-                            "Nombre de cas notifiés d’effets indésirables en France estimé à partir des données de "
-                            "la Base Nationale de PharmacoVigilance (BNPV). La BNPV est alimentée par les centres "
-                            "régionaux de pharmacovigilance qui sont notifiés par les professionnels de santé ou par "
-                            "les patients et association agréées via un portail "
-                            "dédié : https://signalement.social-sante.gouv.fr"
+                        html.Div(
+                            [
+                                html.Div(
+                                    "Nombre de cas notifiés d’effets indésirables en France estimé à partir des "
+                                    "données de la Base Nationale de Pharmacovigilance (BNPV).",
+                                    className="normal-text",
+                                ),
+                                html.Span(
+                                    "La BNPV est alimentée par les centres régionaux de pharmacovigilance qui sont "
+                                    "notifiés par les professionnels de santé ou par les patients et association "
+                                    "agréées via un portail dédié : ",
+                                    className="normal-text",
+                                ),
+                                html.A(
+                                    "signalement.social-sante.gouv.fr",
+                                    href="https://signalement.social-sante.gouv.fr",
+                                    className="normal-text link",
+                                ),
+                            ],
+                            className="mb-3",
                         ),
-                        html.P(
-                            "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
-                            "d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, abus ou "
-                            "erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts. "
-                            "Pour plus d’informations, "
-                            "consultez : https://ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments"
+                        html.Div(
+                            [
+                                html.Span(
+                                    "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
+                                    "d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, "
+                                    "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
+                                    "un comité d’experts. ",
+                                    className="normal-text",
+                                ),
+                                html.Span(
+                                    "Pour plus d’informations, consultez : ",
+                                    className="normal-text",
+                                ),
+                                html.A(
+                                    "ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments",
+                                    href="https://ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments",
+                                    className="normal-text link",
+                                ),
+                            ]
                         ),
                     ]
                 ),
@@ -116,7 +157,10 @@ def Substance(code: str) -> Component:
                 items=[
                     {"id": "description", "label": "Description"},
                     {"id": "population-concernee", "label": "Population concernée"},
-                    {"id": "effets-indesirables", "label": "Effets indésirables",},
+                    {
+                        "id": "effets-indesirables",
+                        "label": "Effets indésirables",
+                    },
                 ],
                 className="side-menu",
             ),
@@ -130,10 +174,9 @@ def Substance(code: str) -> Component:
                             df_sexe=df_sexe,
                             df_expo=df_expo,
                             pie_colors=PIE_COLORS_SUBSTANCE,
-                            type="substance",
                         ),
                         CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
-                        SystemesOrganes(df_soc),
+                        SystemesOrganes(df_soc, code),
                     ],
                     className="container-fluid",
                     style={"padding-left": "80px"},
@@ -177,11 +220,14 @@ def Description(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
                 dash_table.DataTable(
                     id="substance-specialite-table",
                     columns=[{"name": "nom", "id": "nom"}],
-                    data=df_sub_spe.to_dict("records"),
+                    data=df_sub_spe.reset_index().to_dict("records"),
                     page_size=10,
                     style_as_list_view=True,
                     style_table={"overflowX": "auto"},
-                    style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
+                    style_cell={
+                        "height": "50px",
+                        "backgroundColor": "#FAFAFA",
+                    },
                     style_data={
                         "fontSize": "14px",
                         "fontWeight": "400",
@@ -202,26 +248,28 @@ def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     series_decla = fetch_data.as_series(df_decla)
+    cas_str = "{:,}".format(int(series_decla.cas)).replace(",", " ")
     return FigureGraph(
         [
             {
-                "figure": f"{int(series_decla.cas)}",
+                "figure": cas_str,
                 "caption": "Nombre de cas déclarés sur la période 2014-2018",
             }
         ]
     )
 
 
-def TauxDeclarationBox(df_decla) -> Component:
+def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     series_decla = fetch_data.as_series(df_decla)
+    taux_str = "{:,}".format(int(series_decla.taux_cas)).replace(",", " ")
     return FigureGraph(
         [
             {
-                "figure": f"{int(series_decla.taux_cas)} / 100 000",
+                "figure": "{} / 100 000".format(taux_str),
                 "caption": "Taux de déclaration pour 100 000 patients "
-                "traités/an sur la période 2014-2018",
+                "traités par an sur la période 2014-2018",
             }
         ]
     )
@@ -242,7 +290,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
                     "shape": "spline",
                     "smoothing": 1,
                     "width": 4,
-                    "color": "#F599B5",
+                    "color": "#F29733",
                 },
             ),
             secondary_y=False,
@@ -256,20 +304,24 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
             name="Patients traités",
             line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
             hoverlabel={"namelength": -1},
+            hovertemplate="%{y:int}",
         ),
         secondary_y=True,
     )
 
     fig.update_yaxes(
         title_text="Déclarations d'effets indésirables",
-        color="#F599B5",
+        color="#F29733",
         secondary_y=False,
     )
     fig.update_yaxes(title_text="Patients traités", color="#EA336B", secondary_y=True)
     fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
     fig.update_layout(CURVE_LAYOUT)
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(
+        figure=fig,
+        responsive=True,
+    )
 
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
@@ -294,7 +346,10 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
                 marker_colors=PIE_COLORS_SUBSTANCE,
             )
         ).update_layout(PIE_LAYOUT)
-        return Graph(figure=fig_age, responsive=True,)
+        return Graph(
+            figure=fig_age,
+            responsive=True,
+        )
     else:
         return NoData()
 
@@ -303,10 +358,11 @@ def NotifFigureGraph(df_notif: pd.DataFrame) -> Component:
     if df_notif is None:
         return NoData()
     else:
+        df_notif = df_notif.sort_values(by="pourcentage_notif", ascending=False)
         return FigureGraph(
             get_notif_figures_from_df(df_notif),
             height="80px",
-            class_name="justify-content-start",
+            class_name="justify-content-between",
         )
 
 
@@ -372,16 +428,13 @@ def CasDeclares(
     )
 
 
-def SocTreemap(df_soc: pd.DataFrame) -> Component:
-    if df_soc is None:
-        return NoData()
-
+def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
     fig = px.treemap(
-        df_soc.sort_values(by="pourcentage_cas", ascending=False).head(10),
-        path=["soc_long"],
-        values="pourcentage_cas",
+        df.loc[code].sort_values(by=values, ascending=False).head(10),
+        path=[path],
+        values=values,
         color_discrete_sequence=TREE_COLORS,
-        hover_name="soc_long",
+        hover_name=path,
     )
 
     fig.update_layout(
@@ -404,34 +457,45 @@ def SocTreemap(df_soc: pd.DataFrame) -> Component:
         textfont_size=18,
         hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
     )
+    return fig
 
-    return Graph(figure=fig, responsive=True, id="soc-treemap")
 
-
-def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
-
+def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
     return TopicSection(
         [
             SectionTitle("Effets indésirables par système d'organe"),
             SectionP(
-                "Les Systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
-                "médicales selon la hiérarchie MedDRA Sont listés ici les 10 SOC avec le plus d’effets indésirables "
-                "déclarés. Attention : Un cas est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
+                "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
+                "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
+                "déclarés."
+            ),
+            SectionP(
+                "Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
                 "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
                 "différents (en fonction des effets indésirables déclarés)."
             ),
             dbc.Row(
                 [
-                    GraphBox(
-                        "",
+                    html.Div(
                         [
-                            html.Div(SocTreemap(df_soc), id="soc-treemap-container",),
+                            html.Div(
+                                Graph(
+                                    figure=Treemap(
+                                        df, code, "soc_long", "pourcentage_cas"
+                                    ),
+                                    responsive=True,
+                                    id="soc-treemap",
+                                ),
+                                id="soc-treemap-container",
+                            ),
                             html.Div(id="selected-soc", className="d-none"),
                             HltModal(),
                         ],
-                        class_name_wrapper="col-md-12",
-                    ),
-                ]
+                        className="col-md-12",
+                    )
+                    if df is not None
+                    else GraphBox("", NoData()),
+                ],
             ),
         ],
         id="population-concernee",
@@ -456,6 +520,7 @@ def HltModal() -> Modal:
         scrollable=True,
         centered=True,
         id="update-on-click-data",
+        size="xl",
     )
 
 
@@ -481,7 +546,6 @@ def toggle_substance_ei_tooltip(n_clicks, is_open):
 )
 def getActiveCell(active_cell, page_current, page_size, data):
     if active_cell:
-        col = active_cell["column_id"]
         row = active_cell["row"]
         cellData = data[(page_current or 0) * page_size + row]["cis"]
         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
@@ -518,41 +582,18 @@ def update_callback(
         query = parse_qs(parsed_url.query)
         code = query["search"][0]
 
-        df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
-        df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
         df_hlt_details = (
             df_hlt[df_hlt.soc_long == selected_soc]
             .loc[code]
             .sort_values(by="pourcentage_cas", ascending=False)
-        ).reset_index()
-        df_hlt_details.pourcentage_cas = df_hlt_details.pourcentage_cas.apply(
-            lambda x: "{}%".format(round(x)) if x else ""
         )
-        df_hlt_details = df_hlt_details.rename(
-            columns={"effet_hlt": "High-Level-Term", "pourcentage_cas": "Pourcentage"}
-        )
-
-        # fig_hlt = px.treemap(
-        #     df_hlt_details.sort_values(by="pourcentage_cas", ascending=False).head(10),
-        #     path=["effet_hlt"],
-        #     values="pourcentage_cas",
-        #     color_discrete_sequence=TREE_COLORS,
-        #     hover_name="effet_hlt",
-        # )
 
         return (
             True,
-            Table.from_dataframe(
-                df_hlt_details[["High-Level-Term", "Pourcentage"]],
-                striped=True,
-                bordered=True,
-                hover=True,
+            Graph(
+                figure=Treemap(df_hlt_details, code, "effet_hlt", "pourcentage_cas"),
                 responsive=True,
             ),
-            # Graph(
-            #     figure=fig_hlt,
-            #     responsive=True,
-            # ),
             selected_soc,
             selected_soc,
         )

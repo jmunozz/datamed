@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import dash
 import dash.dependencies as dd
@@ -20,6 +20,7 @@ from .utils import (
 )
 from ..constants.layouts import PIE_LAYOUT
 
+
 UTILISATION = {
     1: "Utilisation faible",
     2: "Utilisation faible",
@@ -29,32 +30,6 @@ UTILISATION = {
     "-": "Utilisation inconnue",
 }
 
-FOURCHETTES = {
-    1: {
-        "specialite": "Nombre de patients traités par an en France inférieur à 1000",
-        "substance": "Nombre de patients traités par an en France inférieur à 5000",
-    },
-    2: {
-        "specialite": "Nombre de patients traités par an en France entre 1000 et 5000",
-        "substance": "Nombre de patients traités par an en France entre 5000 et 25000",
-    },
-    3: {
-        "specialite": "Nombre de patients traités par an en France entre 5000 et 15000",
-        "substance": "Nombre de patients traités par an en France entre 25000 et 100000",
-    },
-    4: {
-        "specialite": "Nombre de patients traités par an en France entre 15000 et 50000",
-        "substance": "Nombre de patients traités par an en France entre 100000 et 500000",
-    },
-    5: {
-        "specialite": "Nombre de patients traités par an en France supérieur à 50000",
-        "substance": "Nombre de patients traités par an en France supérieur à 500000",
-    },
-    "-": {
-        "specialite": "Nombre de patients traités par an inconnu",
-        "substance": "Nombre de patients traités par an en France inconnu",
-    },
-}
 
 SEXE = {1: "Hommes", 2: "Femmes"}
 SEXE_IMG_URL = {
@@ -78,9 +53,13 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
     ]
 
 
-def makePie(labels, values, pie_colors: List):
+def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return go.Figure(
-        go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
+        go.Pie(
+            labels=labels,
+            values=values,
+            marker_colors=pie_colors,
+        )
     ).update_layout(PIE_LAYOUT)
 
 
@@ -117,17 +96,33 @@ def Accordion() -> Component:
             dbc.Collapse(
                 dbc.CardBody(
                     [
-                        html.P(
-                            "Estimations obtenues à partir des données Open-Medic portant sur l’usage du "
-                            "médicament, délivré en pharmacie de ville en 2014 à 2018 et remboursé par l’Assurance "
-                            "Maladie. Pour plus d’informations, consultez : "
-                            "http://open-data-assurance-maladie.ameli.fr/medicaments/index.php"
+                        html.Div(
+                            [
+                                html.Span(
+                                    "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
+                                    "médicament, délivré en pharmacie de ville entre 2014 et 2018 et remboursé par "
+                                    "l’Assurance Maladie. Pour plus d’informations, consultez : ",
+                                    className="normal-text",
+                                ),
+                                html.A(
+                                    "open-data-assurance-maladie.ameli.fr",
+                                    href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
+                                    className="normal-text link",
+                                ),
+                            ]
                         ),
                         html.P(
-                            "Attention : Les patients étant restitués par présentation dans les données Open Medic, "
-                            "ils sont comptabilisés autant de fois qu’ils ont eu de remboursements de présentations "
-                            "différentes d’un même produit/substance active. Les indicateurs restitués pourraient être "
-                            "surestimés pour certains médicaments."
+                            [
+                                html.Strong("Attention", className="normal-text-bold"),
+                                html.Span(
+                                    " : l’estimation du nombre de patients repose sur des données agrégées au niveau "
+                                    "de la présentation du médicament (code CIP). Les patients sont donc comptabilisés "
+                                    "autant de fois qu’ils ont eu de remboursements de présentations différentes d’une "
+                                    "même spécialité/substance active.",
+                                    className="normal-text",
+                                ),
+                            ],
+                            className="mt-3"
                         ),
                     ]
                 ),
@@ -138,12 +133,17 @@ def Accordion() -> Component:
     )
 
 
-def Utilisation(df_expo, type):
+def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
-        exposition = series_exposition.exposition
+        exposition = int(series_exposition.exposition)
+        patients = "{:,} patients / an".format(
+            int(series_exposition.conso_an_trunc)
+        ).replace(",", " ")
     else:
         exposition = "-"
+        patients = "Données insuffisantes"
+
     return dbc.Row(
         [
             Box(
@@ -160,7 +160,10 @@ def Utilisation(df_expo, type):
                                 className="d-flex flex-column",
                             ),
                             html.Div(
-                                [html.H1(f"{exposition}/5"),], className="d-flex",
+                                [
+                                    html.H1(f"{exposition}/5"),
+                                ],
+                                className="d-flex",
                             ),
                         ],
                         style={"flex": 1},
@@ -168,12 +171,10 @@ def Utilisation(df_expo, type):
                     ),
                     html.Div(
                         [
-                            html.H2(
-                                UTILISATION[exposition], className="color-secondary"
-                            ),
-                            html.P(FOURCHETTES[exposition][type]),
+                            html.H2(patients, className="color-secondary"),
+                            html.P("Approximation du nombre de patients traités sur la période 2014-2018"),
                             html.A(
-                                "En savoir plus sur le taux d'exposition",
+                                "En savoir plus",
                                 className="color-secondary",
                             ),
                         ],
@@ -188,13 +189,13 @@ def Utilisation(df_expo, type):
     )
 
 
-def RepartitionSexeBox(df_sexe) -> Component:
+def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
     if df_sexe is None:
         return NoData()
     return FigureGraph(get_sexe_figures_from_df(df_sexe, "pourcentage_patients"))
 
 
-def RepartitionAgeBox(df_age, pie_colors) -> Component:
+def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
     if df_age is None:
         return NoData()
     return Graph(
@@ -204,13 +205,16 @@ def RepartitionAgeBox(df_age, pie_colors) -> Component:
 
 
 def PatientsTraites(
-    df_age, df_sexe, df_expo, pie_colors, type="specialite"
+    df_age: pd.DataFrame,
+    df_sexe: pd.DataFrame,
+    df_expo: pd.DataFrame,
+    pie_colors: List,
 ) -> Component:
     return TopicSection(
         [
             SectionTitle("Patients traités"),
             Accordion(),
-            Utilisation(df_expo, type),
+            Utilisation(df_expo),
             dbc.Row(
                 [
                     GraphBox(

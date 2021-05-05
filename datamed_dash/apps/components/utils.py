@@ -10,7 +10,8 @@ def Box(
 ) -> Component:
     class_name = f"box {class_name}"
     return Div(
-        Div(children, className=class_name, style=style), className=class_name_wrapper,
+        Div(children, className=class_name, style=style),
+        className=class_name_wrapper,
     )
 
 
@@ -23,13 +24,17 @@ def GraphBox(
 ) -> Component:
     if title:
         children = [Div(title, className="normal-text-bold mb-4")] + children
-    return Box(children, class_name_wrapper=class_name_wrapper, class_name=class_name,)
+    return Box(
+        children,
+        class_name_wrapper=class_name_wrapper,
+        class_name=class_name,
+    )
 
 
-def FigureGraph(figures: List[Dict], height="150px", class_name="") -> Component:
+def FigureGraph(figures: List[Dict], height="150px", class_name="justify-content-around") -> Component:
     class_name = " ".join(
         (
-            ["d-flex", "flex-row", "flex-wrap", "justify-content-around"]
+            ["d-flex", "flex-row", "flex-wrap"]
             + class_name.split(" ")
         )
     )

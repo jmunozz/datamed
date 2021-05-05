@@ -1,5 +1,6 @@
+import math
 from os import path
-from typing import Dict
+from typing import Dict, Optional
 
 import pandas as pd
 from tqdm import tqdm
@@ -77,13 +78,25 @@ def create_table_cis_cip_bdpm(_settings: Dict):
 # ORDEI
 
 
+def round_small_values(conso_value: int) -> Optional[int]:
+    if conso_value <= 10:
+        return None
+    if 10 < conso_value < 50:
+        return 50
+    elif 50 <= conso_value < 95:
+        return 100
+    else:
+        return round(conso_value, -int(math.log10(conso_value)))
+
+
 def create_spe_conso_ordei_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df = df.groupby("cis").agg(n_conso_an=("n_conso_an", "sum"), conso=("conso", "sum"))
     df["exposition"] = df["n_conso_an"].apply(
         helpers.get_exposition_level, type="specialite"
     )
-    df = df[["exposition"]]
+    df["conso_an_trunc"] = df.n_conso_an.apply(round_small_values)
+    df = df[["conso_an_trunc", "exposition"]]
     db.create_table_from_df(df, _settings[0]["to_sql"])
 
 
@@ -125,7 +138,7 @@ def create_substance_ordei_table(_settings: Dict):
         cas=("cas_annee", "sum"),
         exposition=(
             "conso_annee",
-            lambda x: helpers.get_total_exposition_level(x, "substance"),
+            lambda x: helpers.get_total_exposition_level(x / 5, "substance"),
         ),
     )
     final_df = df_by_years.join(df_by_code, on="code")
@@ -133,6 +146,10 @@ def create_substance_ordei_table(_settings: Dict):
     final_df["taux_cas"] = final_df.apply(
         axis=1, func=lambda x: x.cas * 100000 / x.conso if x.cas >= 10 else None
     )
+    final_df["conso_an_trunc"] = final_df.conso.apply(
+        lambda x: round_small_values(x / 5)
+    )
+
     final_df.drop(["conso"], inplace=True, axis=1)
     final_df.reset_index(inplace=True, level=["annee"])
     db.create_table_from_df(final_df, _settings[0]["to_sql"])
@@ -253,9 +270,7 @@ def create_substance_soclong_table(_settings: Dict):
     final_df = pd.merge(total_case, decla_eff, left_index=True, right_on=["code"])
     final_df = helpers.filter_df_on_low_values(final_df, ["n_decla_eff", "n_cas"])
     final_df["pourcentage_cas"] = final_df.apply(
-        lambda x: x.n_decla_eff / x.n_cas * 100
-        if x.n_decla_eff and x.n_cas
-        else None,
+        lambda x: x.n_decla_eff / x.n_cas * 100 if x.n_decla_eff and x.n_cas else None,
         axis=1,
         result_type="expand",
     )

@@ -197,7 +197,11 @@ files = {
                 "name": "specialite_exposition",
                 "if_exists": "replace",
                 "index": True,
-                "dtype": {"cis": String(16), "exposition": Integer},
+                "dtype": {
+                    "cis": String(16),
+                    "conso_an_trunc": Integer,
+                    "exposition": Integer,
+                },
             },
         },
         {
@@ -268,6 +272,7 @@ files = {
                     "annee": Integer,
                     "conso_annee": Integer,
                     "cas_annee": Integer,
+                    "conso_an_trunc": Integer,
                 },
             },
         },

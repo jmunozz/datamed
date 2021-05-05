@@ -11,7 +11,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-sys.path.append("/Users/linerahal/Documents/GitHub/datamed/create_database")
+sys.path.append('/Users/linerahal/Documents/GitHub/datamed/create_database')
 from db import connect_db
 
 
@@ -91,7 +91,7 @@ PIE_COLORS = ["#F599B5", "#FACCDA", "#EF6690"]
 PIE_LAYOUT = {
     "plot_bgcolor": "#FAFAFA",
     "paper_bgcolor": "#FAFAFA",
-    # "hovermode": False,
+    #"hovermode": False,
     "margin": dict(t=0, b=0, l=0, r=0),
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
 }
@@ -113,6 +113,18 @@ STACKED_BAR_CHART_LAYOUT = {
     "plot_bgcolor": "#FAFAFA",
     "paper_bgcolor": "#FAFAFA",
     "margin": dict(l=0, r=0, t=0, b=0),
+    "font": {"size": 12, "color": "black"},
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+}
+
+CURVE_LAYOUT = {
+    "xaxis_showgrid": False,
+    "yaxis_showgrid": False,
+    "yaxis2_showgrid": False,
+    "hovermode": "x unified",
+    "plot_bgcolor": "#FAFAFA",
+    "paper_bgcolor": "#FAFAFA",
+    "margin": dict(t=0, b=0, l=0, r=0),
     "font": {"size": 12, "color": "black"},
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
 }
@@ -225,21 +237,18 @@ fig.add_trace(
         mode="lines",
         name="Patients traités",
         line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
+        hoverlabel={"namelength" :-1}
     ),
     secondary_y=True,
 )
 
-fig.update_yaxes(title_text="Déclarations d'effets indésirables", secondary_y=False)
-fig.update_yaxes(title_text="Patients traités", secondary_y=True)
+fig.update_yaxes(title_text="Déclarations d'effets indésirables",
+                 color="#F599B5",
+                 secondary_y=False)
+fig.update_yaxes(title_text="Patients traités", color="#EA336B", secondary_y=True)
 fig.update_xaxes(title_text="Années")
-
 fig.update_xaxes(nticks=len(df_decla.loc[code]))
-fig.update_layout(
-    xaxis_showgrid=False,
-    yaxis_showgrid=True,
-    yaxis2_showgrid=False,
-    plot_bgcolor="rgba(0,0,0,0)",
-)
+fig.update_layout(CURVE_LAYOUT)
 fig.show()
 
 
@@ -255,11 +264,17 @@ df_notif.loc[code]
 # ### Effets indésirables par système d'organe
 # #### On n'affiche que le top 10
 
-# In[18]:
+# In[81]:
 
 
 df_soc = pd.read_sql("substance_soclong_ordei", con=engine, index_col="code")
 df_soc.loc[code].sort_values(by="pourcentage_cas", ascending=False)
+
+
+# In[30]:
+
+
+top_soc_long = df_soc.loc[code].sort_values(by="pourcentage_cas", ascending=False).head(10).soc_long.tolist()
 
 
 # In[19]:
@@ -283,6 +298,7 @@ fig = px.treemap(
     path=["soc_long"],
     values="pourcentage_cas",
     color_discrete_sequence=TREE_COLORS,
+    hover_name="soc_long",
 )
 
 fig.update_layout(
@@ -298,7 +314,10 @@ fig.update_layout(
     }
 )
 
-fig.data[0].textinfo = "label+value"
+fig.update_traces(texttemplate="%{label}<br>%{value:.0f}%", textposition='middle center', textfont_size=18,
+                 hovertemplate='<b>%{label}</b> <br> %{value:.0f}%')
+#fig.update_layout(uniformtext=dict(minsize=14, mode="show"))
+#fig.update_layout(font={"size": 18})
 
 fig.show()
 
@@ -308,50 +327,37 @@ fig.show()
 # #### Ici, le fait de cliquer sur un des carrés soc_long ouvrira une modale avec le treemap des effets HLT correspondant à ce soc_long
 # #### On n'affiche que le top 10
 
-# In[20]:
+# In[135]:
 
 
 # Sélection d'un soc_long
 soc_long = "Affections de la peau et du tissu sous-cutané"
 
 
-# In[21]:
+# In[136]:
 
 
 df_hlt = pd.read_sql("substance_hlt_ordei", con=engine, index_col="code")
-df_hlt.loc[code].sort_values(by="pourcentage_cas", ascending=False)
 
 
-# In[22]:
+# In[137]:
 
 
-df_hlt[df_hlt.soc_long == soc_long].loc[code]
+df_hlt[df_hlt.soc_long == soc_long].loc[code].sort_values(by="pourcentage_cas", ascending=False)
 
 
-# In[23]:
+# In[138]:
 
-
-TREE_COLORS = [
-    "#E50046",
-    "#EA336B",
-    "#EF6690",
-    "#F599B5",
-    "#FACCDA",
-    "#A03189",
-    "#B35AA1",
-    "#C683B8",
-    "#D9ADD0",
-    "#ECD6E7",
-]
 
 fig = px.treemap(
     df_hlt[df_hlt.soc_long == soc_long]
     .loc[code]
     .sort_values(by="pourcentage_cas", ascending=False)
     .head(10),
-    path=["effet_hlt"],
+    path=["soc_long", "effet_hlt"],
     values="pourcentage_cas",
     color_discrete_sequence=TREE_COLORS,
+    hover_name="effet_hlt"
 )
 
 fig.update_layout(
@@ -367,9 +373,71 @@ fig.update_layout(
     }
 )
 
-fig.data[0].textinfo = "label+value"
+fig.update_traces(texttemplate="%{label}<br>%{value:.0f}%", textposition='middle center', textfont_size=18,
+                 hovertemplate='<b>%{label}</b> <br> %{value:.0f}%')
+
+fig.show()
+
+
+# #### Treemap plus complexe
+
+# In[ ]:
+
+
+df_hlt = pd.read_sql("substance_hlt_ordei", con=engine, index_col="code").reset_index()
+df_soc = pd.read_sql("substance_soclong_ordei", con=engine, index_col="code")
+df_soc = df_soc.loc[code].sort_values(by="pourcentage_cas", ascending=False).head(5).reset_index()
+
+df_soc = df_soc.merge(df_hlt, on=["code", "soc_long"], how="left", suffixes=('_soclong', '_hlt'))
+df_soc.pourcentage_cas_hlt = df_soc.pourcentage_cas_soclong * df_soc.pourcentage_cas_hlt / 100
+
+df_soc.pourcentage_cas_hlt = df_soc.apply(
+    lambda x: x.pourcentage_cas_hlt
+    if x.effet_hlt in df_soc[df_soc.soc_long == x.soc_long].sort_values(
+        by="pourcentage_cas_hlt", ascending=False
+    ).head(5).effet_hlt.unique()
+    else None,
+    axis=1
+)
+
+df_soc = df_soc.set_index("code")
+
+
+# In[134]:
+
+
+fig = px.treemap(
+    #df_hlt[df_hlt.soc_long == soc_long]
+    df_soc
+    .loc[code]
+    .sort_values(by="pourcentage_cas_hlt", ascending=False),
+    path=["soc_long", "effet_hlt"],
+    values="pourcentage_cas_hlt",
+    color_discrete_sequence=TREE_COLORS,
+    hover_name="effet_hlt"
+)
+
+fig.update_layout(
+    {
+        "xaxis_showgrid": False,
+        "yaxis_showgrid": False,
+        "hovermode": "x unified",
+        "plot_bgcolor": "#FAFAFA",
+        "paper_bgcolor": "#FAFAFA",
+        "margin": dict(t=0, b=0, l=0, r=0),
+        "font": {"size": 12, "color": "black"},
+        "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    }
+)
+
+fig.update_traces(texttemplate="%{label}<br>%{value:.0f}%", textposition='middle center', textfont_size=18,
+                 hovertemplate='<b>%{label}</b> <br> %{value:.0f}%')
 
 fig.show()
 
 
 # In[ ]:
+
+
+
+
