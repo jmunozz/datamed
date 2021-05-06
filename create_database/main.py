@@ -387,7 +387,7 @@ def get_circuit(row: pd.Series) -> Optional[str]:
         return "ville et hôpital"
 
 
-def get_old_ruptures_df() -> pd.DataFrame:
+def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     """
     Table ruptures
     """
@@ -444,11 +444,14 @@ def get_old_ruptures_df() -> pd.DataFrame:
     df.etat = df.etat.str.lower()
     df = df.where(pd.notnull(df), None)
     df = df.drop_duplicates()
+
+    df = df.merge(df_spe[["cis", "nom"]], on="nom", how="left")
     return df
 
 
 def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict):
-    df_old = get_old_ruptures_df()
+    df_spe = pd.read_sql("specialite", engine).reset_index()
+    df_old = get_old_ruptures_df(df_spe)
 
     df = helpers.load_csv_to_df(_settings_ruptures).reset_index()
     df = df.where(pd.notnull(df), None)
@@ -461,21 +464,24 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df.date = df.date.apply(
         lambda x: dt.strptime(x.strftime("%m-%d-%Y"), "%d-%m-%Y") if x else None
     )
+    df.cip13 = df.cip13.astype(str)
+
+    df_pres = pd.read_sql("presentation", engine)
+    df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
 
     df_tot = pd.concat([df, df_old], axis=0, ignore_index=True)
     df_tot["atc2"] = df_tot.atc.apply(lambda x: x[:3] if x else None)
     df_tot["annee"] = df_tot.date.dt.year
 
     df_tot = df_tot.where(pd.notnull(df_tot), None)
-    df_tot.cip13 = df_tot.cip13.apply(lambda x: str(int(x)) if x else None)
 
-    create_table_signalements(df_tot, _settings_signalements)
+    create_table_signalements(df_tot, df_pres, _settings_signalements)
 
     df_tot = df_tot.set_index("numero")
     db.create_table_from_df(df_tot, _settings_ruptures["to_sql"])
 
 
-def create_table_signalements(df: pd.DataFrame, _settings: Dict):
+def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings: Dict):
     df_atc = pd.read_sql("classes_atc", engine)
     df = df.merge(df_atc, left_on="atc2", right_on="code", how="left")
 
@@ -483,7 +489,6 @@ def create_table_signalements(df: pd.DataFrame, _settings: Dict):
     df_spe["atc2"] = df_spe.atc.apply(lambda x: x[:3])
     df_spe = df_spe.merge(df_atc, left_on="atc2", right_on="code", how="left")
 
-    df_pres = pd.read_sql("presentation", engine)
     df_pres = df_pres.merge(df_spe[["cis", "atc2", "label"]], on="cis", how="left")
 
     df_pres_atc = df_pres.groupby("label").cip13.count().reset_index()
