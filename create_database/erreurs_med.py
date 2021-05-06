@@ -7,6 +7,12 @@ from tqdm import tqdm
 
 STOPWORDS = stopwords.words("french")
 
+POPULATION_NOMS = {
+    "Adulte": "Adultes",
+    "Nouveau né": "Nouveaux nés",
+    "Femme enceinte": "Femmes enceintes",
+}
+
 
 def get_produit_denom(denomination: str) -> str:
     denomination = unidecode.unidecode(denomination)
@@ -102,4 +108,8 @@ def clean_emed_df(df: pd.DataFrame, _settings: Dict) -> pd.DataFrame:
 
     df["produit_denom"] = df.denomination.apply(get_produit_denom)
     df["forme_denom"] = df.denomination.apply(get_forme_denom)
+
+    df.population_erreur = df.population_erreur.apply(
+        lambda x: POPULATION_NOMS.get(x, x)
+    )
     return df
