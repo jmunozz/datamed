@@ -178,6 +178,15 @@ def Description(
                 ),
                 html.Article(
                     [
+                        ArticleTitle("Laboratoire"),
+                        html.Div(
+                            series_spe.titulaires.title(),
+                            className="normal-text",
+                        ),
+                    ]
+                ),
+                html.Article(
+                    [
                         ArticleTitle("Description"),
                         html.P(
                             "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
