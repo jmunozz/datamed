@@ -35,6 +35,18 @@
         "returns": null
       },
       {
+        "name": "fire",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "val",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
         "name": "handleSubmit",
         "docblock": null,
         "modifiers": [],
@@ -95,6 +107,13 @@
               "required": false
             }
           }
+        },
+        "required": false,
+        "description": ""
+      },
+      "fireOnSelect": {
+        "type": {
+          "name": "bool"
         },
         "required": false,
         "description": ""
