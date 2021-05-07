@@ -10,7 +10,7 @@ ExampleComponent is an example component. It takes a property, `label`, and disp
 }
 
 \usage{
-searchBar(id=NULL, opts=NULL, value=NULL)
+searchBar(id=NULL, opts=NULL, value=NULL, fireOnSelect=NULL)
 }
 
 \arguments{
@@ -22,6 +22,8 @@ searchBar(id=NULL, opts=NULL, value=NULL)
 those elements have the following types:
   - value (character | numeric; optional)
   - type (character; optional). }
+
+\item{fireOnSelect}{Logical. }
 }
 
 \value{named list of JSON elements corresponding to React.js properties and their values}

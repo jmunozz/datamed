@@ -10,21 +10,20 @@ class App extends Component {
     constructor() {
         super();
         this.state = {
-            value: '',
-            opts,
+            props: {}
         };
         this.setProps = this.setProps.bind(this);
     }
 
     setProps(newProps) {
-        this.setState(newProps);
+        this.setState({ props: newProps });
     }
 
     render() {
         return (
             <div style={{height: '100%', width:"100%", display: "flex", justifyContent: "center", verticalAlign: "center", backgroundColor: 'green'}}>
-                <SearchBar setProps={this.setProps} {...this.state} />
-                <div  />
+                <SearchBar setProps={this.setProps} opts={opts} fireOnSelect={true} />
+                <div>{JSON.stringify(this.state.props)}</div>
             </div >
         );
     }

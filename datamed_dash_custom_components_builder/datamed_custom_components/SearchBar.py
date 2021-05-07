@@ -17,14 +17,15 @@ Keyword arguments:
 - value (dict; optional): value has the following type: dict containing keys 'value', 'type'.
 Those keys have the following types:
   - value (string | number; optional)
-  - type (string; optional)"""
+  - type (string; optional)
+- fireOnSelect (boolean; optional)"""
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, opts=Component.UNDEFINED, value=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'opts', 'value']
+    def __init__(self, id=Component.UNDEFINED, opts=Component.UNDEFINED, value=Component.UNDEFINED, fireOnSelect=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['id', 'opts', 'value', 'fireOnSelect']
         self._type = 'SearchBar'
         self._namespace = 'datamed_custom_components'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'opts', 'value']
+        self.available_properties = ['id', 'opts', 'value', 'fireOnSelect']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')

@@ -18,9 +18,10 @@ Keyword arguments:
 Those elements have the following types:
   - `value` (String | Real; optional)
   - `type` (String; optional)
+- `fireOnSelect` (Bool; optional)
 """
 function searchbar(; kwargs...)
-        available_props = Symbol[:id, :opts, :value]
+        available_props = Symbol[:id, :opts, :value, :fireOnSelect]
         wild_props = Symbol[]
         return Component("searchbar", "SearchBar", "datamed_custom_components", available_props, wild_props; kwargs...)
 end
