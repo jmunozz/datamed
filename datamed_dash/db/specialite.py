@@ -76,3 +76,16 @@ def list_substances(cis):
 
     df_spe_sub = get_specialite_substance_df(cis)
     return get_substance_df(df_spe_sub["code_substance"].values)
+
+
+def get_presentation_df(cis):
+    return return_sub_df_or_none(fetch_table("presentation", "cis"), cis)
+
+
+def list_ruptures(cis):
+    df_presentation = get_presentation_df(cis)
+    return get_ruptures_df(df_presentation["cip13"].values)
+
+
+def get_ruptures_df(cips):
+    return return_sub_df_or_none(fetch_table("ruptures", "cip13"), cips)
