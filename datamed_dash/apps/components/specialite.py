@@ -23,6 +23,7 @@ from .utils import (
     ExternalLink,
     SectionP,
     FigureGraph,
+    date_as_string,
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
@@ -424,7 +425,16 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
     )
 
 
-mapColDateRupture = {"hôpital": "debut_ville", "ville": "remise_dispo_ville"}
+mapCircuitColRupture = {
+    "ville": {
+        "start": "debut_ville",
+        "availability_date": "prevision_remise_dispo_ville",
+    },
+    "hôpital": {
+        "start": "debut_hopital",
+        "availability_date": "prevision_remise_dispo_hopital",
+    },
+}
 
 
 def RuptureDeStockTableRowValues(values):
@@ -451,20 +461,36 @@ def RuptureDeStockTableRowLabels(labels):
 
 
 def RuptureDeStockTableRow(series_rup):
+    circuit = series_rup.circuit
+    col_start = mapCircuitColRupture[circuit]["start"]
+    col_availability_date = mapCircuitColRupture[circuit]["availability_date"]
+    availability_date = (
+        date_as_string(series_rup[col_availability_date])
+        if series_rup[col_availability_date]
+        else "Non"
+    )
     return html.Div(
         [
             RuptureDeStockTableRowLabels(
-                ["Présentation de médicament", "Statut", "Circuit"]
+                [
+                    "Présentation de médicament",
+                    "Statut",
+                    "Circuit",
+                    "Date de rupture",
+                    "Date de remise à disposition",
+                ]
             ),
             RuptureDeStockTableRowValues(
                 [
                     series_rup.nom.capitalize(),
                     series_rup.classification.capitalize(),
-                    series_rup.circuit.capitalize(),
+                    circuit.capitalize(),
+                    date_as_string(series_rup[col_start]),
+                    availability_date,
                 ]
             ),
         ],
-        className="d-flex flex-row",
+        className="d-flex flex-row border",
         style={"padding": "15px"},
     )
 
@@ -475,6 +501,9 @@ def RuptureDeStockTable(df_rup):
 
 
 def RuptureDeStock(df_rup: pd.DataFrame):
+    if df_rup is None:
+        df_rup = pd.DataFrame()
+
     return TopicSection(
         [
             SectionTitle("Historique des ruptures de stock"),
@@ -482,12 +511,13 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                 Box(
                     [
                         html.Div(
-                            "{} signalement(s)".format(10),
+                            "{} signalement(s)".format(fetch_data.get_df_len(df_rup)),
                             className="normal-text mt-3",
                             style={"color": "#33C2D6"},
                         ),
                         RuptureDeStockTable(df_rup),
-                    ]
+                    ],
+                    class_name="content",
                 ),
             ),
         ],

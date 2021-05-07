@@ -4,6 +4,7 @@
   --color-white: #ffffff;
   --color-1: rgb(94, 42, 126);
   --color-3: #ccf0f5;
+  --border: solid 1px #e6e6e6;
 }
 
 .box {
@@ -340,4 +341,13 @@ a.btn-lg {
 
 .fp-section-3 {
   background-color: var(--color-3);
+}
+
+.border {
+  border: var(--border);
+  border-radius: 5px;
+}
+
+.content * {
+  margin-bottom: 15px;
 }
