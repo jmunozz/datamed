@@ -3,8 +3,10 @@
 :root {
   --color-white: #ffffff;
   --color-1: rgb(94, 42, 126);
+  --color-2: #8acb88;
   --color-3: #ccf0f5;
   --border: solid 1px #e6e6e6;
+  --border-radius: 5px;
 }
 
 .box {
@@ -350,4 +352,16 @@ a.btn-lg {
 
 .content * {
   margin-bottom: 15px;
+}
+
+.custom-badge {
+  display: inline-block;
+  padding: 0.25em 0.4em;
+  font-size: 100%;
+  line-height: 1;
+  border-radius: var(--border-radius);
+}
+
+.custom-badge-primary {
+  background-color: var(--color-2);
 }

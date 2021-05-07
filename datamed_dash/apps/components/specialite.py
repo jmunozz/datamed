@@ -170,9 +170,8 @@ def Description(
                     [
                         ArticleTitle("Statut de la spécialité de médicament"),
                         html.Div(
-                            series_spe.etat_commercialisation.upper(),
-                            className="normal-text-cap d-block",
-                            id="refresh-substances",
+                            series_spe.etat_commercialisation.capitalize(),
+                            className="custom-badge custom-badge-primary",
                         ),
                     ]
                 ),
@@ -180,8 +179,7 @@ def Description(
                     [
                         ArticleTitle("Laboratoire"),
                         html.Div(
-                            series_spe.titulaires.title(),
-                            className="normal-text",
+                            series_spe.titulaires.title(), className="normal-text",
                         ),
                     ]
                 ),
