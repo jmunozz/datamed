@@ -14,18 +14,17 @@ from db import specialite, substance
 from datamed_custom_components import SearchBar
 
 
-search_item_max_len = 30
+search_item_max_len = 100
+
+
+def truncate_str(str):
+    return f"{str[:search_item_max_len]}..." if len(str) >= search_item_max_len else str
 
 
 def to_search_bar_options(df: DataFrame, type: str):
+
     return [
-        {
-            "label": f"{val[:search_item_max_len]}..."
-            if len(val) >= search_item_max_len
-            else val,
-            "value": index,
-            "type": type,
-        }
+        {"label": truncate_str(val), "value": index, "type": type,}
         for index, val in df["nom"].items()
     ]
 
@@ -68,7 +67,7 @@ def Navbar() -> Component:
             MenuItem("Analyses thématiques", "/"),
             MenuItem("Explorer", "/apps/explorer"),
             MenuItem("À propos", "/"),
-            SearchBar(id="search-bar", opts=opts),
+            SearchBar(id="search-bar", opts=opts, fireOnSelect=True),
         ],
         className="navbar",
     )
