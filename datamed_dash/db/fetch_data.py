@@ -40,3 +40,7 @@ def as_index_list(df):
 # return the first row of a dataframe as a series
 def as_series(df):
     return df.iloc[0]
+
+
+def get_df_len(df):
+    return len(df.index)

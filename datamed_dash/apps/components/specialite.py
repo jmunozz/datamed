@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
+import dash_table
 from app import app
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
@@ -22,6 +23,7 @@ from .utils import (
     ExternalLink,
     SectionP,
     FigureGraph,
+    date_as_string,
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
@@ -84,6 +86,7 @@ def Specialite(cis: str) -> Component:
     df_nat = specialite.get_erreur_med_nature(cis)
     df_pop = specialite.get_erreur_med_population(cis)
     df_denom = specialite.get_erreur_med_denom(cis)
+    df_rup = specialite.list_ruptures(cis)
 
     return (
         Header(series_spe),
@@ -97,6 +100,10 @@ def Specialite(cis: str) -> Component:
                         {
                             "id": "erreurs-medicamenteuses",
                             "label": "Données de pharmacovigilance",
+                        },
+                        {
+                            "id": "rupture-de-stock",
+                            "label": "Historique des ruptures de stock",
                         },
                     ],
                     className="side-menu",
@@ -115,6 +122,7 @@ def Specialite(cis: str) -> Component:
                                 df_ei, df_pop, df_cause, df_nat, df_denom, series_spe,
                             ),
                             EffetsIndesirables(df_sub),
+                            RuptureDeStock(df_rup),
                         ],
                         className="container-fluid",
                         style={"padding-left": "80px"},
@@ -415,3 +423,104 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
         ],
         class_name="d-flex flex-row justify-content-between",
     )
+
+
+mapCircuitColRupture = {
+    "ville": {
+        "start": "debut_ville",
+        "availability_date": "prevision_remise_dispo_ville",
+    },
+    "hôpital": {
+        "start": "debut_hopital",
+        "availability_date": "prevision_remise_dispo_hopital",
+    },
+}
+
+
+def RuptureDeStockTableRowValues(values):
+    return html.Div(
+        [
+            html.Div(v, style={"margin-bottom": "15px"}, className="normal-text")
+            for v in values
+        ],
+        className="d-flex flex-column justify-content-start",
+    )
+
+
+def RuptureDeStockTableRowLabels(labels):
+    return html.Div(
+        [
+            html.Div(
+                label, className="normal-text-bold", style={"margin-bottom": "15px"}
+            )
+            for label in labels
+        ],
+        className="d-flex flex-column justify-content-start",
+        style={"margin-right": "30px"},
+    )
+
+
+def RuptureDeStockTableRow(series_rup):
+    circuit = series_rup.circuit
+    col_start = mapCircuitColRupture[circuit]["start"]
+    col_availability_date = mapCircuitColRupture[circuit]["availability_date"]
+    availability_date = (
+        date_as_string(series_rup[col_availability_date])
+        if series_rup[col_availability_date]
+        else "Non"
+    )
+    return html.Div(
+        [
+            RuptureDeStockTableRowLabels(
+                [
+                    "Présentation de médicament",
+                    "Statut",
+                    "Circuit",
+                    "Date de rupture",
+                    "Date de remise à disposition",
+                ]
+            ),
+            RuptureDeStockTableRowValues(
+                [
+                    series_rup.nom.capitalize(),
+                    series_rup.classification.capitalize(),
+                    circuit.capitalize(),
+                    date_as_string(series_rup[col_start]),
+                    availability_date,
+                ]
+            ),
+        ],
+        className="d-flex flex-row border",
+        style={"padding": "15px"},
+    )
+
+
+def RuptureDeStockTable(df_rup):
+    rows = [RuptureDeStockTableRow(row) for label, row in df_rup.iterrows()]
+    return html.Div(rows, className="rds-table")
+
+
+def RuptureDeStock(df_rup: pd.DataFrame):
+    if df_rup is None:
+        df_rup = pd.DataFrame()
+
+    return TopicSection(
+        [
+            SectionTitle("Historique des ruptures de stock"),
+            dbc.Row(
+                Box(
+                    [
+                        html.Div(
+                            "{} signalement(s)".format(fetch_data.get_df_len(df_rup)),
+                            className="normal-text mt-3",
+                            style={"color": "#33C2D6"},
+                        ),
+                        RuptureDeStockTable(df_rup),
+                    ],
+                    class_name="content",
+                ),
+            ),
+        ],
+        id="rupture-de-stock",
+    )
+
