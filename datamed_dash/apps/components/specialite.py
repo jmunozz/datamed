@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
@@ -5,7 +7,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
-import dash_table
 from app import app
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
@@ -71,7 +72,7 @@ def get_notice_link(cis: str) -> str:
     )
 
 
-def Specialite(cis: str) -> Component:
+def Specialite(cis: str) -> Tuple[Component, html.Div]:
 
     df_spe = specialite.get_specialite_df(cis)
     series_spe = fetch_data.as_series(df_spe)
@@ -119,7 +120,12 @@ def Specialite(cis: str) -> Component:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_ei, df_pop, df_cause, df_nat, df_denom, series_spe,
+                                df_ei,
+                                df_pop,
+                                df_cause,
+                                df_nat,
+                                df_denom,
+                                series_spe,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -181,7 +187,8 @@ def Description(
                         ArticleTitle("Description"),
                         html.P(
                             "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
-                                series_atc.label.capitalize(), series_atc.atc,
+                                series_atc.label.capitalize(),
+                                series_atc.atc,
                             ),
                             className="normal-text",
                         ),
@@ -193,7 +200,10 @@ def Description(
                         ArticleTitle(
                             "Avis de la Commission de la Transparence de la HAS"
                         ),
-                        ExternalLink("Afficher l'avis", get_has_guideline_link(cis),),
+                        ExternalLink(
+                            "Afficher l'avis",
+                            get_has_guideline_link(cis),
+                        ),
                     ]
                 ),
                 html.Article(
@@ -268,7 +278,10 @@ def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
             marker_colors=PIE_COLORS_SPECIALITE,
         )
     ).update_layout(PIE_LAYOUT)
-    return Graph(figure=fig_pop, responsive=True,)
+    return Graph(
+        figure=fig_pop,
+        responsive=True,
+    )
 
 
 def BoxListDenomination(df_denom):
@@ -282,7 +295,10 @@ def BoxListDenomination(df_denom):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
+        style_cell={
+            "height": "50px",
+            "backgroundColor": "#FAFAFA",
+        },
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -523,4 +539,3 @@ def RuptureDeStock(df_rup: pd.DataFrame):
         ],
         id="rupture-de-stock",
     )
-
