@@ -8,7 +8,7 @@ from dash_html_components import Div, A, Img, H4, H1, Label
 def Box(
     children, class_name_wrapper="col-md-12", class_name="", style=None
 ) -> Component:
-    class_name = f"box {class_name}"
+    class_name = f"Box  Box-isBordered {class_name}"
     return Div(
         Div(children, className=class_name, style=style), className=class_name_wrapper,
     )

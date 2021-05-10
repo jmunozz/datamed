@@ -5,12 +5,10 @@
   --color-1: rgb(94, 42, 126);
   --color-2: #8acb88;
   --color-3: #ccf0f5;
+  --color-4: #eae8ff;
+  --color-5: #a03189;
   --border: solid 1px #e6e6e6;
   --border-radius: 5px;
-}
-
-.box {
-  padding: 1.5rem 1.5rem 3rem 1.5rem;
 }
 
 .btn {
@@ -180,21 +178,6 @@
   height: 100% !important;
 } */
 
-.box-border {
-  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.24);
-  border-radius: 3px;
-  background-color: #fafafa;
-}
-
-.box {
-  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.24);
-  border-radius: 3px;
-  background-color: #fafafa;
-  margin-bottom: 24px;
-  padding: 1rem;
-  width: 100%;
-}
-
 .color-secondary {
   color: #00b3cc !important;
 }
@@ -208,8 +191,9 @@
   color: #fff;
 }
 
-a {
+.link {
   text-decoration: underline;
+  color: var(--color-5);
 }
 
 a:active {
@@ -345,16 +329,26 @@ a.btn-lg {
   background-color: var(--color-3);
 }
 
-.border {
-  border: var(--border);
-  border-radius: 5px;
-}
-
 .content * {
   margin-bottom: 15px;
 }
 
-.custom-badge {
+/*
+** Start BEM 
+*/
+
+.Box {
+  background-color: #fafafa;
+  padding: 1rem;
+}
+
+.Box-isBordered {
+  border: var(--border);
+  border-radius: 5px;
+}
+
+.Badge {
+  background-color: var(--color-2);
   display: inline-block;
   padding: 0.25em 0.4em;
   font-size: 100%;
@@ -362,6 +356,6 @@ a.btn-lg {
   border-radius: var(--border-radius);
 }
 
-.custom-badge-primary {
-  background-color: var(--color-2);
+.Badge-isSecondary {
+  background-color: var(--color-4);
 }

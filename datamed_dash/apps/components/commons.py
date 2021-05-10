@@ -125,7 +125,7 @@ def Accordion() -> Component:
                 id="collapse-1",
             ),
         ],
-        className="box",
+        className="Box",
     )
 
 

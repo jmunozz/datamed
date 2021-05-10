@@ -171,7 +171,7 @@ def Description(
                         ArticleTitle("Statut de la spécialité de médicament"),
                         html.Div(
                             series_spe.etat_commercialisation.capitalize(),
-                            className="custom-badge custom-badge-primary",
+                            className="Badge",
                         ),
                     ]
                 ),
@@ -186,11 +186,16 @@ def Description(
                 html.Article(
                     [
                         ArticleTitle("Description"),
-                        html.P(
-                            "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
+                        html.Span(
+                            "Classe ATC (Anatomique, Thérapeutique et Chimique):",
+                            className="normal-text",
+                            style={"margin-right": "15px"},
+                        ),
+                        html.Span(
+                            "{} ({})".format(
                                 series_atc.label.capitalize(), series_atc.atc,
                             ),
-                            className="normal-text",
+                            className="Badge Badge-isSecondary",
                         ),
                         html.P(series_desc.description, className="normal-text"),
                     ]
