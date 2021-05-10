@@ -179,7 +179,7 @@ files = {
             "name": "presentation",
             "if_exists": "replace",
             "index": True,
-            "dtype": {"cis": String(16)},
+            "dtype": {"cis": String(16), "cip13": String(16)},
         },
     },
     "ordei_specialite": [
@@ -567,8 +567,20 @@ files = {
                 "debut_ville": Date,
                 "prevision_remise_dispo_ville": Date,
                 "debut_hopital": Date,
-                "prevision_remise_dispo_hopital": Date
+                "prevision_remise_dispo_hopital": Date,
             },
         },
+    },
+    "signalements": {
+        "to_sql": {
+            "name": "signalements",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "annee": Integer,
+                "nb_signalements": Integer,
+                "nb_presentations": Integer,
+            },
+        }
     },
 }

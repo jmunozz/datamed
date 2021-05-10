@@ -1,4 +1,6 @@
+import datetime
 from typing import List, Dict
+import pandas as pd
 
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
@@ -82,4 +84,20 @@ def ExternalLink(label: str, link: str):
 
 
 def date_as_string(date):
+    # pd.NaT is somehow instance of date
+    if not isinstance(date, datetime.date) or pd.isnull(date):
+        return date
     return date.strftime("%d/%m/%Y")
+
+
+def nested_get(dict, key, default):
+    [current_key, *key_list] = key.split(".")
+    try:
+        current_value = dict[current_key]
+        if not len(key_list):
+            return current_value
+        else:
+            return nested_get(dict.get(current_key), "".join(key_list), default)
+    except KeyError:
+        return default
+

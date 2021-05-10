@@ -24,6 +24,7 @@ from .utils import (
     SectionP,
     FigureGraph,
     date_as_string,
+    nested_get,
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
@@ -86,7 +87,7 @@ def Specialite(cis: str) -> Component:
     df_nat = specialite.get_erreur_med_nature(cis)
     df_pop = specialite.get_erreur_med_population(cis)
     df_denom = specialite.get_erreur_med_denom(cis)
-    df_rup = specialite.list_ruptures(cis)
+    df_rup = specialite.get_ruptures(cis)
 
     return (
         Header(series_spe),
@@ -474,13 +475,21 @@ def RuptureDeStockTableRowLabels(labels):
 
 def RuptureDeStockTableRow(series_rup):
     circuit = series_rup.circuit
-    col_start = mapCircuitColRupture[circuit]["start"]
-    col_availability_date = mapCircuitColRupture[circuit]["availability_date"]
-    availability_date = (
-        date_as_string(series_rup[col_availability_date])
-        if series_rup[col_availability_date]
-        else "Non"
+    col_start = nested_get(mapCircuitColRupture, f"{circuit}.start", None)
+    col_availability_date = nested_get(
+        mapCircuitColRupture, f"{circuit}.availability_date", None
     )
+    availability_date = (
+        date_as_string(series_rup.get(col_availability_date))
+        if col_availability_date and not pd.isnull(series_rup[col_availability_date])
+        else "Pas de données"
+    )
+    shortage_date = (
+        date_as_string(series_rup.get(col_start))
+        if col_start and not pd.isnull(series_rup[col_start])
+        else "Pas de données"
+    )
+
     return html.Div(
         [
             RuptureDeStockTableRowLabels(
@@ -488,6 +497,8 @@ def RuptureDeStockTableRow(series_rup):
                     "Présentation de médicament",
                     "Statut",
                     "Circuit",
+                    "Cause",
+                    "Date de signalement",
                     "Date de rupture",
                     "Date de remise à disposition",
                 ]
@@ -496,8 +507,10 @@ def RuptureDeStockTableRow(series_rup):
                 [
                     series_rup.nom.capitalize(),
                     series_rup.classification.capitalize(),
-                    circuit.capitalize(),
-                    date_as_string(series_rup[col_start]),
+                    circuit.capitalize() if circuit else "Pas de données",
+                    series_rup.cause.capitalize(),
+                    date_as_string(series_rup.date),
+                    shortage_date,
                     availability_date,
                 ]
             ),
@@ -508,7 +521,10 @@ def RuptureDeStockTableRow(series_rup):
 
 
 def RuptureDeStockTable(df_rup):
-    rows = [RuptureDeStockTableRow(row) for label, row in df_rup.iterrows()]
+    rows = [
+        RuptureDeStockTableRow(row)
+        for label, row in df_rup.sort_values(by=["date"], ascending=False).iterrows()
+    ]
     return html.Div(rows, className="rds-table")
 
 
