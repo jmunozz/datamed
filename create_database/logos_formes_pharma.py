@@ -1,84 +1,38 @@
-import pandas as pd
-
-import paths
-from create_tables import upload_cis_from_rsp
-
-LOGOS_DICT = {
-    "collyre": "collyre",
-    "oculaire": "collyre",
-    "comprimé": "comprimé",
-    "tablette": "comprimé",
-    "pilule": "comprimé",
-    "film orodispersible": "comprimé",
-    "crème": "crème",
-    "gel": "crème",
-    "lotion": "crème",
-    "pommade": "crème",
-    "mousse": "crème",
-    "pâte": "crème",
-    "émulsion": "liquide",
-    "solution": "liquide",
-    "gaz": "gaz",
-    "inhalation": "gaz",
-    "granule": "granule",
-    "granulé": "granule",
-    "graines": "granules",
-    "gélule": "gélule",
-    "capsule": "gélule",
-    "plante": "plante",
-    "cataplasme": "plante",
-    "poudre": "poudre",
-    "lyophilisat": "poudre",
-    "implant": "implant",
-    "tampon": "implant",
-    "injectable": "seringue",
-    "injection": "seringue",
-    "pansement": "pansement",
-    "compresse": "pansement",
-    "emplâtre": "pansement",
-    "perfusion": "seringue",
-    "sirop": "sirop",
-    "bain de bouche": "sirop",
-    "buvable": "sirop",
-    "suppositoire": "suppositoire",
-    "ovule": "suppositoire",
-    "pulvérisation": "spray",
-    "collutoire": "spray",
+ICONS_DICT = {
+    "collyre": ["collyre", "collyre en solution", "oculaire"],
+    "comprimé": ["comprimé", "tablette", "pilule", "film orodispersible"],
+    "crème": ["crème", "gel", "lotion", "pommade", "mousse", "pâte"],
+    "liquide": ["liquide", "émulsion", "solution"],
+    "gaz": ["gaz", "inhalation"],
+    "granule": ["granule", "granulé", "graines"],
+    "gélule": ["gélule", "capsule"],
+    "plante": ["plante", "cataplasme"],
+    "poudre": ["poudre", "poudre pour suspension buvable", "lyophilisat"],
+    "implant": ["implant", "tampon"],
+    "seringue": ["injectable", "injection", "perfusion"],
+    "pansement": ["pansement", "compresse", "emplâtre"],
+    "sirop": ["sirop", "bain de bouche", "buvable"],
+    "suppositoire": ["suppositoire", "ovule"],
+    "spray": ["pulvérisation", "collutoire"],
 }
 
 
-def get_specialite_logo(spe: str) -> str:
-    specialite_logos = [
-        LOGOS_DICT[forme_pharma]
-        for forme_pharma in LOGOS_DICT.keys()
-        if forme_pharma in spe
+def get_specialite_icon(spe: str) -> str:
+    specialite_icons = [
+        forme_pharma
+        for forme_pharma, icons_list in ICONS_DICT.items()
+        if any(icon in spe for icon in icons_list)
     ]
-    if not specialite_logos:
+
+    if not specialite_icons:
         return "autre"
-    if len(specialite_logos) > 1:
-        if "liquide" in specialite_logos:
-            specialite_logos.remove("liquide")
-            return specialite_logos[0]
+    if len(specialite_icons) > 1:
+        if "liquide" == specialite_icons[0]:
+            specialite_icons.remove("liquide")
+            return specialite_icons[0]
+        if "poudre" in specialite_icons and "sirop" in specialite_icons:
+            return "poudre"
         else:
             return "multi"
     else:
-        return specialite_logos[0]
-
-
-def affect_logo_to_spe():
-    df = upload_cis_from_rsp(paths.P_CIS_RSP)
-
-    df["logo"] = df.forme_pharma.apply(lambda x: get_specialite_logo(x))
-
-    pd.DataFrame(df.forme_pharma.value_counts()).reset_index().rename(
-        columns={"index": "forme_pharma", "forme_pharma": "occurences"}
-    ).to_csv(
-        "~/Desktop/formes_pharma.csv",
-        index=False,
-        sep=";",
-        encoding="utf-8",
-    )
-
-    df[["cis", "nom_spe_pharma", "forme_pharma", "logo"]].to_csv(
-        "~/Desktop/logos_spécialités.csv", index=False, sep=";"
-    )
+        return specialite_icons[0]
