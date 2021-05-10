@@ -279,7 +279,8 @@ fig.show()
 
 
 df_cause = df.groupby(["annee", "cause"]).numero.count().reset_index()
-df_cause = df_cause.rename(columns={"numero": "nombre_signalements"})
+df_cause.numero = df_cause.apply(lambda x: x.numero / len(df_cause[df_cause.annee == x.annee]), axis=1)
+df_cause = df_cause.rename(columns={"numero": "nombre_signalements"}).set_index("annee")
 
 
 # In[21]:
@@ -288,40 +289,81 @@ df_cause = df_cause.rename(columns={"numero": "nombre_signalements"})
 df_cause.head()
 
 
-# # Test recherche spécialité
-
 # In[22]:
 
 
-cis = "69766923"
+df_cause.loc[2019].sort_values(by="nombre_signalements", ascending=False).head(10)
 
 
 # In[23]:
 
 
+fig = px.treemap(
+        df_cause.loc[2019].sort_values(by="nombre_signalements", ascending=False).head(10),
+        path=["cause"],
+        values="nombre_signalements",
+        #color_discrete_sequence=TREE_COLORS,
+        hover_name="cause",
+    )
+
+fig.update_layout(
+    {
+        "xaxis_showgrid": False,
+        "yaxis_showgrid": False,
+        "hovermode": "x unified",
+        "plot_bgcolor": "#FAFAFA",
+        "paper_bgcolor": "#FAFAFA",
+        "margin": dict(t=0, b=0, l=0, r=0),
+        "font": {"size": 12, "color": "black"},
+        "legend": dict(
+            orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
+        ),
+    }
+)
+fig.update_traces(
+    texttemplate="%{label}<br>%{value:.0f}%",
+    textposition="middle center",
+    textfont_size=18,
+    hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
+)
+
+fig.show()
+
+
+# # Test recherche spécialité
+
+# In[24]:
+
+
+cis = "69766923"
+
+
+# In[25]:
+
+
 df_spe = fetch_data.fetch_table("specialite", "cis")
 
 
-# In[24]:
+# In[26]:
 
 
 specialite = df_spe.loc[cis].nom
 
 
-# In[25]:
+# In[27]:
 
 
 produit = specialite.split()[0]
 forme = specialite.split()[-1]
 
 
-# In[26]:
+# In[28]:
 
 
 df_spe.head(1)
 
 
-# In[27]:
+# In[29]:
 
 
 df = df.merge(df_spe.reset_index()[["cis", "nom"]], on="nom", how="left")
@@ -329,19 +371,19 @@ df = df.merge(df_spe.reset_index()[["cis", "nom"]], on="nom", how="left")
 
 # ### Présentation
 
-# In[28]:
+# In[30]:
 
 
 df_pres = fetch_data.fetch_table("presentation", "cip13").reset_index()
 
 
-# In[29]:
+# In[31]:
 
 
 df_pres.head(1)
 
 
-# In[30]:
+# In[32]:
 
 
 df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
@@ -349,19 +391,19 @@ df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
 
 # ### Récupérer ruptures liées à la spécialité
 
-# In[31]:
+# In[33]:
 
 
 specialite
 
 
-# In[32]:
+# In[34]:
 
 
 df[(df.cis == cis) | df.nom.apply(lambda x: x.split()[0] == produit)]
 
 
-# In[ ]:
+# In[35]:
 
 
 df[df.cis_x.notnull()]
