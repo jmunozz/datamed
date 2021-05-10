@@ -362,39 +362,23 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         "figure": "{} signalements / an".format(
                                             signalements
                                         ),
-                                        "caption": "",
+                                        "caption": "Nombre moyen de signalements par an",
                                     }
                                 ]
                             ),
-                            # Div(
-                            #     [
-                            #         H1("{} signalements / an".format(signalements)),
-                            #         Label(
-                            #             "",
-                            #             className="normal-text",
-                            #             style={"color": "black"},
-                            #         ),
-                            #     ],
-                            #     className="d-flex flex-column align-items-center normal-text",
-                            #     style={"color": "#00B3CC", "margin": "15px"},
-                            # ),
                         ],
                         class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         "",
                         [
-                            Div(
+                            FigureGraph(
                                 [
-                                    H1("- actions réalisées"),
-                                    Label(
-                                        "Signalements ayant fait l'objet d'une mesure de gestion",
-                                        className="normal-text",
-                                        style={"color": "black"},
-                                    ),
-                                ],
-                                className="d-flex flex-column align-items-center normal-text",
-                                style={"color": "#00B3CC", "margin": "15px"},
+                                    {
+                                        "figure": "- actions réalisées",
+                                        "caption": "Signalements ayant fait l'objet d'une mesure de gestion",
+                                    }
+                                ]
                             ),
                         ],
                         class_name_wrapper="col-md-6",
