@@ -1,4 +1,5 @@
 import math
+from datetime import datetime as dt
 from os import path
 from typing import Dict, Optional
 
@@ -330,14 +331,179 @@ def create_table_emed(_settings: Dict):
         db.create_table_from_df(df_table, args)
 
 
-def create_table_ruptures(_settings: Dict):
-    df = helpers.load_csv_to_df(_settings)
-    df = df.where(pd.notnull(df), None)
-    helpers.serie_to_lowercase(
-        df, ["etat", "classification", "nom", "nom_atc", "circuit"]
+# def get_old_ruptures_df() -> pd.DataFrame:
+#     df = pd.read_csv(
+#         "data/ruptures.csv",
+#         sep=";",
+#         header=0,
+#         parse_dates=[
+#             "date_signalement",
+#             "date_previ_ville",
+#             "date_previ_hopital",
+#         ],
+#         usecols=[
+#             "signalement",
+#             "date_signalement",
+#             "laboratoire",
+#             "specialite",
+#             "rupture",
+#             "atc",
+#             "date_previ_ville",
+#             "date_previ_hopital",
+#         ],
+#     )
+#     df = df.rename(
+#         columns={
+#             "signalement": "numero",
+#             "date_signalement": "date",
+#             "specialite": "nom",
+#             "rupture": "classification",
+#             "date_previ_ville": "prevision_remise_dispo_ville",
+#             "date_previ_hopital": "prevision_remise_dispo_hopital",
+#         }
+#     )
+#     df = df.where(pd.notnull(df), None)
+#
+#     df.atc = df.atc.str.upper()
+#     df.nom = df.apply(
+#         lambda x: x.nom.replace(" /", "/")
+#         .replace("/ ", "/")
+#         .replace("intraoculaire", "intra-oculaire")
+#         if x.nom
+#         else None,
+#         axis=1,
+#     )
+#     return df[df.date.dt.year >= 2014]
+
+
+def get_circuit(row: pd.Series) -> Optional[str]:
+    if row.Circuit_Touche_Ville == "NR" and row.Circuit_Touche_Hopital == "NR":
+        return None
+    elif row.Circuit_Touche_Ville == "VILLE":
+        return "ville"
+    elif row.Circuit_Touche_Hopital == "HOPITAL":
+        return "hôpital"
+    elif row.Circuit_Touche_Ville == "HOPITAL/VILLE":
+        return "ville et hôpital"
+
+
+def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Table ruptures
+    """
+    df = pd.read_excel(
+        "data/Annexe 1_ListeDesRuptures.xlsx",
+        sheet_name="BDD Ruptures",
+        header=0,
+        parse_dates=[
+            "DatePrevi_Ville",
+            "DatePrevi_Hôpital",
+        ],
+        usecols=[
+            "Signalement",
+            "Date Signalement",
+            "Laboratoire",
+            "Spécialité",
+            "Rupture",
+            "Etat dossier",
+            "ATC",
+            "DCI",
+            "Indications",
+            "Circuit_Touche_Ville",
+            "Circuit_Touche_Hopital",
+            "DatePrevi_Ville",
+            "DatePrevi_Hôpital",
+            "Cause propre",
+        ],
     )
+
+    df = df.rename(
+        columns={
+            "Signalement": "numero",
+            "Date Signalement": "date",
+            "Laboratoire": "laboratoire",
+            "Spécialité": "nom",
+            "Rupture": "classification",
+            "Etat dossier": "etat",
+            "ATC": "atc",
+            "DCI": "dci",
+            "Indications": "indications",
+            "DatePrevi_Ville": "prevision_remise_dispo_ville",
+            "DatePrevi_Hôpital": "prevision_remise_dispo_hopital",
+            "Cause propre": "cause",
+        }
+    )
+
+    df["circuit"] = df.apply(get_circuit, axis=1)
+    df = df.drop(["Circuit_Touche_Ville", "Circuit_Touche_Hopital"], axis=1)
+    df.cause = df.cause.str.lower()
+    df.dci = df.dci.str.lower()
+    df.laboratoire = df.laboratoire.str.lower().str.capitalize()
+    df.nom = df.nom.str.lower()
+    df.classification = df.classification.str.lower()
+    df.etat = df.etat.str.lower()
+    df = df.where(pd.notnull(df), None)
+    df = df.drop_duplicates()
+
+    df = df.merge(df_spe[["cis", "nom"]], on="nom", how="left")
+    return df
+
+
+def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict):
+    df_spe = pd.read_sql("specialite", engine).reset_index()
+    df_old = get_old_ruptures_df(df_spe)
+
+    df = helpers.load_csv_to_df(_settings_ruptures).reset_index()
+    df = df.where(pd.notnull(df), None)
+    df["cause"] = None
+    helpers.serie_to_lowercase(
+        df, ["etat", "classification", "nom", "nom_atc", "circuit", "laboratoire"]
+    )
+    df.laboratoire = df.laboratoire.str.capitalize()
     df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
-    db.create_table_from_df(df, _settings["to_sql"])
+    df.date = df.date.apply(
+        lambda x: dt.strptime(x.strftime("%m-%d-%Y"), "%d-%m-%Y") if x else None
+    )
+    df.cip13 = df.cip13.astype(str)
+
+    df_pres = pd.read_sql("presentation", engine)
+    df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
+
+    df_tot = pd.concat([df, df_old], axis=0, ignore_index=True)
+    df_tot["atc2"] = df_tot.atc.apply(lambda x: x[:3] if x else None)
+    df_tot["annee"] = df_tot.date.dt.year
+
+    df_tot = df_tot.where(pd.notnull(df_tot), None)
+
+    create_table_signalements(df_tot, df_pres, _settings_signalements)
+
+    df_tot = df_tot.set_index("numero")
+    db.create_table_from_df(df_tot, _settings_ruptures["to_sql"])
+
+
+def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings: Dict):
+    df_atc = pd.read_sql("classes_atc", engine)
+    df = df.merge(df_atc, left_on="atc2", right_on="code", how="left")
+
+    df_spe = pd.read_sql("specialite_atc", engine)
+    df_spe["atc2"] = df_spe.atc.apply(lambda x: x[:3])
+    df_spe = df_spe.merge(df_atc, left_on="atc2", right_on="code", how="left")
+
+    df_pres = df_pres.merge(df_spe[["cis", "atc2", "label"]], on="cis", how="left")
+
+    df_pres_atc = df_pres.groupby("label").cip13.count().reset_index()
+    df_pres_atc = df_pres_atc.rename(columns={"cip13": "nb_presentations"})
+
+    df_sig = df.groupby(["annee", "label"]).numero.count().reset_index()
+    df_sig = df_sig.rename(columns={"numero": "nb_signalements"}).sort_values(
+        by="nb_signalements", ascending=False
+    )
+    df_sig = df_sig.merge(df_pres_atc, on="label", how="left").sort_values(
+        by=["annee", "nb_signalements"], ascending=False
+    )
+    df_sig = df_sig.set_index("annee")
+
+    db.create_table_from_df(df_sig, _settings["to_sql"])
 
 
 create_table_bdpm_cis(settings.files["bdpm_cis"])
@@ -363,4 +529,4 @@ create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_
 create_table_emed(settings.files["erreurs_med"])
 
 # TrustMed
-create_table_ruptures(settings.files["ruptures"])
+create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
