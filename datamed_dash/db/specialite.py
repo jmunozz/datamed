@@ -82,10 +82,15 @@ def get_presentation_df(cis):
     return return_sub_df_or_none(fetch_table("presentation", "cis"), cis)
 
 
-def list_ruptures(cis):
-    df_presentation = get_presentation_df(cis)
-    return get_ruptures_df(df_presentation["cip13"].values)
+# Old way of getting rupture through cip13
+# def list_ruptures(cis):
+# df_presentation = get_presentation_df(cis)
+# return get_ruptures_df(df_presentation["cip13"].values)
 
 
-def get_ruptures_df(cips):
-    return return_sub_df_or_none(fetch_table("ruptures", "cip13"), cips)
+# def get_ruptures_df(cips):
+#     return return_sub_df_or_none(fetch_table("ruptures", "cip13"), cips)
+
+
+def get_ruptures(cis):
+    return return_sub_df_or_none(fetch_table("ruptures", "cis"), cis)
