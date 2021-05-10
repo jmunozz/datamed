@@ -33,6 +33,7 @@ CURVE_LAYOUT = {
     "margin": dict(t=0, b=0, l=0, r=0),
     "font": {"size": 12, "color": "black"},
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    "hoverlabel": {"namelength": -1},
 }
 
 PIE_LAYOUT = {
@@ -43,12 +44,7 @@ PIE_LAYOUT = {
 }
 
 STACKED_BAR_CHART_LAYOUT = {
-    "xaxis": dict(
-        showgrid=False,
-        showline=False,
-        zeroline=False,
-        tickformat='%'
-    ),
+    "xaxis": dict(showgrid=False, showline=False, zeroline=False, tickformat="%"),
     "yaxis": dict(
         showgrid=False,
         showline=False,
@@ -65,4 +61,32 @@ STACKED_BAR_CHART_LAYOUT = {
     "font": {"size": 12, "color": "black"},
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     "barmode": "stack",
+}
+
+RUPTURES_BAR_LAYOUT = {
+    "xaxis": dict(
+        showgrid=False,
+        showline=False,
+        showticklabels=True,
+        zeroline=False,
+    ),
+    "yaxis": dict(
+        showgrid=False,
+        showline=False,
+        showticklabels=True,
+        zeroline=False,
+        ticks="outside",
+        tickcolor="white",
+        ticklen=1,
+    ),
+    "plot_bgcolor": "#FFF",
+    "paper_bgcolor": "#FFF",
+    "margin": dict(l=0, r=0, t=0, b=0),
+    "barmode": "group",
+    "bargap": 0.10,
+    "bargroupgap": 0.0,
+    "font": {"size": 12, "color": "black"},
+    "hovermode": "x unified",
+    "hoverlabel": {"namelength": -1},
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
 }
