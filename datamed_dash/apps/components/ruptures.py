@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from typing import Tuple
+from typing import Tuple, Dict
 
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
@@ -17,7 +17,7 @@ from sm import SideMenu
 
 from .utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, FigureGraph
 from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS
-from ..constants.layouts import RUPTURES_BAR_LAYOUT
+from ..constants.layouts import RUPTURES_BAR_LAYOUT, TREEMAP_LAYOUT, get_ruptures_curve_layout
 
 INITIAL_YEAR = 2020
 
@@ -66,7 +66,7 @@ def Description() -> Component:
                         ArticleTitle("Description"),
                         P(
                             "L’ANSM a pour mission d’observer tout au long de l’année l’état des ruptures de stock de "
-                            "médicaments présents dans les circuits Ville et Hôpital et s’assurer du maintien des "
+                            "médicaments présents dans les circuits Ville et Hôpital et de s’assurer du maintien des "
                             "stocks en cas de tension d’approvisionnement et de rupture. Retrouvez les différentes "
                             "formes et chiffres de signalements que l’Agence reçoit, et les actions mises en place "
                             "pour y remédier et maintenir ainsi l’alimentation des officines au niveau national.",
@@ -79,8 +79,8 @@ def Description() -> Component:
                         ArticleTitle("Avertissement"),
                         P(
                             "Les chiffres présentés ici ont pour but d’ouvrir les données au grand public afin de "
-                            "communiquer les actions de l’Agence. Leur interprétation et diffusion est soumise à de "
-                            "strictes réglementations. L’Agence ne se tient pas responsable en cas d’interprétation "
+                            "communiquer sur les actions de l’Agence. Leur interprétation et diffusion est soumise à "
+                            "de strictes réglementations. L’Agence ne se tient pas responsable en cas d’interprétation "
                             "erronnée et de divulgation de ces chiffres et/ou dans un contexte qui ne permettrait pas "
                             "leur lecture dans les conditions optimales. En cas de doute, veuillez nous contacter, "
                             "vous contribuerez directement à l’amélioration de l’information diffusée.",
@@ -163,7 +163,7 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
     )
 
 
-def get_signalements_circuit(circuit: str = "ville") -> Component:
+def get_signalements_circuit(circuit: str = "ville") -> Dict:
     colors = ["#5E2A7E", "#009640"]
     df = df_ruptures.reset_index()
     df_circuit = (
@@ -181,23 +181,7 @@ def get_signalements_circuit(circuit: str = "ville") -> Component:
             SingleCurve(df_etat.annee, df_etat.nombre, e.capitalize(), colors[idx])
         )
 
-    fig.update_layout(
-        {
-            "xaxis": {"tickmode": "linear", "tick0": df_etat.annee.min(), "dtick": 1},
-            "xaxis_showgrid": False,
-            "yaxis_showgrid": False,
-            "hovermode": "x unified",
-            "plot_bgcolor": "#FAFAFA",
-            "paper_bgcolor": "#FAFAFA",
-            "margin": dict(t=0, b=0, l=0, r=0),
-            "font": {"size": 12, "color": "black"},
-            "legend": dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-            ),
-            "hoverlabel": {"namelength": -1},
-        }
-    )
-
+    fig.update_layout(get_ruptures_curve_layout(df_etat.annee.min()))
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
@@ -226,27 +210,7 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
         )
     )
 
-    fig.update_layout(
-        {
-            "xaxis": {
-                "tickmode": "linear",
-                "tick0": df_rupture_circuit.annee.min(),
-                "dtick": 1,
-            },
-            "xaxis_showgrid": False,
-            "yaxis_showgrid": False,
-            "hovermode": "x unified",
-            "plot_bgcolor": "#FAFAFA",
-            "paper_bgcolor": "#FAFAFA",
-            "margin": dict(t=0, b=0, l=0, r=0),
-            "font": {"size": 12, "color": "black"},
-            "legend": dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-            ),
-            "hoverlabel": {"namelength": -1},
-        }
-    )
-
+    fig.update_layout(get_ruptures_curve_layout(df_rupture_circuit.annee.min()))
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de ruptures")
 
@@ -309,6 +273,7 @@ def get_causes(annee=INITIAL_YEAR):
     df_cause.numero = df_cause.apply(
         lambda x: x.numero / len(df_cause[df_cause.annee == x.annee]), axis=1
     )
+    df_cause.cause = df_cause.cause.str.capitalize()
     df_cause = df_cause.rename(columns={"numero": "nombre_signalements"}).set_index(
         "annee"
     )
@@ -323,20 +288,7 @@ def get_causes(annee=INITIAL_YEAR):
         hover_name="cause",
     )
 
-    fig.update_layout(
-        {
-            "xaxis_showgrid": False,
-            "yaxis_showgrid": False,
-            "hovermode": "x unified",
-            "plot_bgcolor": "#FAFAFA",
-            "paper_bgcolor": "#FAFAFA",
-            "margin": dict(t=0, b=0, l=0, r=0),
-            "font": {"size": 12, "color": "black"},
-            "legend": dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-            ),
-        }
-    )
+    fig.update_layout(TREEMAP_LAYOUT)
     fig.update_traces(
         texttemplate="%{label}<br>%{value:.0f}%",
         textposition="middle center",
@@ -432,7 +384,7 @@ def Signalements(df: pd.DataFrame) -> Component:
             dbc.Row(
                 [
                     GraphBox(
-                        "Évolution des ouvertures et clôtures de dossier dans le circuit Ville",
+                        "Évolution des ouvertures et clôtures de dossier dans le circuit",
                         [
                             Graph(
                                 figure=get_signalements_circuit(),
@@ -447,7 +399,7 @@ def Signalements(df: pd.DataFrame) -> Component:
             dbc.Row(
                 [
                     GraphBox(
-                        "Évolution du nombre de ruptures dans le circuit Ville",
+                        "Évolution du nombre de ruptures dans le circuit",
                         [
                             Graph(
                                 figure=get_ruptures_circuit(),
