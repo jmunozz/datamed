@@ -30,7 +30,7 @@ def RupturesHeader() -> Component:
         Div(
             [
                 Div(
-                    Img(src=""),
+                    Img(src=app.get_asset_url("Liquide-64.png")),
                     className="content-header-img",
                 ),
                 Div(
@@ -47,7 +47,7 @@ def RupturesHeader() -> Component:
             className="content-header-content",
         ),
         className="content-header",
-        style={"backgroundColor": "#CCF0F5"},
+        style={"backgroundColor": "#CCF0F5", "color": "black"},
     )
 
 
@@ -58,7 +58,7 @@ def Description() -> Component:
                 Article(
                     [
                         ArticleTitle("Bases de données exploitées"),
-                        Div("TrustMed", className="normal-text-cap d-block"),
+                        Div("TrustMed", className="normal-text-cap d-block", style={"color": "#A03189"}),
                     ]
                 ),
                 Article(
