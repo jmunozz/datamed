@@ -1,3 +1,5 @@
+from typing import Dict
+
 BAR_LAYOUT = {
     "xaxis": dict(
         showgrid=False,
@@ -63,6 +65,18 @@ STACKED_BAR_CHART_LAYOUT = {
     "barmode": "stack",
 }
 
+
+TREEMAP_LAYOUT = {
+    "xaxis_showgrid": False,
+    "yaxis_showgrid": False,
+    "hovermode": "x unified",
+    "plot_bgcolor": "#FAFAFA",
+    "paper_bgcolor": "#FAFAFA",
+    "margin": dict(t=0, b=0, l=0, r=0),
+    "font": {"size": 12, "color": "black"},
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+}
+
 RUPTURES_BAR_LAYOUT = {
     "xaxis": dict(
         showgrid=False,
@@ -90,3 +104,22 @@ RUPTURES_BAR_LAYOUT = {
     "hoverlabel": {"namelength": -1},
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
 }
+
+
+def get_ruptures_curve_layout(tick0) -> Dict:
+    return {
+        "xaxis": {
+            "tickmode": "linear",
+            "tick0": tick0,
+            "dtick": 1,
+        },
+        "xaxis_showgrid": False,
+        "yaxis_showgrid": False,
+        "hovermode": "x unified",
+        "plot_bgcolor": "#FAFAFA",
+        "paper_bgcolor": "#FAFAFA",
+        "margin": dict(t=0, b=0, l=0, r=0),
+        "font": {"size": 12, "color": "black"},
+        "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        "hoverlabel": {"namelength": -1},
+    }

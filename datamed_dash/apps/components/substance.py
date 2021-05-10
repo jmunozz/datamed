@@ -1,5 +1,5 @@
 import math
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
 import dash
@@ -7,6 +7,8 @@ import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
+import db.fetch_data as fetch_data
+import db.substance as substance
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -24,16 +26,13 @@ from dash_bootstrap_components import (
     ModalFooter,
 )
 from dash_core_components import Graph
-import db.substance as substance
-import db.fetch_data as fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
 from .commons import PatientsTraites, Header
 from .utils import Box, FigureGraph, GraphBox, TopicSection, SectionTitle, SectionP
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
-from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
-
+from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT, TREEMAP_LAYOUT
 
 NOTIF_IMAGE_URL = {
     "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
@@ -138,7 +137,7 @@ def EffetsIndesirablesTooltip() -> Component:
     )
 
 
-def Substance(code: str) -> Component:
+def Substance(code: str) -> Tuple[Component, html.Div]:
 
     df_sub = substance.get_substance_df(code)
     series_sub = fetch_data.as_series(df_sub)
@@ -417,20 +416,7 @@ def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
         hover_name=path,
     )
 
-    fig.update_layout(
-        {
-            "xaxis_showgrid": False,
-            "yaxis_showgrid": False,
-            "hovermode": "x unified",
-            "plot_bgcolor": "#FAFAFA",
-            "paper_bgcolor": "#FAFAFA",
-            "margin": dict(t=0, b=0, l=0, r=0),
-            "font": {"size": 12, "color": "black"},
-            "legend": dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-            ),
-        }
-    )
+    fig.update_layout(TREEMAP_LAYOUT)
     fig.update_traces(
         texttemplate="%{label}<br>%{value:.0f}%",
         textposition="middle center",
