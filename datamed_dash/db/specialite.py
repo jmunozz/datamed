@@ -1,8 +1,8 @@
+import pandas as pd
 from app import cache
 
-import pandas as pd
-from .fetch_data import fetch_table, return_sub_df_or_none, as_index_list
-from db import fetch_data
+from .fetch_data import fetch_table, return_sub_df_or_none
+
 
 # cis can be a str or a list
 @cache.memoize(300)
