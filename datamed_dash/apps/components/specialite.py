@@ -470,12 +470,12 @@ def RuptureDeStockTableRow(series_rup):
     availability_date = (
         date_as_string(series_rup.get(col_availability_date))
         if col_availability_date and not pd.isnull(series_rup[col_availability_date])
-        else "Non"
+        else "Pas de données"
     )
     shortage_date = (
         date_as_string(series_rup.get(col_start))
         if col_start and not pd.isnull(series_rup[col_start])
-        else "Non"
+        else "Pas de données"
     )
 
     return html.Div(
@@ -485,6 +485,8 @@ def RuptureDeStockTableRow(series_rup):
                     "Présentation de médicament",
                     "Statut",
                     "Circuit",
+                    "Cause",
+                    "Date de signalement",
                     "Date de rupture",
                     "Date de remise à disposition",
                 ]
@@ -494,6 +496,8 @@ def RuptureDeStockTableRow(series_rup):
                     series_rup.nom.capitalize(),
                     series_rup.classification.capitalize(),
                     circuit.capitalize() if circuit else "Pas de données",
+                    series_rup.cause.capitalize(),
+                    date_as_string(series_rup.date),
                     shortage_date,
                     availability_date,
                 ]
@@ -505,7 +509,10 @@ def RuptureDeStockTableRow(series_rup):
 
 
 def RuptureDeStockTable(df_rup):
-    rows = [RuptureDeStockTableRow(row) for label, row in df_rup.iterrows()]
+    rows = [
+        RuptureDeStockTableRow(row)
+        for label, row in df_rup.sort_values(by=["date"], ascending=False).iterrows()
+    ]
     return html.Div(rows, className="rds-table")
 
 
