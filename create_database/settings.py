@@ -583,4 +583,16 @@ files = {
             },
         }
     },
+    "icones": {
+        "to_sql": {
+            "name": "icones",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "cis": String(16),
+                "forme_pharma": Text,
+                "icone": Text,
+            },
+        }
+    },
 }
