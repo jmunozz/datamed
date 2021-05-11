@@ -4,7 +4,7 @@ services:
   web:
     build: .
     env_file:
-      - docker.env
+      - .env
     ports:
       - "8050:8050"
     command: python index.py
@@ -14,16 +14,16 @@ services:
   #     restart: always
   #     ports:
   #       - 6389:6379 # was 6382:6379
-#   db:
-#     image: postgres:10
-#     restart: always
-#     ports:
-#       - 5432:5432
-#     environment:
-#       POSTGRES_PASSWORD: datamed
-#       POSTGRES_USER: datamed
-#       POSTGRES_DB: datamed-data
-#     volumes:
-#       - data-volume:/var/lib/postgresql/data
-# volumes:
-#   data-volume:
+  db:
+    image: postgres:13
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: datamed
+      POSTGRES_USER: datamed
+      POSTGRES_DB: datamed-data
+    volumes:
+      - data-volume:/var/lib/postgresql/data
+volumes:
+  data-volume:

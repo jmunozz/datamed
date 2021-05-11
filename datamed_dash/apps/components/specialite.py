@@ -14,6 +14,7 @@ from dash_core_components import Graph
 from db import specialite, fetch_data
 from sm import SideMenu
 
+from datamed_custom_components import Accordion
 from .commons import PatientsTraites, NoData, Header
 from .utils import (
     Box,
@@ -24,6 +25,7 @@ from .utils import (
     ExternalLink,
     SectionP,
     FigureGraph,
+    SectionRow,
     date_as_string,
     nested_get,
 )
@@ -108,7 +110,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                             "label": "Historique des ruptures de stock",
                         },
                     ],
-                    className="side-menu",
+                    className="SideMenu",
                 ),
                 html.Div(
                     html.Div(
@@ -131,13 +133,12 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
                         ],
-                        className="container-fluid",
-                        style={"padding-left": "80px"},
+                        className="ContentWrapper ContentWrapper-hasHeader",
                     ),
-                    className="container-fluid side-content",
+                    className="ContentLayoutWrapper",
                 ),
             ],
-            className="container-fluid p-0 content",
+            className="ContentLayout",
         ),
     )
 
@@ -168,60 +169,72 @@ def Description(
     cis = series_spe.name
 
     return TopicSection(
-        Box(
-            [
-                html.Article(
-                    [ArticleTitle("Substance(s) active(s)"), SubstanceLinks(df_sub)]
-                ),
-                html.Article(
-                    [
-                        ArticleTitle("Statut de la spécialité de médicament"),
-                        html.Div(
-                            series_spe.etat_commercialisation.upper(),
-                            className="normal-text-cap d-block",
-                            id="refresh-substances",
-                        ),
-                    ]
-                ),
-                html.Article(
-                    [
-                        ArticleTitle("Description"),
-                        html.P(
-                            "Classe ATC (Anatomique, Thérapeutique et Chimique) : {} ({})".format(
-                                series_atc.label.capitalize(),
-                                series_atc.atc,
+        SectionRow(
+            Box(
+                [
+                    html.Article(
+                        [ArticleTitle("Substance(s) active(s)"), SubstanceLinks(df_sub)]
+                    ),
+                    html.Article(
+                        [
+                            ArticleTitle("Statut de la spécialité de médicament"),
+                            html.Div(
+                                series_spe.etat_commercialisation.capitalize(),
+                                className="Badge",
                             ),
-                            className="normal-text",
-                        ),
-                        html.P(series_desc.description, className="normal-text"),
-                    ]
-                ),
-                html.Article(
-                    [
-                        ArticleTitle(
-                            "Avis de la Commission de la Transparence de la HAS"
-                        ),
-                        ExternalLink(
-                            "Afficher l'avis",
-                            get_has_guideline_link(cis),
-                        ),
-                    ]
-                ),
-                html.Article(
-                    [
-                        ArticleTitle("Infos pour les professionnels de santé"),
-                        ExternalLink("Afficher le RCP", get_rcp_link(cis)),
-                    ]
-                ),
-                html.Article(
-                    [
-                        ArticleTitle("Infos pour les patients"),
-                        ExternalLink("Afficher la notice", get_notice_link(cis)),
-                    ]
-                ),
-            ],
-            class_name_wrapper="overlap-top-content",
+                        ]
+                    ),
+                    html.Article(
+                        [
+                            ArticleTitle("Laboratoire"),
+                            html.Div(
+                                series_spe.titulaires.title(), className="normal-text",
+                            ),
+                        ]
+                    ),
+                    html.Article(
+                        [
+                            ArticleTitle("Description"),
+                            html.Span(
+                                "Classe ATC (Anatomique, Thérapeutique et Chimique):",
+                                className="normal-text",
+                                style={"margin-right": "15px"},
+                            ),
+                            html.Span(
+                                "{} ({})".format(
+                                    series_atc.label.capitalize(), series_atc.atc,
+                                ),
+                                className="Badge Badge-isSecondary",
+                            ),
+                            html.P(series_desc.description, className="normal-text"),
+                        ]
+                    ),
+                    html.Article(
+                        [
+                            ArticleTitle(
+                                "Avis de la Commission de la Transparence de la HAS"
+                            ),
+                            ExternalLink(
+                                "Afficher l'avis", get_has_guideline_link(cis),
+                            ),
+                        ]
+                    ),
+                    html.Article(
+                        [
+                            ArticleTitle("Infos pour les professionnels de santé"),
+                            ExternalLink("Afficher le RCP", get_rcp_link(cis)),
+                        ]
+                    ),
+                    html.Article(
+                        [
+                            ArticleTitle("Infos pour les patients"),
+                            ExternalLink("Afficher la notice", get_notice_link(cis)),
+                        ]
+                    ),
+                ],
+            ),
         ),
+        isFirst=True,
         id="description",
     )
 
@@ -322,62 +335,61 @@ def ErreursMedicamenteuses(
 
     return TopicSection(
         [
-            SectionTitle("Erreurs médicamenteuses"),
-            dbc.Row(
-                html.Div(
-                    [
-                        html.Span(
-                            "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
-                            "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
-                            "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
-                            className="normal-text",
-                        ),
-                        html.A(
-                            "portail des signalements",
-                            href="https://signalement.social-sante.gouv.fr",
-                            className="normal-text link",
-                        ),
-                    ],
-                ),
-                className="col-12",
+            SectionRow(html.H1("Erreurs médicamenteuses", className="SectionTitle")),
+            SectionRow(
+                Box(
+                    Accordion(
+                        [
+                            html.Span(
+                                "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
+                                "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
+                                "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
+                                className="normal-text",
+                            ),
+                            html.A(
+                                "portail des signalements",
+                                href="https://signalement.social-sante.gouv.fr",
+                                className="normal-text link",
+                            ),
+                            html.P(
+                                "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
+                                "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur."
+                            ),
+                        ],
+                        label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+                    )
+                )
             ),
-            SectionP(
-                "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
-                "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur."
-            ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Existence d’effets indésirables suite aux erreurs médicamenteuses",
                         [BoxPourcentageEffetsIndesirable(df_ei)],
-                        class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         "Répartition de la population concernée par les erreurs médicamenteuses",
                         [BoxRepartitionPopulationConcernee(df_pop)],
-                        class_name_wrapper="col-md-6",
                     ),
-                ]
+                ],
+                withGutter=True,
             ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Cause des erreurs médicamenteuses",
                         [StackBarGraph(df_cause, "cause_erreur")],
-                        class_name_wrapper="col-md-12",
                     ),
                 ]
             ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
                         [StackBarGraph(df_nat, "nature_erreur")],
-                        class_name_wrapper="col-md-12",
                     ),
                 ]
             ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Liste des dénominations des médicaments concernés par ces erreurs médicamenteuses",
@@ -398,7 +410,6 @@ def ErreursMedicamenteuses(
                             ),
                             BoxListDenomination(df_denom),
                         ],
-                        class_name_wrapper="col-md-12",
                     ),
                 ]
             ),
@@ -411,13 +422,28 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
 
     return TopicSection(
         [
-            SectionTitle("Cas déclarés d’effets indésirables des substances actives"),
-            SectionP(
-                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
-                "l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, abus ou "
-                "erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts."
+            SectionRow(
+                html.H1(
+                    "Cas déclarés d’effets indésirables des substances actives",
+                    className="SectionTitle",
+                )
             ),
-            dbc.Row(
+            SectionRow(
+                Box(
+                    Accordion(
+                        [
+                            html.P(
+                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
+                                "l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, abus ou "
+                                "erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts.",
+                                className="normal-text",
+                            ),
+                        ],
+                        label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+                    )
+                )
+            ),
+            SectionRow(
                 [
                     AdverseEffectLink(sub.nom.capitalize(), code)
                     for code, sub in df_sub.iterrows()
@@ -430,15 +456,17 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
 
 def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
-        [
-            html.Label(substance, className="color-secondary font-weight-bold"),
-            html.A(
-                "Voir les effets indésirables",
-                href="/apps/substance?search={}#effets-indesirables".format(code),
-                className="color-three",
-            ),
-        ],
-        class_name="d-flex flex-row justify-content-between",
+        html.Div(
+            [
+                html.Label(substance, className="AdverseEffectRowLabel"),
+                html.A(
+                    "Voir les effets indésirables",
+                    href="/apps/substance?search={}#effets-indesirables".format(code),
+                    className="InternalLink",
+                ),
+            ],
+            className="AdverseEffectRow",
+        )
     )
 
 
@@ -524,22 +552,23 @@ def RuptureDeStockTableRow(series_rup):
     )
 
 
-def RuptureDeStockTable(df_rup):
-    rows = [
-        RuptureDeStockTableRow(row)
-        for label, row in df_rup.sort_values(by=["date"], ascending=False).iterrows()
-    ]
+def RuptureDeStockTable(df_rup: pd.DataFrame):
+    rows = [RuptureDeStockTableRow(row) for label, row in df_rup.iterrows()]
     return html.Div(rows, className="rds-table")
 
 
 def RuptureDeStock(df_rup: pd.DataFrame):
     if df_rup is None:
         df_rup = pd.DataFrame()
+    else:
+        df_rup = df_rup.sort_values(by=["date"], ascending=False)
 
     return TopicSection(
         [
-            SectionTitle("Historique des ruptures de stock"),
-            dbc.Row(
+            SectionRow(
+                html.H1("Historique des ruptures de stock", className="SectionTitle")
+            ),
+            SectionRow(
                 Box(
                     [
                         html.Div(
@@ -549,7 +578,6 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                         ),
                         RuptureDeStockTable(df_rup),
                     ],
-                    class_name="content",
                 ),
             ),
         ],

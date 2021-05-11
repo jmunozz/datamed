@@ -11,12 +11,16 @@ from dash.development.base_component import Component
 from dash_core_components import Graph
 from db import fetch_data
 
+
+from datamed_custom_components import Accordion
+from dash_html_components import Div
 from .utils import (
     Box,
     GraphBox,
     TopicSection,
     SectionTitle,
     FigureGraph,
+    SectionRow,
 )
 from ..constants.layouts import PIE_LAYOUT
 
@@ -90,55 +94,31 @@ def NoData() -> html.Div:
     )
 
 
-def Accordion() -> Component:
-    return dbc.Card(
-        [
-            html.H2(
-                dbc.Button(
-                    "Comment sont calculés ces indicateurs ?",
-                    color="link",
-                    id="group-1-toggle",
-                    className="color-secondary",
-                ),
-                className="with-lightbulb",
-            ),
-            dbc.Collapse(
-                dbc.CardBody(
-                    [
-                        html.Div(
-                            [
-                                html.Span(
-                                    "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
-                                    "médicament, délivré en pharmacie de ville entre 2014 et 2018 et remboursé par "
-                                    "l’Assurance Maladie. Pour plus d’informations, consultez : ",
-                                    className="normal-text",
-                                ),
-                                html.A(
-                                    "open-data-assurance-maladie.ameli.fr",
-                                    href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
-                                    className="normal-text link",
-                                ),
-                            ]
-                        ),
-                        html.P(
-                            [
-                                html.Strong("Attention", className="normal-text-bold"),
-                                html.Span(
-                                    " : l’estimation du nombre de patients repose sur des données agrégées au niveau "
-                                    "de la présentation du médicament (code CIP). Les patients sont donc comptabilisés "
-                                    "autant de fois qu’ils ont eu de remboursements de présentations différentes d’une "
-                                    "même spécialité/substance active.",
-                                    className="normal-text",
-                                ),
-                            ],
-                            className="mt-3",
-                        ),
-                    ]
-                ),
-                id="collapse-1",
-            ),
-        ],
-        className="box",
+def Tooltip() -> Component:
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.Div(
+                        [
+                            html.Span(
+                                "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
+                                "médicament, délivré en pharmacie de ville entre 2014 et 2018 et remboursé par "
+                                "l’Assurance Maladie. Pour plus d’informations, consultez : ",
+                                className="normal-text",
+                            ),
+                            html.A(
+                                "open-data-assurance-maladie.ameli.fr",
+                                href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
+                                className="normal-text link",
+                            ),
+                        ]
+                    )
+                ],
+                isOpenOnFirstRender=True,
+                label="Comment sont calculés ces indicateurs ? D’où viennent les données ?",
+            )
+        )
     )
 
 
@@ -153,42 +133,36 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
         exposition = "-"
         patients = "Données insuffisantes"
 
-    return dbc.Row(
+    return SectionRow(
         [
             Box(
-                [
-                    html.Div(
-                        [
-                            html.Div(
+                Div(
+                    [
+                        Box(
                                 [
                                     html.P(UTILISATION[exposition], className="normal-text-bold text-center align-middle"),
                                     html.Img(src=UTILISATION_IMG_URL[exposition]),
                                 ],
-                                className="d-flex flex-column",
-                            ),
-                        ],
-                        style={"flex": 1},
-                        className="p-3 d-flex flex-row justify-content-around align-items-center bg-secondary",
-                    ),
-                    html.Div(
-                        [
-                            html.H2(patients, className="color-secondary"),
-                            html.P(
-                                "Approximation du nombre de patients traités sur la période 2014-2018"
-                            ),
-                            html.A(
-                                "En savoir plus",
-                                className="color-secondary",
-                            ),
-                        ],
-                        style={"flex": 3},
-                        className="p-3",
-                    ),
-                ],
-                class_name_wrapper="col-md-12",
-                class_name="p-0 d-flex",
+                            isBordered=False,
+                            className="UsageBoxRate",
+                        ),
+                        Box(
+                            [
+                                html.H2(patients, className="color-secondary"),
+                                html.P(
+                                    "Approximation du nombre de patients traités sur la période 2014-2018"
+                                ),
+                                html.A("En savoir plus", className="color-secondary",),
+                            ],
+                            isBordered=False,
+                            className="UsageBoxFigure",
+                        ),
+                    ],
+                    className="UsageBox",
+                ),
+                hasNoPadding=True,
             )
-        ]
+        ],
     )
 
 
@@ -215,22 +189,21 @@ def PatientsTraites(
 ) -> Component:
     return TopicSection(
         [
-            SectionTitle("Patients traités"),
-            Accordion(),
+            SectionRow(html.H1("Patients traités", className="SectionTitle")),
+            Tooltip(),
             Utilisation(df_expo),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Répartition par sexe des patients traités",
                         [RepartitionSexeBox(df_sexe)],
-                        class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         "Répartition par âge des patients traités",
                         [RepartitionAgeBox(df_age, pie_colors)],
-                        class_name_wrapper="col-md-6",
                     ),
-                ]
+                ],
+                withGutter=True,
             ),
         ],
         id="population-concernee",

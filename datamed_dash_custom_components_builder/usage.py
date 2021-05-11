@@ -9,13 +9,15 @@ app = dash.Dash(__name__)
 
 
 opts = [{"label": "jordan", "value": "1", "type": "specialite"}, {"label": "romain", "value": "2", "type": "specialite"}, {"label": "theo", "value": "4", "type": "substance"}, {"label": "jordan", "value": 1, "type": "specialite"}, {"label": "jordan", "value": 1, "type": "specialite"}]
+label = "this is a title"
 
 app.layout = html.Div([
     dcc.SearchBar(
         id='search-bar',
         opts=opts
     ),
-    html.Div(id='output')
+    html.Div(id='output'),
+    dcc.Accordion([html.Div("Ceci est une div")], id="accordion-id", label=label)
 ], style={"fontSize": "1rem"})
 
 

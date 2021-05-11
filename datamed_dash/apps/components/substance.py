@@ -1,3 +1,4 @@
+from datamed_custom_components.Accordion import Accordion
 import math
 from typing import List, Dict, Tuple
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
@@ -30,7 +31,15 @@ from plotly.subplots import make_subplots
 from sm import SideMenu
 
 from .commons import PatientsTraites, Header
-from .utils import Box, FigureGraph, GraphBox, TopicSection, SectionTitle, SectionP
+from .utils import (
+    Box,
+    FigureGraph,
+    GraphBox,
+    TopicSection,
+    SectionTitle,
+    SectionP,
+    SectionRow,
+)
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
 from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT, TREEMAP_LAYOUT
 
@@ -73,67 +82,30 @@ def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
 
 
 def EffetsIndesirablesTooltip() -> Component:
-    return dbc.Card(
-        [
-            html.H2(
-                dbc.Button(
-                    "Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
-                    color="link",
-                    id="group-substance-ei-tooltip-toggle",
-                    className="color-secondary",
-                ),
-                className="with-lightbulb",
-            ),
-            dbc.Collapse(
-                dbc.CardBody(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    "Nombre de cas notifiés d’effets indésirables en France estimé à partir des "
-                                    "données de la Base Nationale de Pharmacovigilance (BNPV).",
-                                    className="normal-text",
-                                ),
-                                html.Span(
-                                    "La BNPV est alimentée par les centres régionaux de pharmacovigilance qui sont "
-                                    "notifiés par les professionnels de santé ou par les patients et association "
-                                    "agréées via un portail dédié : ",
-                                    className="normal-text",
-                                ),
-                                html.A(
-                                    "signalement.social-sante.gouv.fr",
-                                    href="https://signalement.social-sante.gouv.fr",
-                                    className="normal-text link",
-                                ),
-                            ],
-                            className="mb-3",
-                        ),
-                        html.Div(
-                            [
-                                html.Span(
-                                    "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
-                                    "d’être liés à l’utilisation d’un ou plusieurs médicaments et les mésusages, "
-                                    "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
-                                    "un comité d’experts. ",
-                                    className="normal-text",
-                                ),
-                                html.Span(
-                                    "Pour plus d’informations, consultez : ",
-                                    className="normal-text",
-                                ),
-                                html.A(
-                                    "ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments",
-                                    href="https://ansm.sante.fr/page/la-surveillance-renforcee-des-medicaments",
-                                    className="normal-text link",
-                                ),
-                            ]
-                        ),
-                    ]
-                ),
-                id="group-substance-ei-tooltip-collapse",
-            ),
-        ],
-        className="box",
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.Div(
+                        "Nombre de cas notifiés d’effets indésirables en France estimé à partir des "
+                        "données de la Base Nationale de Pharmacovigilance (BNPV).",
+                        className="normal-text",
+                    ),
+                    html.Span(
+                        "La BNPV est alimentée par les centres régionaux de pharmacovigilance qui sont "
+                        "notifiés par les professionnels de santé ou par les patients et association "
+                        "agréées via un portail dédié : ",
+                        className="normal-text",
+                    ),
+                    html.A(
+                        "signalement.social-sante.gouv.fr",
+                        href="https://signalement.social-sante.gouv.fr",
+                        className="normal-text link",
+                    ),
+                ],
+                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+            )
+        )
     )
 
 
@@ -168,7 +140,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                             "label": "Liste des spécialités",
                         },
                     ],
-                    className="side-menu",
+                    className="SideMenu",
                 ),
                 html.Div(
                     html.Div(
@@ -183,13 +155,12 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                             SystemesOrganes(df_soc, code),
                             ListeSpecialites(df_sub, df_sub_spe),
                         ],
-                        className="container-fluid",
-                        style={"padding-left": "80px"},
+                        className="ContentWrapper",
                     ),
-                    className="container-fluid side-content",
+                    className="ContentLayoutWrapper",
                 ),
             ],
-            className="container-fluid p-0 content",
+            className="ContentLayout",
         ),
     )
 
@@ -379,51 +350,41 @@ def CasDeclares(
 
     return TopicSection(
         [
-            SectionTitle("Cas déclarés d'effets indésirables"),
+            SectionRow(html.H1("Cas déclarés d'effets indésirables")),
             EffetsIndesirablesTooltip(),
-            dbc.Row(
+            SectionRow(
                 [
-                    GraphBox(
-                        "",
-                        [CasDeclareFigureBox(df_decla)],
-                        class_name_wrapper="col-md-6",
-                    ),
-                    GraphBox(
-                        "",
-                        [TauxDeclarationBox(df_decla)],
-                        class_name_wrapper="col-md-6",
-                    ),
-                ]
+                    GraphBox("", [CasDeclareFigureBox(df_decla)],),
+                    GraphBox("", [TauxDeclarationBox(df_decla)],),
+                ],
+                withGutter=True,
             ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Nombre de cas déclarés d’effets indésirables et patients traités par année",
                         [CasDeclaresGraphBox(df_decla)],
-                        class_name_wrapper="col-md-12",
                     ),
                 ]
             ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Répartition par sexe des cas déclarés",
                         [RepartitionSexeFigureBox(df_cas_sexe)],
-                        class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         "Répartition par âge des cas déclarés",
                         [RepartitionAgeGraphBox(df_cas_age)],
-                        class_name_wrapper="col-md-6",
                     ),
-                ]
+                ],
+                withGutter=True,
             ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Répartition par type de notificateur",
                         [NotifFigureGraph(df_notif)],
-                        class_name_wrapper="col-md-12",
                     ),
                 ]
             ),
@@ -451,21 +412,34 @@ def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
     return fig
 
 
+def SystemesOrganesTooltip():
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.P(
+                        "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
+                        "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
+                        "déclarés."
+                    ),
+                    html.P(
+                        "Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
+                        "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
+                        "différents (en fonction des effets indésirables déclarés)."
+                    ),
+                ],
+                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+            )
+        )
+    )
+
+
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
     return TopicSection(
         [
-            SectionTitle("Effets indésirables par système d'organe"),
-            SectionP(
-                "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
-                "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
-                "déclarés."
-            ),
-            SectionP(
-                "Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
-                "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
-                "différents (en fonction des effets indésirables déclarés)."
-            ),
-            dbc.Row(
+            SectionRow(html.H1("Effets indésirables par système d'organe")),
+            SystemesOrganesTooltip(),
+            SectionRow(
                 [
                     html.Div(
                         [
