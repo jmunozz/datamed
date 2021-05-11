@@ -1,29 +1,3 @@
-html {
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-.side-menu-container {
-  padding-left: 270px;
-}
-
-nav.side-menu {
-  padding-top: 15px;
-  position: sticky;
-  z-index: 5;
-  outline: none;
-  width: 270px;
-  text-transform: uppercase;
-  overflow: hidden;
-  float: left;
-  top: 90px;
-}
-
 nav.side-menu ul {
   list-style-type: none;
   color: #9e9e9e;
@@ -65,14 +39,5 @@ nav.side-menu li {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-}
-
-@media (max-width: 1000px) {
-  nav {
-    display: none;
-  }
-  .side-menu-container {
-    padding-left: 0px;
   }
 }

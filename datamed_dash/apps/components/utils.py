@@ -2,30 +2,38 @@ import datetime
 from typing import List, Dict
 import pandas as pd
 
+
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
-from dash_html_components import Div, A, Img, H4, H1, Label
+from dash_html_components import Div, A, Img, H4, H1, Label, Section
 
 
-def Box(
-    children, class_name_wrapper="col-md-12", class_name="", style=None
-) -> Component:
-    class_name = f"Box  Box-isBordered {class_name}"
-    return Div(
-        Div(children, className=class_name, style=style), className=class_name_wrapper,
-    )
+def SectionRow(children, withGutter=False):
+    classes = ["SectionRow"]
+    if withGutter:
+        classes.append("SectionRow-withGutter")
+    return Div(children, className=" ".join(classes))
+
+
+def Box(children, className="", isBordered=True, hasNoPadding=False) -> Component:
+    classes = ["Box"]
+    if isBordered:
+        classes.append("Box-isBordered")
+    if hasNoPadding:
+        classes.append("Box-hasNoPadding")
+    classes = classes + className.split(" ")
+    return Div(children, className=" ".join(classes))
 
 
 def ArticleTitle(title: str) -> Component:
     return H4(title, className="small-text-bold with-margin")
 
 
-def GraphBox(
-    title: str, children: List, class_name_wrapper="col-md-12", class_name=""
-) -> Component:
+# Add a Title and return a Box Component
+def GraphBox(title: str, children: List) -> Component:
     if title:
         children = [Div(title, className="normal-text-bold mb-4")] + children
-    return Box(children, class_name_wrapper=class_name_wrapper, class_name=class_name,)
+    return Box(children)
 
 
 def FigureGraph(
@@ -57,15 +65,15 @@ def FigureGraph(
     return Div(l, className=class_name)
 
 
-def TopicSection(children: List, id: str) -> Component:
-    return dbc.Row(Div(children, className="col-12"), className="topic-section", id=id)
+def TopicSection(children: List, id: str, isFirst=False) -> Component:
+    classes = ["Section"]
+    if isFirst:
+        classes.append("Section-isFirst")
+    return Section(children, className=" ".join(classes), id=id)
 
 
 def SectionTitle(title: str) -> Component:
-    return dbc.Row(
-        Div(H1(title, className="d-inline-block"), className="col-12"),
-        className="section-title",
-    )
+    return H1(title, className="SectionTitle")
 
 
 def SectionP(text: str) -> Component:
@@ -78,7 +86,7 @@ def ExternalLink(label: str, link: str):
         href=link,
         target="_blank",
         rel="noopener noreferrer",
-        className="normal-text link d-inline-block",
+        className="ExternalLink",
         id="refresh-substances",
     )
 
