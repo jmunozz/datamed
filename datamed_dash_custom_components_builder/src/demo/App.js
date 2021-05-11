@@ -1,8 +1,10 @@
 /* eslint no-magic-numbers: 0 */
 import React, {Component} from 'react';
+import data from "./data"
 
 import {SearchBar} from '../lib';
 import {Accordion} from "../lib"
+import {Treemap} from "../lib"
 
 
 const opts = new Array(100000).fill({label: "jordan", value: 1, type: "spécialité" })
@@ -29,9 +31,10 @@ class App extends Component {
             //     <div>{JSON.stringify(this.state.props)}</div>
             // </div >
             <div>
-                <Accordion id="accordion-id" label={label} isOpenOnFirstRender={true}>
+                {/* <Accordion id="accordion-id" label={label} isOpenOnFirstRender={true}>
                     <p>This is a text</p>
-                </Accordion>
+                </Accordion> */}
+                <Treemap></Treemap>
             </div>
         );
     }
