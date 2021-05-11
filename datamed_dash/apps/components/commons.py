@@ -30,8 +30,17 @@ UTILISATION = {
     "-": "Utilisation inconnue",
 }
 
+UTILISATION_IMG_URL = {
+    "-": app.get_asset_url("Indice-1.svg"),
+    1: app.get_asset_url("Indice-1.svg"),
+    2: app.get_asset_url("Indice-2.svg"),
+    3: app.get_asset_url("Indice-3.svg"),
+    4: app.get_asset_url("Indice-4.svg"),
+    5: app.get_asset_url("Indice.svg"),
+}
 
 SEXE = {1: "Hommes", 2: "Femmes"}
+
 SEXE_IMG_URL = {
     1: app.get_asset_url("man_img.svg"),
     2: app.get_asset_url("woman_img.svg"),
@@ -55,7 +64,11 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return go.Figure(
-        go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
+        go.Pie(
+            labels=labels,
+            values=values,
+            marker_colors=pie_colors,
+        )
     ).update_layout(PIE_LAYOUT)
 
 
@@ -148,15 +161,16 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                         [
                             html.Div(
                                 [
-                                    html.Img(
-                                        src=app.get_asset_url("family_restroom.svg")
-                                    ),
+                                    html.Img(src=UTILISATION_IMG_URL[exposition]),
                                     html.P("INDICE"),
                                 ],
                                 className="d-flex flex-column",
                             ),
                             html.Div(
-                                [html.H1(f"{exposition}/5"),], className="d-flex",
+                                [
+                                    html.H1(f"{exposition}/5"),
+                                ],
+                                className="d-flex",
                             ),
                         ],
                         style={"flex": 1},
@@ -168,7 +182,10 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                             html.P(
                                 "Approximation du nombre de patients traités sur la période 2014-2018"
                             ),
-                            html.A("En savoir plus", className="color-secondary",),
+                            html.A(
+                                "En savoir plus",
+                                className="color-secondary",
+                            ),
                         ],
                         style={"flex": 3},
                         className="p-3",
@@ -244,7 +261,10 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
     return html.Div(
         html.Div(
             [
-                html.Div(html.Img(src=icon_url), className="content-header-img",),
+                html.Div(
+                    html.Img(src=icon_url),
+                    className="content-header-img",
+                ),
                 html.Div(
                     [
                         html.Div(series_spe.nom.capitalize(), className="heading-4"),
