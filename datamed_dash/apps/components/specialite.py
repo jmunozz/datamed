@@ -1,6 +1,6 @@
+import urllib
 from typing import Tuple
 
-import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import pandas as pd
@@ -11,19 +11,17 @@ from app import app
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
 from dash_core_components import Graph
+from datamed_custom_components import Accordion
 from db import specialite, fetch_data
 from sm import SideMenu
 
-from datamed_custom_components import Accordion
 from .commons import PatientsTraites, NoData, Header
 from .utils import (
     Box,
     GraphBox,
     TopicSection,
     ArticleTitle,
-    SectionTitle,
     ExternalLink,
-    SectionP,
     FigureGraph,
     SectionRow,
     date_as_string,
@@ -31,12 +29,6 @@ from .utils import (
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
-
-
-def get_has_guideline_link(cis: str) -> str:
-    return "https://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid={}".format(
-        cis
-    )
 
 
 def get_rcp_link(cis: str) -> str:
@@ -72,6 +64,14 @@ def get_notice_link(cis: str) -> str:
             text="Le document demandé n'est pas disponible pour ce médicament"
         )
         else link
+    )
+
+
+def get_has_link(series_spe: pd.Series) -> str:
+    nom_specialite = series_spe.nom.capitalize()
+    url_specialite = urllib.parse.quote_plus(nom_specialite)
+    return "https://www.has-sante.fr/jcms/fc_2875171/fr/resultat-de-recherche?text={}&tmpParam=&opSearch=".format(
+        url_specialite
     )
 
 
@@ -188,7 +188,8 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Div(
-                                series_spe.titulaires.title(), className="normal-text",
+                                series_spe.titulaires.title(),
+                                className="normal-text",
                             ),
                         ]
                     ),
@@ -202,7 +203,8 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(), series_atc.atc,
+                                    series_atc.label.capitalize(),
+                                    series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary",
                             ),
@@ -212,10 +214,11 @@ def Description(
                     html.Article(
                         [
                             ArticleTitle(
-                                "Avis de la Commission de la Transparence de la HAS"
+                                "Recommandations de la HAS"
                             ),
                             ExternalLink(
-                                "Afficher l'avis", get_has_guideline_link(cis),
+                                "Afficher les recommandations",
+                                get_has_link(series_spe),
                             ),
                         ]
                     ),
