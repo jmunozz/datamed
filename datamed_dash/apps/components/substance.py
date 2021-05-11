@@ -1,6 +1,6 @@
 from datamed_custom_components.Accordion import Accordion
 import math
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
 import dash
@@ -8,6 +8,8 @@ import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
+import db.fetch_data as fetch_data
+import db.substance as substance
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -25,8 +27,6 @@ from dash_bootstrap_components import (
     ModalFooter,
 )
 from dash_core_components import Graph
-import db.substance as substance
-import db.fetch_data as fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
@@ -41,8 +41,7 @@ from .utils import (
     SectionRow,
 )
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
-from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT
-
+from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT, TREEMAP_LAYOUT
 
 NOTIF_IMAGE_URL = {
     "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
@@ -110,7 +109,7 @@ def EffetsIndesirablesTooltip() -> Component:
     )
 
 
-def Substance(code: str) -> Component:
+def Substance(code: str) -> Tuple[Component, html.Div]:
 
     df_sub = substance.get_substance_df(code)
     series_sub = fetch_data.as_series(df_sub)
@@ -131,9 +130,15 @@ def Substance(code: str) -> Component:
                 SideMenu(
                     id="side-menu",
                     items=[
-                        {"id": "description", "label": "Description"},
                         {"id": "population-concernee", "label": "Population concernée"},
-                        {"id": "effets-indesirables", "label": "Effets indésirables",},
+                        {
+                            "id": "effets-indesirables",
+                            "label": "Effets indésirables",
+                        },
+                        {
+                            "id": "liste-specialites",
+                            "label": "Liste des spécialités",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -148,7 +153,7 @@ def Substance(code: str) -> Component:
                             ),
                             CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
                             SystemesOrganes(df_soc, code),
-                            Description(df_sub, df_sub_spe),
+                            ListeSpecialites(df_sub, df_sub_spe),
                         ],
                         className="ContentWrapper",
                     ),
@@ -160,43 +165,57 @@ def Substance(code: str) -> Component:
     )
 
 
-def Description(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
+def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
     series_sub = fetch_data.as_series(df_sub)
+    if df_sub_spe is not None:
+        box_children = [
+            html.Div(
+                "{} médicaments identifiés".format(len(df_sub_spe)),
+                className="normal-text mt-3",
+                style={"color": "#33C2D6"},
+            ),
+            dash_table.DataTable(
+                id="substance-specialite-table",
+                columns=[{"name": "nom", "id": "nom"}],
+                data=df_sub_spe.reset_index().to_dict("records"),
+                page_size=10,
+                style_as_list_view=True,
+                style_table={"overflowX": "auto"},
+                style_cell={
+                    "height": "50px",
+                    "backgroundColor": "#FAFAFA",
+                },
+                style_data={
+                    "fontSize": "14px",
+                    "fontWeight": "400",
+                    "font-family": "Roboto",
+                    "lineHeight": "18px",
+                    "textAlign": "left",
+                },
+                style_header={"display": "none"},
+            ),
+        ]
+    else:
+        box_children = [
+            html.Div(
+                "Aucun médicament identifié",
+                className="normal-text mt-3",
+                style={"color": "#33C2D6"},
+            )
+        ]
 
     return TopicSection(
-        Box(
-            [
-                html.Div(
-                    "Spécialités de médicaments contenant : {}".format(
-                        series_sub.nom.capitalize()
-                    ),
-                    className="medium-text mt-5",
-                ),
-                html.Div(
-                    "{} médicaments identifiés".format(len(df_sub_spe)),
-                    className="normal-text mt-3",
-                    style={"color": "#33C2D6"},
-                ),
-                dash_table.DataTable(
-                    id="substance-specialite-table",
-                    columns=[{"name": "nom", "id": "nom"}],
-                    data=df_sub_spe.reset_index().to_dict("records"),
-                    page_size=10,
-                    style_as_list_view=True,
-                    style_table={"overflowX": "auto"},
-                    style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
-                    style_data={
-                        "fontSize": "14px",
-                        "fontWeight": "400",
-                        "font-family": "Roboto",
-                        "lineHeight": "18px",
-                        "textAlign": "left",
-                    },
-                    style_header={"display": "none"},
-                ),
-            ],
-        ),
-        id="description",
+        [
+            SectionTitle(
+                "Spécialités de médicaments contenant : {}".format(
+                    series_sub.nom.capitalize()
+                )
+            ),
+            Box(
+                box_children,
+            ),
+        ],
+        id="liste-specialites",
     )
 
 
@@ -274,7 +293,10 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
     fig.update_layout(CURVE_LAYOUT)
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(
+        figure=fig,
+        responsive=True,
+    )
 
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
@@ -299,7 +321,10 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
                 marker_colors=PIE_COLORS_SUBSTANCE,
             )
         ).update_layout(PIE_LAYOUT)
-        return Graph(figure=fig_age, responsive=True,)
+        return Graph(
+            figure=fig_age,
+            responsive=True,
+        )
     else:
         return NoData()
 
@@ -377,20 +402,7 @@ def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
         hover_name=path,
     )
 
-    fig.update_layout(
-        {
-            "xaxis_showgrid": False,
-            "yaxis_showgrid": False,
-            "hovermode": "x unified",
-            "plot_bgcolor": "#FAFAFA",
-            "paper_bgcolor": "#FAFAFA",
-            "margin": dict(t=0, b=0, l=0, r=0),
-            "font": {"size": 12, "color": "black"},
-            "legend": dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-            ),
-        }
-    )
+    fig.update_layout(TREEMAP_LAYOUT)
     fig.update_traces(
         texttemplate="%{label}<br>%{value:.0f}%",
         textposition="middle center",
@@ -423,7 +435,6 @@ def SystemesOrganesTooltip():
 
 
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
-    print(df)
     return TopicSection(
         [
             SectionRow(html.H1("Effets indésirables par système d'organe")),
@@ -528,7 +539,6 @@ def update_callback(
     if not click_data:
         return False, "", "", ""
 
-    print(click_data)
     selected_soc = click_data["points"][0]["label"]
     selected_soc_has_changed = selected_soc != previous_selected_soc
 

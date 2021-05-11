@@ -10,6 +10,7 @@ import db
 import erreurs_med as em
 import helpers
 import settings
+from logos_formes_pharma import get_specialite_icon
 
 engine = db.connect_db()
 
@@ -506,27 +507,36 @@ def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings
     db.create_table_from_df(df_sig, _settings["to_sql"])
 
 
-create_table_bdpm_cis(settings.files["bdpm_cis"])
-create_tables_rsp_compo(settings.files["rsp_compo"])
-create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
-create_table_atc(settings.files["atc"])
-create_table_cis_atc(settings.files["cis_atc"])
+def create_table_icones(_settings: Dict):
+    df = pd.read_sql("specialite", engine)
+    df = df[["cis", "forme_pharma"]]
+    df["icone"] = df.forme_pharma.apply(lambda x: get_specialite_icon(x))
+    db.create_table_from_df(df.set_index("cis"), _settings["to_sql"])
 
-# Ordei
-create_spe_conso_ordei_table(settings.files["ordei_specialite"])
-create_spe_patients_sexe_table(settings.files["ordei_specialite"])
-create_spe_patients_age_table(settings.files["ordei_specialite"])
-create_substance_ordei_table(settings.files["ordei_substance"])
-create_substance_patients_sexe_table(settings.files["ordei_substance"])
-create_substance_patients_age_table(settings.files["ordei_substance"])
-create_substance_cas_sexe_table(settings.files["ordei_substance"])
-create_substance_cas_age_table(settings.files["ordei_substance"])
-create_notificateurs_table(settings.files["ordei_notificateurs"])
-create_substance_soclong_table(settings.files["ordei_soclong"])
-create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+# create_table_bdpm_cis(settings.files["bdpm_cis"])
+# create_tables_rsp_compo(settings.files["rsp_compo"])
+# create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+# create_table_atc(settings.files["atc"])
+# create_table_cis_atc(settings.files["cis_atc"])
+#
+# # Ordei
+# create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+# create_spe_patients_sexe_table(settings.files["ordei_specialite"])
+# create_spe_patients_age_table(settings.files["ordei_specialite"])
+# create_substance_ordei_table(settings.files["ordei_substance"])
+# create_substance_patients_sexe_table(settings.files["ordei_substance"])
+# create_substance_patients_age_table(settings.files["ordei_substance"])
+# create_substance_cas_sexe_table(settings.files["ordei_substance"])
+# create_substance_cas_age_table(settings.files["ordei_substance"])
+# create_notificateurs_table(settings.files["ordei_notificateurs"])
+# create_substance_soclong_table(settings.files["ordei_soclong"])
+# create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+#
+# # Erreurs médicamenteuses
+# create_table_emed(settings.files["erreurs_med"])
+#
+# # TrustMed
+# create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
 
-# Erreurs médicamenteuses
-create_table_emed(settings.files["erreurs_med"])
-
-# TrustMed
-create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
+# Logos
+create_table_icones(settings.files["icones"])

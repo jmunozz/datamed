@@ -34,8 +34,17 @@ UTILISATION = {
     "-": "Utilisation inconnue",
 }
 
+UTILISATION_IMG_URL = {
+    "-": app.get_asset_url("Indice-noData.svg"),
+    1: app.get_asset_url("Indice-1.svg"),
+    2: app.get_asset_url("Indice-2.svg"),
+    3: app.get_asset_url("Indice-3.svg"),
+    4: app.get_asset_url("Indice-4.svg"),
+    5: app.get_asset_url("Indice.svg"),
+}
 
 SEXE = {1: "Hommes", 2: "Femmes"}
+
 SEXE_IMG_URL = {
     1: app.get_asset_url("man_img.svg"),
     2: app.get_asset_url("woman_img.svg"),
@@ -59,7 +68,11 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return go.Figure(
-        go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
+        go.Pie(
+            labels=labels,
+            values=values,
+            marker_colors=pie_colors,
+        )
     ).update_layout(PIE_LAYOUT)
 
 
@@ -67,7 +80,7 @@ def NoData() -> html.Div:
     return html.Div(
         [
             html.Img(
-                src=app.get_asset_url("illu_no_data.svg"),
+                src=app.get_asset_url("notfound.svg"),
                 className="img-fluid",
                 alt="Responsive image",
             ),
@@ -126,11 +139,10 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                 Div(
                     [
                         Box(
-                            [
-                                html.Img(src=app.get_asset_url("family_restroom.svg")),
-                                html.Span("INDICE"),
-                                html.H1(f"{exposition}/5"),
-                            ],
+                                [
+                                    html.P(UTILISATION[exposition], className="normal-text-bold text-center align-middle"),
+                                    html.Img(src=UTILISATION_IMG_URL[exposition]),
+                                ],
                             isBordered=False,
                             className="UsageBoxRate",
                         ),
@@ -216,7 +228,10 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
     return html.Div(
         html.Div(
             [
-                html.Div(html.Img(src=icon_url), className="content-header-img",),
+                html.Div(
+                    html.Img(src=icon_url),
+                    className="content-header-img",
+                ),
                 html.Div(
                     [
                         html.Div(series_spe.nom.capitalize(), className="heading-4"),
