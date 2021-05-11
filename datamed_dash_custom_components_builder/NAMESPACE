@@ -1,4 +1,6 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+export(Accordion)
 export(SearchBar)
+export(accordion)
 export(searchBar)
