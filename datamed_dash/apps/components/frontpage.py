@@ -1,31 +1,11 @@
+from typing import Tuple
+
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-import dash_table
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import requests
 from app import app
-from bs4 import BeautifulSoup
-from dash.development.base_component import Component
-from dash_core_components import Graph
-from db import specialite, fetch_data
-from sm import SideMenu
-
-from .commons import PatientsTraites, NoData, Header
-from .utils import (
-    Box,
-    GraphBox,
-    TopicSection,
-    ArticleTitle,
-    SectionTitle,
-    ExternalLink,
-    SectionP,
-    FigureGraph,
-)
 
 
-def FrontPage() -> Component:
+def FrontPage() -> Tuple[html.Div, html.Div]:
     return (
         html.Div(className="header-space"),
         html.Div(
@@ -39,7 +19,9 @@ def FrontPage() -> Component:
                                         "Des données accessibles et expliquées, au service des patients"
                                     ),
                                     html.P(
-                                        "L’Agence Nationale de Sécurité du Médicament et des Produits de Santé (ANSM) ouvre ses données de manière pédagogique pour permettre au plus grand nombre de réaliser des choix éclairés"
+                                        "L’Agence Nationale de Sécurité du Médicament et des Produits de Santé (ANSM) "
+                                        "ouvre ses données de manière pédagogique pour permettre au plus grand nombre "
+                                        "de réaliser des choix éclairés"
                                     ),
                                 ],
                                 className="fp-wrapper fp-content",
@@ -47,7 +29,7 @@ def FrontPage() -> Component:
                             className="fp-half",
                         ),
                         dbc.Col(
-                            html.Img(src=app.get_asset_url("frontpage_img_1.svg")),
+                            html.Img(src=app.get_asset_url("Big illustration 1.svg")),
                             className="fp-half with-p-y",
                         ),
                     ],
@@ -57,7 +39,7 @@ def FrontPage() -> Component:
                     [
                         html.Div(
                             html.Img(
-                                src=app.get_asset_url("frontpage_img_1.svg"),
+                                src=app.get_asset_url("Big illustration 2.svg"),
                                 style={"transform": "scaleX(-1)"},
                             ),
                             className="fp-half with-p-y",
@@ -69,7 +51,9 @@ def FrontPage() -> Component:
                                         "Une plateforme unique pour réunir les données essentielles de l’ANSM"
                                     ),
                                     html.P(
-                                        "L’ANSM ouvrira dans un premier temps ses données autour des médicaments et suivront celles des ruptures de stocks, du bon usage des médicaments, des essais cliniques et bien d’autres !"
+                                        "L’ANSM ouvrira dans un premier temps ses données autour des médicaments et "
+                                        "suivront celles des ruptures de stocks, du bon usage des médicaments, des "
+                                        "essais cliniques et bien d’autres !"
                                     ),
                                     html.A(
                                         "À propos",
@@ -111,7 +95,8 @@ def FrontPage() -> Component:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Citoyen, patient temporaire, patient chronique, aidant, associations de patients"
+                                                    "Citoyen, patient temporaire, patient chronique, aidant, "
+                                                    "associations de patients"
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -133,7 +118,8 @@ def FrontPage() -> Component:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Médecins généralistes et spécialistes, pharmaciens, infirmiers, intervenants du paramédical"
+                                                    "Médecins généralistes et spécialistes, pharmaciens, infirmiers, "
+                                                    "intervenants du paramédical"
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -177,10 +163,13 @@ def FrontPage() -> Component:
                                 [
                                     html.H1("Origine et nature des données"),
                                     html.P(
-                                        "Les données de la plateforme proviennent de bases gerées en majorité par l’ANSM, et d’autres proviennent de bases open source gerées par d’autres institutions de santé (CNAM, HAS)."
+                                        "Les données de la plateforme proviennent de bases gerées en majorité par "
+                                        "l’ANSM, et d’autres proviennent de bases open source gerées par d’autres "
+                                        "institutions de santé (CNAM, HAS)."
                                     ),
                                     html.P(
-                                        "Elles sont alimentées par les parties prenantes (agents de l’ANSM, institutions, grand public, professionnels de santé, industriels)."
+                                        "Elles sont alimentées par les parties prenantes (agents de l’ANSM, "
+                                        "institutions, grand public, professionnels de santé, industriels)."
                                     ),
                                     html.A(
                                         "Explorer les données",
@@ -194,7 +183,7 @@ def FrontPage() -> Component:
                             className="fp-half",
                         ),
                         html.Div(
-                            html.Img(src=app.get_asset_url("frontpage_img_2.svg")),
+                            html.Img(src=app.get_asset_url("Big illustration 3.svg")),
                             className="fp-half with-p-y",
                         ),
                     ],
@@ -204,4 +193,3 @@ def FrontPage() -> Component:
             className="container-fluid p-0",
         ),
     )
-
