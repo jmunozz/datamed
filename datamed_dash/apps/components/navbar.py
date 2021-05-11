@@ -22,14 +22,13 @@ def truncate_str(text: str) -> str:
 
 
 def to_search_bar_options(df: DataFrame, type: str) -> List[Dict]:
-
     return [
         {
             "label": truncate_str(val),
             "value": index,
             "type": type,
         }
-        for index, val in df["nom"].items()
+        for index, val in df.nom.items()
     ]
 
 
@@ -37,6 +36,7 @@ def LogoAnsm() -> Component:
     img = html.Img(
         src=app.get_asset_url("Logo.svg"),
         style={"width": "100px", "display": "inline-block"},
+        className="mr-4"
     )
     return dcc.Link(img, href="/")
 
@@ -45,12 +45,12 @@ def MenuItem(title: str, href: str) -> Component:
     return html.A(
         title,
         href=href,
-        className="button-text nav-link text-secondary d-inline-block mr-4",
+        className="button-text nav-link d-inline-block mr-4",
+        style={"text-decoration": "none", "color": "black"}
     )
 
 
 def Navbar() -> Component:
-
     df_spe = specialite.list_specialite()
     df_sub = substance.list_substance()
     opts_spe = to_search_bar_options(df_spe, "specialite")
@@ -78,6 +78,8 @@ def update_path(value):
     ctx = dash.callback_context
     if not ctx.triggered or not value:
         raise PreventUpdate()
+
     type = value["type"]
     index = value["value"]
+
     return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
