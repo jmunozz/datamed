@@ -325,7 +325,7 @@ def CasDeclares(
 
     return TopicSection(
         [
-            SectionRow(Box(html.H1("Cas déclarés d'effets indésirables"))),
+            SectionRow(html.H1("Cas déclarés d'effets indésirables")),
             EffetsIndesirablesTooltip(),
             SectionRow(
                 [
@@ -353,7 +353,7 @@ def CasDeclares(
                         [RepartitionAgeGraphBox(df_cas_age)],
                     ),
                 ],
-                withGutter=True
+                withGutter=True,
             ),
             SectionRow(
                 [
@@ -400,18 +400,33 @@ def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
     return fig
 
 
-def SystemesOrganesTooltip(): 
-    return SectionRow(Box(Accordion([html.P("Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
-                "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
-                "déclarés."), html.P("Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
-                "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
-                "différents (en fonction des effets indésirables déclarés).")], label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?")))
+def SystemesOrganesTooltip():
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.P(
+                        "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
+                        "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
+                        "déclarés."
+                    ),
+                    html.P(
+                        "Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
+                        "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
+                        "différents (en fonction des effets indésirables déclarés)."
+                    ),
+                ],
+                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+            )
+        )
+    )
 
 
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
+    print(df)
     return TopicSection(
         [
-            SectionRow(Box(html.H1("Effets indésirables par système d'organe"))),
+            SectionRow(html.H1("Effets indésirables par système d'organe")),
             SystemesOrganesTooltip(),
             SectionRow(
                 [
@@ -513,6 +528,7 @@ def update_callback(
     if not click_data:
         return False, "", "", ""
 
+    print(click_data)
     selected_soc = click_data["points"][0]["label"]
     selected_soc_has_changed = selected_soc != previous_selected_soc
 
