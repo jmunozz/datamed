@@ -311,7 +311,7 @@ def BoxListDenomination(df_denom):
         style_table={"overflowX": "auto"},
         style_cell={
             "height": "50px",
-            "backgroundColor": "#FAFAFA",
+            "backgroundColor": "#FFF",
         },
         style_data={
             "fontSize": "14px",

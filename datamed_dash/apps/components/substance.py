@@ -183,7 +183,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 style_table={"overflowX": "auto"},
                 style_cell={
                     "height": "50px",
-                    "backgroundColor": "#FAFAFA",
+                    "backgroundColor": "#FFF",
                 },
                 style_data={
                     "fontSize": "14px",
