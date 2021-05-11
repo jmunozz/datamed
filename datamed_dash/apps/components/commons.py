@@ -161,16 +161,10 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                         [
                             html.Div(
                                 [
+                                    html.P(UTILISATION[exposition], className="normal-text-bold text-center align-middle"),
                                     html.Img(src=UTILISATION_IMG_URL[exposition]),
-                                    html.P("INDICE"),
                                 ],
                                 className="d-flex flex-column",
-                            ),
-                            html.Div(
-                                [
-                                    html.H1(f"{exposition}/5"),
-                                ],
-                                className="d-flex",
                             ),
                         ],
                         style={"flex": 1},
