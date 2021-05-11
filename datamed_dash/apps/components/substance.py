@@ -158,16 +158,21 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                 SideMenu(
                     id="side-menu",
                     items=[
-                        {"id": "description", "label": "Description"},
                         {"id": "population-concernee", "label": "Population concernée"},
-                        {"id": "effets-indesirables", "label": "Effets indésirables",},
+                        {
+                            "id": "effets-indesirables",
+                            "label": "Effets indésirables",
+                        },
+                        {
+                            "id": "liste-specialites",
+                            "label": "Liste des spécialités",
+                        },
                     ],
                     className="side-menu",
                 ),
                 html.Div(
                     html.Div(
                         [
-                            Description(df_sub, df_sub_spe),
                             PatientsTraites(
                                 df_age=df_age,
                                 df_sexe=df_sexe,
@@ -176,6 +181,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                             ),
                             CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
                             SystemesOrganes(df_soc, code),
+                            ListeSpecialites(df_sub, df_sub_spe),
                         ],
                         className="container-fluid",
                         style={"padding-left": "80px"},
@@ -188,44 +194,57 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
     )
 
 
-def Description(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
+def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
     series_sub = fetch_data.as_series(df_sub)
+    if df_sub_spe is not None:
+        box_children = [
+            html.Div(
+                "{} médicaments identifiés".format(len(df_sub_spe)),
+                className="normal-text mt-3",
+                style={"color": "#33C2D6"},
+            ),
+            dash_table.DataTable(
+                id="substance-specialite-table",
+                columns=[{"name": "nom", "id": "nom"}],
+                data=df_sub_spe.reset_index().to_dict("records"),
+                page_size=10,
+                style_as_list_view=True,
+                style_table={"overflowX": "auto"},
+                style_cell={
+                    "height": "50px",
+                    "backgroundColor": "#FAFAFA",
+                },
+                style_data={
+                    "fontSize": "14px",
+                    "fontWeight": "400",
+                    "font-family": "Roboto",
+                    "lineHeight": "18px",
+                    "textAlign": "left",
+                },
+                style_header={"display": "none"},
+            ),
+        ]
+    else:
+        box_children = [
+            html.Div(
+                "Aucun médicament identifié",
+                className="normal-text mt-3",
+                style={"color": "#33C2D6"},
+            )
+        ]
 
     return TopicSection(
-        Box(
-            [
-                html.Div(
-                    "Spécialités de médicaments contenant : {}".format(
-                        series_sub.nom.capitalize()
-                    ),
-                    className="medium-text mt-5",
-                ),
-                html.Div(
-                    "{} médicaments identifiés".format(len(df_sub_spe)),
-                    className="normal-text mt-3",
-                    style={"color": "#33C2D6"},
-                ),
-                dash_table.DataTable(
-                    id="substance-specialite-table",
-                    columns=[{"name": "nom", "id": "nom"}],
-                    data=df_sub_spe.reset_index().to_dict("records"),
-                    page_size=10,
-                    style_as_list_view=True,
-                    style_table={"overflowX": "auto"},
-                    style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
-                    style_data={
-                        "fontSize": "14px",
-                        "fontWeight": "400",
-                        "font-family": "Roboto",
-                        "lineHeight": "18px",
-                        "textAlign": "left",
-                    },
-                    style_header={"display": "none"},
-                ),
-            ],
-            class_name_wrapper="overlap-top-content",
-        ),
-        id="description",
+        [
+            SectionTitle(
+                "Spécialités de médicaments contenant : {}".format(
+                    series_sub.nom.capitalize()
+                )
+            ),
+            Box(
+                box_children,
+            ),
+        ],
+        id="liste-specialites",
     )
 
 
@@ -303,7 +322,10 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
     fig.update_layout(CURVE_LAYOUT)
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(
+        figure=fig,
+        responsive=True,
+    )
 
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
@@ -328,7 +350,10 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
                 marker_colors=PIE_COLORS_SUBSTANCE,
             )
         ).update_layout(PIE_LAYOUT)
-        return Graph(figure=fig_age, responsive=True,)
+        return Graph(
+            figure=fig_age,
+            responsive=True,
+        )
     else:
         return NoData()
 

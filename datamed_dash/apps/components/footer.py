@@ -1,5 +1,6 @@
 from typing import List
 
+from app import app
 from dash.development.base_component import Component
 from dash_html_components import Div, H3, Img, B, A
 
@@ -17,10 +18,13 @@ def Logos() -> Component:
             Div(
                 [
                     Img(
-                        src="/assets/1200px-Republique-francaise-logo.svg.png",
+                        src=app.get_asset_url("Logo republique française.svg"),
                         className="img-logo",
                     ),
-                    Img(src="/assets/Ansm-logo-Grand.jpg", className="img-logo"),
+                    Img(
+                        src=app.get_asset_url("Logo ANSM blanc.svg"),
+                        className="img-logo",
+                    ),
                 ]
             ),
             H3(
@@ -61,4 +65,10 @@ def FooterRight():
 
 
 def Footer() -> Component:
-    return Div([Logos(), FooterRight(),], className="footer",)
+    return Div(
+        [
+            Logos(),
+            FooterRight(),
+        ],
+        className="footer",
+    )
