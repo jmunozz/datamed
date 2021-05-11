@@ -31,7 +31,7 @@ UTILISATION = {
 }
 
 UTILISATION_IMG_URL = {
-    "-": app.get_asset_url("Indice-1.svg"),
+    "-": app.get_asset_url("Indice-noData.svg"),
     1: app.get_asset_url("Indice-1.svg"),
     2: app.get_asset_url("Indice-2.svg"),
     3: app.get_asset_url("Indice-3.svg"),
