@@ -76,7 +76,7 @@ def NoData() -> html.Div:
     return html.Div(
         [
             html.Img(
-                src=app.get_asset_url("illu_no_data.svg"),
+                src=app.get_asset_url("notfound.svg"),
                 className="img-fluid",
                 alt="Responsive image",
             ),
