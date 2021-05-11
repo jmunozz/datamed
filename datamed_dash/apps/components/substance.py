@@ -196,6 +196,42 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
 
 def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
     series_sub = fetch_data.as_series(df_sub)
+    if df_sub_spe is not None:
+        box_children = [
+            html.Div(
+                "{} médicaments identifiés".format(len(df_sub_spe)),
+                className="normal-text mt-3",
+                style={"color": "#33C2D6"},
+            ),
+            dash_table.DataTable(
+                id="substance-specialite-table",
+                columns=[{"name": "nom", "id": "nom"}],
+                data=df_sub_spe.reset_index().to_dict("records"),
+                page_size=10,
+                style_as_list_view=True,
+                style_table={"overflowX": "auto"},
+                style_cell={
+                    "height": "50px",
+                    "backgroundColor": "#FAFAFA",
+                },
+                style_data={
+                    "fontSize": "14px",
+                    "fontWeight": "400",
+                    "font-family": "Roboto",
+                    "lineHeight": "18px",
+                    "textAlign": "left",
+                },
+                style_header={"display": "none"},
+            ),
+        ]
+    else:
+        box_children = [
+            html.Div(
+                "Aucun médicament identifié",
+                className="normal-text mt-3",
+                style={"color": "#33C2D6"},
+            )
+        ]
 
     return TopicSection(
         [
@@ -205,33 +241,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 )
             ),
             Box(
-                [
-                    html.Div(
-                        "{} médicaments identifiés".format(len(df_sub_spe)),
-                        className="normal-text mt-3",
-                        style={"color": "#33C2D6"},
-                    ),
-                    dash_table.DataTable(
-                        id="substance-specialite-table",
-                        columns=[{"name": "nom", "id": "nom"}],
-                        data=df_sub_spe.reset_index().to_dict("records"),
-                        page_size=10,
-                        style_as_list_view=True,
-                        style_table={"overflowX": "auto"},
-                        style_cell={
-                            "height": "50px",
-                            "backgroundColor": "#FAFAFA",
-                        },
-                        style_data={
-                            "fontSize": "14px",
-                            "fontWeight": "400",
-                            "font-family": "Roboto",
-                            "lineHeight": "18px",
-                            "textAlign": "left",
-                        },
-                        style_header={"display": "none"},
-                    ),
-                ],
+                box_children,
             ),
         ],
         id="liste-specialites",
