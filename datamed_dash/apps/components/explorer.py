@@ -1,23 +1,33 @@
 from dash.development.base_component import Component
 from dash_bootstrap_components import Card, CardImg, CardBody, CardLink
-from dash_html_components import Div, B, I
+from dash_html_components import Div, B, I, Img
+from app import app
+from dash_bootstrap_components import Row
 
 
 def ExplorerHeader() -> Component:
     return Div(
         [
             Div(
-                "Explorez notre sélection de données publiques",
-                className="explorer-title heading-4",
+                Img(
+                    src=app.get_asset_url("Illustration-explorer.svg"),
+                ),
+                className="fp-section fp-section-1 justify-content-center",
             ),
             Div(
-                "L’Agence Nationale de Sécurité du Médicament et des "
-                "Produits de Santé met à votre disposition une sélection de ses "
-                "bases de données. Laissez-vous guider par ses modalités d’utilisation.",
-                className="explorer-text large-text",
+                "Explorez notre sélection de données publiques",
+                className="fp-section fp-section-1 justify-content-center heading-4",
+            ),
+            Row(
+                Div(
+                    "L’Agence Nationale de Sécurité du Médicament et des "
+                    "Produits de Santé met à votre disposition une sélection de ses "
+                    "bases de données. Laissez-vous guider par ses modalités d’utilisation.",
+                    className="large-text col-lg-6 col-md-10 col-sm-10 text-center mb-5",
+                ),
+                className="fp-section fp-section-1 justify-content-md-center",
             ),
         ],
-        className="explorer-header-container",
     )
 
 
@@ -45,7 +55,10 @@ def BddCard(
                                 className="button-text d-inline-block text-justify col-6",
                             ),
                             Div(
-                                [B("Source de données : "), source_bdd,],
+                                [
+                                    B("Source de données : "),
+                                    source_bdd,
+                                ],
                                 className="button-text d-inline-block col-6",
                             ),
                         ],
@@ -66,7 +79,12 @@ def BddCard(
 
 def Modalites() -> Component:
     return Div(
-        [Div("Modalités d'utilisation", className="heading-4 text-center",)],
+        [
+            Div(
+                "Modalités d'utilisation",
+                className="heading-4 text-center",
+            )
+        ],
         style={"margin-top": "376px"},
     )
 
@@ -74,6 +92,7 @@ def Modalites() -> Component:
 def Explorer() -> Component:
     return Div(
         [
+            Div(className="header-space"),
             ExplorerHeader(),
             BddCard(
                 "/assets/pills_2.svg",
@@ -94,5 +113,6 @@ def Explorer() -> Component:
                 "/apps/explorer",
             ),
             Modalites(),
-        ]
+        ],
+        className="container-fluid p-0",
     )
