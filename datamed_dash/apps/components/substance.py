@@ -283,7 +283,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
     fig.update_layout(CURVE_LAYOUT)
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(figure=fig, responsive=True)
 
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
@@ -308,7 +308,7 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
                 marker_colors=PIE_COLORS_SUBSTANCE,
             )
         ).update_layout(PIE_LAYOUT)
-        return Graph(figure=fig_age, responsive=True,)
+        return Graph(figure=fig_age, responsive=False,)
     else:
         return NoData()
 
