@@ -18,10 +18,11 @@ Keyword arguments:
 - `children` (a list of or a singular dash component, string or number; optional)
 - `id` (String; optional): The ID used to identify this component in Dash callbacks.
 - `label` (String; optional)
+- `labelClass` (String; optional)
 - `isOpenOnFirstRender` (Bool; optional)
 """
 function accordion(; kwargs...)
-        available_props = Symbol[:children, :id, :label, :isOpenOnFirstRender]
+        available_props = Symbol[:children, :id, :label, :labelClass, :isOpenOnFirstRender]
         wild_props = Symbol[]
         return Component("accordion", "Accordion", "datamed_custom_components", available_props, wild_props; kwargs...)
 end

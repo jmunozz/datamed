@@ -33,3 +33,4 @@ psycopg2==2.8.6
 sqlalchemy==1.4
 dash-extensions==0.0.53
 python-dotenv==0.17.1
+unidecode==1.2.0

@@ -14,6 +14,7 @@ app = DashProxy(
     external_scripts=[
         dbc.themes.BOOTSTRAP,
         __file__.replace("index.py", "./assets/menu.js"),
+        __file__.replace("index.py", "./assets/crisp.js"),
     ],
     suppress_callback_exceptions=True,
     title="Dashboard - DataMed",

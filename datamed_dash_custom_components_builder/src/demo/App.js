@@ -6,7 +6,6 @@ import {SearchBar} from '../lib';
 import {Accordion} from "../lib"
 import {Treemap} from "../lib"
 
-
 const opts = new Array(100000).fill({label: "jordan", value: 1, type: "spécialité" })
 
 class App extends Component {
@@ -34,7 +33,7 @@ class App extends Component {
                 {/* <Accordion id="accordion-id" label={label} isOpenOnFirstRender={true}>
                     <p>This is a text</p>
                 </Accordion> */}
-                <Treemap></Treemap>
+                <Treemap data={data} height={400} width={600}></Treemap>
             </div>
         );
     }

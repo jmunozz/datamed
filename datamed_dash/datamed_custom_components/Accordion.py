@@ -15,14 +15,15 @@ Keyword arguments:
 - children (a list of or a singular dash component, string or number; optional)
 - id (string; optional): The ID used to identify this component in Dash callbacks.
 - label (string; optional)
+- labelClass (string; default '')
 - isOpenOnFirstRender (boolean; default False)"""
     @_explicitize_args
-    def __init__(self, children=None, id=Component.UNDEFINED, label=Component.UNDEFINED, isOpenOnFirstRender=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['children', 'id', 'label', 'isOpenOnFirstRender']
+    def __init__(self, children=None, id=Component.UNDEFINED, label=Component.UNDEFINED, labelClass=Component.UNDEFINED, isOpenOnFirstRender=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['children', 'id', 'label', 'labelClass', 'isOpenOnFirstRender']
         self._type = 'Accordion'
         self._namespace = 'datamed_custom_components'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['children', 'id', 'label', 'isOpenOnFirstRender']
+        self.available_properties = ['children', 'id', 'label', 'labelClass', 'isOpenOnFirstRender']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')
