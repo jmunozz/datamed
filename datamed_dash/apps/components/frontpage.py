@@ -83,7 +83,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                             [
                                                 html.Img(
                                                     src=app.get_asset_url(
-                                                        "doctor_female.svg"
+                                                        "Public-Male-250.svg"
                                                     ),
                                                     style={"height": "150px"},
                                                 ),
@@ -105,7 +105,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                             [
                                                 html.Img(
                                                     src=app.get_asset_url(
-                                                        "doctor_female.svg"
+                                                        "Doctor-Female-250.svg"
                                                     ),
                                                     style={"height": "150px"},
                                                 ),
@@ -128,7 +128,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                             [
                                                 html.Img(
                                                     src=app.get_asset_url(
-                                                        "doctor_female.svg"
+                                                        "DataScentist-250.svg"
                                                     ),
                                                     style={"height": "150px"},
                                                 ),
