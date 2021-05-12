@@ -45,17 +45,17 @@ def FooterRight():
             FooterElement(
                 "Partenaires",
                 [
-                    A("ANSM", href="https://ansm.sante.fr/", className="link"),
+                    A("ANSM", href="https://ansm.sante.fr/", className="link text-decoration-none"),
                     A(
                         "Base de données publique des médicaments",
                         href="https://base-donnees-publique.medicaments.gouv.fr/",
-                        className="link",
+                        className="link text-decoration-none",
                     ),
-                    A("Etalab", href="https://www.etalab.gouv.fr/", className="link"),
+                    A("Etalab", href="https://www.etalab.gouv.fr/", className="link text-decoration-none"),
                     A(
                         "DINUM",
                         href="https://www.numerique.gouv.fr/dinum/",
-                        className="link",
+                        className="link text-decoration-none",
                     ),
                 ],
             ),
