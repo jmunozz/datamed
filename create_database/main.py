@@ -140,7 +140,7 @@ def create_substance_ordei_table(_settings: Dict):
         cas=("cas_annee", "sum"),
         exposition=(
             "conso_annee",
-            lambda x: helpers.get_total_exposition_level(x / 5, "substance"),
+            lambda x: helpers.get_total_exposition_level(x, "substance"),
         ),
     )
     final_df = df_by_years.join(df_by_code, on="code")
@@ -520,10 +520,10 @@ def create_table_icones(_settings: Dict):
 # create_table_cis_atc(settings.files["cis_atc"])
 #
 # # Ordei
-# create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+#create_spe_conso_ordei_table(settings.files["ordei_specialite"])
 # create_spe_patients_sexe_table(settings.files["ordei_specialite"])
 # create_spe_patients_age_table(settings.files["ordei_specialite"])
-# create_substance_ordei_table(settings.files["ordei_substance"])
+create_substance_ordei_table(settings.files["ordei_substance"])
 # create_substance_patients_sexe_table(settings.files["ordei_substance"])
 # create_substance_patients_age_table(settings.files["ordei_substance"])
 # create_substance_cas_sexe_table(settings.files["ordei_substance"])
@@ -539,4 +539,4 @@ def create_table_icones(_settings: Dict):
 # create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
 
 # Logos
-create_table_icones(settings.files["icones"])
+#create_table_icones(settings.files["icones"])
