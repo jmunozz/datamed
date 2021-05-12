@@ -213,9 +213,7 @@ def Description(
                     ),
                     html.Article(
                         [
-                            ArticleTitle(
-                                "Recommandations de la HAS"
-                            ),
+                            ArticleTitle("Recommandations de la HAS"),
                             ExternalLink(
                                 "Afficher les recommandations",
                                 get_has_link(series_spe),
@@ -400,14 +398,20 @@ def ErreursMedicamenteuses(
                             html.P(
                                 [
                                     html.Span(
-                                        "Certains médicaments peuvent être confondus lors de leur prise car leurs "
-                                        "dénominations sont proches. La liste ci-dessous rassemble les spécialités de "
-                                        "médicaments les plus souvent confondues avec ",
+                                        "Ci-dessous vous trouverez la liste des dénominations de médicaments "
+                                        "renseignées dans la base de données des erreurs médicamenteuses. En effet, "
+                                        "dans cette base, les médicaments ne sont pas toujours renseignés par nom de "
+                                        "spécialité. Nous avons sélectionné les dénominations qui se "
+                                        "rapprochent le plus de ",
                                         className="normal-text",
                                     ),
                                     html.Strong(
-                                        "{}.".format(series_spe.nom.capitalize()),
+                                        "{}".format(series_spe.nom.capitalize()),
                                         className="normal-text-bold",
+                                    ),
+                                    html.Span(
+                                        " pour mener notre analyse.",
+                                        className="normal-text",
                                     ),
                                 ],
                             ),
