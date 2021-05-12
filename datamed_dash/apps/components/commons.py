@@ -177,7 +177,7 @@ def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
         return NoData()
     return Graph(
         figure=makePie(df_age.age, df_age.pourcentage_patients, pie_colors),
-        responsive=True,
+        responsive=False,
     )
 
 
@@ -239,7 +239,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                     className="content-header-text",
                 ),
             ],
-            className="content-header-content",
+            className="HeaderContent",
         ),
         className=f"Header {css_class}",
     )

@@ -287,7 +287,7 @@ def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
             marker_colors=PIE_COLORS_SPECIALITE,
         )
     ).update_layout(PIE_LAYOUT)
-    return Graph(figure=fig_pop, responsive=True,)
+    return Graph(figure=fig_pop, responsive=False)
 
 
 def BoxListDenomination(df_denom):
