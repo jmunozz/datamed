@@ -434,12 +434,10 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     )
                 )
             ),
-            SectionRow(
-                [
-                    AdverseEffectLink(sub.nom.capitalize(), code)
-                    for code, sub in df_sub.iterrows()
-                ]
-            ),
+            *[
+                SectionRow(AdverseEffectLink(sub.nom.capitalize(), code))
+                for code, sub in df_sub.iterrows()
+            ],
         ],
         id="",
     )
@@ -449,7 +447,7 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
         html.Div(
             [
-                html.Label(substance, className="AdverseEffectRowLabel"),
+                html.Span(substance, className="AdverseEffectRowLabel"),
                 html.A(
                     "Voir les effets indésirables",
                     href="/apps/substance?search={}#effets-indesirables".format(code),
