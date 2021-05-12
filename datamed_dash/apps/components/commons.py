@@ -101,7 +101,15 @@ def Tooltip() -> Component:
                         [
                             html.Span(
                                 "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
-                                "médicament, délivré en pharmacie de ville entre 2014 et 2018 et remboursé par "
+                                "médicament, délivré en ",
+                                className="normal-text",
+                            ),
+                            html.Span(
+                                "pharmacie de ville",
+                                className="normal-text-bold",
+                            ),
+                            html.Span(
+                                " entre 2014 et 2018 et remboursé par "
                                 "l’Assurance Maladie. Pour plus d’informations, consultez : ",
                                 className="normal-text",
                             ),
