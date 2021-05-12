@@ -356,7 +356,8 @@ def ErreursMedicamenteuses(
                             ),
                             html.P(
                                 "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
-                                "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur."
+                                "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur.",
+                                className="normal-text text-justify"
                             ),
                         ],
                         labelClass="InternalLink normal-text",

@@ -297,7 +297,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         css_class = "Header-isSubstance"
         icon_url = app.get_asset_url("substance_icon.svg")
         type_label = "Substance active"
-        help_link = html.A("Qu'est-ce qu'une substance active ?")
+        help_link = html.A("Qu'est-ce qu'une substance active ?", id="definition-open")
     else:
         css_class = "Header-isSpecialite"
         df_icones = specialite.get_icones(series_spe.name)
@@ -306,7 +306,9 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
             f"icons/pres_{normalize_string(series_icones.icone)}.svg"
         )
         type_label = "Spécialité de médicament"
-        help_link = html.A("Qu'est-ce qu'une spécialité de médicament ?")
+        help_link = html.A(
+            "Qu'est-ce qu'une spécialité de médicament ?", id="definition-open"
+        )
 
     return html.Div(
         html.Div(
