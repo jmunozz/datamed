@@ -10,7 +10,8 @@ ExampleComponent is an example component. It takes a property, `label`, and disp
 }
 
 \usage{
-accordion(children=NULL, id=NULL, label=NULL, isOpenOnFirstRender=NULL)
+accordion(children=NULL, id=NULL, label=NULL, labelClass=NULL,
+isOpenOnFirstRender=NULL)
 }
 
 \arguments{
@@ -19,6 +20,8 @@ accordion(children=NULL, id=NULL, label=NULL, isOpenOnFirstRender=NULL)
 \item{id}{Character. The ID used to identify this component in Dash callbacks.}
 
 \item{label}{Character. }
+
+\item{labelClass}{Character. }
 
 \item{isOpenOnFirstRender}{Logical. }
 }

@@ -113,6 +113,7 @@ def Tooltip() -> Component:
                     )
                 ],
                 isOpenOnFirstRender=True,
+                labelClass="InternalLink",
                 label="Comment sont calculés ces indicateurs ? D’où viennent les données ?",
             )
         )
@@ -243,16 +244,3 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         ),
         className=f"Header {css_class}",
     )
-
-
-@app.callback(
-    dd.Output("collapse-1", "is_open"),
-    dd.Input("group-1-toggle", "n_clicks"),
-    dd.State("collapse-1", "is_open"),
-)
-def toggle_accordion(n_clicks, is_open):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return False
-    if n_clicks:
-        return not is_open

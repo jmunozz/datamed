@@ -345,6 +345,7 @@ def ErreursMedicamenteuses(
                                 "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur."
                             ),
                         ],
+                        labelClass="InternalLink",
                         label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
                     )
                 )
@@ -428,6 +429,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                                 className="normal-text",
                             ),
                         ],
+                        labelClass="InternalLink",
                         label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
                     )
                 )

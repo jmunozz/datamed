@@ -40,6 +40,17 @@
         "required": false,
         "description": ""
       },
+      "labelClass": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
       "isOpenOnFirstRender": {
         "type": {
           "name": "bool"
