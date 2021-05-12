@@ -317,6 +317,7 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
                 labels=df_cas_age.age,
                 values=df_cas_age.pourcentage_cas,
                 marker_colors=PIE_COLORS_SUBSTANCE,
+                hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
             )
         ).update_layout(PIE_LAYOUT)
         return Graph(

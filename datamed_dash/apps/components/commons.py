@@ -70,6 +70,7 @@ def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
             labels=labels,
             values=values,
             marker_colors=pie_colors,
+            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
         )
     ).update_layout(PIE_LAYOUT)
 
