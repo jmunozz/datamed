@@ -7,6 +7,7 @@ const version = "0.0.1"
 
 include("accordion.jl")
 include("searchbar.jl")
+include("treemap.jl")
 
 function __init__()
     DashBase.register_package(
