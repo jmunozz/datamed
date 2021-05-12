@@ -346,7 +346,7 @@ a.btn-lg {
 
 .Box-isBordered {
   border: var(--border);
-  border-radius: 5px;
+  border-radius: var(--border-radius);
 }
 
 .Box-hasNoPadding {
@@ -481,6 +481,8 @@ a.btn-lg {
   align-items: center;
   background-color: var(--color-blue);
   color: var(--color-white);
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
 }
 
 .AdverseEffectRow {
