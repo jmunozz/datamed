@@ -105,15 +105,42 @@ def Tooltip() -> Component:
                                 "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
                                 "médicament, délivré en pharmacie de ville entre 2014 et 2018 et remboursé par "
                                 "l’Assurance Maladie. Pour plus d’informations, consultez : ",
-                                className="normal-text",
+                                className="button-text",
                             ),
                             html.A(
                                 "open-data-assurance-maladie.ameli.fr",
                                 href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
-                                className="normal-text link",
+                                className="button-text link",
                             ),
-                        ]
-                    )
+                        ],
+                        className="mb-3",
+                    ),
+                    html.Div(
+                        [
+                            html.Span(
+                                "Attention : ",
+                                className="button-text-bold",
+                            ),
+                            html.Span(
+                                "Un patient est comptabilisé autant de fois qu’il a acheté de boîtes (ou présentations) "
+                                "différentes de la spécialité. Pour la spécialité Doliprane 500 mg, gélule, un patient qui "
+                                "aura acheté 2 boîtes de 16 gélules et 3 boîtes de 100 gélules au cours de l’année 2016 "
+                                "sera comptabilisé 2 fois pour 2016.",
+                                className="button-text",
+                            ),
+                        ],
+                        className="mb-3",
+                    ),
+                    html.Div(
+                        [
+                            html.Span(
+                                "La somme de ce nombre de patients sur la période 2014-2018 est ensuite "
+                                "divisée par 5 pour obtenir un chiffre moyen de patients traités par an.",
+                                className="button-text",
+                            ),
+                        ],
+                        className="mb-3",
+                    ),
                 ],
                 isOpenOnFirstRender=True,
                 label="Comment sont calculés ces indicateurs ? D’où viennent les données ?",
@@ -139,10 +166,13 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                 Div(
                     [
                         Box(
-                                [
-                                    html.P(UTILISATION[exposition], className="normal-text-bold text-center align-middle"),
-                                    html.Img(src=UTILISATION_IMG_URL[exposition]),
-                                ],
+                            [
+                                html.P(
+                                    UTILISATION[exposition],
+                                    className="normal-text-bold text-center align-middle",
+                                ),
+                                html.Img(src=UTILISATION_IMG_URL[exposition]),
+                            ],
                             isBordered=False,
                             className="UsageBoxRate",
                         ),
@@ -152,7 +182,10 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                                 html.P(
                                     "Approximation du nombre de patients traités sur la période 2014-2018"
                                 ),
-                                html.A("En savoir plus", className="color-secondary",),
+                                html.A(
+                                    "En savoir plus sur le niveau d'utilisation",
+                                    className="color-secondary",
+                                ),
                             ],
                             isBordered=False,
                             className="UsageBoxFigure",
