@@ -386,6 +386,9 @@ a.btn-lg {
   .ContentLayoutWrapper {
     padding-left: 270px;
   }
+  .HeaderContent {
+    padding-left: 270px !important;
+  }
 }
 
 /*
@@ -394,6 +397,7 @@ a.btn-lg {
 .Section {
   display: flex;
   flex-direction: column;
+  margin-bottom: 2.25rem;
 }
 
 .SectionRow {
@@ -404,17 +408,16 @@ a.btn-lg {
   flex-wrap: wrap;
 }
 
+.SectionRow-withGutter {
+  margin-top: -1.5rem;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
 .SectionRow-withGutter > * {
+  margin-top: 1.5rem;
   margin-left: 0.75rem;
   margin-right: 0.75rem;
-}
-
-.SectionRow-withGutter > *:first-child {
-  margin-left: 0;
-}
-
-.SectionRow-withGutter > *:last-child {
-  margin-right: 0;
 }
 
 /*
@@ -515,6 +518,14 @@ a.btn-lg {
   display: flex;
   flex-direction: row;
   vertical-align: center;
+}
+
+.HeaderContent {
+  padding: 0;
+  margin: auto 1.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
 }
 
 .Header-isSubstance {
