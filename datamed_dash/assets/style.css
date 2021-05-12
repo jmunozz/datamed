@@ -543,6 +543,11 @@ a.btn-lg {
   background-color: var(--color-1);
 }
 
+.Header-isRupture {
+  background-color: var(--color-3);
+  color: #000;
+}
+
 .Navbar {
   padding: 0 1.5rem;
   display: flex;
@@ -600,4 +605,31 @@ a.btn-lg {
 
 .RuptureCellRow > div:last-child {
   flex: 2.25;
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.Stack > * {
+  margin: 0.75rem 0;
+}
+
+.Stack-isCentered {
+  align-items: center;
+}
+
+.GraphSelect {
+  width: auto;
+  border: var(--border);
+  border-radius: var(--border-radius);
+}
+
+.GraphTitle {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
 }
