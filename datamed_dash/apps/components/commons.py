@@ -34,11 +34,11 @@ UTILISATION = {
 
 UTILISATION_IMG_URL = {
     "-": app.get_asset_url("Indice-noData.svg"),
-    1: app.get_asset_url("Indice-1.svg"),
-    2: app.get_asset_url("Indice-2.svg"),
-    3: app.get_asset_url("Indice-3.svg"),
-    4: app.get_asset_url("Indice-4.svg"),
-    5: app.get_asset_url("Indice.svg"),
+    1: app.get_asset_url("Indice-4.svg"),
+    2: app.get_asset_url("Indice-3.svg"),
+    3: app.get_asset_url("Indice-2.svg"),
+    4: app.get_asset_url("Indice-1.svg"),
+    5: app.get_asset_url("Indice-5.svg"),
 }
 
 SEXE = {1: "Hommes", 2: "Femmes"}
@@ -66,7 +66,12 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return go.Figure(
-        go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
+        go.Pie(
+            labels=labels,
+            values=values,
+            marker_colors=pie_colors,
+            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+        )
     ).update_layout(PIE_LAYOUT)
 
 
@@ -97,7 +102,14 @@ def Tooltip() -> Component:
                         [
                             html.Span(
                                 "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
-                                "médicament, délivré en pharmacie de ville entre 2014 et 2018 et remboursé par "
+                                "médicament, délivré en ",
+                                className="normal-text",
+                            ),
+                            html.Span(
+                                "pharmacie de ville", className="normal-text-bold",
+                            ),
+                            html.Span(
+                                " entre 2014 et 2018 et remboursé par "
                                 "l’Assurance Maladie. Pour plus d’informations, consultez : ",
                                 className="normal-text",
                             ),

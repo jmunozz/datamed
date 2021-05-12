@@ -296,6 +296,7 @@ def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
             labels=df_pop.population_erreur,
             values=df_pop.pourcentage,
             marker_colors=PIE_COLORS_SPECIALITE,
+            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
         )
     ).update_layout(PIE_LAYOUT)
     return Graph(figure=fig_pop, responsive=False)
