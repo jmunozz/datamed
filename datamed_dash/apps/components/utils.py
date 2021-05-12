@@ -70,7 +70,7 @@ def TopicSection(children: List, id: str, isFirst=False) -> Component:
     classes = ["Section"]
     if isFirst:
         classes.append("Section-isFirst")
-    return Section(children, className=" ".join(classes), style={"margin-bottom": "80px"}, id=id)
+    return Section(children, className=" ".join(classes), id=id)
 
 
 def SectionTitle(title: str) -> Component:
@@ -110,5 +110,6 @@ def nested_get(dict, key, default):
     except KeyError:
         return default
 
-def normalize_string(str): 
+
+def normalize_string(str):
     return unidecode.unidecode(str)

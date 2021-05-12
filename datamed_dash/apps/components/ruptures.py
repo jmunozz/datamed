@@ -10,45 +10,31 @@ from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from dash_html_components import Div, A, P, Img, Article, Label, H1
+from dash_html_components import Div, A, P, Img, Article, Label, H1, H4
 from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .utils import Box, GraphBox, TopicSection, ArticleTitle, SectionTitle, FigureGraph
+from .commons import Header
+from .utils import (
+    Box,
+    GraphBox,
+    TopicSection,
+    ArticleTitle,
+    FigureGraph,
+    SectionRow,
+)
 from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS
-from ..constants.layouts import RUPTURES_BAR_LAYOUT, TREEMAP_LAYOUT, get_ruptures_curve_layout
+from ..constants.layouts import (
+    RUPTURES_BAR_LAYOUT,
+    TREEMAP_LAYOUT,
+    get_ruptures_curve_layout,
+)
 
 INITIAL_YEAR = 2020
 
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
-
-
-def RupturesHeader() -> Component:
-    return Div(
-        Div(
-            [
-                Div(
-                    Img(src=app.get_asset_url("Liquide-64.png")),
-                    className="content-header-img",
-                ),
-                Div(
-                    [
-                        Div(
-                            "Observatoire des ruptures de stock", className="heading-4"
-                        ),
-                        Div("Base de données", className="large-text"),
-                        A("Qu'est-ce qu'une base de données ?"),
-                    ],
-                    className="content-header-text",
-                ),
-            ],
-            className="content-header-content",
-        ),
-        className="content-header",
-        style={"backgroundColor": "#CCF0F5", "color": "black"},
-    )
 
 
 def Description() -> Component:
@@ -58,7 +44,11 @@ def Description() -> Component:
                 Article(
                     [
                         ArticleTitle("Bases de données exploitées"),
-                        Div("TrustMed", className="normal-text-cap d-block", style={"color": "#A03189"}),
+                        Div(
+                            "TrustMed",
+                            className="normal-text-cap d-block",
+                            style={"color": "#A03189"},
+                        ),
                     ]
                 ),
                 Article(
@@ -95,7 +85,6 @@ def Description() -> Component:
                     ]
                 ),
             ],
-            class_name_wrapper="overlap-top-content",
         ),
         id="description",
     )
@@ -107,12 +96,7 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
         y=y,
         mode="lines",
         name=name,
-        line={
-            "shape": "spline",
-            "smoothing": 1,
-            "width": 4,
-            "color": color,
-        },
+        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
     )
 
 
@@ -157,10 +141,7 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Années")
     fig.update_yaxes(title_text="Nombre de signalements")
 
-    return Graph(
-        figure=fig,
-        responsive=True,
-    )
+    return Graph(figure=fig, responsive=True,)
 
 
 def get_signalements_circuit(circuit: str = "ville") -> Dict:
@@ -219,9 +200,7 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
 
 def get_signalement_atc_curve(annee=INITIAL_YEAR):
     # set up plotly figure
-    fig = make_subplots(
-        specs=[[{"secondary_y": True}]],
-    )
+    fig = make_subplots(specs=[[{"secondary_y": True}]],)
 
     # add first bar trace at row = 1, col = 1
     fig.add_trace(
@@ -240,12 +219,7 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         go.Scatter(
             x=df_sig.loc[annee].head(10).label,
             y=df_sig.loc[annee].head(10).nb_presentations,
-            line={
-                "shape": "spline",
-                "smoothing": 1,
-                "width": 4,
-                "color": "#00B3CC",
-            },
+            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#00B3CC",},
             mode="lines",
             name="Nombre de présentations",
         ),
@@ -256,9 +230,7 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     fig.update_xaxes(title_text="Classe thérapeutique")
     fig.update_yaxes(autorange="reversed")
     fig.update_yaxes(
-        title_text="Nombre de signalements",
-        color="#009640",
-        secondary_y=False,
+        title_text="Nombre de signalements", color="#009640", secondary_y=False,
     )
     fig.update_yaxes(
         title_text="Nombre de présentations", color="#00B3CC", secondary_y=True
@@ -302,8 +274,10 @@ def Signalements(df: pd.DataFrame) -> Component:
     signalements = round(len(df) / len(range(2014, dt.now().year + 1)))
     return TopicSection(
         [
-            SectionTitle("Nombre et nature des signalements"),
-            dbc.Row(
+            SectionRow(
+                H1("Nombre et nature des signalements", className="SectionTitle")
+            ),
+            SectionRow(
                 [
                     GraphBox(
                         "",
@@ -319,7 +293,6 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 ]
                             ),
                         ],
-                        class_name_wrapper="col-md-6",
                     ),
                     GraphBox(
                         "",
@@ -333,70 +306,75 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 ]
                             ),
                         ],
-                        class_name_wrapper="col-md-6",
                     ),
-                ]
+                ],
+                withGutter=True,
             ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Nombre de signalements par an, par catégorie",
                         [SignalementsTotal(df_ruptures)],
-                        class_name_wrapper="col-md-12",
                     ),
                 ]
             ),
-            dbc.Row(
+            SectionRow(
                 [
-                    dbc.Select(
-                        id="annee-dropdown",
-                        value=INITIAL_YEAR,
-                        options=[{"label": y, "value": y} for y in range(2014, 2021)],
-                        className="graph-select-input d-inline-block",
-                        style={"float": "right"},
-                    ),
-                    GraphBox(
-                        "Nombre de signalements par classe thérapeutique",
-                        [
-                            Graph(
-                                figure=get_signalement_atc_curve(),
-                                responsive=True,
-                                id="atc-bar-chart",
-                            )
-                        ],
-                        class_name_wrapper="col-md-12",
+                    Box(
+                        Div(
+                            [
+                                H4(
+                                    "Nombre de signalements par classe thérapeutique",
+                                    className="GraphTitle",
+                                ),
+                                dbc.Select(
+                                    id="annee-dropdown",
+                                    value=INITIAL_YEAR,
+                                    options=[
+                                        {"label": y, "value": y}
+                                        for y in range(2014, 2021)
+                                    ],
+                                    className="GraphSelect",
+                                ),
+                                Graph(
+                                    figure=get_signalement_atc_curve(),
+                                    responsive=True,
+                                    id="atc-bar-chart",
+                                ),
+                            ],
+                            className="Stack",
+                        )
                     ),
                 ]
             ),
-            dbc.Row(
-                dbc.Select(
-                    id="circuit-dropdown",
-                    value="ville",
-                    options=[
-                        {"label": y.capitalize(), "value": y}
-                        for y in ["ville", "hôpital", "ville et hôpital"]
-                    ],
-                    className="graph-select-input d-inline-block",
-                    style={"float": "right"},
-                ),
-                className="col-md-12",
-            ),
-            dbc.Row(
-                [
-                    GraphBox(
-                        "Évolution des ouvertures et clôtures de dossier dans le circuit",
+            SectionRow(
+                Box(
+                    Div(
                         [
+                            H4(
+                                "Évolution des ouvertures et clôtures de dossier dans le circuit",
+                                className="GraphTitle",
+                            ),
+                            dbc.Select(
+                                id="circuit-dropdown",
+                                value="ville",
+                                options=[
+                                    {"label": y.capitalize(), "value": y}
+                                    for y in ["ville", "hôpital", "ville et hôpital"]
+                                ],
+                                className="GraphSelect",
+                            ),
                             Graph(
                                 figure=get_signalements_circuit(),
                                 responsive=True,
                                 id="signalements-circuit",
-                            )
+                            ),
                         ],
-                        class_name_wrapper="col-md-12",
-                    ),
-                ]
+                        className="Stack",
+                    )
+                ),
             ),
-            dbc.Row(
+            SectionRow(
                 [
                     GraphBox(
                         "Évolution du nombre de ruptures dans le circuit",
@@ -407,31 +385,31 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 id="ruptures-circuit",
                             )
                         ],
-                        class_name_wrapper="col-md-12",
                     ),
                 ]
             ),
-            dbc.Row(
-                [
-                    dbc.Select(
-                        id="annee-causes-dropdown",
-                        value=INITIAL_YEAR,
-                        options=[{"label": y, "value": y} for y in range(2014, 2021)],
-                        className="graph-select-input d-inline-block",
-                        style={"float": "right"},
-                    ),
-                    GraphBox(
-                        "Motifs des signalements",
+            SectionRow(
+                Box(
+                    Div(
                         [
+                            H4("Motifs des signalements", className="GraphTitle"),
+                            dbc.Select(
+                                id="annee-causes-dropdown",
+                                value=INITIAL_YEAR,
+                                options=[
+                                    {"label": y, "value": y} for y in range(2014, 2021)
+                                ],
+                                className="GraphSelect",
+                            ),
                             Graph(
                                 figure=get_causes(),
                                 responsive=True,
                                 id="causes-treemap",
-                            )
+                            ),
                         ],
-                        class_name_wrapper="col-md-12",
-                    ),
-                ]
+                        className="Stack",
+                    )
+                )
             ),
         ],
         id="signalements",
@@ -440,7 +418,7 @@ def Signalements(df: pd.DataFrame) -> Component:
 
 def Ruptures() -> Tuple[Component, Div]:
     return (
-        RupturesHeader(),
+        Header(None, type="rupture"),
         Div(
             [
                 SideMenu(
@@ -448,30 +426,25 @@ def Ruptures() -> Tuple[Component, Div]:
                     items=[
                         {"id": "description", "label": "Description"},
                         {"id": "signalements", "label": "Signalements"},
-                        {
-                            "id": "gestion-ruptures",
-                            "label": "Gestion des ruptures",
-                        },
+                        {"id": "gestion-ruptures", "label": "Gestion des ruptures",},
                     ],
-                    className="side-menu",
+                    className="SideMenu",
                 ),
                 Div(
                     Div(
                         [Description(), Signalements(df_ruptures)],
-                        className="container-fluid",
-                        style={"padding-left": "80px"},
+                        className="ContentWrapper ContentWrapper-hasHeader",
                     ),
-                    className="container-fluid side-content",
+                    className="ContentLayoutWrapper",
                 ),
             ],
-            className="container-fluid p-0 content",
+            className="ContentLayout",
         ),
     )
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"),
-    dd.Input("annee-dropdown", "value"),
+    dd.Output("atc-bar-chart", "figure"), dd.Input("annee-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
@@ -493,8 +466,7 @@ def update_figure(value: str):
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"),
-    dd.Input("causes-treemap", "value"),
+    dd.Output("atc-bar-chart", "figure"), dd.Input("causes-treemap", "value"),
 )
 def update_figure(value: str):
     if not value:

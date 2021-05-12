@@ -106,8 +106,7 @@ def Tooltip() -> Component:
                                 className="normal-text",
                             ),
                             html.Span(
-                                "pharmacie de ville",
-                                className="normal-text-bold",
+                                "pharmacie de ville", className="normal-text-bold",
                             ),
                             html.Span(
                                 " entre 2014 et 2018 et remboursé par "
@@ -124,10 +123,7 @@ def Tooltip() -> Component:
                     ),
                     html.Div(
                         [
-                            html.Span(
-                                "Attention : ",
-                                className="normal-text-bold",
-                            ),
+                            html.Span("Attention : ", className="normal-text-bold",),
                             html.Span(
                                 "Un patient est comptabilisé autant de fois qu’il a acheté de boîtes "
                                 "(ou présentations) différentes de la spécialité / substance active. Pour "
@@ -171,13 +167,7 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
     df = pd.DataFrame(
         {
-            "Utilisation": [
-                "Très faible",
-                "Faible",
-                "Modéré",
-                "Élevé",
-                "Très élevé",
-            ],
+            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
             "Nombre de patients (niveau spécialité)": [
                 "< 1 000",
                 "1 000 - 5 000",
@@ -303,11 +293,13 @@ def PatientsTraites(
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
     if type == "substance":
+        title = series_spe.nom.capitalize()
         css_class = "Header-isSubstance"
         icon_url = app.get_asset_url("substance_icon.svg")
         type_label = "Substance active"
         help_link = html.A("Qu'est-ce qu'une substance active ?", id="definition-open")
-    else:
+    elif type == "specialite":
+        title = series_spe.nom.capitalize()
         css_class = "Header-isSpecialite"
         df_icones = specialite.get_icones(series_spe.name)
         series_icones = fetch_data.as_series(df_icones)
@@ -318,17 +310,20 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         help_link = html.A(
             "Qu'est-ce qu'une spécialité de médicament ?", id="definition-open"
         )
+    elif type == "rupture":
+        title = "Observatoire des ruptures de stock"
+        css_class = "Header-isRupture"
+        icon_url = app.get_asset_url("Liquide-64.png")
+        type_label = "Base de données"
+        help_link = html.A("Qu'est-ce qu'une base de donnée?", id="definition-open")
 
     return html.Div(
         html.Div(
             [
-                html.Div(
-                    html.Img(src=icon_url),
-                    className="content-header-img",
-                ),
+                html.Div(html.Img(src=icon_url), className="content-header-img",),
                 html.Div(
                     [
-                        html.Div(series_spe.nom.capitalize(), className="heading-4"),
+                        html.Div(title, className="heading-4"),
                         html.Div(type_label, className="large-text"),
                         help_link,
                         dbc.Modal(
