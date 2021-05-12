@@ -357,7 +357,7 @@ def ErreursMedicamenteuses(
                             html.P(
                                 "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
                                 "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur.",
-                                className="normal-text text-justify"
+                                className="normal-text text-justify mt-2",
                             ),
                         ],
                         labelClass="InternalLink normal-text",
@@ -469,7 +469,11 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
         html.Div(
             [
-                html.Span(substance, className="AdverseEffectRowLabel"),
+                html.Span(
+                    substance,
+                    className="AdverseEffectRowLabel normal-text",
+                    style={"color": "#00B3CC"},
+                ),
                 html.A(
                     "Consulter les effets indésirables",
                     href="/apps/substance?search={}#effets-indesirables".format(code),
