@@ -28,7 +28,7 @@ def Logos() -> Component:
                 ]
             ),
             H3(
-                ["data.", B("medicaments.gouv.fr")],
+                ["data.", B("ansm.gouv.fr")],
                 style={"color": "white", "margin-top": "20px"},
             ),
         ],
@@ -40,20 +40,20 @@ def FooterRight():
     return Div(
         [
             FooterElement(
-                "Le site", ["À propos", "Plan de site", "Mentions légales", "Contact"]
+                "Le site", ["À propos", "Plan du site", "Mentions légales", "Contact"]
             ),
             FooterElement(
                 "Partenaires",
                 [
-                    A("ansm.sante.fr", href="https://ansm.sante.fr/", className="link"),
+                    A("ANSM", href="https://ansm.sante.fr/", className="link"),
                     A(
-                        "base-donnees-publique.medicaments.gouv.fr",
+                        "Base de données publique des médicaments",
                         href="https://base-donnees-publique.medicaments.gouv.fr/",
                         className="link",
                     ),
                     A("Etalab", href="https://www.etalab.gouv.fr/", className="link"),
                     A(
-                        "La DINUM",
+                        "DINUM",
                         href="https://www.numerique.gouv.fr/dinum/",
                         className="link",
                     ),
