@@ -95,8 +95,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Citoyen, patient temporaire, patient chronique, aidant, "
-                                                    "associations de patients"
+                                                    "Citoyen, patient, aidant, associations de patients"
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -118,8 +117,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Médecins généralistes et spécialistes, pharmaciens, infirmiers, "
-                                                    "intervenants du paramédical"
+                                                    "Médecin, pharmacien, infirmier, "
+                                                    "intervenant du paramédical"
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -141,7 +140,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Journalistes, data analysts, chercheurs, éditeurs de logiciels"
+                                                    "Journaliste, data analyst, chercheur, éditeur de logiciel"
                                                 ),
                                             ],
                                             className="feature stacked",
