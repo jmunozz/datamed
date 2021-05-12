@@ -368,8 +368,8 @@ a.btn-lg {
 
 .ContentWrapper {
   max-width: 1140px;
-  margin: auto;
-  padding-top: 1.5rem;
+  margin: 0 1.5rem;
+  padding-top: 1.5em;
 }
 
 .ContentWrapper-hasHeader {
