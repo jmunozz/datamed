@@ -34,11 +34,11 @@ UTILISATION = {
 
 UTILISATION_IMG_URL = {
     "-": app.get_asset_url("Indice-noData.svg"),
-    1: app.get_asset_url("Indice-1.svg"),
-    2: app.get_asset_url("Indice-2.svg"),
-    3: app.get_asset_url("Indice-3.svg"),
-    4: app.get_asset_url("Indice-4.svg"),
-    5: app.get_asset_url("Indice.svg"),
+    1: app.get_asset_url("Indice-4.svg"),
+    2: app.get_asset_url("Indice-3.svg"),
+    3: app.get_asset_url("Indice-2.svg"),
+    4: app.get_asset_url("Indice-1.svg"),
+    5: app.get_asset_url("Indice-5.svg"),
 }
 
 SEXE = {1: "Hommes", 2: "Femmes"}
@@ -70,6 +70,7 @@ def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
             labels=labels,
             values=values,
             marker_colors=pie_colors,
+            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
         )
     ).update_layout(PIE_LAYOUT)
 
