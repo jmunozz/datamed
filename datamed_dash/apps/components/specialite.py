@@ -177,7 +177,7 @@ def Description(
                     ),
                     html.Article(
                         [
-                            ArticleTitle("Statut de la spécialité de médicament"),
+                            ArticleTitle("État de commercialisation"),
                             html.Div(
                                 series_spe.etat_commercialisation.capitalize(),
                                 className="Badge normal-text",
@@ -195,12 +195,7 @@ def Description(
                     ),
                     html.Article(
                         [
-                            ArticleTitle("Description"),
-                            html.Span(
-                                "Classe ATC (Anatomique, Thérapeutique et Chimique) :",
-                                className="normal-text",
-                                style={"margin-right": "15px"},
-                            ),
+                            ArticleTitle("Classe ATC (Anatomique, Thérapeutique et Chimique)"),
                             html.Span(
                                 "{} ({})".format(
                                     series_atc.label.capitalize(),
@@ -208,6 +203,11 @@ def Description(
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
+                        ]
+                    ),
+                    html.Article(
+                        [
+                            ArticleTitle("Description"),
                             html.P(
                                 series_desc.description,
                                 className="normal-text text-justify mt-3",
