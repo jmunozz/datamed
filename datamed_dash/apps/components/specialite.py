@@ -197,7 +197,7 @@ def Description(
                         [
                             ArticleTitle("Description"),
                             html.Span(
-                                "Classe ATC (Anatomique, Thérapeutique et Chimique):",
+                                "Classe ATC (Anatomique, Thérapeutique et Chimique) :",
                                 className="normal-text",
                                 style={"margin-right": "15px"},
                             ),
@@ -208,7 +208,10 @@ def Description(
                                 ),
                                 className="Badge Badge-isSecondary",
                             ),
-                            html.P(series_desc.description, className="normal-text"),
+                            html.P(
+                                series_desc.description,
+                                className="normal-text text-justify mt-3",
+                            ),
                         ]
                     ),
                     html.Article(
@@ -426,7 +429,6 @@ def ErreursMedicamenteuses(
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
-
     return TopicSection(
         [
             SectionRow(
@@ -440,9 +442,10 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     Accordion(
                         [
                             html.P(
-                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
-                                "l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, abus ou "
-                                "erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts.",
+                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
+                                "d’être liés à l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, "
+                                "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
+                                "un comité d’experts.",
                                 className="normal-text",
                             ),
                         ],
@@ -465,11 +468,16 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
         html.Div(
             [
-                html.Label(substance, className="AdverseEffectRowLabel"),
+                html.Label(
+                    substance,
+                    className="AdverseEffectRowLabel normal-text-bold",
+                    style={"color": "#00B3CC"},
+                ),
                 html.A(
-                    "Voir les effets indésirables",
+                    "Consulter les effets indésirables",
                     href="/apps/substance?search={}#effets-indesirables".format(code),
-                    className="InternalLink",
+                    className="InternalLink normal-text",
+                    style={"color": "#A03189"},
                 ),
             ],
             className="AdverseEffectRow",

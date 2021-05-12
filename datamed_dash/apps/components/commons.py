@@ -102,12 +102,12 @@ def Tooltip() -> Component:
                                 "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
                                 "médicament, délivré en pharmacie de ville entre 2014 et 2018 et remboursé par "
                                 "l’Assurance Maladie. Pour plus d’informations, consultez : ",
-                                className="button-text",
+                                className="normal-text",
                             ),
                             html.A(
                                 "open-data-assurance-maladie.ameli.fr",
                                 href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
-                                className="button-text link",
+                                className="normal-text link",
                             ),
                         ],
                         className="mb-3",
@@ -116,7 +116,7 @@ def Tooltip() -> Component:
                         [
                             html.Span(
                                 "Attention : ",
-                                className="button-text-bold",
+                                className="normal-text-bold",
                             ),
                             html.Span(
                                 "Un patient est comptabilisé autant de fois qu’il a acheté de boîtes "
@@ -124,7 +124,7 @@ def Tooltip() -> Component:
                                 "la spécialité Doliprane 500 mg, gélule, un patient qui aura acheté 2 boîtes "
                                 "de 16 gélules et 3 boîtes de 100 gélules au cours de l’année 2016 "
                                 "sera comptabilisé 2 fois pour 2016.",
-                                className="button-text",
+                                className="normal-text",
                             ),
                         ],
                         className="mb-3",
@@ -134,7 +134,7 @@ def Tooltip() -> Component:
                             html.Span(
                                 "La somme de ce nombre de patients sur la période 2014-2018 est ensuite "
                                 "divisée par 5 pour obtenir un chiffre moyen de patients traités par an.",
-                                className="button-text",
+                                className="normal-text",
                             ),
                         ],
                         className="mb-3",
