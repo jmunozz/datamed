@@ -123,12 +123,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_ei,
-                                df_pop,
-                                df_cause,
-                                df_nat,
-                                df_denom,
-                                series_spe,
+                                df_ei, df_pop, df_cause, df_nat, df_denom, series_spe,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -149,7 +144,7 @@ def SubstanceLinks(df_sub: pd.DataFrame) -> Component:
             html.A(
                 series.nom.upper(),
                 href="/apps/substance?search={}".format(code),
-                className="normal-text link d-block",
+                className="InternalLink",
                 id="refresh-substances",
             )
             for code, series in df_sub.iterrows()
@@ -292,10 +287,7 @@ def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
             marker_colors=PIE_COLORS_SPECIALITE,
         )
     ).update_layout(PIE_LAYOUT)
-    return Graph(
-        figure=fig_pop,
-        responsive=True,
-    )
+    return Graph(figure=fig_pop, responsive=True,)
 
 
 def BoxListDenomination(df_denom):
@@ -309,10 +301,7 @@ def BoxListDenomination(df_denom):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={
-            "height": "50px",
-            "backgroundColor": "#FAFAFA",
-        },
+        style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
