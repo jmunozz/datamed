@@ -505,3 +505,20 @@ a.btn-lg {
 .ExternalLink:hover {
   color: var(--color-5);
 }
+
+.Header {
+  height: 486px;
+  color: #fff;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  vertical-align: center;
+}
+
+.Header-isSubstance {
+  background-color: var(--color-5);
+}
+
+.Header-isSpecialite {
+  background-color: var(--color-1);
+}

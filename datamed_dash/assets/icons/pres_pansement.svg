@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="-1" y="13.9998" width="21.2134" height="70.7112" rx="10" transform="rotate(-45 -1 13.9998)" fill="white"/>
+<rect x="16.6724" y="29.6724" width="18.3849" height="25.9191" rx="2" transform="rotate(-45 16.6724 29.6724)" fill="#E0E0E0"/>
+<path d="M4.49993 12C4.99993 12.5 49 57.5 50 58.5C48.0001 59 44.5 57.5 43.4999 56.5L6.99991 20C5.49985 18.5 3.99996 15 4.49993 12Z" fill="#E0E0E0"/>
+<rect x="-1" y="14" width="21.2134" height="70.7112" rx="10" transform="rotate(-45 -1 14)" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="18.167" y="29.8335" width="16.4993" height="23.5704" rx="2" transform="rotate(-45 18.167 29.8335)" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="23.1663" cy="29.0002" r="0.58926" transform="rotate(-45 23.1663 29.0002)" stroke="black"/>
+<circle cx="28.1663" cy="34" r="0.58926" transform="rotate(-45 28.1663 34)" stroke="black"/>
+<circle cx="33.1663" cy="39.0002" r="0.58926" transform="rotate(-45 33.1663 39.0002)" stroke="black"/>
+<circle cx="27.3333" cy="29.8335" r="0.58926" transform="rotate(-45 27.3333 29.8335)" stroke="black"/>
+<circle cx="32.3333" cy="34.8337" r="0.58926" transform="rotate(-45 32.3333 34.8337)" stroke="black"/>
+<circle cx="37.3333" cy="39.8337" r="0.58926" transform="rotate(-45 37.3333 39.8337)" stroke="black"/>
+<circle cx="26.4998" cy="25.6667" r="0.58926" transform="rotate(-45 26.4998 25.6667)" stroke="black"/>
+<circle cx="31.5003" cy="30.6667" r="0.58926" transform="rotate(-45 31.5003 30.6667)" stroke="black"/>
+<circle cx="36.5003" cy="35.667" r="0.58926" transform="rotate(-45 36.5003 35.667)" stroke="black"/>
+<circle cx="30.6668" cy="26.5002" r="0.58926" transform="rotate(-45 30.6668 26.5002)" stroke="black"/>
+<circle cx="35.6668" cy="31.5" r="0.58926" transform="rotate(-45 35.6668 31.5)" stroke="black"/>
+<circle cx="40.6668" cy="36.5002" r="0.58926" transform="rotate(-45 40.6668 36.5002)" stroke="black"/>
+<circle cx="29.8338" cy="22.3335" r="0.58926" transform="rotate(-45 29.8338 22.3335)" stroke="black"/>
+<circle cx="34.8329" cy="27.3335" r="0.58926" transform="rotate(-45 34.8329 27.3335)" stroke="black"/>
+<circle cx="39.8333" cy="32.3337" r="0.58926" transform="rotate(-45 39.8333 32.3337)" stroke="black"/>
+</svg>

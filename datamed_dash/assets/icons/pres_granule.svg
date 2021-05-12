@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.28899 26.4575C4.69526 21.7528 4.74017 14.2283 9.38972 9.57878C14.114 4.85446 21.7862 4.89519 26.4601 9.66941L40.0001 23.5001C40.0001 23.5001 35 25 30.5 29.5C25.4751 34.5249 23.0002 40.5 23.0002 40.5L9.28899 26.4575Z" fill="#E0E0E0"/>
+<ellipse cx="17.1849" cy="11.1848" rx="3.09726" ry="2.82109" transform="rotate(-45 17.1849 11.1848)" fill="white"/>
+<path d="M7.00041 18L25 36C24 38 24 37.5 23.5 38.5C23.1613 39.1774 9.87506 25 9.50038 24.5C6.87761 21 7.00041 18 7.00041 18Z" fill="#F5F5F5"/>
+<path d="M41.0002 24C44.4796 27.4794 28.229 45.229 24 41C20.54 37.54 37.6122 20.9793 41.0002 24Z" fill="#9E9E9E"/>
+<circle cx="30.5" cy="34.5" r="2.5" fill="#F5F5F5"/>
+<circle cx="38.5" cy="40.5" r="2.5" fill="#E0E0E0"/>
+<circle cx="46.5" cy="43.5" r="2.5" fill="#E0E0E0"/>
+<circle cx="37.5" cy="49.5" r="2.5" fill="#E0E0E0"/>
+<circle cx="55.5" cy="47.5" r="2.5" fill="#E0E0E0"/>
+<circle cx="47.5" cy="51.5" r="2.5" fill="#E0E0E0"/>
+<circle cx="56.5" cy="57.5" r="2.5" fill="#E0E0E0"/>
+<path d="M40.598 23.6271L26.4558 9.48493C21.7696 4.79864 14.1716 4.79864 9.48528 9.48493V9.48493C4.79899 14.1712 4.79899 21.7692 9.48528 26.4555L23.6274 40.5976" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M41.0002 24C44.4796 27.4794 28.229 45.229 24 41C20.54 37.54 37.6122 20.9793 41.0002 24Z" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="30.5" cy="34.5" r="2.5" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="38.5" cy="40.5" r="2.5" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="46.5" cy="43.5" r="2.5" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="37.5" cy="49.5" r="2.5" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="55.5" cy="47.5" r="2.5" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="47.5" cy="51.5" r="2.5" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="56.5" cy="57.5" r="2.5" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

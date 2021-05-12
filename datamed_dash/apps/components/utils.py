@@ -1,6 +1,7 @@
 import datetime
 from typing import List, Dict
 import pandas as pd
+import unidecode
 
 
 import dash_bootstrap_components as dbc
@@ -109,3 +110,5 @@ def nested_get(dict, key, default):
     except KeyError:
         return default
 
+def normalize_string(str): 
+    return unidecode.unidecode(str)

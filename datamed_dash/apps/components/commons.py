@@ -10,7 +10,7 @@ from app import app
 from dash.development.base_component import Component
 from dash_core_components import Graph
 from db import fetch_data
-
+from db import specialite
 
 from datamed_custom_components import Accordion
 from dash_html_components import Div
@@ -21,6 +21,7 @@ from .utils import (
     SectionTitle,
     FigureGraph,
     SectionRow,
+    normalize_string,
 )
 from ..constants.layouts import PIE_LAYOUT
 
@@ -68,11 +69,7 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return go.Figure(
-        go.Pie(
-            labels=labels,
-            values=values,
-            marker_colors=pie_colors,
-        )
+        go.Pie(labels=labels, values=values, marker_colors=pie_colors,)
     ).update_layout(PIE_LAYOUT)
 
 
@@ -139,10 +136,13 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                 Div(
                     [
                         Box(
-                                [
-                                    html.P(UTILISATION[exposition], className="normal-text-bold text-center align-middle"),
-                                    html.Img(src=UTILISATION_IMG_URL[exposition]),
-                                ],
+                            [
+                                html.P(
+                                    UTILISATION[exposition],
+                                    className="normal-text-bold text-center align-middle",
+                                ),
+                                html.Img(src=UTILISATION_IMG_URL[exposition]),
+                            ],
                             isBordered=False,
                             className="UsageBoxRate",
                         ),
@@ -211,40 +211,37 @@ def PatientsTraites(
 
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
-    background_color = "#5E2A7E" if type == "specialite" else "#A03189"
-    icon_url = (
-        app.get_asset_url("pill.svg")
-        if type == "specialite"
-        else app.get_asset_url("substance_icon.svg")
-    )
-    type_label = (
-        "Spécialité de médicament" if type == "specialite" else "Substance active"
-    )
-    help_link_component = (
-        html.A("Qu'est-ce qu'une spécialité de médicament ?")
-        if type == "specialite"
-        else html.A("Qu'est-ce qu'une substance active ?")
-    )
+    if type == "substance":
+        css_class = "Header-isSubstance"
+        icon_url = app.get_asset_url("substance_icon.svg")
+        type_label = "Substance active"
+        help_link = html.A("Qu'est-ce qu'une substance active ?")
+    else:
+        css_class = "Header-isSpecialite"
+        df_icones = specialite.get_icones(series_spe.name)
+        series_icones = fetch_data.as_series(df_icones)
+        icon_url = app.get_asset_url(
+            f"icons/pres_{normalize_string(series_icones.icone)}.svg"
+        )
+        type_label = "Spécialité de médicament"
+        help_link = html.A("Qu'est-ce qu'une spécialité de médicament ?")
+
     return html.Div(
         html.Div(
             [
-                html.Div(
-                    html.Img(src=icon_url),
-                    className="content-header-img",
-                ),
+                html.Div(html.Img(src=icon_url), className="content-header-img",),
                 html.Div(
                     [
                         html.Div(series_spe.nom.capitalize(), className="heading-4"),
                         html.Div(type_label, className="large-text"),
-                        help_link_component,
+                        help_link,
                     ],
                     className="content-header-text",
                 ),
             ],
             className="content-header-content",
         ),
-        className="content-header",
-        style={"backgroundColor": background_color},
+        className=f"Header {css_class}",
     )
 
 
