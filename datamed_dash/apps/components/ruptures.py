@@ -21,7 +21,6 @@ from .utils import (
     GraphBox,
     TopicSection,
     ArticleTitle,
-    SectionTitle,
     FigureGraph,
     SectionRow,
 )
@@ -275,7 +274,9 @@ def Signalements(df: pd.DataFrame) -> Component:
     signalements = round(len(df) / len(range(2014, dt.now().year + 1)))
     return TopicSection(
         [
-            SectionRow(H1("Nombre et nature des signalements")),
+            SectionRow(
+                H1("Nombre et nature des signalements", className="SectionTitle")
+            ),
             SectionRow(
                 [
                     GraphBox(
