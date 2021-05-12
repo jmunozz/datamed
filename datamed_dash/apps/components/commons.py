@@ -9,6 +9,8 @@ import plotly.graph_objects as go
 from app import app
 from dash.development.base_component import Component
 from dash_core_components import Graph
+from dash_html_components import Div
+from datamed_custom_components import Accordion
 from db import fetch_data
 from db import specialite
 
@@ -18,18 +20,16 @@ from .utils import (
     Box,
     GraphBox,
     TopicSection,
-    SectionTitle,
     FigureGraph,
     SectionRow,
     normalize_string,
 )
 from ..constants.layouts import PIE_LAYOUT
 
-
 UTILISATION = {
-    1: "Utilisation faible",
+    1: "Utilisation très faible",
     2: "Utilisation faible",
-    3: "Utilisation moyenne",
+    3: "Utilisation modérée",
     4: "Utilisation élevée",
     5: "Utilisation très élevée",
     "-": "Utilisation inconnue",
@@ -109,8 +109,33 @@ def Tooltip() -> Component:
                                 href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
                                 className="normal-text link",
                             ),
-                        ]
-                    )
+                        ],
+                        className="text-justify mb-3",
+                    ),
+                    html.Div(
+                        [
+                            html.Span("Attention : ", className="normal-text-bold",),
+                            html.Span(
+                                "Un patient est comptabilisé autant de fois qu’il a acheté de boîtes "
+                                "(ou présentations) différentes de la spécialité / substance active. Pour "
+                                "la spécialité Doliprane 500 mg, gélule, un patient qui aura acheté 2 boîtes "
+                                "de 16 gélules et 3 boîtes de 100 gélules au cours de l’année 2016 "
+                                "sera comptabilisé 2 fois pour 2016.",
+                                className="normal-text",
+                            ),
+                        ],
+                        className="text-justify mb-3",
+                    ),
+                    html.Div(
+                        [
+                            html.Span(
+                                "La somme de ce nombre de patients sur la période 2014-2018 est ensuite "
+                                "divisée par 5 pour obtenir un chiffre moyen de patients traités par an.",
+                                className="normal-text text-justify",
+                            ),
+                        ],
+                        className="mb-3",
+                    ),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink",
@@ -131,6 +156,25 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
         exposition = "-"
         patients = "Données insuffisantes"
 
+    df = pd.DataFrame(
+        {
+            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
+            "Nombre de patients (niveau spécialité)": [
+                "< 1 000",
+                "1 000 - 5 000",
+                "5 000 - 15 000",
+                "15 000 - 50 000",
+                "> 50 000",
+            ],
+            "Nombre de patients (niveau substance active)": [
+                "< 5 000",
+                "5 000 - 25 000",
+                "25 000 - 100 000",
+                "100 000 - 500 000",
+                "> 500 000",
+            ],
+        }
+    )
     return SectionRow(
         [
             Box(
@@ -151,9 +195,36 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                             [
                                 html.H2(patients, className="color-secondary"),
                                 html.P(
-                                    "Approximation du nombre de patients traités sur la période 2014-2018"
+                                    "Approximation du nombre de patients traités sur la période 2014-2018",
+                                    className="normal-text",
                                 ),
-                                html.A("En savoir plus", className="color-secondary",),
+                                html.A(
+                                    "En savoir plus sur le niveau d'utilisation",
+                                    className="normal-text color-secondary",
+                                    id="open",
+                                ),
+                                dbc.Modal(
+                                    [
+                                        dbc.ModalHeader("Niveaux d'utilisation"),
+                                        dbc.ModalBody(
+                                            dbc.Table.from_dataframe(
+                                                df,
+                                                striped=True,
+                                                bordered=True,
+                                                hover=True,
+                                            )
+                                        ),
+                                        dbc.ModalFooter(
+                                            dbc.Button(
+                                                "Fermer",
+                                                id="close",
+                                                className="ml-auto",
+                                                style={"background-color": "#a03189"},
+                                            )
+                                        ),
+                                    ],
+                                    id="utilisation-modal",
+                                ),
                             ],
                             isBordered=False,
                             className="UsageBoxFigure",

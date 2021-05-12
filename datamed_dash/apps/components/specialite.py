@@ -1,6 +1,6 @@
+import urllib
 from typing import Tuple
 
-import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import pandas as pd
@@ -11,19 +11,17 @@ from app import app
 from bs4 import BeautifulSoup
 from dash.development.base_component import Component
 from dash_core_components import Graph
+from datamed_custom_components import Accordion
 from db import specialite, fetch_data
 from sm import SideMenu
 
-from datamed_custom_components import Accordion
 from .commons import PatientsTraites, NoData, Header
 from .utils import (
     Box,
     GraphBox,
     TopicSection,
     ArticleTitle,
-    SectionTitle,
     ExternalLink,
-    SectionP,
     FigureGraph,
     SectionRow,
     date_as_string,
@@ -31,12 +29,6 @@ from .utils import (
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
-
-
-def get_has_guideline_link(cis: str) -> str:
-    return "https://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid={}".format(
-        cis
-    )
 
 
 def get_rcp_link(cis: str) -> str:
@@ -72,6 +64,14 @@ def get_notice_link(cis: str) -> str:
             text="Le document demandé n'est pas disponible pour ce médicament"
         )
         else link
+    )
+
+
+def get_has_link(series_spe: pd.Series) -> str:
+    nom_specialite = series_spe.nom.capitalize()
+    url_specialite = urllib.parse.quote_plus(nom_specialite)
+    return "https://www.has-sante.fr/jcms/fc_2875171/fr/resultat-de-recherche?text={}&tmpParam=&opSearch=".format(
+        url_specialite
     )
 
 
@@ -172,10 +172,10 @@ def Description(
                     ),
                     html.Article(
                         [
-                            ArticleTitle("Statut de la spécialité de médicament"),
+                            ArticleTitle("État de commercialisation"),
                             html.Div(
                                 series_spe.etat_commercialisation.capitalize(),
-                                className="Badge",
+                                className="Badge normal-text",
                             ),
                         ]
                     ),
@@ -189,28 +189,32 @@ def Description(
                     ),
                     html.Article(
                         [
-                            ArticleTitle("Description"),
-                            html.Span(
-                                "Classe ATC (Anatomique, Thérapeutique et Chimique):",
-                                className="normal-text",
-                                style={"margin-right": "15px"},
+                            ArticleTitle(
+                                "Classe ATC (Anatomique, Thérapeutique et Chimique)"
                             ),
                             html.Span(
                                 "{} ({})".format(
                                     series_atc.label.capitalize(), series_atc.atc,
                                 ),
-                                className="Badge Badge-isSecondary",
+                                className="Badge Badge-isSecondary normal-text",
                             ),
-                            html.P(series_desc.description, className="normal-text"),
                         ]
                     ),
                     html.Article(
                         [
-                            ArticleTitle(
-                                "Avis de la Commission de la Transparence de la HAS"
+                            ArticleTitle("Description"),
+                            html.P(
+                                series_desc.description,
+                                className="normal-text text-justify mt-3",
                             ),
+                        ]
+                    ),
+                    html.Article(
+                        [
+                            ArticleTitle("Recommandations de la HAS"),
                             ExternalLink(
-                                "Afficher l'avis", get_has_guideline_link(cis),
+                                "Afficher les recommandations",
+                                get_has_link(series_spe),
                             ),
                         ]
                     ),
@@ -301,7 +305,7 @@ def BoxListDenomination(df_denom):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={"height": "50px", "backgroundColor": "#FAFAFA",},
+        style_cell={"height": "50px", "backgroundColor": "#FFF",},
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -387,16 +391,23 @@ def ErreursMedicamenteuses(
                             html.P(
                                 [
                                     html.Span(
-                                        "Certains médicaments peuvent être confondus lors de leur prise car leurs "
-                                        "dénominations sont proches. La liste ci-dessous rassemble les spécialités de "
-                                        "médicaments les plus souvent confondues avec ",
+                                        "Ci-dessous vous trouverez la liste des dénominations de médicaments "
+                                        "renseignées dans la base de données des erreurs médicamenteuses. En effet, "
+                                        "dans cette base, les médicaments ne sont pas toujours renseignés par nom de "
+                                        "spécialité. Nous avons sélectionné les dénominations qui se "
+                                        "rapprochent le plus de ",
                                         className="normal-text",
                                     ),
                                     html.Strong(
-                                        "{}.".format(series_spe.nom.capitalize()),
+                                        "{}".format(series_spe.nom.capitalize()),
                                         className="normal-text-bold",
                                     ),
+                                    html.Span(
+                                        " pour mener notre analyse.",
+                                        className="normal-text",
+                                    ),
                                 ],
+                                className="text-justify",
                             ),
                             BoxListDenomination(df_denom),
                         ],
@@ -409,7 +420,6 @@ def ErreursMedicamenteuses(
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
-
     return TopicSection(
         [
             SectionRow(
@@ -423,9 +433,10 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     Accordion(
                         [
                             html.P(
-                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte d’être liés à "
-                                "l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, abus ou "
-                                "erreurs médicamenteuses. Il s’agit de cas évalués et validés par un comité d’experts.",
+                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
+                                "d’être liés à l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, "
+                                "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
+                                "un comité d’experts.",
                                 className="normal-text",
                             ),
                         ],
@@ -449,9 +460,10 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
             [
                 html.Span(substance, className="AdverseEffectRowLabel"),
                 html.A(
-                    "Voir les effets indésirables",
+                    "Consulter les effets indésirables",
                     href="/apps/substance?search={}#effets-indesirables".format(code),
-                    className="InternalLink",
+                    className="InternalLink normal-text",
+                    style={"color": "#A03189"},
                 ),
             ],
             className="AdverseEffectRow",
