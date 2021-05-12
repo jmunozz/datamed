@@ -300,9 +300,9 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         "Spécialité de médicament" if type == "specialite" else "Substance active"
     )
     help_link_component = (
-        html.A("Qu'est-ce qu'une spécialité de médicament ?")
+        html.A("Qu'est-ce qu'une spécialité de médicament ?", id="definition-open")
         if type == "specialite"
-        else html.A("Qu'est-ce qu'une substance active ?")
+        else html.A("Qu'est-ce qu'une substance active ?", id="definition-open")
     )
     return html.Div(
         html.Div(
@@ -316,6 +316,47 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                         html.Div(series_spe.nom.capitalize(), className="heading-4"),
                         html.Div(type_label, className="large-text"),
                         help_link_component,
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader("Définition"),
+                                dbc.ModalBody(
+                                    [
+                                        html.Div(
+                                            "Les médicaments peuvent être regroupés suivant différents niveaux "
+                                            "de précision (du plus au moins précis) :",
+                                            className="mb-3",
+                                        ),
+                                        html.Div(
+                                            "- La présentation : "
+                                            "Doliprane 1000 mg, comprimé, boîte de 8 comprimés"
+                                        ),
+                                        html.Div(
+                                            "- La spécialité : Doliprane 1000 mg, comprimé"
+                                        ),
+                                        html.Div("- Le produit : Doliprane"),
+                                        html.Div(
+                                            "- La substance active : Paracétamol",
+                                            className="mb-3",
+                                        ),
+                                        html.Div(
+                                            "La spécialité d’un médicament est donc caractérisée par "
+                                            "une dénomination spéciale (Doliprane) et un conditionnement "
+                                            "particulier (1000 mg, comprimé)."
+                                        ),
+                                    ],
+                                    className="normal-text",
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                        "Fermer",
+                                        id="definition-close",
+                                        className="ml-auto",
+                                        style={"background-color": "#a03189"},
+                                    )
+                                ),
+                            ],
+                            id="definition-modal",
+                        ),
                     ],
                     className="content-header-text",
                 ),
@@ -344,6 +385,17 @@ def toggle_accordion(n_clicks, is_open):
     dd.Output("utilisation-modal", "is_open"),
     [dd.Input("open", "n_clicks"), dd.Input("close", "n_clicks")],
     [dd.State("utilisation-modal", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    dd.Output("definition-modal", "is_open"),
+    [dd.Input("definition-open", "n_clicks"), dd.Input("definition-close", "n_clicks")],
+    [dd.State("definition-modal", "is_open")],
 )
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
