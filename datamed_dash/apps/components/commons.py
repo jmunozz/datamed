@@ -110,7 +110,7 @@ def Tooltip() -> Component:
                                 className="normal-text link",
                             ),
                         ],
-                        className="mb-3",
+                        className="text-justify mb-3",
                     ),
                     html.Div(
                         [
@@ -127,14 +127,14 @@ def Tooltip() -> Component:
                                 className="normal-text",
                             ),
                         ],
-                        className="mb-3",
+                        className="text-justify mb-3",
                     ),
                     html.Div(
                         [
                             html.Span(
                                 "La somme de ce nombre de patients sur la période 2014-2018 est ensuite "
                                 "divisée par 5 pour obtenir un chiffre moyen de patients traités par an.",
-                                className="normal-text",
+                                className="normal-text text-justify",
                             ),
                         ],
                         className="mb-3",
@@ -203,11 +203,12 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                             [
                                 html.H2(patients, className="color-secondary"),
                                 html.P(
-                                    "Approximation du nombre de patients traités sur la période 2014-2018"
+                                    "Approximation du nombre de patients traités sur la période 2014-2018",
+                                    className="normal-text"
                                 ),
                                 html.A(
                                     "En savoir plus sur le niveau d'utilisation",
-                                    className="color-secondary",
+                                    className="normal-text color-secondary",
                                     id="open",
                                 ),
                                 dbc.Modal(

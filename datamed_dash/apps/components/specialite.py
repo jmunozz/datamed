@@ -180,7 +180,7 @@ def Description(
                             ArticleTitle("Statut de la spécialité de médicament"),
                             html.Div(
                                 series_spe.etat_commercialisation.capitalize(),
-                                className="Badge",
+                                className="Badge normal-text",
                             ),
                         ]
                     ),
@@ -206,7 +206,7 @@ def Description(
                                     series_atc.label.capitalize(),
                                     series_atc.atc,
                                 ),
-                                className="Badge Badge-isSecondary",
+                                className="Badge Badge-isSecondary normal-text",
                             ),
                             html.P(
                                 series_desc.description,
@@ -417,6 +417,7 @@ def ErreursMedicamenteuses(
                                         className="normal-text",
                                     ),
                                 ],
+                                className="text-justify"
                             ),
                             BoxListDenomination(df_denom),
                         ],

@@ -86,7 +86,7 @@ def ExternalLink(label: str, link: str):
         href=link,
         target="_blank",
         rel="noopener noreferrer",
-        className="ExternalLink",
+        className="ExternalLink normal-text",
         id="refresh-substances",
     )
 

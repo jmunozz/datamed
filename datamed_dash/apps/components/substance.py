@@ -242,7 +242,7 @@ def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
     return FigureGraph(
         [
             {
-                "figure": "{} / 100 000".format(taux_str),
+                "figure": "{} pour 100 000".format(taux_str),
                 "caption": "Taux de déclaration pour 100 000 patients "
                 "traités par an sur la période 2014-2018",
             }
@@ -420,12 +420,14 @@ def SystemesOrganesTooltip():
                     html.P(
                         "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
                         "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
-                        "déclarés."
+                        "déclarés.",
+                        className="normal-text text-justify"
                     ),
                     html.P(
                         "Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
                         "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
-                        "différents (en fonction des effets indésirables déclarés)."
+                        "différents (en fonction des effets indésirables déclarés).",
+                        className="normal-text text-justify"
                     ),
                 ],
                 label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
