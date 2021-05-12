@@ -40,7 +40,6 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                         html.Div(
                             html.Img(
                                 src=app.get_asset_url("Big illustration 2.svg"),
-                                style={"transform": "scaleX(-1)"},
                             ),
                             className="fp-half with-p-y",
                         ),
@@ -85,7 +84,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     src=app.get_asset_url(
                                                         "Public-Male-250.svg"
                                                     ),
-                                                    style={"height": "150px"},
+                                                    style={"height": "300px"},
                                                 ),
                                                 html.H2(
                                                     "Grand public",
@@ -95,7 +94,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Citoyen, patient, aidant, associations de patients"
+                                                    "Citoyen, patient, aidant, associations de patients",
+                                                    className="normal-text"
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -107,7 +107,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     src=app.get_asset_url(
                                                         "Doctor-Female-250.svg"
                                                     ),
-                                                    style={"height": "150px"},
+                                                    style={"height": "300px"},
                                                 ),
                                                 html.H2(
                                                     "Professionnel de santé",
@@ -118,7 +118,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                 ),
                                                 html.P(
                                                     "Médecin, pharmacien, infirmier, "
-                                                    "intervenant du paramédical"
+                                                    "intervenant du paramédical",
+                                                    className="normal-text"
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -130,7 +131,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     src=app.get_asset_url(
                                                         "DataScentist-250.svg"
                                                     ),
-                                                    style={"height": "150px"},
+                                                    style={"height": "300px"},
                                                 ),
                                                 html.H2(
                                                     "Expert en données",
@@ -140,7 +141,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Journaliste, data analyst, chercheur, éditeur de logiciel"
+                                                    "Journaliste, data analyst, chercheur, éditeur de logiciel",
+                                                    className="normal-text"
                                                 ),
                                             ],
                                             className="feature stacked",

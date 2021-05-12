@@ -28,7 +28,7 @@ def Logos() -> Component:
                 ]
             ),
             H3(
-                ["data.", B("ansm.gouv.fr")],
+                ["data.", B("ansm.sante.fr")],
                 style={"color": "white", "margin-top": "20px"},
             ),
         ],

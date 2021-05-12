@@ -260,6 +260,7 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             },
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
+            hover_data=["explication"]
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
