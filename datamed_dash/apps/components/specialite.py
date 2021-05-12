@@ -147,7 +147,7 @@ def SubstanceLinks(df_sub: pd.DataFrame) -> Component:
     return html.Div(
         [
             html.A(
-                series.nom.upper(),
+                series.nom.capitalize(),
                 href="/apps/substance?search={}".format(code),
                 className="normal-text link d-block",
                 id="refresh-substances",

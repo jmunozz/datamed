@@ -345,7 +345,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                                             "particulier (1000 mg, comprimé)."
                                         ),
                                     ],
-                                    className="normal-text",
+                                    className="normal-text text-justify",
                                 ),
                                 dbc.ModalFooter(
                                     dbc.Button(
