@@ -141,8 +141,8 @@ def Tooltip() -> Component:
                     ),
                 ],
                 isOpenOnFirstRender=True,
-                labelClass="InternalLink",
-                label="Comment sont calculés ces indicateurs ? D’où viennent les données ?",
+                labelClass="InternalLink normal-text",
+                label="Comment sont calculés ces indicateurs ? D’où viennent ces données ?",
             )
         )
     )

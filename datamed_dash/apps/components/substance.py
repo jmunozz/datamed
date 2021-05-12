@@ -103,7 +103,7 @@ def EffetsIndesirablesTooltip() -> Component:
                         className="normal-text link",
                     ),
                 ],
-                labelClass="InternalLink",
+                labelClass="InternalLink normal-text",
                 label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
             )
         )
@@ -434,7 +434,7 @@ def SystemesOrganesTooltip():
                         className="normal-text text-justify",
                     ),
                 ],
-                labelClass="InternalLink",
+                labelClass="InternalLink normal-text",
                 label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
             )
         )
