@@ -2,5 +2,7 @@
 
 export(Accordion)
 export(SearchBar)
+export(Treemap)
+export(treemap)
 export(accordion)
 export(searchBar)

@@ -94,3 +94,7 @@ def get_presentation_df(cis):
 
 def get_ruptures(cis):
     return return_sub_df_or_none(fetch_table("ruptures", "cis"), cis)
+
+
+def get_icones(cis):
+    return return_sub_df_or_none(fetch_table("icones", "cis"), cis)

@@ -1,7 +1,5 @@
 from typing import List, Dict, Optional
 
-import dash
-import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import pandas as pd
@@ -12,6 +10,7 @@ from dash_core_components import Graph
 from dash_html_components import Div
 from datamed_custom_components import Accordion
 from db import fetch_data
+from db import specialite
 
 from .utils import (
     Box,
@@ -19,6 +18,7 @@ from .utils import (
     TopicSection,
     FigureGraph,
     SectionRow,
+    normalize_string,
 )
 from ..constants.layouts import PIE_LAYOUT
 
@@ -141,6 +141,7 @@ def Tooltip() -> Component:
                     ),
                 ],
                 isOpenOnFirstRender=True,
+                labelClass="InternalLink",
                 label="Comment sont calculés ces indicateurs ? D’où viennent les données ?",
             )
         )
@@ -204,7 +205,7 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                                 html.H2(patients, className="color-secondary"),
                                 html.P(
                                     "Approximation du nombre de patients traités sur la période 2014-2018",
-                                    className="normal-text"
+                                    className="normal-text",
                                 ),
                                 html.A(
                                     "En savoir plus sur le niveau d'utilisation",
@@ -257,7 +258,7 @@ def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
         return NoData()
     return Graph(
         figure=makePie(df_age.age, df_age.pourcentage_patients, pie_colors),
-        responsive=True,
+        responsive=False,
     )
 
 
@@ -291,20 +292,21 @@ def PatientsTraites(
 
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
-    background_color = "#5E2A7E" if type == "specialite" else "#A03189"
-    icon_url = (
-        app.get_asset_url("pill.svg")
-        if type == "specialite"
-        else app.get_asset_url("substance_icon.svg")
-    )
-    type_label = (
-        "Spécialité de médicament" if type == "specialite" else "Substance active"
-    )
-    help_link_component = (
-        html.A("Qu'est-ce qu'une spécialité de médicament ?", id="definition-open")
-        if type == "specialite"
-        else html.A("Qu'est-ce qu'une substance active ?", id="definition-open")
-    )
+    if type == "substance":
+        css_class = "Header-isSubstance"
+        icon_url = app.get_asset_url("substance_icon.svg")
+        type_label = "Substance active"
+        help_link = html.A("Qu'est-ce qu'une substance active ?")
+    else:
+        css_class = "Header-isSpecialite"
+        df_icones = specialite.get_icones(series_spe.name)
+        series_icones = fetch_data.as_series(df_icones)
+        icon_url = app.get_asset_url(
+            f"icons/pres_{normalize_string(series_icones.icone)}.svg"
+        )
+        type_label = "Spécialité de médicament"
+        help_link = html.A("Qu'est-ce qu'une spécialité de médicament ?")
+
     return html.Div(
         html.Div(
             [
@@ -316,7 +318,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                     [
                         html.Div(series_spe.nom.capitalize(), className="heading-4"),
                         html.Div(type_label, className="large-text"),
-                        help_link_component,
+                        help_link,
                         dbc.Modal(
                             [
                                 dbc.ModalHeader("Définition"),
@@ -362,43 +364,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                     className="content-header-text",
                 ),
             ],
-            className="content-header-content",
+            className="HeaderContent",
         ),
-        className="content-header",
-        style={"backgroundColor": background_color},
+        className=f"Header {css_class}",
     )
-
-
-@app.callback(
-    dd.Output("collapse-1", "is_open"),
-    dd.Input("group-1-toggle", "n_clicks"),
-    dd.State("collapse-1", "is_open"),
-)
-def toggle_accordion(n_clicks, is_open):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return False
-    if n_clicks:
-        return not is_open
-
-
-@app.callback(
-    dd.Output("utilisation-modal", "is_open"),
-    [dd.Input("open", "n_clicks"), dd.Input("close", "n_clicks")],
-    [dd.State("utilisation-modal", "is_open")],
-)
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
-
-
-@app.callback(
-    dd.Output("definition-modal", "is_open"),
-    [dd.Input("definition-open", "n_clicks"), dd.Input("definition-close", "n_clicks")],
-    [dd.State("definition-modal", "is_open")],
-)
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open

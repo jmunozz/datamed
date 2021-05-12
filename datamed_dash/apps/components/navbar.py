@@ -36,7 +36,7 @@ def LogoAnsm() -> Component:
     img = html.Img(
         src=app.get_asset_url("Logo.svg"),
         style={"width": "100px", "display": "inline-block"},
-        className="mr-4"
+        className="mr-4",
     )
     return dcc.Link(img, href="/")
 
@@ -45,8 +45,7 @@ def MenuItem(title: str, href: str) -> Component:
     return html.A(
         title,
         href=href,
-        className="button-text nav-link d-inline-block mr-4",
-        style={"text-decoration": "none", "color": "black"}
+        className="NavbarItem",
     )
 
 
@@ -66,7 +65,7 @@ def Navbar() -> Component:
             MenuItem("À propos", "/"),
             SearchBar(id="search-bar", opts=opts, fireOnSelect=True),
         ],
-        className="navbar",
+        className="Navbar",
     )
 
 

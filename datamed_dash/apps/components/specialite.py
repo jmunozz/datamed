@@ -149,7 +149,7 @@ def SubstanceLinks(df_sub: pd.DataFrame) -> Component:
             html.A(
                 series.nom.capitalize(),
                 href="/apps/substance?search={}".format(code),
-                className="normal-text link d-block",
+                className="InternalLink",
                 id="refresh-substances",
             )
             for code, series in df_sub.iterrows()
@@ -195,7 +195,9 @@ def Description(
                     ),
                     html.Article(
                         [
-                            ArticleTitle("Classe ATC (Anatomique, Thérapeutique et Chimique)"),
+                            ArticleTitle(
+                                "Classe ATC (Anatomique, Thérapeutique et Chimique)"
+                            ),
                             html.Span(
                                 "{} ({})".format(
                                     series_atc.label.capitalize(),
@@ -296,10 +298,7 @@ def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
             marker_colors=PIE_COLORS_SPECIALITE,
         )
     ).update_layout(PIE_LAYOUT)
-    return Graph(
-        figure=fig_pop,
-        responsive=True,
-    )
+    return Graph(figure=fig_pop, responsive=False)
 
 
 def BoxListDenomination(df_denom):
@@ -360,6 +359,7 @@ def ErreursMedicamenteuses(
                                 "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur."
                             ),
                         ],
+                        labelClass="InternalLink",
                         label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
                     )
                 )
@@ -417,7 +417,7 @@ def ErreursMedicamenteuses(
                                         className="normal-text",
                                     ),
                                 ],
-                                className="text-justify"
+                                className="text-justify",
                             ),
                             BoxListDenomination(df_denom),
                         ],
@@ -450,16 +450,15 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                                 className="normal-text",
                             ),
                         ],
+                        labelClass="InternalLink",
                         label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
                     )
                 )
             ),
-            SectionRow(
-                [
-                    AdverseEffectLink(sub.nom.capitalize(), code)
-                    for code, sub in df_sub.iterrows()
-                ]
-            ),
+            *[
+                SectionRow(AdverseEffectLink(sub.nom.capitalize(), code))
+                for code, sub in df_sub.iterrows()
+            ],
         ],
         id="",
     )
@@ -469,11 +468,7 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
         html.Div(
             [
-                html.Label(
-                    substance,
-                    className="AdverseEffectRowLabel normal-text-bold",
-                    style={"color": "#00B3CC"},
-                ),
+                html.Span(substance, className="AdverseEffectRowLabel"),
                 html.A(
                     "Consulter les effets indésirables",
                     href="/apps/substance?search={}#effets-indesirables".format(code),
@@ -521,7 +516,18 @@ def RuptureDeStockTableRowLabels(labels):
     )
 
 
-def RuptureDeStockTableRow(series_rup):
+def RuptureCellRow(key, value):
+    if key == "Statut":
+        css_class_value = "Badge Badge-isSecondary"
+    else:
+        css_class_value = "Badge Badge-isInvisible"
+    return html.Div(
+        [html.Div(key), html.Div(html.Span(value, className=css_class_value))],
+        className="RuptureCellRow",
+    )
+
+
+def RuptureCell(series_rup):
     circuit = series_rup.circuit
     col_start = nested_get(mapCircuitColRupture, f"{circuit}.start", None)
     col_availability_date = nested_get(
@@ -538,39 +544,27 @@ def RuptureDeStockTableRow(series_rup):
         else "Pas de données"
     )
 
+    infos = {
+        "Présentation de médicament": series_rup.nom.capitalize(),
+        "Statut": series_rup.classification.capitalize(),
+        "Circuit": circuit.capitalize() if circuit else "Pas de données",
+        "Cause": series_rup.cause.capitalize()
+        if series_rup.cause
+        else "Pas de données",
+        "Date de signalement": date_as_string(series_rup.date),
+        "Date de rupture": shortage_date,
+        "Date de remise à disposition": availability_date,
+    }
+
     return html.Div(
-        [
-            RuptureDeStockTableRowLabels(
-                [
-                    "Présentation de médicament",
-                    "Statut",
-                    "Circuit",
-                    "Cause",
-                    "Date de signalement",
-                    "Date de rupture",
-                    "Date de remise à disposition",
-                ]
-            ),
-            RuptureDeStockTableRowValues(
-                [
-                    series_rup.nom.capitalize(),
-                    series_rup.classification.capitalize(),
-                    circuit.capitalize() if circuit else "Pas de données",
-                    series_rup.cause.capitalize(),
-                    date_as_string(series_rup.date),
-                    shortage_date,
-                    availability_date,
-                ]
-            ),
-        ],
-        className="d-flex flex-row border",
-        style={"padding": "15px"},
+        [RuptureCellRow(key, value) for (key, value) in infos.items()],
+        className="RuptureCell",
     )
 
 
 def RuptureDeStockTable(df_rup: pd.DataFrame):
-    rows = [RuptureDeStockTableRow(row) for label, row in df_rup.iterrows()]
-    return html.Div(rows, className="rds-table")
+    rows = [RuptureCell(row) for label, row in df_rup.iterrows()]
+    return html.Div(rows, className="Rupture")
 
 
 def RuptureDeStock(df_rup: pd.DataFrame):

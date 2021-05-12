@@ -103,6 +103,7 @@ def EffetsIndesirablesTooltip() -> Component:
                         className="normal-text link",
                     ),
                 ],
+                labelClass="InternalLink",
                 label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
             )
         )
@@ -293,10 +294,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
     fig.update_layout(CURVE_LAYOUT)
 
-    return Graph(
-        figure=fig,
-        responsive=True,
-    )
+    return Graph(figure=fig, responsive=True)
 
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
@@ -323,7 +321,7 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
         ).update_layout(PIE_LAYOUT)
         return Graph(
             figure=fig_age,
-            responsive=True,
+            responsive=False,
         )
     else:
         return NoData()
@@ -354,8 +352,14 @@ def CasDeclares(
             EffetsIndesirablesTooltip(),
             SectionRow(
                 [
-                    GraphBox("", [CasDeclareFigureBox(df_decla)],),
-                    GraphBox("", [TauxDeclarationBox(df_decla)],),
+                    GraphBox(
+                        "",
+                        [CasDeclareFigureBox(df_decla)],
+                    ),
+                    GraphBox(
+                        "",
+                        [TauxDeclarationBox(df_decla)],
+                    ),
                 ],
                 withGutter=True,
             ),
@@ -421,15 +425,16 @@ def SystemesOrganesTooltip():
                         "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
                         "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
                         "déclarés.",
-                        className="normal-text text-justify"
+                        className="normal-text text-justify",
                     ),
                     html.P(
                         "Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
                         "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
                         "différents (en fonction des effets indésirables déclarés).",
-                        className="normal-text text-justify"
+                        className="normal-text text-justify",
                     ),
                 ],
+                labelClass="InternalLink",
                 label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
             )
         )
@@ -489,19 +494,6 @@ def HltModal() -> Modal:
         id="update-on-click-data",
         size="xl",
     )
-
-
-@app.callback(
-    dd.Output("group-substance-ei-tooltip-collapse", "is_open"),
-    dd.Input("group-substance-ei-tooltip-toggle", "n_clicks"),
-    dd.State("group-substance-ei-tooltip-collapse", "is_open"),
-)
-def toggle_substance_ei_tooltip(n_clicks, is_open):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return False
-    if n_clicks:
-        return not is_open
 
 
 @app.callback(
