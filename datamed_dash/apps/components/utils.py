@@ -69,7 +69,7 @@ def TopicSection(children: List, id: str, isFirst=False) -> Component:
     classes = ["Section"]
     if isFirst:
         classes.append("Section-isFirst")
-    return Section(children, className=" ".join(classes), id=id)
+    return Section(children, className=" ".join(classes), style={"margin-bottom": "80px"}, id=id)
 
 
 def SectionTitle(title: str) -> Component:

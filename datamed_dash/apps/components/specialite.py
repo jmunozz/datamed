@@ -588,7 +588,7 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                     [
                         html.Div(
                             "{} signalement(s)".format(fetch_data.get_df_len(df_rup)),
-                            className="normal-text mt-3",
+                            className="normal-text",
                             style={"color": "#33C2D6"},
                         ),
                         RuptureDeStockTable(df_rup),
