@@ -393,7 +393,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         style={"float": "right"},
                                     ),
                                 ],
-                                className="mb-3",
+                                className="mb-5",
                             ),
                             Box(
                                 Accordion(
@@ -408,7 +408,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                     labelClass="InternalLink normal-text",
                                     label="Le saviez-vous ?",
                                 ),
-                                className="mb-3"
+                                className="mb-5"
                             ),
                             H4(
                                 "Évolution du nombre d'ouvertures et de clôtures de dossiers dans le circuit",
@@ -418,6 +418,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 figure=get_signalements_circuit(),
                                 responsive=True,
                                 id="signalements-circuit",
+                                className="mb-5",
                             ),
                             H4(
                                 "Évolution du nombre de ruptures dans le circuit",
