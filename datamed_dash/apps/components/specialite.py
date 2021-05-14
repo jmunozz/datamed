@@ -103,7 +103,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                         {"id": "population-concernee", "label": "Population concernée"},
                         {
                             "id": "erreurs-medicamenteuses",
-                            "label": "Données de pharmacovigilance",
+                            "label": "Erreurs médicamenteuses",
                         },
                         {
                             "id": "rupture-de-stock",
@@ -583,7 +583,7 @@ def RuptureDeStock(df_rup: pd.DataFrame):
     return TopicSection(
         [
             SectionRow(
-                html.H1("Historique des ruptures de stock", className="SectionTitle")
+                html.Div("Historique des ruptures de stock", className="SectionTitle")
             ),
             SectionRow(
                 Box(
