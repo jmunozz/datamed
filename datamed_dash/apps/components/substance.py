@@ -58,7 +58,7 @@ NOTIF_NOM = {
     "Médecin généraliste": "Médecin généraliste",
     "Pharmacien": "Pharmacien",
     "Inconnu": "Inconnu",
-    "Non professionnel de santé": "Non professionnel de santé",
+    "Non professionnel de santé": "Patient",
     "Médecin spécialiste": "Médecin spécialiste",
 }
 
@@ -165,6 +165,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
 
 def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
     series_sub = fetch_data.as_series(df_sub)
+    df_sub_spe.nom = df_sub_spe.nom.str.capitalize()
     if df_sub_spe is not None:
         box_children = [
             html.Div(
