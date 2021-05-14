@@ -149,7 +149,7 @@ def SubstanceLinks(df_sub: pd.DataFrame) -> Component:
             html.A(
                 series.nom.capitalize(),
                 href="/apps/substance?search={}".format(code),
-                className="InternalLink",
+                className="InternalLink d-block",
                 id="refresh-substances",
             )
             for code, series in df_sub.iterrows()
