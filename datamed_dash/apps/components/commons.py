@@ -106,7 +106,8 @@ def Tooltip() -> Component:
                                 className="normal-text",
                             ),
                             html.Span(
-                                "pharmacie de ville", className="normal-text-bold",
+                                "pharmacie de ville",
+                                className="normal-text-bold",
                             ),
                             html.Span(
                                 " entre 2014 et 2018 et remboursé par "
@@ -123,7 +124,10 @@ def Tooltip() -> Component:
                     ),
                     html.Div(
                         [
-                            html.Span("Attention : ", className="normal-text-bold",),
+                            html.Span(
+                                "Attention : ",
+                                className="normal-text-bold",
+                            ),
                             html.Span(
                                 "Un patient est comptabilisé autant de fois qu’il a acheté de boîtes "
                                 "(ou présentations) différentes de la spécialité / substance active. Pour "
@@ -167,7 +171,13 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
     df = pd.DataFrame(
         {
-            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
+            "Utilisation": [
+                "Très faible",
+                "Faible",
+                "Modéré",
+                "Élevé",
+                "Très élevé",
+            ],
             "Nombre de patients (niveau spécialité)": [
                 "< 1 000",
                 "1 000 - 5 000",
@@ -320,7 +330,10 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
     return html.Div(
         html.Div(
             [
-                html.Div(html.Img(src=icon_url), className="content-header-img",),
+                html.Div(
+                    html.Img(src=icon_url),
+                    className="content-header-img",
+                ),
                 html.Div(
                     [
                         html.Div(title, className="heading-4"),

@@ -1,10 +1,9 @@
 import datetime
 from typing import List, Dict
-import pandas as pd
-import unidecode
-
 
 import dash_bootstrap_components as dbc
+import pandas as pd
+import unidecode
 from dash.development.base_component import Component
 from dash_html_components import Div, A, Img, H4, H1, Label, Section
 
@@ -70,7 +69,7 @@ def TopicSection(children: List, id: str, isFirst=False) -> Component:
     classes = ["Section"]
     if isFirst:
         classes.append("Section-isFirst")
-    return Section(children, className=" ".join(classes), id=id)
+    return Section(children, className=" ".join(classes) + " mb-5", id=id)
 
 
 def SectionTitle(title: str) -> Component:

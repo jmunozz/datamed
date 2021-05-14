@@ -10,7 +10,8 @@ from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from dash_html_components import Div, A, P, Img, Article, Label, H1, H4
+from dash_html_components import Div, P, Article, H1, H4, Span, A
+from datamed_custom_components import Accordion
 from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
@@ -60,7 +61,7 @@ def Description() -> Component:
                             "stocks en cas de tension d’approvisionnement et de rupture. Retrouvez les différentes "
                             "formes et chiffres de signalements que l’Agence reçoit, et les actions mises en place "
                             "pour y remédier et maintenir ainsi l’alimentation des officines au niveau national.",
-                            className="normal-text",
+                            className="normal-text text-justify",
                         ),
                     ]
                 ),
@@ -74,7 +75,7 @@ def Description() -> Component:
                             "erronnée et de divulgation de ces chiffres et/ou dans un contexte qui ne permettrait pas "
                             "leur lecture dans les conditions optimales. En cas de doute, veuillez nous contacter, "
                             "vous contribuerez directement à l’amélioration de l’information diffusée.",
-                            className="normal-text",
+                            className="normal-text text-justify",
                         ),
                     ]
                 ),
@@ -96,7 +97,12 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
         y=y,
         mode="lines",
         name=name,
-        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
+        line={
+            "shape": "spline",
+            "smoothing": 1,
+            "width": 4,
+            "color": color,
+        },
     )
 
 
@@ -127,8 +133,8 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
             "xaxis_showgrid": False,
             "yaxis_showgrid": False,
             "hovermode": "x unified",
-            "plot_bgcolor": "#FAFAFA",
-            "paper_bgcolor": "#FAFAFA",
+            "plot_bgcolor": "#FFF",
+            "paper_bgcolor": "#FFF",
             "margin": dict(t=0, b=0, l=0, r=0),
             "font": {"size": 12, "color": "black"},
             "legend": dict(
@@ -138,10 +144,13 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
         }
     )
 
-    fig.update_xaxes(title_text="Années")
+    fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(
+        figure=fig,
+        responsive=True,
+    )
 
 
 def get_signalements_circuit(circuit: str = "ville") -> Dict:
@@ -200,7 +209,9 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
 
 def get_signalement_atc_curve(annee=INITIAL_YEAR):
     # set up plotly figure
-    fig = make_subplots(specs=[[{"secondary_y": True}]],)
+    fig = make_subplots(
+        specs=[[{"secondary_y": True}]],
+    )
 
     # add first bar trace at row = 1, col = 1
     fig.add_trace(
@@ -219,7 +230,12 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         go.Scatter(
             x=df_sig.loc[annee].head(10).label,
             y=df_sig.loc[annee].head(10).nb_presentations,
-            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#00B3CC",},
+            line={
+                "shape": "spline",
+                "smoothing": 1,
+                "width": 4,
+                "color": "#00B3CC",
+            },
             mode="lines",
             name="Nombre de présentations",
         ),
@@ -230,7 +246,9 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     fig.update_xaxes(title_text="Classe thérapeutique")
     fig.update_yaxes(autorange="reversed")
     fig.update_yaxes(
-        title_text="Nombre de signalements", color="#009640", secondary_y=False,
+        title_text="Nombre de signalements",
+        color="#009640",
+        secondary_y=False,
     )
     fig.update_yaxes(
         title_text="Nombre de présentations", color="#00B3CC", secondary_y=True
@@ -321,29 +339,32 @@ def Signalements(df: pd.DataFrame) -> Component:
             SectionRow(
                 [
                     Box(
-                        Div(
-                            [
-                                H4(
-                                    "Nombre de signalements par classe thérapeutique",
-                                    className="GraphTitle",
-                                ),
-                                dbc.Select(
-                                    id="annee-dropdown",
-                                    value=INITIAL_YEAR,
-                                    options=[
-                                        {"label": y, "value": y}
-                                        for y in range(2014, 2021)
-                                    ],
-                                    className="GraphSelect",
-                                ),
-                                Graph(
-                                    figure=get_signalement_atc_curve(),
-                                    responsive=True,
-                                    id="atc-bar-chart",
-                                ),
-                            ],
-                            className="Stack",
-                        )
+                        [
+                            Div(
+                                [
+                                    H4(
+                                        "Nombre de signalements par classe thérapeutique",
+                                        className="GraphTitle d-inline-block",
+                                    ),
+                                    dbc.Select(
+                                        id="annee-dropdown",
+                                        value=INITIAL_YEAR,
+                                        options=[
+                                            {"label": y, "value": y}
+                                            for y in range(2014, 2021)
+                                        ],
+                                        className="GraphSelect d-inline-block",
+                                        style={"float": "right"},
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
+                            Graph(
+                                figure=get_signalement_atc_curve(),
+                                responsive=True,
+                                id="atc-bar-chart",
+                            ),
+                        ],
                     ),
                 ]
             ),
@@ -351,55 +372,88 @@ def Signalements(df: pd.DataFrame) -> Component:
                 Box(
                     Div(
                         [
-                            H4(
-                                "Évolution des ouvertures et clôtures de dossier dans le circuit",
-                                className="GraphTitle",
-                            ),
-                            dbc.Select(
-                                id="circuit-dropdown",
-                                value="ville",
-                                options=[
-                                    {"label": y.capitalize(), "value": y}
-                                    for y in ["ville", "hôpital", "ville et hôpital"]
+                            Div(
+                                [
+                                    H4(
+                                        "Statut des dossiers dans le circuit",
+                                        className="GraphTitle d-inline-block",
+                                    ),
+                                    dbc.Select(
+                                        id="circuit-dropdown",
+                                        value="ville",
+                                        options=[
+                                            {"label": y.capitalize(), "value": y}
+                                            for y in [
+                                                "ville",
+                                                "hôpital",
+                                                "ville et hôpital",
+                                            ]
+                                        ],
+                                        className="GraphSelect d-inline-block",
+                                        style={"float": "right"},
+                                    ),
                                 ],
-                                className="GraphSelect",
+                                className="mb-3",
+                            ),
+                            Box(
+                                Accordion(
+                                    [
+                                        Div(
+                                            "Toutes les ruptures en circuit ville de moins de 15"
+                                            " jours sont sans conséquence sur la consommation de médicaments en "
+                                            "France.",
+                                            className="normal-text",
+                                        ),
+                                    ],
+                                    labelClass="InternalLink normal-text",
+                                    label="Le saviez-vous ?",
+                                ),
+                                className="mb-3"
+                            ),
+                            H4(
+                                "Évolution du nombre d'ouvertures et de clôtures de dossiers dans le circuit",
+                                className="GraphTitle mb-3",
                             ),
                             Graph(
                                 figure=get_signalements_circuit(),
                                 responsive=True,
                                 id="signalements-circuit",
                             ),
-                        ],
-                        className="Stack",
-                    )
-                ),
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Évolution du nombre de ruptures dans le circuit",
-                        [
+                            H4(
+                                "Évolution du nombre de ruptures dans le circuit",
+                                className="GraphTitle mb-3",
+                            ),
                             Graph(
                                 figure=get_ruptures_circuit(),
                                 responsive=True,
                                 id="ruptures-circuit",
-                            )
+                            ),
                         ],
-                    ),
-                ]
+                    )
+                ),
             ),
             SectionRow(
                 Box(
                     Div(
                         [
-                            H4("Motifs des signalements", className="GraphTitle"),
-                            dbc.Select(
-                                id="annee-causes-dropdown",
-                                value=INITIAL_YEAR,
-                                options=[
-                                    {"label": y, "value": y} for y in range(2014, 2021)
+                            Div(
+                                [
+                                    H4(
+                                        "Motifs des signalements",
+                                        className="GraphTitle d-inline-block",
+                                    ),
+                                    dbc.Select(
+                                        id="annee-causes-dropdown",
+                                        value=INITIAL_YEAR,
+                                        options=[
+                                            {"label": y, "value": y}
+                                            for y in range(2014, 2021)
+                                        ],
+                                        className="GraphSelect d-inline-block",
+                                        style={"float": "right"},
+                                    ),
                                 ],
-                                className="GraphSelect",
+                                className="mb-3",
                             ),
                             Graph(
                                 figure=get_causes(),
@@ -407,7 +461,6 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 id="causes-treemap",
                             ),
                         ],
-                        className="Stack",
                     )
                 )
             ),
@@ -426,7 +479,10 @@ def Ruptures() -> Tuple[Component, Div]:
                     items=[
                         {"id": "description", "label": "Description"},
                         {"id": "signalements", "label": "Signalements"},
-                        {"id": "gestion-ruptures", "label": "Gestion des ruptures",},
+                        {
+                            "id": "gestion-ruptures",
+                            "label": "Gestion des ruptures",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -444,7 +500,8 @@ def Ruptures() -> Tuple[Component, Div]:
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"), dd.Input("annee-dropdown", "value"),
+    dd.Output("atc-bar-chart", "figure"),
+    dd.Input("annee-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
@@ -466,7 +523,8 @@ def update_figure(value: str):
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"), dd.Input("causes-treemap", "value"),
+    dd.Output("causes-treemap", "figure"),
+    dd.Input("annee-causes-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:

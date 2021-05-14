@@ -1,11 +1,8 @@
-from datamed_custom_components.Accordion import Accordion
 import math
 from typing import List, Dict, Tuple
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
-import dash
 import dash.dependencies as dd
-import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import db.fetch_data as fetch_data
@@ -27,6 +24,7 @@ from dash_bootstrap_components import (
     ModalFooter,
 )
 from dash_core_components import Graph
+from datamed_custom_components.Accordion import Accordion
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
@@ -37,7 +35,6 @@ from .utils import (
     GraphBox,
     TopicSection,
     SectionTitle,
-    SectionP,
     SectionRow,
 )
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS

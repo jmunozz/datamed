@@ -95,7 +95,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                 ),
                                                 html.P(
                                                     "Citoyen, patient, aidant, associations de patients",
-                                                    className="normal-text"
+                                                    className="normal-text",
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -119,7 +119,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                 html.P(
                                                     "Médecin, pharmacien, infirmier, "
                                                     "intervenant du paramédical",
-                                                    className="normal-text"
+                                                    className="normal-text",
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -142,7 +142,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                 ),
                                                 html.P(
                                                     "Journaliste, data analyst, chercheur, éditeur de logiciel",
-                                                    className="normal-text"
+                                                    className="normal-text",
                                                 ),
                                             ],
                                             className="feature stacked",
