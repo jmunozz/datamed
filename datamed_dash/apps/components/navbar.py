@@ -55,7 +55,7 @@ def Navbar() -> Component:
     opts_spe = to_search_bar_options(df_spe, "specialite")
     opts_sub = to_search_bar_options(df_sub, "substance")
     opts = opts_spe + opts_sub
-    opts = sorted(opts, key=lambda x: x["label"])
+    opts = sorted(opts, key=lambda d: len(d["label"]))
 
     return html.Div(
         [
