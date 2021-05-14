@@ -40,7 +40,7 @@ def FigureGraph(
     figures: List[Dict], height="150px", class_name="justify-content-around"
 ) -> Component:
     class_name = " ".join((["d-flex", "flex-row", "flex-wrap"] + class_name.split(" ")))
-    l = []
+    children_list = []
     for f in figures:
         elems = []
         elems = (
@@ -55,14 +55,14 @@ def FigureGraph(
             if f.get("caption")
             else []
         )
-        l += [
+        children_list += [
             Div(
                 elems,
                 className="d-flex flex-column align-items-center",
                 style={"color": "#00B3CC", "margin": "15px"},
             )
         ]
-    return Div(l, className=class_name)
+    return Div(children_list, className=class_name)
 
 
 def TopicSection(children: List, id: str, isFirst=False) -> Component:
@@ -91,24 +91,24 @@ def ExternalLink(label: str, link: str):
     )
 
 
-def date_as_string(date):
+def date_as_string(date) -> str:
     # pd.NaT is somehow instance of date
     if not isinstance(date, datetime.date) or pd.isnull(date):
         return date
     return date.strftime("%d/%m/%Y")
 
 
-def nested_get(dict, key, default):
+def nested_get(dictionary: Dict, key: str, default):
     [current_key, *key_list] = key.split(".")
     try:
-        current_value = dict[current_key]
+        current_value = dictionary[current_key]
         if not len(key_list):
             return current_value
         else:
-            return nested_get(dict.get(current_key), "".join(key_list), default)
+            return nested_get(dictionary.get(current_key), "".join(key_list), default)
     except KeyError:
         return default
 
 
-def normalize_string(str):
-    return unidecode.unidecode(str)
+def normalize_string(text: str):
+    return unidecode.unidecode(text)
