@@ -45,7 +45,7 @@ def MenuItem(title: str, href: str) -> Component:
     return html.A(
         title,
         href=href,
-        className="NavbarItem",
+        className="NavbarItem normal-text",
     )
 
 
@@ -60,9 +60,9 @@ def Navbar() -> Component:
     return html.Div(
         [
             LogoAnsm(),
-            MenuItem("Analyses thématiques", "/"),
+            MenuItem("Analyses thématiques", "/apps/construction"),
             MenuItem("Explorer", "/apps/explorer"),
-            MenuItem("À propos", "/"),
+            MenuItem("À propos", "/apps/construction"),
             SearchBar(id="search-bar", opts=opts, fireOnSelect=True),
         ],
         className="Navbar",

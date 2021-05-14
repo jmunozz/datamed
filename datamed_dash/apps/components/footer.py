@@ -27,8 +27,9 @@ def Logos() -> Component:
                     ),
                 ]
             ),
-            H3(
+            Div(
                 ["data.", B("ansm.sante.fr")],
+                className="heading-4",
                 style={"color": "white", "margin-top": "20px"},
             ),
         ],

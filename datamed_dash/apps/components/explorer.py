@@ -155,7 +155,7 @@ def Explorer() -> Component:
                 "Découvrez les indicateurs utilisés par les agents de l’ANSM pour anticiper "
                 "les ruptures de stock et les actions mises en place pour y pallier.",
                 "État des lieux des laboratoires pharmaceutiques (ANSM)",
-                "/apps/explorer",
+                "/apps/construction",
             ),
             Modalites(),
         ],
