@@ -21,7 +21,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                     html.P(
                                         "L’Agence Nationale de Sécurité du Médicament et des Produits de Santé (ANSM) "
                                         "ouvre ses données de manière pédagogique pour permettre au plus grand nombre "
-                                        "de réaliser des choix éclairés"
+                                        "de réaliser des choix éclairés",
+                                        className="normal-text text-justify",
                                     ),
                                 ],
                                 className="fp-wrapper fp-content",
@@ -40,7 +41,6 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                         html.Div(
                             html.Img(
                                 src=app.get_asset_url("Big illustration 2.svg"),
-                                style={"transform": "scaleX(-1)"},
                             ),
                             className="fp-half with-p-y",
                         ),
@@ -53,11 +53,12 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                     html.P(
                                         "L’ANSM ouvrira dans un premier temps ses données autour des médicaments et "
                                         "suivront celles des ruptures de stocks, du bon usage des médicaments, des "
-                                        "essais cliniques et bien d’autres !"
+                                        "essais cliniques et bien d’autres !",
+                                        className="normal-text text-justify",
                                     ),
                                     html.A(
-                                        "À propos",
-                                        className="btn-outline-primary btn-lg",
+                                        "À PROPOS",
+                                        className="btn-outline-primary btn-lg fp-button",
                                         role="button",
                                         href="#",
                                     ),
@@ -85,7 +86,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     src=app.get_asset_url(
                                                         "Public-Male-250.svg"
                                                     ),
-                                                    style={"height": "150px"},
+                                                    style={"height": "250px"},
                                                 ),
                                                 html.H2(
                                                     "Grand public",
@@ -95,7 +96,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Citoyen, patient, aidant, associations de patients"
+                                                    "Citoyen, patient, aidant, associations de patients",
+                                                    className="normal-text text-center",
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -107,7 +109,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     src=app.get_asset_url(
                                                         "Doctor-Female-250.svg"
                                                     ),
-                                                    style={"height": "150px"},
+                                                    style={"height": "250px"},
                                                 ),
                                                 html.H2(
                                                     "Professionnel de santé",
@@ -117,8 +119,9 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Médecin, pharmacien, infirmier, "
-                                                    "intervenant du paramédical"
+                                                    "Médecin, pharmacien, sage-femme, infirmier, "
+                                                    "intervenant du paramédical",
+                                                    className="normal-text text-center",
                                                 ),
                                             ],
                                             className="stacked feature",
@@ -130,7 +133,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     src=app.get_asset_url(
                                                         "DataScentist-250.svg"
                                                     ),
-                                                    style={"height": "150px"},
+                                                    style={"height": "250px"},
                                                 ),
                                                 html.H2(
                                                     "Expert en données",
@@ -140,7 +143,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     },
                                                 ),
                                                 html.P(
-                                                    "Journaliste, data analyst, chercheur, éditeur de logiciel"
+                                                    "Journaliste, data analyst, chercheur, éditeur de logiciel",
+                                                    className="normal-text text-center",
                                                 ),
                                             ],
                                             className="feature stacked",
@@ -162,19 +166,21 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                 [
                                     html.H1("Origine et nature des données"),
                                     html.P(
-                                        "Les données de la plateforme proviennent de bases gerées en majorité par "
-                                        "l’ANSM, et d’autres proviennent de bases open source gerées par d’autres "
-                                        "institutions de santé (CNAM, HAS)."
+                                        "Les données de la plateforme proviennent de bases de données gerées en "
+                                        "majorité par l’ANSM, et d’autres proviennent de bases open source gerées par "
+                                        "d’autres institutions de santé (CNAM, HAS).",
+                                        className="normal-text text-justify",
                                     ),
                                     html.P(
                                         "Elles sont alimentées par les parties prenantes (agents de l’ANSM, "
-                                        "institutions, grand public, professionnels de santé, industriels)."
+                                        "institutions, grand public, professionnels de santé, industriels).",
+                                        className="normal-text text-justify",
                                     ),
                                     html.A(
-                                        "Explorer les données",
-                                        className="btn-outline-primary btn-lg",
+                                        "EXPLORER LES DONNÉES",
+                                        className="btn-outline-primary btn-lg fp-button",
                                         role="button",
-                                        href="#",
+                                        href="/apps/explorer",
                                     ),
                                 ],
                                 className="fp-wrapper fp-content",

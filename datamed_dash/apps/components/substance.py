@@ -1,11 +1,8 @@
-from datamed_custom_components.Accordion import Accordion
 import math
 from typing import List, Dict, Tuple
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
-import dash
 import dash.dependencies as dd
-import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import db.fetch_data as fetch_data
@@ -27,6 +24,7 @@ from dash_bootstrap_components import (
     ModalFooter,
 )
 from dash_core_components import Graph
+from datamed_custom_components.Accordion import Accordion
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
@@ -37,7 +35,6 @@ from .utils import (
     GraphBox,
     TopicSection,
     SectionTitle,
-    SectionP,
     SectionRow,
 )
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
@@ -61,7 +58,7 @@ NOTIF_NOM = {
     "Médecin généraliste": "Médecin généraliste",
     "Pharmacien": "Pharmacien",
     "Inconnu": "Inconnu",
-    "Non professionnel de santé": "Non professionnel de santé",
+    "Non professionnel de santé": "Patient",
     "Médecin spécialiste": "Médecin spécialiste",
 }
 
@@ -168,6 +165,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
 
 def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
     series_sub = fetch_data.as_series(df_sub)
+    df_sub_spe.nom = df_sub_spe.nom.str.capitalize()
     if df_sub_spe is not None:
         box_children = [
             html.Div(

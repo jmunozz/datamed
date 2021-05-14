@@ -106,7 +106,8 @@ def Tooltip() -> Component:
                                 className="normal-text",
                             ),
                             html.Span(
-                                "pharmacie de ville", className="normal-text-bold",
+                                "pharmacie de ville",
+                                className="normal-text-bold",
                             ),
                             html.Span(
                                 " entre 2014 et 2018 et remboursé par "
@@ -123,7 +124,10 @@ def Tooltip() -> Component:
                     ),
                     html.Div(
                         [
-                            html.Span("Attention : ", className="normal-text-bold",),
+                            html.Span(
+                                "Attention : ",
+                                className="normal-text-bold",
+                            ),
                             html.Span(
                                 "Un patient est comptabilisé autant de fois qu’il a acheté de boîtes "
                                 "(ou présentations) différentes de la spécialité / substance active. Pour "
@@ -167,7 +171,13 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
     df = pd.DataFrame(
         {
-            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
+            "Utilisation": [
+                "Très faible",
+                "Faible",
+                "Modéré",
+                "Élevé",
+                "Très élevé",
+            ],
             "Nombre de patients (niveau spécialité)": [
                 "< 1 000",
                 "1 000 - 5 000",
@@ -292,6 +302,27 @@ def PatientsTraites(
 
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
+    modal_body = [
+        html.Div(
+            "Les médicaments peuvent être regroupés suivant différents niveaux "
+            "de précision (du plus au moins précis) :",
+            className="mb-3",
+        ),
+        html.Div(
+            "- La présentation : " "Doliprane 1000 mg, comprimé, boîte de 8 comprimés"
+        ),
+        html.Div("- La spécialité : Doliprane 1000 mg, comprimé"),
+        html.Div("- Le produit : Doliprane"),
+        html.Div(
+            "- La substance active : Paracétamol",
+            className="mb-3",
+        ),
+        html.Div(
+            "La spécialité d’un médicament est donc caractérisée par "
+            "une dénomination spéciale (Doliprane) et un conditionnement "
+            "particulier (1000 mg, comprimé)."
+        ),
+    ]
     if type == "substance":
         title = series_spe.nom.capitalize()
         css_class = "Header-isSubstance"
@@ -316,11 +347,20 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         icon_url = app.get_asset_url("Liquide-64.png")
         type_label = "Base de données"
         help_link = html.A("Qu'est-ce qu'une base de donnée?", id="definition-open")
+        modal_body = [
+            html.Div(
+                "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
+                "à ces données."
+            )
+        ]
 
     return html.Div(
         html.Div(
             [
-                html.Div(html.Img(src=icon_url), className="content-header-img",),
+                html.Div(
+                    html.Img(src=icon_url),
+                    className="content-header-img",
+                ),
                 html.Div(
                     [
                         html.Div(title, className="heading-4"),
@@ -330,30 +370,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                             [
                                 dbc.ModalHeader("Définition"),
                                 dbc.ModalBody(
-                                    [
-                                        html.Div(
-                                            "Les médicaments peuvent être regroupés suivant différents niveaux "
-                                            "de précision (du plus au moins précis) :",
-                                            className="mb-3",
-                                        ),
-                                        html.Div(
-                                            "- La présentation : "
-                                            "Doliprane 1000 mg, comprimé, boîte de 8 comprimés"
-                                        ),
-                                        html.Div(
-                                            "- La spécialité : Doliprane 1000 mg, comprimé"
-                                        ),
-                                        html.Div("- Le produit : Doliprane"),
-                                        html.Div(
-                                            "- La substance active : Paracétamol",
-                                            className="mb-3",
-                                        ),
-                                        html.Div(
-                                            "La spécialité d’un médicament est donc caractérisée par "
-                                            "une dénomination spéciale (Doliprane) et un conditionnement "
-                                            "particulier (1000 mg, comprimé)."
-                                        ),
-                                    ],
+                                    modal_body,
                                     className="normal-text text-justify",
                                 ),
                                 dbc.ModalFooter(

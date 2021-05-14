@@ -103,7 +103,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                         {"id": "population-concernee", "label": "Population concernée"},
                         {
                             "id": "erreurs-medicamenteuses",
-                            "label": "Données de pharmacovigilance",
+                            "label": "Erreurs médicamenteuses",
                         },
                         {
                             "id": "rupture-de-stock",
@@ -149,7 +149,7 @@ def SubstanceLinks(df_sub: pd.DataFrame) -> Component:
             html.A(
                 series.nom.capitalize(),
                 href="/apps/substance?search={}".format(code),
-                className="InternalLink",
+                className="InternalLink d-block",
                 id="refresh-substances",
             )
             for code, series in df_sub.iterrows()
@@ -260,6 +260,7 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             },
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
+            hover_data=["explication"],
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
@@ -582,7 +583,7 @@ def RuptureDeStock(df_rup: pd.DataFrame):
     return TopicSection(
         [
             SectionRow(
-                html.H1("Historique des ruptures de stock", className="SectionTitle")
+                html.Div("Historique des ruptures de stock", className="SectionTitle")
             ),
             SectionRow(
                 Box(

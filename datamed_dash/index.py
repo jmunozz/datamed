@@ -2,15 +2,13 @@ import os
 from urllib.parse import urlparse, unquote_plus
 
 import dash_core_components as dcc
-import dash_html_components as html
 from dash.dependencies import Output, Input
+from dash_html_components import Div
 
 from app import app, server
-from apps import app1, app2, app3, app4, app5
+from apps import app1, app2, app3, app4, app5, app6
 
-app.layout = html.Div(
-    [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
-)
+app.layout = Div([dcc.Location(id="url", refresh=False), Div(id="page-content")])
 
 
 @app.callback(Output("page-content", "children"), Input("url", "href"))
@@ -28,6 +26,8 @@ def display_page(href):
         return app3.Layout()
     elif pathname == "/apps/ruptures":
         return app4.Layout()
+    elif pathname == "/apps/construction":
+        return app6.Layout()
     else:
         return app1.layout
 

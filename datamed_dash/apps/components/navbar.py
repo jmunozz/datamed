@@ -45,7 +45,7 @@ def MenuItem(title: str, href: str) -> Component:
     return html.A(
         title,
         href=href,
-        className="NavbarItem",
+        className="NavbarItem normal-text",
     )
 
 
@@ -55,14 +55,14 @@ def Navbar() -> Component:
     opts_spe = to_search_bar_options(df_spe, "specialite")
     opts_sub = to_search_bar_options(df_sub, "substance")
     opts = opts_spe + opts_sub
-    opts = sorted(opts, key=lambda x: x["label"])
+    opts = sorted(opts, key=lambda d: len(d["label"]))
 
     return html.Div(
         [
             LogoAnsm(),
-            MenuItem("Analyses thématiques", "/"),
+            MenuItem("Analyses thématiques", "/apps/construction"),
             MenuItem("Explorer", "/apps/explorer"),
-            MenuItem("À propos", "/"),
+            MenuItem("À propos", "/apps/construction"),
             SearchBar(id="search-bar", opts=opts, fireOnSelect=True),
         ],
         className="Navbar",

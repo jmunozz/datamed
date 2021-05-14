@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 
 import pandas as pd
@@ -12,6 +13,12 @@ POPULATION_NOMS = {
     "Nouveau né": "Nouveaux nés",
     "Femme enceinte": "Femmes enceintes",
 }
+
+with open("data/causes.json") as f:
+    CAUSES = json.loads(f.read())
+
+with open("data/nature.json") as f:
+    NATURE = json.loads(f.read())
 
 
 def get_produit_denom(denomination: str) -> str:
@@ -46,6 +53,12 @@ def get_erreur_df(df_base: pd.DataFrame, cis: str, col: str) -> pd.DataFrame:
     df["pourcentage"] = df.apply(
         lambda x: round(x.denomination / df.denomination.sum() * 100, 2), axis=1
     )
+
+    if col == "cause_erreur":
+        df["explication"] = df.cause_erreur.apply(lambda x: CAUSES.get(x, None))
+    elif col == "nature_erreur":
+        df["explication"] = df.nature_erreur.apply(lambda x: NATURE.get(x, None))
+
     df.drop(["denomination"], inplace=True, axis=1)
     df.insert(loc=0, column="cis", value=cis)
     return df.sort_values(by=["cis", "pourcentage"])
