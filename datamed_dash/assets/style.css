@@ -13,7 +13,7 @@
 }
 
 .btn {
-  height: 2.25rem;
+  height: 2rem;
 }
 
 .btn-outline-primary {
@@ -133,6 +133,14 @@
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0.25px;
+}
+
+.fp-button {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: 1.25px;
+  text-align: center;
 }
 
 .small-text {
