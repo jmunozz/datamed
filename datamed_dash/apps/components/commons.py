@@ -325,11 +325,6 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
             "- La substance active : Paracétamol",
             className="mb-3",
         ),
-        html.Div(
-            "La spécialité d’un médicament est donc caractérisée par "
-            "une dénomination spéciale (Doliprane) et un conditionnement "
-            "particulier (1000 mg, comprimé)."
-        ),
     ]
     if type == "substance":
         title = series_spe.nom.capitalize()
@@ -337,6 +332,12 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         icon_url = app.get_asset_url("substance_icon.svg")
         type_label = "Substance active"
         help_link = html.A("Qu'est-ce qu'une substance active ?", id="definition-open")
+        modal_body.append(
+            html.Div(
+                "La substance active d'un médicament est une substance chimique entrant dans la composition du"
+                " médicament et ayant un effet thérapeutique ou préventif."
+            ),
+        )
     elif type == "specialite":
         title = series_spe.nom.capitalize()
         css_class = "Header-isSpecialite"
@@ -349,12 +350,19 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         help_link = html.A(
             "Qu'est-ce qu'une spécialité de médicament ?", id="definition-open"
         )
+        modal_body.append(
+            html.Div(
+                "La spécialité d’un médicament est donc caractérisée par "
+                "une dénomination spéciale (Doliprane) et un conditionnement "
+                "particulier (1000 mg, comprimé)."
+            ),
+        )
     elif type == "rupture":
         title = "Observatoire des ruptures de stock"
         css_class = "Header-isRupture"
         icon_url = app.get_asset_url("Liquide-64.png")
         type_label = "Base de données"
-        help_link = html.A("Qu'est-ce qu'une base de donnée?", id="definition-open")
+        help_link = html.A("Qu'est-ce qu'une base de données ?", id="definition-open")
         modal_body = [
             html.Div(
                 "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
