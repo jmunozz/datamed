@@ -165,8 +165,8 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
 
 def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Component:
     series_sub = fetch_data.as_series(df_sub)
-    df_sub_spe.nom = df_sub_spe.nom.str.capitalize()
     if df_sub_spe is not None:
+        df_sub_spe.nom = df_sub_spe.nom.str.capitalize()
         box_children = [
             html.Div(
                 "{} médicaments identifiés".format(len(df_sub_spe)),
@@ -222,37 +222,44 @@ def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     series_decla = fetch_data.as_series(df_decla)
-    cas_str = "{:,}".format(int(series_decla.cas)).replace(",", " ")
-    return FigureGraph(
-        [
-            {
-                "figure": cas_str,
-                "caption": "Nombre de cas déclarés sur la période 2014-2018",
-            }
-        ]
-    )
+    if not math.isnan(series_decla.cas):
+        cas_str = "{:,}".format(int(series_decla.cas)).replace(",", " ")
+        return FigureGraph(
+            [
+                {
+                    "figure": cas_str,
+                    "caption": "Nombre de cas déclarés sur la période 2014-2018",
+                }
+            ]
+        )
+    else:
+        return NoData()
 
 
 def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     series_decla = fetch_data.as_series(df_decla)
-    taux_str = "{:,}".format(int(series_decla.taux_cas)).replace(",", " ")
-    return FigureGraph(
-        [
-            {
-                "figure": "{} pour 100 000".format(taux_str),
-                "caption": "Taux de déclaration pour 100 000 patients "
-                "traités par an sur la période 2014-2018",
-            }
-        ]
-    )
+    if not math.isnan(series_decla.taux_cas):
+        taux_str = "{:,}".format(int(series_decla.taux_cas)).replace(",", " ")
+        return FigureGraph(
+            [
+                {
+                    "figure": "{} pour 100 000".format(taux_str),
+                    "caption": "Taux de déclaration pour 100 000 patients "
+                    "traités par an sur la période 2014-2018",
+                }
+            ]
+        )
+    else:
+        return NoData()
 
 
 def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     fig = make_subplots(specs=[[{"secondary_y": True}]])
+    df_decla = df_decla[df_decla.conso_annee != 0]
     if df_decla.cas_annee.min() > 10:
         fig.add_trace(
             go.Scatter(
@@ -396,23 +403,37 @@ def CasDeclares(
     )
 
 
-def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> Component:
-    fig = px.treemap(
-        df.loc[code].sort_values(by=values, ascending=False).head(10),
-        path=[path],
-        values=values,
-        color_discrete_sequence=TREE_COLORS,
-        hover_name=path,
-    )
+def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> List[Component]:
+    if not np.isnan(df.pourcentage_cas.unique()).all():
+        fig = px.treemap(
+            df.loc[code].sort_values(by=values, ascending=False).head(10),
+            path=[path],
+            values=values,
+            color_discrete_sequence=TREE_COLORS,
+            hover_name=path,
+        )
 
-    fig.update_layout(TREEMAP_LAYOUT)
-    fig.update_traces(
-        texttemplate="%{label}<br>%{value:.0f}%",
-        textposition="middle center",
-        textfont_size=18,
-        hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
-    )
-    return fig
+        fig.update_layout(TREEMAP_LAYOUT)
+        fig.update_traces(
+            texttemplate="%{label}<br>%{value:.0f}%",
+            textposition="middle center",
+            textfont_size=18,
+            hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
+        )
+        return [
+            html.Div(
+                Graph(
+                    figure=fig,
+                    responsive=True,
+                    id="soc-treemap",
+                ),
+                id="soc-treemap-container",
+            ),
+            html.Div(id="selected-soc", className="d-none"),
+            HltModal(),
+        ]
+    else:
+        return NoData()
 
 
 def SystemesOrganesTooltip():
@@ -448,20 +469,7 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
             SectionRow(
                 [
                     html.Div(
-                        [
-                            html.Div(
-                                Graph(
-                                    figure=Treemap(
-                                        df, code, "soc_long", "pourcentage_cas"
-                                    ),
-                                    responsive=True,
-                                    id="soc-treemap",
-                                ),
-                                id="soc-treemap-container",
-                            ),
-                            html.Div(id="selected-soc", className="d-none"),
-                            HltModal(),
-                        ],
+                        Treemap(df, code, "soc_long", "pourcentage_cas"),
                         className="col-md-12",
                     )
                     if df is not None
