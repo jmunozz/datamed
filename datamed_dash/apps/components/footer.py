@@ -58,6 +58,11 @@ def FooterRight():
                         href="https://www.numerique.gouv.fr/dinum/",
                         className="link text-decoration-none",
                     ),
+                    A(
+                        "Health Data Hub",
+                        href="https://www.health-data-hub.fr/",
+                        className="link text-decoration-none",
+                    ),
                 ],
             ),
         ],

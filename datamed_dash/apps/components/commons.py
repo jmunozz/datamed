@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from app import app
@@ -101,7 +102,7 @@ def Tooltip() -> Component:
                     html.Div(
                         [
                             html.Span(
-                                "Estimations obtenues à partir des données Open MEDIC portant sur l’usage du "
+                                "Estimations obtenues à partir des données Open Medic portant sur l’usage du "
                                 "médicament, délivré en ",
                                 className="normal-text",
                             ),
@@ -110,8 +111,15 @@ def Tooltip() -> Component:
                                 className="normal-text-bold",
                             ),
                             html.Span(
-                                " entre 2014 et 2018 et remboursé par "
-                                "l’Assurance Maladie. Pour plus d’informations, consultez : ",
+                                " entre 2014 et 2018 et remboursé par ",
+                                className="normal-text",
+                            ),
+                            html.Span(
+                                "l’Assurance Maladie.",
+                                className="normal-text-bold",
+                            ),
+                            html.Span(
+                                " Pour plus d’informations, consultez : ",
                                 className="normal-text",
                             ),
                             html.A(
@@ -129,11 +137,11 @@ def Tooltip() -> Component:
                                 className="normal-text-bold",
                             ),
                             html.Span(
-                                "Un patient est comptabilisé autant de fois qu’il a acheté de boîtes "
-                                "(ou présentations) différentes de la spécialité / substance active. Pour "
-                                "la spécialité Doliprane 500 mg, gélule, un patient qui aura acheté 2 boîtes "
-                                "de 16 gélules et 3 boîtes de 100 gélules au cours de l’année 2016 "
-                                "sera comptabilisé 2 fois pour 2016.",
+                                "Un patient est comptabilisé autant de fois qu’il a acheté de types "
+                                "de conditionnements (ou présentations) différents de la spécialité / "
+                                "substance active. Pour la spécialité Doliprane 500 mg, gélule, un patient qui "
+                                "aura acheté 2 boîtes de 16 gélules et 3 boîtes de 100 gélules au cours de "
+                                "l’année 2016 sera comptabilisé 2 fois pour 2016.",
                                 className="normal-text",
                             ),
                         ],
@@ -264,7 +272,7 @@ def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
 
 
 def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
-    if df_age is None:
+    if df_age is None or np.isnan(df_age.pourcentage_patients.unique()).all():
         return NoData()
     return Graph(
         figure=makePie(df_age.age, df_age.pourcentage_patients, pie_colors),
@@ -317,11 +325,6 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
             "- La substance active : Paracétamol",
             className="mb-3",
         ),
-        html.Div(
-            "La spécialité d’un médicament est donc caractérisée par "
-            "une dénomination spéciale (Doliprane) et un conditionnement "
-            "particulier (1000 mg, comprimé)."
-        ),
     ]
     if type == "substance":
         title = series_spe.nom.capitalize()
@@ -329,6 +332,12 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         icon_url = app.get_asset_url("substance_icon.svg")
         type_label = "Substance active"
         help_link = html.A("Qu'est-ce qu'une substance active ?", id="definition-open")
+        modal_body.append(
+            html.Div(
+                "La substance active d'un médicament est une substance chimique entrant dans la composition du"
+                " médicament et ayant un effet thérapeutique ou préventif."
+            ),
+        )
     elif type == "specialite":
         title = series_spe.nom.capitalize()
         css_class = "Header-isSpecialite"
@@ -341,12 +350,19 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         help_link = html.A(
             "Qu'est-ce qu'une spécialité de médicament ?", id="definition-open"
         )
+        modal_body.append(
+            html.Div(
+                "La spécialité d’un médicament est donc caractérisée par "
+                "une dénomination spéciale (Doliprane) et un conditionnement "
+                "particulier (1000 mg, comprimé)."
+            ),
+        )
     elif type == "rupture":
         title = "Observatoire des ruptures de stock"
         css_class = "Header-isRupture"
         icon_url = app.get_asset_url("Liquide-64.png")
         type_label = "Base de données"
-        help_link = html.A("Qu'est-ce qu'une base de donnée?", id="definition-open")
+        help_link = html.A("Qu'est-ce qu'une base de données ?", id="definition-open")
         modal_body = [
             html.Div(
                 "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
