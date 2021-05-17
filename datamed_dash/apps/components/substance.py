@@ -404,36 +404,22 @@ def CasDeclares(
 
 
 def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> List[Component]:
-    if not np.isnan(df.pourcentage_cas.unique()).all():
-        fig = px.treemap(
-            df.loc[code].sort_values(by=values, ascending=False).head(10),
-            path=[path],
-            values=values,
-            color_discrete_sequence=TREE_COLORS,
-            hover_name=path,
-        )
+    fig = px.treemap(
+        df.loc[code].sort_values(by=values, ascending=False).head(10),
+        path=[path],
+        values=values,
+        color_discrete_sequence=TREE_COLORS,
+        hover_name=path,
+    )
 
-        fig.update_layout(TREEMAP_LAYOUT)
-        fig.update_traces(
-            texttemplate="%{label}<br>%{value:.0f}%",
-            textposition="middle center",
-            textfont_size=18,
-            hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
-        )
-        return [
-            html.Div(
-                Graph(
-                    figure=fig,
-                    responsive=True,
-                    id="soc-treemap",
-                ),
-                id="soc-treemap-container",
-            ),
-            html.Div(id="selected-soc", className="d-none"),
-            HltModal(),
-        ]
-    else:
-        return NoData()
+    fig.update_layout(TREEMAP_LAYOUT)
+    fig.update_traces(
+        texttemplate="%{label}<br>%{value:.0f}%",
+        textposition="middle center",
+        textfont_size=18,
+        hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
+    )
+    return fig
 
 
 def SystemesOrganesTooltip():
@@ -469,10 +455,21 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
             SectionRow(
                 [
                     html.Div(
-                        Treemap(df, code, "soc_long", "pourcentage_cas"),
+                        [
+                            html.Div(
+                                Graph(
+                                    figure=Treemap(df, code, "soc_long", "pourcentage_cas"),
+                                    responsive=True,
+                                    id="soc-treemap",
+                                ),
+                                id="soc-treemap-container",
+                            ),
+                            html.Div(id="selected-soc", className="d-none"),
+                            HltModal(),
+                        ],
                         className="col-md-12",
                     )
-                    if df is not None
+                    if df is not None and not np.isnan(df.pourcentage_cas.unique()).all()
                     else GraphBox("", NoData()),
                 ],
             ),
