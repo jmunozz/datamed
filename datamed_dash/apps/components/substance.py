@@ -448,7 +448,7 @@ def SystemesOrganesTooltip():
                         className="normal-text text-justify",
                     ),
                     html.P(
-                        "Attention : un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
+                        "Attention : Un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
                         "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
                         "différents (en fonction des effets indésirables déclarés).",
                         className="normal-text text-justify",
