@@ -259,7 +259,6 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    df_decla = df_decla[df_decla.conso_annee != 0]
     if df_decla.cas_annee.min() > 10:
         fig.add_trace(
             go.Scatter(
