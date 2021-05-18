@@ -502,6 +502,42 @@ files = {
             "dtype": {"cis": String(16)},
         },
     },
+    "mesures": {
+        "source": {"pattern": "Mesure_180521.csv"},
+        "read_csv": {
+            "encoding": "utf-8",
+            "sep": ";",
+            "header": 0,
+            "usecols": [
+                "Etat",
+                "Numéro Rupture",
+                "Identifiant",
+                "Description",
+                "Nom Produit",
+                "Demande de mise en place",
+                "Date mise en place",
+                "Date de fin prévisionnelle",
+                "Date de clotûre",
+                "Justification",
+            ],
+            "parse_dates": [
+                "Date mise en place",
+                "Date de fin prévisionnelle",
+                "Date de clotûre",
+            ],
+        },
+        "to_sql": {
+            "name": "mesures",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "date_demande": Date,
+                "date_mise_en_place": Date,
+                "date_previ_fin": Date,
+                "date_cloture": Date,
+            },
+        },
+    },
     "ruptures": {
         "source": {"pattern": "Dossier_de_rupture_040521.csv"},
         "read_csv": {
