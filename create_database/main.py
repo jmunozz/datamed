@@ -450,6 +450,45 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def create_table_mesures(_settings: Dict):
+    cols = [
+        "Etat",
+        "Numéro Rupture",
+        "Identifiant",
+        "Description",
+        "Nom Produit",
+        "Demande de mise en place",
+        "Date mise en place",
+        "Date de fin prévisionnelle",
+        "Date de clotûre",
+        "Justification",
+    ]
+    df = pd.read_csv(
+        "data/Mesure_180521.csv",
+        sep=";",
+        encoding="utf-8",
+        usecols=cols,
+    )
+
+    df = helpers.load_csv_to_df(_settings)
+    df = df.rename(
+        columns={
+            "Etat": "etat_mesure",
+            "Numéro Rupture": "numero",
+            "Identifiant": "identifiant",
+            "Description": "description",
+            "Nom Produit": "nom",
+            "Demande de mise en place": "date_demande",
+            "Date mise en place": "date_mise_en_place",
+            "Date de fin prévisionnelle": "date_previ_fin",
+            "Date de clotûre": "date_cloture",
+            "Justification": "justification",
+        }
+    )
+    helpers.serie_to_lowercase(df, ["etat_mesure", "nom"])
+    db.create_table_from_df(df, _settings["to_sql"])
+
+
 def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict):
     df_spe = pd.read_sql("specialite", engine).reset_index()
     df_old = get_old_ruptures_df(df_spe)
@@ -462,9 +501,20 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     )
     df.laboratoire = df.laboratoire.str.capitalize()
     df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
-    df.date = df.date.apply(
-        lambda x: dt.strptime(x.strftime("%m-%d-%Y"), "%d-%m-%Y") if x else None
+
+    df.date = df.date.apply(lambda x: dt.strptime(x, "%d/%m/%Y") if x else None)
+    df.debut_ville = df.debut_ville.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
     )
+    df.prevision_remise_dispo_ville = df.prevision_remise_dispo_ville.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
+    df.debut_hopital = df.debut_hopital.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
+    df.prevision_remise_dispo_hopital = df.prevision_remise_dispo_hopital.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None)
+
     df.cip13 = df.cip13.astype(str)
 
     df_pres = pd.read_sql("presentation", engine)
@@ -513,30 +563,32 @@ def create_table_icones(_settings: Dict):
     df["icone"] = df.forme_pharma.apply(lambda x: get_specialite_icon(x))
     db.create_table_from_df(df.set_index("cis"), _settings["to_sql"])
 
-# create_table_bdpm_cis(settings.files["bdpm_cis"])
-# create_tables_rsp_compo(settings.files["rsp_compo"])
-# create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
-# create_table_atc(settings.files["atc"])
-# create_table_cis_atc(settings.files["cis_atc"])
-#
-# # Ordei
-# create_spe_conso_ordei_table(settings.files["ordei_specialite"])
-# create_spe_patients_sexe_table(settings.files["ordei_specialite"])
-# create_spe_patients_age_table(settings.files["ordei_specialite"])
-# create_substance_ordei_table(settings.files["ordei_substance"])
-# create_substance_patients_sexe_table(settings.files["ordei_substance"])
-# create_substance_patients_age_table(settings.files["ordei_substance"])
-# create_substance_cas_sexe_table(settings.files["ordei_substance"])
-# create_substance_cas_age_table(settings.files["ordei_substance"])
-# create_notificateurs_table(settings.files["ordei_notificateurs"])
-# create_substance_soclong_table(settings.files["ordei_soclong"])
-# create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
-#
-# # Erreurs médicamenteuses
+
+create_table_bdpm_cis(settings.files["bdpm_cis"])
+create_tables_rsp_compo(settings.files["rsp_compo"])
+create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+create_table_atc(settings.files["atc"])
+create_table_cis_atc(settings.files["cis_atc"])
+
+# Ordei
+create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+create_spe_patients_sexe_table(settings.files["ordei_specialite"])
+create_spe_patients_age_table(settings.files["ordei_specialite"])
+create_substance_ordei_table(settings.files["ordei_substance"])
+create_substance_patients_sexe_table(settings.files["ordei_substance"])
+create_substance_patients_age_table(settings.files["ordei_substance"])
+create_substance_cas_sexe_table(settings.files["ordei_substance"])
+create_substance_cas_age_table(settings.files["ordei_substance"])
+create_notificateurs_table(settings.files["ordei_notificateurs"])
+create_substance_soclong_table(settings.files["ordei_soclong"])
+create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+
+# Erreurs médicamenteuses
 create_table_emed(settings.files["erreurs_med"])
-#
-# # TrustMed
-# create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
-#
-# # Logos
-# create_table_icones(settings.files["icones"])
+
+# TrustMed
+create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
+create_table_mesures(settings.files["mesures"])
+
+# Logos
+create_table_icones(settings.files["icones"])
