@@ -501,9 +501,20 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     )
     df.laboratoire = df.laboratoire.str.capitalize()
     df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
-    df.date = df.date.apply(
-        lambda x: dt.strptime(x.strftime("%m-%d-%Y"), "%d-%m-%Y") if x else None
+
+    df.date = df.date.apply(lambda x: dt.strptime(x, "%d/%m/%Y") if x else None)
+    df.debut_ville = df.debut_ville.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
     )
+    df.prevision_remise_dispo_ville = df.prevision_remise_dispo_ville.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
+    df.debut_hopital = df.debut_hopital.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
+    df.prevision_remise_dispo_hopital = df.prevision_remise_dispo_hopital.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None)
+
     df.cip13 = df.cip13.astype(str)
 
     df_pres = pd.read_sql("presentation", engine)

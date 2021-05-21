@@ -539,7 +539,7 @@ files = {
         },
     },
     "ruptures": {
-        "source": {"pattern": "Dossier_de_rupture_040521.csv"},
+        "source": {"pattern": "Dossier_de_rupture_180521.csv"},
         "read_csv": {
             "encoding": "utf-8",
             "sep": ";",
@@ -591,7 +591,6 @@ files = {
                 "generique_ville",
                 "generique_hopital",
             ],
-            "parse_dates": [2, 14, 16, 17, 19],
         },
         "to_sql": {
             "name": "ruptures",
