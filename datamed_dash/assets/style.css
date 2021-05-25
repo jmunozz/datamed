@@ -223,15 +223,6 @@ a.btn-lg {
   text-decoration: none;
 }
 
-/* Fix dash graph wrapper div to graph default height  */
-.dash-graph {
-  height: 450px;
-}
-
-#stack-bar.dash-graph {
-  height: 300px;
-}
-
 .stacked {
   display: flex;
   flex-direction: column;
@@ -667,4 +658,9 @@ a.btn-lg {
   line-height: 40px;
   letter-spacing: 0.25px;
   text-align: left;
+}
+
+/** Fix > center graph with fixed size in plotly-container **/
+.svg-container {
+  margin: auto;
 }
