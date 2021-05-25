@@ -297,7 +297,7 @@ def PatientsTraites(
                 withGutter=True,
             ),
         ],
-        id="population-concernee",
+        id="patients-traites",
     )
 
 

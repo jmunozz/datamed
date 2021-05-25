@@ -662,5 +662,5 @@ a.btn-lg {
 
 /** Fix > center graph with fixed size in plotly-container **/
 .svg-container {
-  margin: auto;
+  margin: auto !important;
 }

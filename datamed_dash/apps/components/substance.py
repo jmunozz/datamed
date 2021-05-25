@@ -128,15 +128,9 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                 SideMenu(
                     id="side-menu",
                     items=[
-                        {"id": "population-concernee", "label": "Population concernée"},
-                        {
-                            "id": "effets-indesirables",
-                            "label": "Effets indésirables",
-                        },
-                        {
-                            "id": "liste-specialites",
-                            "label": "Liste des spécialités",
-                        },
+                        {"id": "patients-traites", "label": "Patients traités"},
+                        {"id": "effets-indesirables", "label": "Effets indésirables",},
+                        {"id": "liste-specialites", "label": "Liste des spécialités",},
                     ],
                     className="SideMenu",
                 ),
@@ -149,7 +143,9 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                                 df_expo=df_expo,
                                 pie_colors=PIE_COLORS_SUBSTANCE,
                             ),
-                            CasDeclares(df_decla, df_notif, df_cas_age, df_cas_sexe),
+                            EffetsIndesirables(
+                                df_decla, df_notif, df_cas_age, df_cas_sexe
+                            ),
                             SystemesOrganes(df_soc, code),
                             ListeSpecialites(df_sub, df_sub_spe),
                         ],
@@ -180,10 +176,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 page_size=10,
                 style_as_list_view=True,
                 style_table={"overflowX": "auto"},
-                style_cell={
-                    "height": "50px",
-                    "backgroundColor": "#FFF",
-                },
+                style_cell={"height": "50px", "backgroundColor": "#FFF",},
                 style_data={
                     "fontSize": "14px",
                     "fontWeight": "400",
@@ -210,9 +203,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                     series_sub.nom.capitalize()
                 )
             ),
-            Box(
-                box_children,
-            ),
+            Box(box_children,),
         ],
         id="liste-specialites",
     )
@@ -324,10 +315,7 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
                 hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
             )
         ).update_layout(PIE_LAYOUT)
-        return Graph(
-            figure=fig_age,
-            responsive=False,
-        )
+        return Graph(figure=fig_age, responsive=False,)
     else:
         return NoData()
 
@@ -344,7 +332,7 @@ def NotifFigureGraph(df_notif: pd.DataFrame) -> Component:
         )
 
 
-def CasDeclares(
+def EffetsIndesirables(
     df_decla: pd.DataFrame,
     df_notif: pd.DataFrame,
     df_cas_age: pd.DataFrame,
@@ -353,18 +341,12 @@ def CasDeclares(
 
     return TopicSection(
         [
-            SectionRow(html.H1("Cas déclarés d'effets indésirables")),
+            SectionRow(html.H1("Effets indésirables")),
             EffetsIndesirablesTooltip(),
             SectionRow(
                 [
-                    GraphBox(
-                        "",
-                        [CasDeclareFigureBox(df_decla)],
-                    ),
-                    GraphBox(
-                        "",
-                        [TauxDeclarationBox(df_decla)],
-                    ),
+                    GraphBox("", [CasDeclareFigureBox(df_decla)],),
+                    GraphBox("", [TauxDeclarationBox(df_decla)],),
                 ],
                 withGutter=True,
             ),
@@ -457,7 +439,9 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
                         [
                             html.Div(
                                 Graph(
-                                    figure=Treemap(df, code, "soc_long", "pourcentage_cas"),
+                                    figure=Treemap(
+                                        df, code, "soc_long", "pourcentage_cas"
+                                    ),
                                     responsive=True,
                                     id="soc-treemap",
                                 ),
@@ -468,7 +452,8 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
                         ],
                         className="col-md-12",
                     )
-                    if df is not None and not np.isnan(df.pourcentage_cas.unique()).all()
+                    if df is not None
+                    and not np.isnan(df.pourcentage_cas.unique()).all()
                     else GraphBox("", NoData()),
                 ],
             ),

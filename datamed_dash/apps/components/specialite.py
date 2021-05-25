@@ -100,7 +100,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                     id="side-menu",
                     items=[
                         {"id": "description", "label": "Description"},
-                        {"id": "population-concernee", "label": "Population concernée"},
+                        {"id": "patients-traites", "label": "Patients Traités"},
                         {
                             "id": "erreurs-medicamenteuses",
                             "label": "Erreurs médicamenteuses",
@@ -122,14 +122,14 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 df_expo=df_expo,
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
-                            ErreursMedicamenteuses(
-                                df_ei,
-                                df_pop,
-                                df_cause,
-                                df_nat,
-                                df_denom,
-                                series_spe,
-                            ),
+                            # ErreursMedicamenteuses(
+                            #     df_ei,
+                            #     df_pop,
+                            #     df_cause,
+                            #     df_nat,
+                            #     df_denom,
+                            #     series_spe,
+                            # ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
                         ],
@@ -188,8 +188,7 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Div(
-                                series_spe.titulaires.title(),
-                                className="normal-text",
+                                series_spe.titulaires.title(), className="normal-text",
                             ),
                         ]
                     ),
@@ -200,8 +199,7 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(),
-                                    series_atc.atc,
+                                    series_atc.label.capitalize(), series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -314,10 +312,7 @@ def BoxListDenomination(df_denom):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={
-            "height": "50px",
-            "backgroundColor": "#FFF",
-        },
+        style_cell={"height": "50px", "backgroundColor": "#FFF",},
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
