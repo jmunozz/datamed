@@ -10,6 +10,7 @@
   --color-5: #a03189;
   --border: solid 1px #e6e6e6;
   --border-radius: 5px;
+  --half-min-width: 400px;
 }
 
 .btn {
@@ -352,6 +353,10 @@ a.btn-lg {
   flex: 1;
 }
 
+.BoxContent-isHalf {
+  min-width: var(--half-min-width);
+}
+
 .Box-isBordered {
   border: var(--border);
   border-radius: var(--border-radius);
@@ -627,6 +632,19 @@ a.btn-lg {
 
 .Stack-isCentered {
   align-items: center;
+}
+
+.Line {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.Line-isCentered {
+  justify-content: center;
+}
+
+.Line-isSpacedEvenly {
+  justify-content: space-evenly;
 }
 
 .GraphSelect {

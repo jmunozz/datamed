@@ -39,7 +39,7 @@ def GraphBox(title: str, children: List) -> Component:
 def FigureGraph(
     figures: List[Dict], height="150px", class_name="justify-content-around"
 ) -> Component:
-    class_name = " ".join((["d-flex", "flex-row", "flex-wrap"] + class_name.split(" ")))
+    class_name = " ".join((["Line", "Line-isSpacedEvenly"] + class_name.split(" ")))
     children_list = []
     for f in figures:
         elems = []
@@ -58,7 +58,7 @@ def FigureGraph(
         children_list += [
             Div(
                 elems,
-                className="d-flex flex-column align-items-center",
+                className="Stack Stack-isCentered",
                 style={"color": "#00B3CC", "margin": "15px"},
             )
         ]
