@@ -211,7 +211,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
 
 def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
     series_decla = fetch_data.as_series(df_decla)
     if not math.isnan(series_decla.cas):
         cas_str = "{:,}".format(int(series_decla.cas)).replace(",", " ")
@@ -224,12 +224,12 @@ def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
             ]
         )
     else:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
 
 
 def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
     series_decla = fetch_data.as_series(df_decla)
     if not math.isnan(series_decla.taux_cas):
         taux_str = "{:,}".format(int(series_decla.taux_cas)).replace(",", " ")
@@ -243,7 +243,7 @@ def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
             ]
         )
     else:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
 
 
 def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
@@ -294,7 +294,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
     if df_cas_sexe is None:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
     else:
         return FigureGraph(
             commons.get_sexe_figures_from_df(df_cas_sexe, "pourcentage_cas")
@@ -317,7 +317,7 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
         ).update_layout(PIE_LAYOUT)
         return Graph(figure=fig_age, responsive=False,)
     else:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
 
 
 def NotifFigureGraph(df_notif: pd.DataFrame) -> Component:

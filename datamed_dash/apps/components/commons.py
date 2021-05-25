@@ -76,7 +76,8 @@ def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     ).update_layout(PIE_LAYOUT)
 
 
-def NoData() -> html.Div:
+def NoData(class_name="") -> html.Div:
+    class_name = " ".join((["Stack", "Stack-isCentered"] + class_name.split(" ")))
     return html.Div(
         [
             html.Img(
@@ -90,7 +91,7 @@ def NoData() -> html.Div:
                 style={"color": "#9e9e9e"},
             ),
         ],
-        className="d-flex flex-column align-items-center",
+        className=class_name,
     )
 
 
@@ -256,7 +257,7 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
 def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
     if df_sexe is None:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
     return FigureGraph(
         get_sexe_figures_from_df(df_sexe, "pourcentage_patients"),
         class_name="BoxContent-isHalf",
@@ -265,7 +266,7 @@ def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
 
 def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
     if df_age is None or np.isnan(df_age.pourcentage_patients.unique()).all():
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
     return Graph(
         figure=makePie(df_age.age, df_age.pourcentage_patients, pie_colors),
         responsive=False,

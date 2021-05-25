@@ -267,7 +267,7 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
 
 def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
     if df_ei is None:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
 
     EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
     EI_IMG_URL = {
@@ -289,7 +289,7 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
 
 def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
     if df_pop is None:
-        return NoData()
+        return NoData("BoxContent-isHalf")
     fig_pop = go.Figure(
         go.Pie(
             labels=df_pop.population_erreur,
