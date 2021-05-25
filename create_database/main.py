@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 import db
 import erreurs_med as em
+import mesusage
 import helpers
 import settings
 from logos_formes_pharma import get_specialite_icon
@@ -451,25 +452,6 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
 
 
 def create_table_mesures(_settings: Dict):
-    cols = [
-        "Etat",
-        "Numéro Rupture",
-        "Identifiant",
-        "Description",
-        "Nom Produit",
-        "Demande de mise en place",
-        "Date mise en place",
-        "Date de fin prévisionnelle",
-        "Date de clotûre",
-        "Justification",
-    ]
-    df = pd.read_csv(
-        "data/Mesure_180521.csv",
-        sep=";",
-        encoding="utf-8",
-        usecols=cols,
-    )
-
     df = helpers.load_csv_to_df(_settings)
     df = df.rename(
         columns={
@@ -564,6 +546,33 @@ def create_table_icones(_settings: Dict):
     db.create_table_from_df(df.set_index("cis"), _settings["to_sql"])
 
 
+def create_table_mesusage(_settings: Dict):
+    df = helpers.load_excel_to_df(_settings)
+    df = mesusage.clean_df(df, _settings)
+    df = mesusage.reformat_dataframe(df)
+
+    df_spe = pd.read_sql("specialite", engine)
+    df = df.merge(df_spe[["cis", "nom"]], on="nom", how="left")
+
+    for table_name, table_columns in _settings["tables"].items():
+        if table_name.startswith("mesusage_global"):
+            df_agg = mesusage.get_proporition_df(df, table_columns)
+            args = {
+                **{"name": table_name},
+                **_settings["to_sql"],
+            }
+            db.create_table_from_df(df_agg, args)
+        else:
+            df_agg = mesusage.get_proporition_df(df, table_columns)
+            df_agg = df_agg.set_index("cis")
+            args = {
+                **{"name": table_name},
+                **_settings["to_sql"],
+            }
+            db.create_table_from_df(df_agg, args)
+
+
+
 create_table_bdpm_cis(settings.files["bdpm_cis"])
 create_tables_rsp_compo(settings.files["rsp_compo"])
 create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
@@ -592,3 +601,6 @@ create_table_mesures(settings.files["mesures"])
 
 # Logos
 create_table_icones(settings.files["icones"])
+
+# Mésusage
+create_table_mesusage(settings.files["mesusage"])
