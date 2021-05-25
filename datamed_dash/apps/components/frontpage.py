@@ -5,79 +5,81 @@ import dash_html_components as html
 from app import app
 
 
+def FrontPageSectionHalf(children, class_name=""):
+    class_name = " ".join(["FrontPageSectionHalf"] + class_name.split(" "))
+    return html.Div(children, className=class_name)
+
+
+def FrontPageSection(children, class_name=""):
+    class_name = " ".join(["FrontPageSection"] + class_name.split(" "))
+    return html.Div(
+        html.Div(children, className="FrontPageSectionContainer"), className=class_name,
+    )
+
+
+def FrontPageSectionFull(children):
+    return html.Div(children, className="FrontPageSectionFull Stack Stack-isCentered")
+
+
 def FrontPage() -> Tuple[html.Div, html.Div]:
     return (
         html.Div(className="header-space"),
         html.Div(
             [
-                html.Div(
+                FrontPageSection(
                     [
-                        html.Div(
-                            html.Div(
-                                [
-                                    html.H1(
-                                        "Des données accessibles et expliquées, au service des patients"
-                                    ),
-                                    html.P(
-                                        "L’Agence Nationale de Sécurité du Médicament et des Produits de Santé (ANSM) "
-                                        "ouvre ses données de manière pédagogique pour permettre au plus grand nombre "
-                                        "de réaliser des choix éclairés",
-                                        className="normal-text text-justify",
-                                    ),
-                                ],
-                                className="fp-wrapper fp-content",
-                            ),
-                            className="fp-half",
-                        ),
-                        dbc.Col(
-                            html.Img(src=app.get_asset_url("Big illustration 1.svg")),
-                            className="fp-half with-p-y",
-                        ),
-                    ],
-                    className="fp-section fp-section-1",
-                ),
-                html.Div(
-                    [
-                        html.Div(
-                            html.Img(
-                                src=app.get_asset_url("Big illustration 2.svg"),
-                            ),
-                            className="fp-half with-p-y",
-                        ),
-                        html.Div(
-                            html.Div(
-                                [
-                                    html.H1(
-                                        "Une plateforme unique pour réunir les données essentielles de l’ANSM"
-                                    ),
-                                    html.P(
-                                        "L’ANSM ouvrira dans un premier temps ses données autour des médicaments et "
-                                        "suivront celles des ruptures de stocks, du bon usage des médicaments, des "
-                                        "essais cliniques et bien d’autres !",
-                                        className="normal-text text-justify",
-                                    ),
-                                    html.A(
-                                        "À PROPOS",
-                                        className="btn-outline-primary btn-lg fp-button",
-                                        role="button",
-                                        href="#",
-                                    ),
-                                ],
-                                className="fp-wrapper fp-content",
-                            ),
-                            className="fp-half",
-                        ),
-                    ],
-                    className="fp-section",
-                ),
-                html.Div(
-                    [
-                        html.Div(
+                        FrontPageSectionHalf(
                             [
                                 html.H1(
-                                    "À qui cette plateforme s’adresse ?",
-                                    className="title-center title-standalone",
+                                    "Des données accessibles et expliquées, au service des patients"
                                 ),
+                                html.P(
+                                    "L’Agence Nationale de Sécurité du Médicament et des Produits de Santé (ANSM) "
+                                    "ouvre ses données de manière pédagogique pour permettre au plus grand nombre "
+                                    "de réaliser des choix éclairés",
+                                    className="normal-text text-justify",
+                                ),
+                            ],
+                            class_name="Stack Stack-isCentered Stack-isVerticalCentered",
+                        ),
+                        FrontPageSectionHalf(
+                            html.Img(src=app.get_asset_url("Big illustration 1.svg"))
+                        ),
+                    ],
+                    class_name="FrontPageSection-isColorWhite",
+                ),
+                FrontPageSection(
+                    [
+                        FrontPageSectionHalf(
+                            html.Img(src=app.get_asset_url("Big illustration 2.svg"))
+                        ),
+                        FrontPageSectionHalf(
+                            [
+                                html.H1(
+                                    "Une plateforme unique pour réunir les données essentielles de l’ANSM"
+                                ),
+                                html.P(
+                                    "L’ANSM ouvrira dans un premier temps ses données autour des médicaments et "
+                                    "suivront celles des ruptures de stocks, du bon usage des médicaments, des "
+                                    "essais cliniques et bien d’autres !",
+                                    className="normal-text text-justify",
+                                ),
+                                html.A(
+                                    "À PROPOS",
+                                    className="btn-outline-primary btn-lg fp-button",
+                                    role="button",
+                                    href="#",
+                                ),
+                            ],
+                            class_name="Stack Stack-isVerticalCentered",
+                        ),
+                    ]
+                ),
+                FrontPageSection(
+                    [
+                        FrontPageSectionFull(
+                            [
+                                html.H1("À qui cette plateforme s’adresse ?"),
                                 html.Div(
                                     [
                                         html.Div(
@@ -100,8 +102,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     className="normal-text text-center",
                                                 ),
                                             ],
-                                            className="stacked feature",
-                                            style={"maxWidth": "300px"},
+                                            className="Stack Stack-isCentered FrontPageAudienceDisplayElem",
                                         ),
                                         html.Div(
                                             [
@@ -124,8 +125,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     className="normal-text text-center",
                                                 ),
                                             ],
-                                            className="stacked feature",
-                                            style={"maxWidth": "300px"},
+                                            className="Stack Stack-isCentered FrontPageAudienceDisplayElem",
                                         ),
                                         html.Div(
                                             [
@@ -147,52 +147,45 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     className="normal-text text-center",
                                                 ),
                                             ],
-                                            className="feature stacked",
-                                            style={"maxWidth": "300px"},
+                                            className="FrontPageAudienceDisplayElem Stack Stack-isCentered",
                                         ),
                                     ],
-                                    className="features",
+                                    className="FrontPageAudienceDisplay",
+                                ),
+                            ]
+                        )
+                    ],
+                    class_name="FrontPageSection-isColor3 ",
+                ),
+                FrontPageSection(
+                    [
+                        FrontPageSectionHalf(
+                            [
+                                html.H1("Origine et nature des données"),
+                                html.P(
+                                    "Les données de la plateforme proviennent de bases de données gerées en "
+                                    "majorité par l’ANSM, et d’autres proviennent de bases open source gerées par "
+                                    "d’autres institutions de santé (CNAM, HAS).",
+                                    className="normal-text text-justify",
+                                ),
+                                html.P(
+                                    "Elles sont alimentées par les parties prenantes (agents de l’ANSM, "
+                                    "institutions, grand public, professionnels de santé, industriels).",
+                                    className="normal-text text-justify",
+                                ),
+                                html.A(
+                                    "EXPLORER LES DONNÉES",
+                                    className="btn-outline-primary btn-lg fp-button",
+                                    role="button",
+                                    href="/apps/explorer",
                                 ),
                             ],
-                            className="fp-full",
+                            class_name="Stack Stack-isVerticalCentered",
                         ),
-                    ],
-                    className="fp-section fp-section-3",
-                ),
-                html.Div(
-                    [
-                        html.Div(
-                            html.Div(
-                                [
-                                    html.H1("Origine et nature des données"),
-                                    html.P(
-                                        "Les données de la plateforme proviennent de bases de données gerées en "
-                                        "majorité par l’ANSM, et d’autres proviennent de bases open source gerées par "
-                                        "d’autres institutions de santé (CNAM, HAS).",
-                                        className="normal-text text-justify",
-                                    ),
-                                    html.P(
-                                        "Elles sont alimentées par les parties prenantes (agents de l’ANSM, "
-                                        "institutions, grand public, professionnels de santé, industriels).",
-                                        className="normal-text text-justify",
-                                    ),
-                                    html.A(
-                                        "EXPLORER LES DONNÉES",
-                                        className="btn-outline-primary btn-lg fp-button",
-                                        role="button",
-                                        href="/apps/explorer",
-                                    ),
-                                ],
-                                className="fp-wrapper fp-content",
-                            ),
-                            className="fp-half",
+                        FrontPageSectionHalf(
+                            html.Img(src=app.get_asset_url("Big illustration 3.svg"))
                         ),
-                        html.Div(
-                            html.Img(src=app.get_asset_url("Big illustration 3.svg")),
-                            className="fp-half with-p-y",
-                        ),
-                    ],
-                    className="fp-section",
+                    ]
                 ),
             ],
             className="container-fluid p-0",

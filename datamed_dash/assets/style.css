@@ -11,6 +11,7 @@
   --border: solid 1px #e6e6e6;
   --border-radius: 5px;
   --half-min-width: 400px;
+  --frontpage-max-width: 1024px;
 }
 
 .btn {
@@ -223,16 +224,6 @@ a.btn-lg {
   text-decoration: none;
 }
 
-.stacked {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stacked * {
-  margin-bottom: 15px;
-}
-
 .article {
   display: flex;
   flex-direction: column;
@@ -247,86 +238,48 @@ a.btn-lg {
   margin-bottom: 2rem;
 }
 
-.fp-section {
+/**
+** Frontpage
+**/
+
+.FrontPageSection {
   display: flex;
+  justify-content: center;
   padding-top: 30px;
   padding-bottom: 30px;
 }
 
-.fp-left .fp-half {
-  justify-content: flex-end;
+.FrontPageSectionFull {
+  margin: 0 1.5rem;
 }
 
-.fp-half {
-  padding-top: 30px;
-  padding-bottom: 30px;
+.FrontPageSectionContainer {
+  max-width: var(--frontpage-max-width);
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 50%;
+  flex-wrap: wrap;
 }
 
-.fp-half img {
-  max-height: 450px;
-  max-width: 100%;
-}
-
-.fp-half:last-child {
-  justify-content: flex-start;
-}
-
-.fp-half.with-p-y {
-  padding-left: 30px;
-  padding-right: 30px;
-}
-
-.fp-wrapper {
-  max-width: 570px;
-  margin-left: 30px;
-}
-
-.fp-content * {
-  margin-bottom: 25px;
-}
-
-.fp-full {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 30px;
-}
-
-.title-center {
-  width: 100%;
-  text-align: center;
-}
-
-.features {
+.FrontPageAudienceDisplay {
+  margin: 0 -1.5rem;
   display: flex;
+  flex-wrap: wrap;
 }
 
-.feature:first-child {
-  margin: 0;
-  margin-right: 25px;
+.FrontPageAudienceDisplayElem {
+  margin: 0 1.5rem;
+  flex: 1;
 }
 
-.feature {
-  margin: 0 25px;
+.FrontPageSectionHalf {
+  flex: 1;
+  margin: 0 1.5rem;
 }
 
-.feature:last-child {
-  margin: 0;
-  margin-left: 25px;
-}
-
-.title-standalone {
-  margin-bottom: 50px;
-}
-
-.fp-section-1 {
+.FrontPageSection-isColorWhite {
   background-color: var(--color-white);
 }
 
-.fp-section-3 {
+.FrontPageSection-isColor3 {
   background-color: var(--color-3);
 }
 
@@ -623,6 +576,10 @@ a.btn-lg {
 
 .Stack-isCentered {
   align-items: center;
+}
+
+.Stack-isVerticalCentered {
+  justify-content: center;
 }
 
 .Line {
