@@ -378,14 +378,14 @@ def ErreursMedicamenteuses(
                 ],
                 withGutter=True,
             ),
-            # SectionRow(
-            #     [
-            #         GraphBox(
-            #             "Cause des erreurs médicamenteuses",
-            #             [StackBarGraph(df_cause, "cause_erreur")],
-            #         ),
-            #     ]
-            # ),
+            SectionRow(
+                [
+                    GraphBox(
+                        "Cause des erreurs médicamenteuses",
+                        [StackBarGraph(df_cause, "cause_erreur")],
+                    ),
+                ]
+            ),
             SectionRow(
                 [
                     GraphBox(
