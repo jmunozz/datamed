@@ -30,16 +30,16 @@ def ArticleTitle(title: str) -> Component:
 
 
 # Add a Title and return a Box Component
-def GraphBox(title: str, children: List) -> Component:
+def GraphBox(title: str, children: List, className="") -> Component:
     if title:
         children = [Div(title, className="normal-text-bold mb-4")] + children
-    return Box(children)
+    return Box(children, className)
 
 
 def FigureGraph(
     figures: List[Dict], height="150px", class_name="justify-content-around"
 ) -> Component:
-    class_name = " ".join((["d-flex", "flex-row", "flex-wrap"] + class_name.split(" ")))
+    class_name = " ".join((["Line", "Line-isSpacedEvenly"] + class_name.split(" ")))
     children_list = []
     for f in figures:
         elems = []
@@ -58,7 +58,7 @@ def FigureGraph(
         children_list += [
             Div(
                 elems,
-                className="d-flex flex-column align-items-center",
+                className="Stack Stack-isCentered",
                 style={"color": "#00B3CC", "margin": "15px"},
             )
         ]
