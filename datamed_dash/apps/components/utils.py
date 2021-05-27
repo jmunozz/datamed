@@ -30,10 +30,10 @@ def ArticleTitle(title: str) -> Component:
 
 
 # Add a Title and return a Box Component
-def GraphBox(title: str, children: List) -> Component:
+def GraphBox(title: str, children: List, className="") -> Component:
     if title:
         children = [Div(title, className="normal-text-bold mb-4")] + children
-    return Box(children)
+    return Box(children, className)
 
 
 def FigureGraph(

@@ -253,7 +253,6 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             },
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
-            # hover_data=["explication"],
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
@@ -262,10 +261,13 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             hoverlabel=dict(
                 bgcolor="white",
                 bordercolor="white",
-                font=dict(color="black", size=16, family="Roboto"),
-            )
+                font=dict(color="black", size=12, family="Roboto"),
+            ),
         )
-        return Graph(figure=fig, responsive=True, id="stack-bar")
+        return html.Div(
+            Graph(figure=fig, id="stack-bar", responsive=True, style={"height": 225}),
+            className="ErrMedStackBar",
+        )
 
 
 def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
