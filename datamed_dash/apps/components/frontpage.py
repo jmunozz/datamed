@@ -5,7 +5,8 @@ import dash_html_components as html
 from app import app
 
 
-from .commons import FrontPageSection, FrontPageSectionHalf, FrontPageSectionFull
+from .commons import FrontPageSection, FrontPageSectionPart, FrontPageSectionFull
+
 
 def FrontPage() -> Tuple[html.Div, html.Div]:
     return (
@@ -14,7 +15,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
             [
                 FrontPageSection(
                     [
-                        FrontPageSectionHalf(
+                        FrontPageSectionPart(
                             [
                                 html.H1(
                                     "Des données accessibles et expliquées, au service des patients"
@@ -28,7 +29,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             ],
                             class_name="Stack Stack-isCentered Stack-isVerticalCentered",
                         ),
-                        FrontPageSectionHalf(
+                        FrontPageSectionPart(
                             html.Img(src=app.get_asset_url("Big illustration 1.svg"))
                         ),
                     ],
@@ -36,10 +37,10 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                 ),
                 FrontPageSection(
                     [
-                        FrontPageSectionHalf(
+                        FrontPageSectionPart(
                             html.Img(src=app.get_asset_url("Big illustration 2.svg"))
                         ),
-                        FrontPageSectionHalf(
+                        FrontPageSectionPart(
                             [
                                 html.H1(
                                     "Une plateforme unique pour réunir les données essentielles de l’ANSM"
@@ -145,7 +146,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                 ),
                 FrontPageSection(
                     [
-                        FrontPageSectionHalf(
+                        FrontPageSectionPart(
                             [
                                 html.H1("Origine et nature des données"),
                                 html.P(
@@ -168,7 +169,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             ],
                             class_name="Stack Stack-isVerticalCentered",
                         ),
-                        FrontPageSectionHalf(
+                        FrontPageSectionPart(
                             html.Img(src=app.get_asset_url("Big illustration 3.svg"))
                         ),
                     ]

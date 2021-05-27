@@ -50,8 +50,8 @@ SEXE_IMG_URL = {
 }
 
 
-def FrontPageSectionHalf(children, class_name=""):
-    class_name = " ".join(["FrontPageSectionHalf"] + class_name.split(" "))
+def FrontPageSectionPart(children, class_name=""):
+    class_name = " ".join(["FrontPageSectionPart"] + class_name.split(" "))
     return html.Div(children, className=class_name)
 
 
@@ -63,7 +63,9 @@ def FrontPageSection(children, class_name=""):
 
 
 def FrontPageSectionFull(children, class_name=""):
-    class_name = " ".join(["FrontPageSectionFull Stack Stack-isCentered"] + class_name.split(" "))
+    class_name = " ".join(
+        ["FrontPageSectionFull Stack Stack-isCentered"] + class_name.split(" ")
+    )
     return html.Div(children, className=class_name)
 
 

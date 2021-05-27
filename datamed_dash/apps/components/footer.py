@@ -1,80 +1,87 @@
+from apps.components.commons import FrontPageSection, FrontPageSectionPart
 from typing import List
 
 from app import app
 from dash.development.base_component import Component
-from dash_html_components import Div, H3, Img, B, A
+from dash_html_components import Div, H3, Img, B, A, Span, H4, Ul, Li
 
 
 def FooterElement(title: str, element_list: List[str]) -> Component:
-    text_element_list = [Div(title, className="heading-4 mb-4")] + [
-        Div(element, className="normal-text d-block mb-3") for element in element_list
-    ]
-    return Div(text_element_list, className="footer-right-content")
+    return Div(
+        [
+            H4(title),
+            Ul(
+                [Li(element, className="FooterLink") for element in element_list],
+                className="FooterLinkContainer",
+            ),
+        ],
+    )
 
 
 def Logos() -> Component:
     return Div(
         [
-            Div(
-                [
-                    Img(
-                        src=app.get_asset_url("Logo republique française.svg"),
-                        className="img-logo",
-                    ),
-                    Img(
-                        src=app.get_asset_url("Logo ANSM blanc.svg"),
-                        className="img-logo",
-                    ),
-                ]
+            Img(
+                src=app.get_asset_url("Logo ANSM blanc.svg"), className="FooterLogoImg",
             ),
-            Div(
-                ["data.", B("ansm.sante.fr")],
-                className="heading-4",
-                style={"color": "white", "margin-top": "20px"},
+            Img(
+                src=app.get_asset_url("Logo republique française.svg"),
+                className="FooterLogoImg",
             ),
         ],
-        className="logos",
+        className="FooterLogoContainer Stack",
     )
 
 
-def FooterRight():
-    return Div(
-        [
-            FooterElement(
-                "Le site", ["À propos", "Plan du site", "Mentions légales", "Contact"]
-            ),
-            FooterElement(
-                "Partenaires",
-                [
-                    A("ANSM", href="https://ansm.sante.fr/", className="link text-decoration-none"),
-                    A(
-                        "Base de données publique des médicaments",
-                        href="https://base-donnees-publique.medicaments.gouv.fr/",
-                        className="link text-decoration-none",
-                    ),
-                    A("Etalab", href="https://www.etalab.gouv.fr/", className="link text-decoration-none"),
-                    A(
-                        "DINUM",
-                        href="https://www.numerique.gouv.fr/dinum/",
-                        className="link text-decoration-none",
-                    ),
-                    A(
-                        "Health Data Hub",
-                        href="https://www.health-data-hub.fr/",
-                        className="link text-decoration-none",
-                    ),
-                ],
-            ),
-        ],
-        className="footer-right",
+def Website():
+    return (
+        FooterElement(
+            "Le site", ["À propos", "Plan du site", "Mentions légales", "Contact"]
+        ),
+    )
+
+
+def Partners():
+    return (
+        FooterElement(
+            "Partenaires",
+            [
+                A(
+                    "ANSM",
+                    href="https://ansm.sante.fr/",
+                    className="link text-decoration-none",
+                ),
+                A(
+                    "Base de données publique des médicaments",
+                    href="https://base-donnees-publique.medicaments.gouv.fr/",
+                    className="link text-decoration-none",
+                ),
+                A(
+                    "Etalab",
+                    href="https://www.etalab.gouv.fr/",
+                    className="link text-decoration-none",
+                ),
+                A(
+                    "DINUM",
+                    href="https://www.numerique.gouv.fr/dinum/",
+                    className="link text-decoration-none",
+                ),
+                A(
+                    "Health Data Hub",
+                    href="https://www.health-data-hub.fr/",
+                    className="link text-decoration-none",
+                ),
+            ],
+        ),
     )
 
 
 def Footer() -> Component:
-    return Div(
+    return FrontPageSection(
         [
-            Logos(),
-            FooterRight(),
+            FrontPageSectionPart(Partners()),
+            FrontPageSectionPart(Website()),
+            FrontPageSectionPart(Logos()),
         ],
-        className="footer",
+        class_name="Footer",
     )
