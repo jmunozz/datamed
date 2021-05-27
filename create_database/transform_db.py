@@ -10,9 +10,9 @@ import unidecode
 from nltk.corpus import stopwords
 from tqdm import tqdm
 
-from .compute_similarity import get_similarity
-from .create_mysql_db import HOSTNAME, DBNAME, UNAME, MYSQL_PWD
-from .upload_db import upload_table_from_db, get_api_by_cis
+from compute_similarity import get_similarity
+from create_mysql_db import HOSTNAME, DBNAME, UNAME, MYSQL_PWD
+from upload_db import upload_table_from_db, get_api_by_cis
 
 STOPWORDS = stopwords.words("french")
 
@@ -57,7 +57,7 @@ def get_api_correspondence(df: pd.DataFrame, api_by_cis: Dict) -> DefaultDict:
     get_cis_not_in_rsp(
         df,
         cis_not_in_rsp,
-        path="/Users/ansm/Documents/GitHub/datamed/create_database/data/"
+        path="/Users/linerahal/Documents/GitHub/datamed/create_database/data/"
         "cis_not_in_rsp.csv",
     )
 
