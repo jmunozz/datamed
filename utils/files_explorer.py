@@ -1,6 +1,7 @@
 import csv
 import os
 from typing import List, Dict
+import shutil
 
 
 def listdir_nohidden(path: str):
@@ -25,3 +26,14 @@ def write_csv(dict_to_write: Dict, path: str, fieldnames: List):
         w.writerow(fieldnames)
         for key, value in dict_to_write.items():
             w.writerow([key, value])
+
+
+def copy_fiches_b_in_dir(path: str):
+    for dir in os.listdir(path):
+        if dir != ".DS_Store":
+            for f in os.listdir(path + dir):
+                if "EDL-FicheBProduitsMitm.xlsx" in f:
+                    shutil.copy(
+                        path + dir + "/" + f,
+                        "/Users/linerahal/Desktop/ANSM/EDL/2020/Fiches B/",
+                    )

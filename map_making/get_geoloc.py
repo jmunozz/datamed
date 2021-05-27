@@ -24,8 +24,8 @@ import requests
 from sqlalchemy import types
 from sqlalchemy.orm import sessionmaker
 
-from create_database.create_mysql_db import create_table
-from create_database.models import connect_db, Fabrication
+# from create_database.create_mysql_db import create_table
+# from create_database.models import connect_db, Fabrication
 
 logger = logging.getLogger('root')
 logger.setLevel(logging.DEBUG)
@@ -48,7 +48,7 @@ BASE_URL = 'https://maps.googleapis.com/maps/api/geocode/json?'
 # Backoff time sets how many minutes to wait between google pings when your API limit is hit
 BACKOFF_TIME = 30
 # Set your output folder path here.
-OUTPUT_FOLDER_PATH = 'map_making/data/'
+OUTPUT_FOLDER_PATH = '/Users/linerahal/Documents/GitHub/datamed/map_making/data/'
 # Return Full Google Results? If True, full JSON results from Google are included in output
 RETURN_FULL_RESULTS = False
 
@@ -172,26 +172,27 @@ def get_locations(addresses: List, output_filename: str) -> pd.DataFrame:
     # Create dataframe and put it in table in database
     df = pd.DataFrame(results)
     df = df[['input_string', 'latitude', 'longitude', 'country']]
+    df.country = df.country.str.lower()
     df = df.rename(columns={'input_string': 'address'})
     df = df.where(pd.notnull(df), None)
 
-    print('Creating table in fab_sites database...')
-    engine = connect_db()  # establish connection
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Check if table fabrication exists, if yes, delete it
-    if engine.dialect.has_table(engine, 'fabrication'):
-        Fabrication.__table__.drop(engine)
-    # Then, create new one
-    Fabrication.__table__.create(bind=engine, checkfirst=True)
-
-    # Populate table
-    fab_list = df.to_dict(orient='records')
-    for fab_dict in fab_list:
-        fab = Fabrication(**fab_dict)
-        session.add(fab)
-        session.commit()
+    # print('Creating table in fab_sites database...')
+    # engine = connect_db()  # establish connection
+    # Session = sessionmaker(bind=engine)
+    # session = Session()
+    #
+    # # Check if table fabrication exists, if yes, delete it
+    # if engine.dialect.has_table(engine, 'fabrication'):
+    #     Fabrication.__table__.drop(engine)
+    # # Then, create new one
+    # Fabrication.__table__.create(bind=engine, checkfirst=True)
+    #
+    # # Populate table
+    # fab_list = df.to_dict(orient='records')
+    # for fab_dict in fab_list:
+    #     fab = Fabrication(**fab_dict)
+    #     session.add(fab)
+    #     session.commit()
 
     # Write the full results to csv using the pandas library.
     print('Writing results in csv file')
