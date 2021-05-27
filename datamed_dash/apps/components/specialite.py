@@ -122,14 +122,9 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 df_expo=df_expo,
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
-                            # ErreursMedicamenteuses(
-                            #     df_ei,
-                            #     df_pop,
-                            #     df_cause,
-                            #     df_nat,
-                            #     df_denom,
-                            #     series_spe,
-                            # ),
+                            ErreursMedicamenteuses(
+                                df_ei, df_pop, df_cause, df_nat, df_denom, series_spe,
+                            ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
                         ],
@@ -258,10 +253,18 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             },
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
-            hover_data=["explication"],
+            # hover_data=["explication"],
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
+        # Change hover appearance
+        fig.update_layout(
+            hoverlabel=dict(
+                bgcolor="white",
+                bordercolor="white",
+                font=dict(color="black", size=16, family="Roboto"),
+            )
+        )
         return Graph(figure=fig, responsive=True, id="stack-bar")
 
 
@@ -375,14 +378,14 @@ def ErreursMedicamenteuses(
                 ],
                 withGutter=True,
             ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Cause des erreurs médicamenteuses",
-                        [StackBarGraph(df_cause, "cause_erreur")],
-                    ),
-                ]
-            ),
+            # SectionRow(
+            #     [
+            #         GraphBox(
+            #             "Cause des erreurs médicamenteuses",
+            #             [StackBarGraph(df_cause, "cause_erreur")],
+            #         ),
+            #     ]
+            # ),
             SectionRow(
                 [
                     GraphBox(

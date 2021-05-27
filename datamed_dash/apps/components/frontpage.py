@@ -5,21 +5,7 @@ import dash_html_components as html
 from app import app
 
 
-def FrontPageSectionHalf(children, class_name=""):
-    class_name = " ".join(["FrontPageSectionHalf"] + class_name.split(" "))
-    return html.Div(children, className=class_name)
-
-
-def FrontPageSection(children, class_name=""):
-    class_name = " ".join(["FrontPageSection"] + class_name.split(" "))
-    return html.Div(
-        html.Div(children, className="FrontPageSectionContainer"), className=class_name,
-    )
-
-
-def FrontPageSectionFull(children):
-    return html.Div(children, className="FrontPageSectionFull Stack Stack-isCentered")
-
+from .commons import FrontPageSection, FrontPageSectionHalf, FrontPageSectionFull
 
 def FrontPage() -> Tuple[html.Div, html.Div]:
     return (

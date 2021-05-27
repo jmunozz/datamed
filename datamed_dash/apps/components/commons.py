@@ -50,6 +50,23 @@ SEXE_IMG_URL = {
 }
 
 
+def FrontPageSectionHalf(children, class_name=""):
+    class_name = " ".join(["FrontPageSectionHalf"] + class_name.split(" "))
+    return html.Div(children, className=class_name)
+
+
+def FrontPageSection(children, class_name=""):
+    class_name = " ".join(["FrontPageSection"] + class_name.split(" "))
+    return html.Div(
+        html.Div(children, className="FrontPageSectionContainer"), className=class_name,
+    )
+
+
+def FrontPageSectionFull(children, class_name=""):
+    class_name = " ".join(["FrontPageSectionFull Stack Stack-isCentered"] + class_name.split(" "))
+    return html.Div(children, className=class_name)
+
+
 def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
     df = df.where(pd.notnull(df), None)
     sexe_percentage_data = fetch_data.transform_df_to_series_list(df)
@@ -206,7 +223,7 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                                 html.Img(src=UTILISATION_IMG_URL[exposition]),
                             ],
                             isBordered=False,
-                            className="UsageBoxRate",
+                            className="CardBoxImage UsageBoxRate",
                         ),
                         Box(
                             [
@@ -244,10 +261,10 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                                 ),
                             ],
                             isBordered=False,
-                            className="UsageBoxFigure",
+                            className="CardBoxText",
                         ),
                     ],
-                    className="UsageBox",
+                    className="CardBox",
                 ),
                 hasNoPadding=True,
             )
