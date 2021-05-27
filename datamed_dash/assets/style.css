@@ -631,8 +631,11 @@ a.btn-lg {
   max-height: 450px;
 }
 
-.ExplorerPageMainSection > h1,
-P {
+.ExplorerPageMainSection > h1 {
+  text-align: center;
+}
+
+.ExplorerPageMainSection > P {
   text-align: center;
 }
 
