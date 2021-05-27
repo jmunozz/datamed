@@ -11,7 +11,7 @@ from nltk.corpus import stopwords
 from tqdm import tqdm
 
 from compute_similarity import get_similarity
-from create_mysql_db import HOSTNAME, DBNAME, UNAME, MYSQL_PWD
+# from create_mysql_db import HOSTNAME, DBNAME, UNAME, MYSQL_PWD
 from upload_db import upload_table_from_db, get_api_by_cis
 
 STOPWORDS = stopwords.words("french")

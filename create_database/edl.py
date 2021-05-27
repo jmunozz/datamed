@@ -1,7 +1,12 @@
 import json
+import sys
 from typing import List, Dict
 
+sys.path.append("/Users/linerahal/Documents/GitHub/datamed")
+
 import pandas as pd
+import unicodedata2
+from datetime import datetime as dt
 from country_list import countries_for_language
 
 import db
@@ -23,9 +28,7 @@ def get_substance_by_cis() -> Dict:
     df = df_sub_spe.merge(df_sub, left_on="code_substance", right_on="code", how="left")
     # List CIS codes
     cis_list = df.cis.unique()
-    return {
-        str(cis): list(df[df.cis == cis].nom.unique()) for cis in cis_list
-    }
+    return {str(cis): list(df[df.cis == cis].nom.unique()) for cis in cis_list}
 
 
 def get_excels_df() -> pd.DataFrame:
@@ -34,7 +37,7 @@ def get_excels_df() -> pd.DataFrame:
     Compute cosine similarity
     :return:
     """
-    #path = "/Users/ansm/Documents/GitHub/datamed/create_database/data/jade_final/"
+    # path = "/Users/ansm/Documents/GitHub/datamed/create_database/data/jade_final/"
     path = "/Users/linerahal/Desktop/ANSM/EDL/2019/jade_final/"
     # Load dataframe
     print("Loading dataframe from concatenated Excel files...")
@@ -93,13 +96,14 @@ def get_country(address: str, country_list: List, country_dict: Dict) -> Dict:
 def get_countries_list(df: pd.DataFrame, path: str) -> List[Dict]:
     df = df[["sites_fabrication_substance_active"]]
     df = df.drop_duplicates()
+    df = df.reset_index(drop=True)
 
     countries_en = [c[1].lower() for c in countries_for_language("en")]
     countries_fr = [c[1].lower() for c in countries_for_language("fr")]
 
     # json contenant des écritures particulières non listées par les appels ci-dessus
     with open(
-        "/Users/ansm/Documents/GitHub/datamed/map_making/data/countries.json"
+        "/Users/linerahal/Documents/GitHub/datamed/map_making/data/countries.json"
     ) as json_file:
         country_dict = json.load(json_file)
 
@@ -134,11 +138,6 @@ def get_countries_list(df: pd.DataFrame, path: str) -> List[Dict]:
         lambda x: get_country(x, country_list, country_dict)
     )
 
-    for country in countries_in_df:
-        df[country_dict.get(country, country)] = df.country.apply(
-            lambda x: x.get(country, 0)
-        )
-
     # Pour les adresses pour lesquelles on n'a pas réussi à trouver les pays,
     # on utilise la geocoding API
     not_found_addresses = df[
@@ -154,7 +153,16 @@ def get_countries_list(df: pd.DataFrame, path: str) -> List[Dict]:
     # Résultat de la geocoding injecté dans la dataframe de départ
     df.loc[df.country == {}, "country"] = df.loc[
         df.country == {}, "sites_fabrication_substance_active"
-    ].apply(lambda x: country_by_address_dict[x])
+    ].apply(
+        lambda x: get_country(country_by_address_dict[x], country_list, country_dict)
+        if country_by_address_dict[x]
+        else {}
+    )
+
+    for country in countries_in_df:
+        df[country_dict.get(country, country)] = df.country.apply(
+            lambda x: x.get(country, 0)
+        )
 
     # Replace NaN values with None
     df = df.where(df.notnull(), None)
@@ -227,21 +235,21 @@ def get_prod_list(df: pd.DataFrame) -> List[Dict]:
     ]
 
 
-def main():
-# # Write countries by address csv file
-#     path = paths.P_COUNTRIES
-#     get_countries_list(df, path)
+# def main():
+# Write countries by address csv file
+# path = paths.P_COUNTRIES
+# get_countries_list(df, path)
 #
-#     # Création table Pays
-#     pays_list = get_pays(path)
-#     for pays_dict in pays_list:
-#         pays = Pays(**pays_dict)
-#         session.add(pays)
-#         session.commit()
+# # Création table Pays
+# pays_list = get_pays(path)
+# for pays_dict in pays_list:
+#     pays = Pays(**pays_dict)
+#     session.add(pays)
+#     session.commit()
 #
-#     # Création table Production
-#     prod_list = get_prod_list(df)
-#     for prod_dict in prod_list:
-#         prod = Production(**prod_dict)
-#         session.add(prod)
-#         session.commit()
+# # Création table Production
+# prod_list = get_prod_list(df)
+# for prod_dict in prod_list:
+#     prod = Production(**prod_dict)
+#     session.add(prod)
+#     session.commit()
