@@ -35,6 +35,7 @@ INITIAL_YEAR = 2020
 
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
+df_mesures = fetch_data.fetch_table("mesures", "index")
 
 
 def Description() -> Component:
@@ -306,6 +307,13 @@ def get_causes(annee=INITIAL_YEAR):
 
 def Signalements(df: pd.DataFrame) -> Component:
     signalements = len(df[df.annee == dt.now().year - 1])
+    this_year = str(dt.now().year)[-2:]
+    mesures = len(
+        df_mesures[
+            (df_mesures.etat_mesure == "accord")
+            & (df_mesures.identifiant.str.startswith(this_year))
+        ].identifiant.unique()
+    )
     return TopicSection(
         [
             SectionRow(
@@ -336,8 +344,11 @@ def Signalements(df: pd.DataFrame) -> Component:
                             FigureGraph(
                                 [
                                     {
-                                        "figure": "- actions réalisées",
-                                        "caption": "Signalements ayant fait l'objet d'une mesure de gestion",
+                                        "figure": "{} actions réalisées".format(
+                                            mesures
+                                        ),
+                                        "caption": "Signalements ayant fait l'objet d'une "
+                                                   "mesure de gestion pour l'année en cours",
                                     }
                                 ]
                             ),
