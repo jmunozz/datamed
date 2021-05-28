@@ -108,7 +108,7 @@ def Modalites() -> Component:
                         "de la donnée.",
                     ),
                     ModaliteItem(
-                        "Il y a-t-il des données sensibles ?",
+                        "Y a-t-il des données sensibles ?",
                         [
                             "L’ensemble des données affichées ont été approuvées par la CNIL et correspondent aux "
                             "standards d’anonymisation. Si toutefois vous rencontrez des anomalies, n’hésitez pas "
