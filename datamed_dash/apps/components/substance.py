@@ -258,9 +258,8 @@ def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
 def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
     if df_decla is None:
         return NoData()
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
     if df_decla.cas_annee.min() > 10:
-        fig.add_trace(
+        fig = go.Figure(
             go.Scatter(
                 x=df_decla.annee,
                 y=df_decla.cas_annee,
@@ -270,35 +269,14 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
                     "shape": "spline",
                     "smoothing": 1,
                     "width": 4,
-                    "color": "#F29733",
+                    "color": "#EA336B",
                 },
             ),
-            secondary_y=False,
         )
-
-    fig.add_trace(
-        go.Scatter(
-            x=df_decla.annee,
-            y=df_decla.conso_annee,
-            mode="lines",
-            name="Patients traités",
-            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
-            hoverlabel={"namelength": -1},
-            hovertemplate="%{y:int}",
-        ),
-        secondary_y=True,
-    )
-
-    fig.update_yaxes(
-        title_text="Déclarations d'effets indésirables",
-        color="#F29733",
-        secondary_y=False,
-    )
-    fig.update_yaxes(title_text="Patients traités", color="#EA336B", secondary_y=True)
-    fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
-    fig.update_layout(CURVE_LAYOUT)
-
-    return Graph(figure=fig, responsive=True)
+        fig.update_yaxes(title_text="Déclarations d'effets indésirables")
+        fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
+        fig.update_layout(CURVE_LAYOUT)
+        return Graph(figure=fig, responsive=True)
 
 
 def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
@@ -371,7 +349,7 @@ def CasDeclares(
             SectionRow(
                 [
                     GraphBox(
-                        "Nombre de cas déclarés d’effets indésirables et patients traités par année",
+                        "Évolution du nombre de cas déclarés d’effets indésirables au cours du temps",
                         [CasDeclaresGraphBox(df_decla)],
                     ),
                 ]
@@ -449,7 +427,7 @@ def SystemesOrganesTooltip():
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
     return TopicSection(
         [
-            SectionRow(html.H1("Effets indésirables par système d'organe")),
+            SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe")),
             SystemesOrganesTooltip(),
             SectionRow(
                 [

@@ -352,7 +352,7 @@ def ErreursMedicamenteuses(
                                 className="normal-text",
                             ),
                             html.A(
-                                "portail des signalements",
+                                "portail des signalements.",
                                 href="https://signalement.social-sante.gouv.fr",
                                 className="normal-text link",
                             ),
