@@ -141,10 +141,19 @@ def Explorer() -> Component:
             ExplorerHeader(),
             BddCard(
                 "/assets/pills_2.svg",
-                "Observatoire des ruptures de stock",
+                "Données ruptures de stock",
                 "Non",
-                "Renseignez-vous sur le statut des ruptures de stock de médicaments et trouvez des "
-                "alternatives thérapeutiques au traitement du patient en fonction de son profil.",
+                Div(
+                    [
+                        "Renseignez-vous sur l'historique des ruptures de stock "
+                        "des médicaments d'intéret thérapeutique majeur.",
+                        A(
+                            "Trouvez des informations complémentaires sur le site de l'ANSM.",
+                            href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                            className="ExternalLink d-block",
+                        ),
+                    ]
+                ),
                 "TrustMed (ANSM)",
                 "/apps/ruptures",
             ),

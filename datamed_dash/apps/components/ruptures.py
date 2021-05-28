@@ -56,12 +56,30 @@ def Description() -> Component:
                     [
                         ArticleTitle("Description"),
                         P(
-                            "L’ANSM a pour mission d’observer tout au long de l’année l’état des ruptures de stock de "
-                            "médicaments présents dans les circuits Ville et Hôpital et de s’assurer du maintien des "
-                            "stocks en cas de tension d’approvisionnement et de rupture. Retrouvez les différentes "
-                            "formes et chiffres de signalements que l’Agence reçoit, et les actions mises en place "
-                            "pour y remédier et maintenir ainsi l’alimentation des officines au niveau national.",
+                            " Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute rupture "
+                            "ou tout risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
+                            "l'ANSM. L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques "
+                            "de rupture de stock de ces médicaments qui peuvent entraîner un risque de santé publique.",
                             className="normal-text text-justify",
+                        ),
+                        P(
+                            "Retrouvez différentes statistiques sur les signalements reçus par "
+                            "l’Agence et les actions mises en place pour y remédier.",
+                            className="normal-text text-justify",
+                        ),
+                        Div(
+                            [
+                                P(
+                                    "Pour toutes les dernières informations à destination des patients et "
+                                    "professionnels de santé sur les ruptures de stock en cours, consultez : ",
+                                    className="normal-text text-justify d-inline",
+                                ),
+                                A(
+                                    "ansm.sante.fr.",
+                                    href="https://ansm.sante.fr/",
+                                    className="normal-text ExternalLink d-inline",
+                                ),
+                            ],
                         ),
                     ]
                 ),
@@ -70,11 +88,10 @@ def Description() -> Component:
                         ArticleTitle("Avertissement"),
                         P(
                             "Les chiffres présentés ici ont pour but d’ouvrir les données au grand public afin de "
-                            "communiquer sur les actions de l’Agence. Leur interprétation et diffusion est soumise à "
-                            "de strictes réglementations. L’Agence ne se tient pas responsable en cas d’interprétation "
-                            "erronnée et de divulgation de ces chiffres et/ou dans un contexte qui ne permettrait pas "
-                            "leur lecture dans les conditions optimales. En cas de doute, veuillez nous contacter, "
-                            "vous contribuerez directement à l’amélioration de l’information diffusée.",
+                            "communiquer sur les actions de l’Agence. Leur périmètre se limite aux ruptures de stock "
+                            "au niveau des laboratoires exploitants et ne prennent pas en compte notamment les "
+                            "ruptures qui peuvent être causées par le circuit de distribution. Les données antérieures "
+                            "à Mai 2021 sont susceptibles de faire l'objet d'erreur de saisie.",
                             className="normal-text text-justify",
                         ),
                     ]
@@ -394,21 +411,6 @@ def Signalements(df: pd.DataFrame) -> Component:
                                     ),
                                 ],
                                 className="mb-5",
-                            ),
-                            Box(
-                                Accordion(
-                                    [
-                                        Div(
-                                            "Toutes les ruptures en circuit ville de moins de 15"
-                                            " jours sont sans conséquence sur la consommation de médicaments en "
-                                            "France.",
-                                            className="normal-text",
-                                        ),
-                                    ],
-                                    labelClass="InternalLink normal-text",
-                                    label="Le saviez-vous ?",
-                                ),
-                                className="mb-5"
                             ),
                             H4(
                                 "Évolution du nombre d'ouvertures et de clôtures de dossiers dans le circuit",
