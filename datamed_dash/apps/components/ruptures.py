@@ -28,6 +28,7 @@ from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS
 from ..constants.layouts import (
     RUPTURES_BAR_LAYOUT,
     TREEMAP_LAYOUT,
+    CURVE_LAYOUT,
     get_ruptures_curve_layout,
 )
 
@@ -145,22 +146,7 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
             )
         )
 
-    fig.update_layout(
-        {
-            "xaxis_showgrid": False,
-            "yaxis_showgrid": False,
-            "hovermode": "x unified",
-            "plot_bgcolor": "#FFF",
-            "paper_bgcolor": "#FFF",
-            "margin": dict(t=0, b=0, l=0, r=0),
-            "font": {"size": 12, "color": "black"},
-            "legend": dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-            ),
-            "hoverlabel": {"namelength": -1},
-        }
-    )
-
+    fig.update_layout(CURVE_LAYOUT)
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
