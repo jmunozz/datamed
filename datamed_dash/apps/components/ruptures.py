@@ -10,8 +10,7 @@ from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from dash_html_components import Div, P, Article, H1, H4, Span, A
-from datamed_custom_components import Accordion
+from dash_html_components import Div, P, Article, H1, H4, A
 from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
@@ -57,7 +56,7 @@ def Description() -> Component:
                         ArticleTitle("Description"),
                         P(
                             " Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute rupture "
-                            "ou tout risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
+                            "ou risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
                             "l'ANSM. L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques "
                             "de rupture de stock de ces médicaments qui peuvent entraîner un risque de santé publique.",
                             className="normal-text text-justify",
@@ -306,7 +305,7 @@ def get_causes(annee=INITIAL_YEAR):
 
 
 def Signalements(df: pd.DataFrame) -> Component:
-    signalements = round(len(df) / len(range(2014, dt.now().year + 1)))
+    signalements = len(df[df.annee == dt.now().year - 1])
     return TopicSection(
         [
             SectionRow(
@@ -320,10 +319,12 @@ def Signalements(df: pd.DataFrame) -> Component:
                             FigureGraph(
                                 [
                                     {
-                                        "figure": "{} signalements / an".format(
-                                            signalements
+                                        "figure": "{} signalements".format(
+                                            signalements,
                                         ),
-                                        "caption": "Nombre moyen de signalements par an",
+                                        "caption": "Nombre de signalements en {}".format(
+                                            dt.now().year - 1
+                                        ),
                                     }
                                 ]
                             ),
