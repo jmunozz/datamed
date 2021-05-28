@@ -16,7 +16,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             html.Div(
                                 [
                                     html.H1(
-                                        "Des données accessibles et expliquées, au service des patients"
+                                        "Des données accessibles et expliquées, au service des patients",
+                                        className="heading-4",
                                     ),
                                     html.P(
                                         "L’Agence Nationale de Sécurité du Médicament et des Produits de Santé (ANSM) "
@@ -48,7 +49,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             html.Div(
                                 [
                                     html.H1(
-                                        "Une plateforme unique pour partager des données essentielles de l’ANSM"
+                                        "Une plateforme unique pour partager des données essentielles de l’ANSM",
+                                        className="heading-4",
                                     ),
                                     html.P(
                                         "L’ANSM ouvrira dans un premier temps ses données autour des médicaments et "
@@ -76,7 +78,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             [
                                 html.H1(
                                     "À qui cette plateforme s’adresse ?",
-                                    className="title-center title-standalone",
+                                    className="title-center title-standalone heading-4",
                                 ),
                                 html.Div(
                                     [
@@ -91,12 +93,13 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                 html.H2(
                                                     "Grand public",
                                                     style={
-                                                        "minHeight": "75px",
+                                                        "minHeight": "25px",
                                                         "text-align": "center",
                                                     },
+                                                    className="heading-5",
                                                 ),
                                                 html.P(
-                                                    "Citoyen, patient, aidant, associations de patients",
+                                                    "Citoyens, patients, aidants, associations de patients",
                                                     className="normal-text text-center",
                                                 ),
                                             ],
@@ -112,15 +115,16 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     style={"height": "250px"},
                                                 ),
                                                 html.H2(
-                                                    "Professionnel de santé",
+                                                    "Professionnels de santé",
                                                     style={
-                                                        "minHeight": "75px",
+                                                        "minHeight": "25px",
                                                         "text-align": "center",
                                                     },
+                                                    className="heading-5",
                                                 ),
                                                 html.P(
-                                                    "Médecin, pharmacien, sage-femme, infirmier, "
-                                                    "intervenant du paramédical",
+                                                    "Médecins, pharmaciens, sages-femmes, infirmiers, "
+                                                    "intervenants du paramédical",
                                                     className="normal-text text-center",
                                                 ),
                                             ],
@@ -136,14 +140,15 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     style={"height": "250px"},
                                                 ),
                                                 html.H2(
-                                                    "Expert en données",
+                                                    "Experts en données",
                                                     style={
-                                                        "minHeight": "75px",
+                                                        "minHeight": "25px",
                                                         "text-align": "center",
                                                     },
+                                                    className="heading-5",
                                                 ),
                                                 html.P(
-                                                    "Journaliste, data analyst, chercheur, éditeur de logiciel",
+                                                    "Journalistes, data analysts, chercheurs, éditeurs de logiciel",
                                                     className="normal-text text-center",
                                                 ),
                                             ],
@@ -164,7 +169,10 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                         html.Div(
                             html.Div(
                                 [
-                                    html.H1("Origine et nature des données"),
+                                    html.H1(
+                                        "Origine et nature des données",
+                                        className="heading-4",
+                                    ),
                                     html.P(
                                         "Les données de la plateforme proviennent de bases de données gerées en "
                                         "majorité par l’ANSM, et d’autres proviennent de bases open source gerées par "
