@@ -48,7 +48,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             html.Div(
                                 [
                                     html.H1(
-                                        "Une plateforme unique pour réunir les données essentielles de l’ANSM"
+                                        "Une plateforme unique pour partager des données essentielles de l’ANSM"
                                     ),
                                     html.P(
                                         "L’ANSM ouvrira dans un premier temps ses données autour des médicaments et "
