@@ -63,6 +63,11 @@ h3 {
   text-decoration: none;
 }
 
+.Btn:hover {
+  transition: background-color 0.3s;
+  transition: color 0.3s;
+}
+
 .Btn-isPrimary {
   color: var(--color-1);
 }
