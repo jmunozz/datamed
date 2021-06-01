@@ -35,10 +35,26 @@ def Website():
     return FooterElement(
         "Le site",
         [
-            A("À propos", href="#", className="normal-text",),
-            A("Plan du site", href="#", className="normal-text",),
-            A("Mentions légales", href="#", className="normal-text",),
-            A("Contact", href="#", className="normal-text",),
+            A(
+                "À propos",
+                href="#",
+                className="normal-text Link Link-isOnDarkBackground",
+            ),
+            A(
+                "Plan du site",
+                href="#",
+                className="normal-text Link Link-isOnDarkBackground",
+            ),
+            A(
+                "Mentions légales",
+                href="#",
+                className="normal-text Link Link-isOnDarkBackground",
+            ),
+            A(
+                "Contact",
+                href="#",
+                className="normal-text Link Link-isOnDarkBackground",
+            ),
         ],
     )
 
@@ -51,22 +67,22 @@ def Partners():
                 A(
                     "Base de données publique des médicaments",
                     href="https://base-donnees-publique.medicaments.gouv.fr/",
-                    className="normal-text",
+                    className="normal-text Link Link-isOnDarkBackground",
                 ),
                 A(
                     "Etalab",
                     href="https://www.etalab.gouv.fr/",
-                    className="normal-text",
+                    className="normal-text Link Link-isOnDarkBackground",
                 ),
                 A(
                     "DINUM",
                     href="https://www.numerique.gouv.fr/dinum/",
-                    className="normal-text",
+                    className="normal-text Link Link-isOnDarkBackground",
                 ),
                 A(
                     "Health Data Hub",
                     href="https://www.health-data-hub.fr/",
-                    className="normal-text",
+                    className="normal-text Link Link-isOnDarkBackground",
                 ),
             ],
         ),

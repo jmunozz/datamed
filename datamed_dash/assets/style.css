@@ -14,11 +14,17 @@
   --half-min-width: 400px;
   --frontpage-max-width: 1024px;
   --box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
+  --box-shadow-appendice: 3px 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 a {
   color: inherit;
   text-decoration: underline;
+}
+
+p {
+  margin-bottom: 1.5rem;
+  margin-top: 0;
 }
 
 h1 {
@@ -29,29 +35,41 @@ h1 {
 }
 
 h2 {
+  margin-top: 0;
   font-size: 1.5rem;
   font-weight: 500;
   line-height: 2.125rem;
   letter-spacing: 0px;
 }
 
+h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  letter-spacing: 0.15px;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+}
+
 .Btn {
   font-size: 0.875rem;
   line-height: 1.125rem;
   letter-spacing: 0.25px;
+  font-weight: 500;
   text-transform: uppercase;
+  border: solid 1px currentColor;
+  border-radius: 0.3rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
 }
 
-.btn-outline-primary {
+.Btn-isPrimary {
   color: var(--color-1);
-  border: solid 1px var(--color-1);
 }
 
-.btn-outline-primary:hover {
+.Btn-isPrimary:hover {
   color: var(--color-white);
   background-color: var(--color-1);
-  transition: 0.5s background-color;
-  border: solid 1px var(--color-1);
 }
 
 .layout {
@@ -96,6 +114,14 @@ h2 {
   letter-spacing: 0.25px;
 }
 
+.regular-text {
+  font-size: 0.875rem;
+  font-weight: 400;
+  opacity: 0.8;
+  line-height: 1.125rem;
+  letter-spacing: 0.25px;
+}
+
 .justify-text {
   text-align: justify;
 }
@@ -136,14 +162,6 @@ h2 {
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0.25px;
-}
-
-.fp-button {
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 16px;
-  letter-spacing: 1.25px;
-  text-align: center;
 }
 
 .small-text {
@@ -203,9 +221,24 @@ h2 {
   color: #fff;
 }
 
-.link {
+.Link {
   text-decoration: underline;
   color: var(--color-5);
+}
+
+/** replace later by currentColor
+**/
+.Link:hover {
+  color: var(--color-5);
+  font-weight: 500;
+}
+
+.Link-isOnDarkBackground:hover {
+  color: var(--color-white);
+}
+
+.Link-isOnDarkBackground {
+  color: var(--color-white);
 }
 
 a:active {
@@ -299,6 +332,8 @@ a.btn-lg {
   position: absolute;
   bottom: -3.5rem;
   background-color: inherit;
+  box-shadow: var(--box-shadow-appendice);
+  transform: rotate(45deg);
 }
 
 .FrontPageSection-isColor3 {
@@ -453,6 +488,18 @@ a.btn-lg {
 
 .CardBoxText {
   flex: 3;
+}
+
+.CardBoxTextContentLayout {
+  display: flex;
+  margin: 1.5rem -0.5rem;
+  flex-wrap: wrap;
+}
+
+.CardBoxTextContentLayout > div {
+  flex: 1;
+  margin: 0.5rem;
+  min-width: calc(var(--half-min-width) * 2 / 3);
 }
 
 .CardBoxImage {
@@ -658,10 +705,24 @@ a.btn-lg {
 
 .ExploreDataItemImage {
   background-color: var(--color-6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ExploreDataItemImage > img {
+  height: 150px;
+}
+
+.ModaliteItem {
+  margin-bottom: 3rem;
 }
 
 @media (max-width: 1024px) {
   .ExploreDataItemImage {
+    display: none;
+  }
+  .ExploreDescriptionImage {
     display: none;
   }
 }

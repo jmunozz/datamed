@@ -33,8 +33,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                         FrontPageSectionPart(
                             html.Img(src=app.get_asset_url("Big illustration 1.svg"))
                         ),
-                        Div(className="FrontPageSectionAppendice"),
                     ],
+                    has_appendice=True,
                     class_name="FrontPageSection-isColorWhite FrontPageSection-isBottomBoxShadowed  FrontPageSection-hasAppendice",
                 ),
                 FrontPageSection(
@@ -55,7 +55,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                 ),
                                 html.A(
                                     "à propos",
-                                    className="Btn btn-outline-primary btn-lg fp-button",
+                                    className="Btn Btn-isPrimary",
                                     role="button",
                                     href="#",
                                 ),
@@ -155,7 +155,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                 ),
                                 html.A(
                                     "explorer les données",
-                                    className="Btn btn-outline-primary btn-lg fp-button",
+                                    className="Btn Btn-isPrimary",
                                     role="button",
                                     href="/apps/explorer",
                                 ),

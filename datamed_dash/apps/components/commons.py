@@ -55,11 +55,12 @@ def FrontPageSectionPart(children, class_name=""):
     return html.Div(children, className=class_name)
 
 
-def FrontPageSection(children, class_name=""):
+def FrontPageSection(children, class_name="", has_appendice=False):
+    layout = [html.Div(children, className="FrontPageSectionContainer")]
+    if has_appendice:
+        layout = layout + [Div(className="FrontPageSectionAppendice")]
     class_name = " ".join(["FrontPageSection"] + class_name.split(" "))
-    return html.Div(
-        html.Div(children, className="FrontPageSectionContainer"), className=class_name,
-    )
+    return html.Div(layout, className=class_name)
 
 
 def FrontPageSectionFull(children, class_name=""):
