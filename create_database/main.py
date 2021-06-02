@@ -332,51 +332,6 @@ def create_table_emed(_settings: Dict):
         db.create_table_from_df(df_table, args)
 
 
-# def get_old_ruptures_df() -> pd.DataFrame:
-#     df = pd.read_csv(
-#         "data/ruptures.csv",
-#         sep=";",
-#         header=0,
-#         parse_dates=[
-#             "date_signalement",
-#             "date_previ_ville",
-#             "date_previ_hopital",
-#         ],
-#         usecols=[
-#             "signalement",
-#             "date_signalement",
-#             "laboratoire",
-#             "specialite",
-#             "rupture",
-#             "atc",
-#             "date_previ_ville",
-#             "date_previ_hopital",
-#         ],
-#     )
-#     df = df.rename(
-#         columns={
-#             "signalement": "numero",
-#             "date_signalement": "date",
-#             "specialite": "nom",
-#             "rupture": "classification",
-#             "date_previ_ville": "prevision_remise_dispo_ville",
-#             "date_previ_hopital": "prevision_remise_dispo_hopital",
-#         }
-#     )
-#     df = df.where(pd.notnull(df), None)
-#
-#     df.atc = df.atc.str.upper()
-#     df.nom = df.apply(
-#         lambda x: x.nom.replace(" /", "/")
-#         .replace("/ ", "/")
-#         .replace("intraoculaire", "intra-oculaire")
-#         if x.nom
-#         else None,
-#         axis=1,
-#     )
-#     return df[df.date.dt.year >= 2014]
-
-
 def get_circuit(row: pd.Series) -> Optional[str]:
     if row.Circuit_Touche_Ville == "NR" and row.Circuit_Touche_Hopital == "NR":
         return None
@@ -436,6 +391,14 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     )
 
     df["circuit"] = df.apply(get_circuit, axis=1)
+
+    # If "ville et hôpital", insert two rows: one "ville" and one "hôpital"
+    s = df.circuit.str.split(" et ").apply(pd.Series, 1).stack()
+    s.index = s.index.droplevel(-1)  # to line up with df's index
+    s.name = "circuit"
+    del df["circuit"]
+    df = df.join(s)
+
     df = df.drop(["Circuit_Touche_Ville", "Circuit_Touche_Hopital"], axis=1)
     df.cause = df.cause.str.lower()
     df.dci = df.dci.str.lower()
@@ -564,31 +527,31 @@ def create_table_icones(_settings: Dict):
     db.create_table_from_df(df.set_index("cis"), _settings["to_sql"])
 
 
-create_table_bdpm_cis(settings.files["bdpm_cis"])
-create_tables_rsp_compo(settings.files["rsp_compo"])
-create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
-create_table_atc(settings.files["atc"])
-create_table_cis_atc(settings.files["cis_atc"])
-
-# Ordei
-create_spe_conso_ordei_table(settings.files["ordei_specialite"])
-create_spe_patients_sexe_table(settings.files["ordei_specialite"])
-create_spe_patients_age_table(settings.files["ordei_specialite"])
-create_substance_ordei_table(settings.files["ordei_substance"])
-create_substance_patients_sexe_table(settings.files["ordei_substance"])
-create_substance_patients_age_table(settings.files["ordei_substance"])
-create_substance_cas_sexe_table(settings.files["ordei_substance"])
-create_substance_cas_age_table(settings.files["ordei_substance"])
-create_notificateurs_table(settings.files["ordei_notificateurs"])
-create_substance_soclong_table(settings.files["ordei_soclong"])
-create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
-
-# Erreurs médicamenteuses
-create_table_emed(settings.files["erreurs_med"])
-
-# TrustMed
-create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
-create_table_mesures(settings.files["mesures"])
-
-# Logos
-create_table_icones(settings.files["icones"])
+# create_table_bdpm_cis(settings.files["bdpm_cis"])
+# create_tables_rsp_compo(settings.files["rsp_compo"])
+# create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+# create_table_atc(settings.files["atc"])
+# create_table_cis_atc(settings.files["cis_atc"])
+#
+# # Ordei
+# create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+# create_spe_patients_sexe_table(settings.files["ordei_specialite"])
+# create_spe_patients_age_table(settings.files["ordei_specialite"])
+# create_substance_ordei_table(settings.files["ordei_substance"])
+# create_substance_patients_sexe_table(settings.files["ordei_substance"])
+# create_substance_patients_age_table(settings.files["ordei_substance"])
+# create_substance_cas_sexe_table(settings.files["ordei_substance"])
+# create_substance_cas_age_table(settings.files["ordei_substance"])
+# create_notificateurs_table(settings.files["ordei_notificateurs"])
+# create_substance_soclong_table(settings.files["ordei_soclong"])
+# create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+#
+# # Erreurs médicamenteuses
+# create_table_emed(settings.files["erreurs_med"])
+#
+# # TrustMed
+# create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
+# create_table_mesures(settings.files["mesures"])
+#
+# # Logos
+# create_table_icones(settings.files["icones"])
