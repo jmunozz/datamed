@@ -1,13 +1,16 @@
 import json
 import sys
+from datetime import datetime as dt
 from typing import List, Dict
-
-sys.path.append("/Users/linerahal/Documents/GitHub/datamed")
 
 import pandas as pd
 import unicodedata2
-from datetime import datetime as dt
 from country_list import countries_for_language
+from decouple import config
+from sqlalchemy import create_engine
+from sqlalchemy.types import String
+
+sys.path.append("/Users/linerahal/Documents/GitHub/datamed")
 
 import db
 from jade_analysis import build_api_fab_sites_dataframe
@@ -41,7 +44,15 @@ def get_excels_df() -> pd.DataFrame:
     path = "/Users/linerahal/Desktop/ANSM/EDL/2019/jade_final/"
     # Load dataframe
     print("Loading dataframe from concatenated Excel files...")
-    df = build_api_fab_sites_dataframe(path)
+    df_2019 = build_api_fab_sites_dataframe(path)
+    df_2019["annee"] = 2019
+
+    path = "/Users/linerahal/Desktop/ANSM/EDL/2020/Fiches B/"
+    print("Loading dataframe from concatenated Excel files...")
+    df_2020 = build_api_fab_sites_dataframe(path)
+    df_2020["annee"] = 2020
+
+    df = pd.concat([df_2019, df_2020])
 
     # Get api by CIS from RSP COMPO.txt file
     substance_by_cis = get_substance_by_cis()
@@ -80,6 +91,33 @@ def get_excels_df() -> pd.DataFrame:
     df = df.drop_duplicates(
         subset=["cis", "substance_active", "sites_fabrication_substance_active"]
     )
+
+    df_sub = pd.read_sql("substance", engine)
+    df = df.merge(df_sub, left_on="substance_active", right_on="nom", how="left")
+    df = df[
+        [
+            "annee",
+            "cis",
+            "denomination_specialite",
+            "dci",
+            "code",
+            "substance_active",
+            "type_amm",
+            "titulaire_amm",
+            "sites_production",
+            "sites_conditionnement_primaire",
+            "sites_conditionnement_secondaire",
+            "sites_importation",
+            "sites_controle",
+            "sites_echantillotheque",
+            "sites_certification",
+            "sites_fabrication_substance_active",
+            "mitm",
+            "pgp",
+            "filename",
+        ]
+    ]
+    df = df.rename(columns={"code": "code_substance"})
     return df
 
 
@@ -235,21 +273,31 @@ def get_prod_list(df: pd.DataFrame) -> List[Dict]:
     ]
 
 
-# def main():
-# Write countries by address csv file
-# path = paths.P_COUNTRIES
-# get_countries_list(df, path)
-#
-# # Création table Pays
-# pays_list = get_pays(path)
-# for pays_dict in pays_list:
-#     pays = Pays(**pays_dict)
-#     session.add(pays)
-#     session.commit()
-#
-# # Création table Production
-# prod_list = get_prod_list(df)
-# for prod_dict in prod_list:
-#     prod = Production(**prod_dict)
-#     session.add(prod)
-#     session.commit()
+def connect_edl_db():
+    global engine
+    url = "postgresql://{user}:{pwd}@{host}/{db}".format(
+        host=config("DBHOSTNAME"),
+        db=config("DBNAME_EDL"),
+        user="linerahal",
+        pwd=config("DBPWD_EDL"),
+    )
+    if not engine:
+        engine = create_engine(url, echo=False)
+    return engine
+
+
+def main():
+    df = get_excels_df()
+    _settings = {
+        "name": "etats_des_lieux",
+        "if_exists": "replace",
+        "index": True,
+        "dtype": {"cis": String},
+    }
+    engine = connect_edl_db()
+    args = {**{"con": engine}, **_settings}
+    df.to_sql(**args)
+
+    # Write countries by address csv file
+    path = "~/Documents/GitHub/datamed/create_database/data/countries_by_address.csv"
+    get_countries_list(df, path)
