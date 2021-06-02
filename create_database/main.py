@@ -8,8 +8,8 @@ from tqdm import tqdm
 
 import db
 import erreurs_med as em
-import mesusage
 import helpers
+import mesusage
 import settings
 from logos_formes_pharma import get_specialite_icon
 
@@ -458,7 +458,8 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
         lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
     )
     df.prevision_remise_dispo_hopital = df.prevision_remise_dispo_hopital.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None)
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
 
     df.cip13 = df.cip13.astype(str)
 
@@ -533,7 +534,6 @@ def create_table_mesusage(_settings: Dict):
                 **_settings["to_sql"],
             }
             db.create_table_from_df(df_agg, args)
-
 
 
 create_table_bdpm_cis(settings.files["bdpm_cis"])
