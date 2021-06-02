@@ -188,12 +188,12 @@ def parse_date(date_str: str):
 
 
 def categorize_age(age: int) -> str:
-    if age <= 19:
-        return "0-19 ans"
-    elif 20 <= age <= 59:
-        return "20-59 ans"
-    elif age >= 60:
-        return "60 ans et plus"
+    if age <= 16:
+        return "0-16 ans"
+    elif 17 <= age <= 64:
+        return "17-64 ans"
+    elif age >= 65:
+        return "65 ans et plus"
 
 
 # In[11]:
@@ -403,21 +403,67 @@ fig = go.Figure(
 fig.show()
 
 
-# # Par spécialité
+# ## Déclarations au cours du temps
 
 # In[24]:
 
 
-cis = "60234100"
+df["annee_notif"] = df.date_notif.apply(lambda x: x.year)
+df_annee = df[["annee_notif", "cas_crpv"]].groupby("annee_notif").cas_crpv.count().reset_index()
+df_annee = df_annee[df_annee.cas_crpv >= 10]
+
+df_annee
 
 
 # In[25]:
 
 
+CURVE_LAYOUT = {
+    "xaxis_showgrid": False,
+    "yaxis_showgrid": False,
+    "hovermode": "x unified",
+    "plot_bgcolor": "#FFF",
+    "margin": dict(t=0, b=0, l=0, r=0),
+    "font": {"size": 12, "color": "black"},
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    "hoverlabel": {"namelength": -1},
+}
+
+fig = go.Figure(
+    go.Scatter(
+        x=df_annee.annee_notif,
+        y=df_annee.cas_crpv,
+        mode="lines",
+        name="Déclarations de mésusages",
+        line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
+        hoverlabel={"namelength" :-1},
+        hovertemplate="%{y:int}",
+    )
+)
+
+fig.update_yaxes(title_text="Déclarations de mésusages",
+                 color="#EA336B")
+fig.update_xaxes(title_text="Années")
+fig.update_xaxes(nticks=len(df_annee))
+fig.update_layout(CURVE_LAYOUT)
+fig.show()
+
+
+# # Par spécialité
+
+# In[26]:
+
+
+cis = "60234100"
+
+
+# In[27]:
+
+
 df[df.cis == cis].head(2)
 
 
-# In[26]:
+# In[28]:
 
 
 df_cis = df[df.cis == cis]
@@ -425,7 +471,7 @@ df_cis = df[df.cis == cis]
 
 # ## SOC
 
-# In[27]:
+# In[29]:
 
 
 df_soc = df_cis[["soc_long", "cas_crpv"]].groupby("soc_long").cas_crpv.count().reset_index()
@@ -434,7 +480,7 @@ df_soc = df_soc[df_soc.cas_crpv >= 10]
 df_soc
 
 
-# In[28]:
+# In[30]:
 
 
 TREE_COLORS = ["#5E2A7E", "#7E5598", "#9E7FB2", "#BFAACB", "#DFD4E5",
@@ -473,7 +519,7 @@ fig.show()
 
 # ## Sexe
 
-# In[29]:
+# In[31]:
 
 
 df_sexe = df_cis[["sexe", "cas_crpv"]].groupby("sexe").cas_crpv.count().reset_index()
@@ -481,7 +527,7 @@ df_sexe = df_cis[["sexe", "cas_crpv"]].groupby("sexe").cas_crpv.count().reset_in
 df_sexe
 
 
-# In[30]:
+# In[32]:
 
 
 PIE_COLORS = ["#F599B5", "#FACCDA", "#EF6690"]

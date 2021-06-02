@@ -1,6 +1,5 @@
-import helpers
-import settings
 from datetime import datetime as dt
+from typing import Dict, List
 
 import pandas as pd
 from tqdm import tqdm
@@ -13,9 +12,7 @@ def format_age(age_str: str):
         return None
 
 
-def get_dataframe(_settings) -> pd.DataFrame:
-    df = helpers.load_excel_to_df(_settings)
-
+def clean_df(df: pd.DataFrame, _settings: Dict) -> pd.DataFrame:
     df = df.rename(
         columns={
             "Cas CRPV": "cas_crpv",
@@ -153,3 +150,10 @@ def reformat_dataframe(df_mes: pd.DataFrame) -> pd.DataFrame:
     df.age = df.age.apply(categorize_age)
 
     return df
+
+
+def get_proporition_df(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
+    df_agg = df.groupby(cols).cas_crpv.count().reset_index()
+    df_agg = df_agg[df_agg.cas_crpv >= 10]
+    df_agg = df_agg.rename(columns={"cas_crpv": "cas"})
+    return df_agg
