@@ -370,7 +370,6 @@ def Signalements(df: pd.DataFrame) -> Component:
                                             for y in [
                                                 "ville",
                                                 "hôpital",
-                                                "ville et hôpital",
                                             ]
                                         ],
                                         className="GraphSelect d-inline-block",
