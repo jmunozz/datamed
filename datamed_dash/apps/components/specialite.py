@@ -100,7 +100,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                     id="side-menu",
                     items=[
                         {"id": "description", "label": "Description"},
-                        {"id": "population-concernee", "label": "Population concernée"},
+                        {"id": "patients-traites", "label": "Patients Traités"},
                         {
                             "id": "erreurs-medicamenteuses",
                             "label": "Erreurs médicamenteuses",
@@ -123,12 +123,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_ei,
-                                df_pop,
-                                df_cause,
-                                df_nat,
-                                df_denom,
-                                series_spe,
+                                df_ei, df_pop, df_cause, df_nat, df_denom, series_spe,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -188,8 +183,7 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Div(
-                                series_spe.titulaires.title(),
-                                className="normal-text",
+                                series_spe.titulaires.title(), className="normal-text",
                             ),
                         ]
                     ),
@@ -200,8 +194,7 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(),
-                                    series_atc.atc,
+                                    series_atc.label.capitalize(), series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -260,16 +253,26 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             },
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
-            hover_data=["explication"],
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
-        return Graph(figure=fig, responsive=True, id="stack-bar")
+        # Change hover appearance
+        fig.update_layout(
+            hoverlabel=dict(
+                bgcolor="white",
+                bordercolor="white",
+                font=dict(color="black", size=12, family="Roboto"),
+            ),
+        )
+        return html.Div(
+            Graph(figure=fig, id="stack-bar", responsive=True, style={"height": 225}),
+            className="ErrMedStackBar",
+        )
 
 
 def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
     if df_ei is None:
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
 
     EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
     EI_IMG_URL = {
@@ -291,7 +294,7 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
 
 def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
     if df_pop is None:
-        return NoData()
+        return NoData("BoxContent-isHalf")
     fig_pop = go.Figure(
         go.Pie(
             labels=df_pop.population_erreur,
@@ -314,10 +317,7 @@ def BoxListDenomination(df_denom):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={
-            "height": "50px",
-            "backgroundColor": "#FFF",
-        },
+        style_cell={"height": "50px", "backgroundColor": "#FFF",},
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",

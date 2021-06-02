@@ -45,9 +45,28 @@ UTILISATION_IMG_URL = {
 SEXE = {1: "Hommes", 2: "Femmes"}
 
 SEXE_IMG_URL = {
-    1: app.get_asset_url("man_img.svg"),
-    2: app.get_asset_url("woman_img.svg"),
+    1: app.get_asset_url("Homme-250.svg"),
+    2: app.get_asset_url("Femme-250.svg"),
 }
+
+
+def FrontPageSectionPart(children, class_name=""):
+    class_name = " ".join(["FrontPageSectionPart"] + class_name.split(" "))
+    return html.Div(children, className=class_name)
+
+
+def FrontPageSection(children, class_name=""):
+    class_name = " ".join(["FrontPageSection"] + class_name.split(" "))
+    return html.Div(
+        html.Div(children, className="FrontPageSectionContainer"), className=class_name,
+    )
+
+
+def FrontPageSectionFull(children, class_name=""):
+    class_name = " ".join(
+        ["FrontPageSectionFull Stack Stack-isCentered"] + class_name.split(" ")
+    )
+    return html.Div(children, className=class_name)
 
 
 def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
@@ -76,7 +95,8 @@ def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     ).update_layout(PIE_LAYOUT)
 
 
-def NoData() -> html.Div:
+def NoData(class_name="") -> html.Div:
+    class_name = " ".join((["Stack", "Stack-isCentered"] + class_name.split(" ")))
     return html.Div(
         [
             html.Img(
@@ -90,7 +110,7 @@ def NoData() -> html.Div:
                 style={"color": "#9e9e9e"},
             ),
         ],
-        className="d-flex flex-column align-items-center",
+        className=class_name,
     )
 
 
@@ -107,16 +127,14 @@ def Tooltip() -> Component:
                                 className="normal-text",
                             ),
                             html.Span(
-                                "pharmacie de ville",
-                                className="normal-text-bold",
+                                "pharmacie de ville", className="normal-text-bold",
                             ),
                             html.Span(
                                 " entre 2014 et 2018 et remboursé par ",
                                 className="normal-text",
                             ),
                             html.Span(
-                                "l’Assurance Maladie.",
-                                className="normal-text-bold",
+                                "l’Assurance Maladie.", className="normal-text-bold",
                             ),
                             html.Span(
                                 " Pour plus d’informations, consultez : ",
@@ -132,10 +150,7 @@ def Tooltip() -> Component:
                     ),
                     html.Div(
                         [
-                            html.Span(
-                                "Attention : ",
-                                className="normal-text-bold",
-                            ),
+                            html.Span("Attention : ", className="normal-text-bold",),
                             html.Span(
                                 "Un patient est comptabilisé autant de fois qu’il a acheté de types "
                                 "de conditionnements (ou présentations) différents de la spécialité / "
@@ -179,13 +194,7 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
     df = pd.DataFrame(
         {
-            "Utilisation": [
-                "Très faible",
-                "Faible",
-                "Modéré",
-                "Élevé",
-                "Très élevé",
-            ],
+            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
             "Nombre de patients (niveau spécialité)": [
                 "< 1 000",
                 "1 000 - 5 000",
@@ -216,7 +225,7 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                                 html.Img(src=UTILISATION_IMG_URL[exposition]),
                             ],
                             isBordered=False,
-                            className="UsageBoxRate",
+                            className="CardBoxImage UsageBoxRate",
                         ),
                         Box(
                             [
@@ -254,10 +263,10 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
                                 ),
                             ],
                             isBordered=False,
-                            className="UsageBoxFigure",
+                            className="CardBoxText",
                         ),
                     ],
-                    className="UsageBox",
+                    className="CardBox",
                 ),
                 hasNoPadding=True,
             )
@@ -267,13 +276,16 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
 def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
     if df_sexe is None:
-        return NoData()
-    return FigureGraph(get_sexe_figures_from_df(df_sexe, "pourcentage_patients"))
+        return NoData(class_name="BoxContent-isHalf")
+    return FigureGraph(
+        get_sexe_figures_from_df(df_sexe, "pourcentage_patients"),
+        class_name="BoxContent-isHalf",
+    )
 
 
 def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
     if df_age is None or np.isnan(df_age.pourcentage_patients.unique()).all():
-        return NoData()
+        return NoData(class_name="BoxContent-isHalf")
     return Graph(
         figure=makePie(df_age.age, df_age.pourcentage_patients, pie_colors),
         responsive=False,
@@ -305,7 +317,7 @@ def PatientsTraites(
                 withGutter=True,
             ),
         ],
-        id="population-concernee",
+        id="patients-traites",
     )
 
 
@@ -321,10 +333,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         ),
         html.Div("- La spécialité : Doliprane 1000 mg, comprimé"),
         html.Div("- Le produit : Doliprane"),
-        html.Div(
-            "- La substance active : Paracétamol",
-            className="mb-3",
-        ),
+        html.Div("- La substance active : Paracétamol", className="mb-3",),
     ]
     if type == "substance":
         title = series_spe.nom.capitalize()
@@ -373,10 +382,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
     return html.Div(
         html.Div(
             [
-                html.Div(
-                    html.Img(src=icon_url),
-                    className="content-header-img",
-                ),
+                html.Div(html.Img(src=icon_url), className="content-header-img",),
                 html.Div(
                     [
                         html.Div(title, className="heading-4"),
@@ -386,8 +392,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                             [
                                 dbc.ModalHeader("Définition"),
                                 dbc.ModalBody(
-                                    modal_body,
-                                    className="normal-text text-justify",
+                                    modal_body, className="normal-text text-justify",
                                 ),
                                 dbc.ModalFooter(
                                     dbc.Button(

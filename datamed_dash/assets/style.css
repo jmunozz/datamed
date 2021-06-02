@@ -8,8 +8,11 @@
   --color-3: #ccf0f5;
   --color-4: #eae8ff;
   --color-5: #a03189;
+  --color-6: #a47cb6;
   --border: solid 1px #e6e6e6;
   --border-radius: 5px;
+  --half-min-width: 400px;
+  --frontpage-max-width: 1024px;
 }
 
 .btn {
@@ -222,25 +225,6 @@ a.btn-lg {
   text-decoration: none;
 }
 
-/* Fix dash graph wrapper div to graph default height  */
-.dash-graph {
-  height: 450px;
-}
-
-#stack-bar.dash-graph {
-  height: 300px;
-}
-
-.stacked {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stacked * {
-  margin-bottom: 15px;
-}
-
 .article {
   display: flex;
   flex-direction: column;
@@ -255,101 +239,65 @@ a.btn-lg {
   margin-bottom: 2rem;
 }
 
-.fp-section {
-  display: flex;
-  padding-top: 30px;
-  padding-bottom: 30px;
-}
-
-.fp-left .fp-half {
-  justify-content: flex-end;
-}
-
-.fp-half {
-  padding-top: 30px;
-  padding-bottom: 30px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 50%;
-}
-
-.fp-half img {
-  max-height: 450px;
-  max-width: 100%;
-}
-
-.fp-half:last-child {
-  justify-content: flex-start;
-}
-
-.fp-half.with-p-y {
-  padding-left: 30px;
-  padding-right: 30px;
-}
-
-.fp-wrapper {
-  max-width: 570px;
-  margin-left: 30px;
-}
-
-.fp-content * {
-  margin-bottom: 25px;
-}
-
-.fp-full {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 30px;
-}
-
-.title-center {
-  width: 100%;
-  text-align: center;
-}
-
-.features {
-  display: flex;
-}
-
-.feature:first-child {
-  margin: 0;
-  margin-right: 25px;
-}
-
-.feature {
-  margin: 0 25px;
-}
-
-.feature:last-child {
-  margin: 0;
-  margin-left: 25px;
-}
-
-.title-standalone {
-  margin-bottom: 50px;
-}
-
-.fp-section-1 {
-  background-color: var(--color-white);
-}
-
-.fp-section-3 {
-  background-color: var(--color-3);
-}
-
-.content * {
-  margin-bottom: 15px;
-}
-
 /*
 ** Start BEM 
 */
+
+/**
+** Frontpage
+**/
+
+.FrontPageSection {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.FrontPageSectionFull {
+  margin: 0 1.5rem;
+}
+
+.FrontPageSectionContainer {
+  max-width: var(--frontpage-max-width);
+  display: flex;
+  flex-wrap: wrap;
+  margin: -1.5rem 0;
+  width: 100%;
+}
+
+.FrontPageAudienceDisplay {
+  margin: 0 -1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.FrontPageAudienceDisplayElem {
+  margin: 0 1.5rem;
+  flex: 1;
+}
+
+.FrontPageSectionPart {
+  flex: 1;
+  margin: 1.5rem;
+}
+
+.FrontPageSection-isColorWhite {
+  background-color: var(--color-white);
+}
+
+.FrontPageSection-isColor3 {
+  background-color: var(--color-3);
+}
 
 .Box {
   background-color: #ffffff;
   padding: 1.5rem;
   flex: 1;
+}
+
+.BoxContent-isHalf {
+  min-width: var(--half-min-width);
 }
 
 .Box-isBordered {
@@ -484,23 +432,26 @@ a.btn-lg {
   color: #000000;
 }
 
-.UsageBox {
+.CardBox {
   display: flex;
 }
 
-.UsageBoxFigure {
+.CardBoxText {
   flex: 3;
 }
 
-.UsageBoxRate {
+.CardBoxImage {
   flex: 1;
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
+}
+
+.UsageBoxRate {
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: var(--color-blue);
   color: var(--color-white);
-  border-top-left-radius: var(--border-radius);
-  border-bottom-left-radius: var(--border-radius);
 }
 
 .AdverseEffectRow {
@@ -629,6 +580,23 @@ a.btn-lg {
   align-items: center;
 }
 
+.Stack-isVerticalCentered {
+  justify-content: center;
+}
+
+.Line {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.Line-isCentered {
+  justify-content: center;
+}
+
+.Line-isSpacedEvenly {
+  justify-content: space-evenly;
+}
+
 .GraphSelect {
   width: auto;
   border: var(--border);
@@ -649,4 +617,72 @@ a.btn-lg {
   line-height: 40px;
   letter-spacing: 0.25px;
   text-align: left;
+}
+
+/** Fix > center graph with fixed size in plotly-container **/
+.svg-container {
+  margin: auto !important;
+}
+
+/**
+** Explorer
+**/
+
+.ExplorerPageMainSection > img {
+  width: 100%;
+  max-height: 450px;
+}
+
+.ExplorerPageMainSection > h1 {
+  text-align: center;
+}
+
+.ExplorerPageMainSection > P {
+  text-align: center;
+}
+
+.ExploreDataItemImage {
+  background-color: var(--color-6);
+}
+
+@media (max-width: 1024px) {
+  .ExploreDataItemImage {
+    display: none;
+  }
+}
+
+/**
+** Footer
+**/
+
+.Footer {
+  /* background-image: url("./BG_Footer.svg"); */
+  /* background-position: center;
+  background-repeat: no-repeat; */
+  /* background-size: cover; */
+  background-color: black;
+  color: var(--color-white);
+}
+
+.FooterLink {
+  font-weight: 300;
+  font-size: 1rem;
+}
+
+.FooterLinkContainer {
+  padding: 0;
+  list-style-type: none;
+}
+
+.FooterLogoImg {
+  height: 4rem;
+  margin-right: 1rem;
+  margin-top: 1rem;
+}
+
+.FooterLogoAnsm {
+  color: var(--color-white);
+  font-size: 20px;
+  font-weight: 500;
+  margin-top: 2rem;
 }

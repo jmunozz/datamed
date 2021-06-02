@@ -363,6 +363,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 figure=get_signalement_atc_curve(),
                                 responsive=True,
                                 id="atc-bar-chart",
+                                style={"height": 450},
                             ),
                         ],
                     ),
@@ -386,7 +387,6 @@ def Signalements(df: pd.DataFrame) -> Component:
                                             for y in [
                                                 "ville",
                                                 "hôpital",
-                                                "ville et hôpital",
                                             ]
                                         ],
                                         className="GraphSelect d-inline-block",
@@ -408,7 +408,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                     labelClass="InternalLink normal-text",
                                     label="Le saviez-vous ?",
                                 ),
-                                className="mb-5"
+                                className="mb-5",
                             ),
                             H4(
                                 "Évolution du nombre d'ouvertures et de clôtures de dossiers dans le circuit",
@@ -419,6 +419,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 responsive=True,
                                 id="signalements-circuit",
                                 className="mb-5",
+                                style={"height": 300},
                             ),
                             H4(
                                 "Évolution du nombre de ruptures dans le circuit",
@@ -428,6 +429,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 figure=get_ruptures_circuit(),
                                 responsive=True,
                                 id="ruptures-circuit",
+                                style={"height": 300},
                             ),
                         ],
                     )
@@ -460,6 +462,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 figure=get_causes(),
                                 responsive=True,
                                 id="causes-treemap",
+                                style={"height": 450},
                             ),
                         ],
                     )
