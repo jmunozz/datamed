@@ -418,30 +418,32 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Liste des dénominations des médicaments concernés par ces erreurs médicamenteuses",
-                        [
-                            html.P(
-                                [
-                                    html.Span(
-                                        "Ci-dessous vous trouverez la liste des dénominations de médicaments "
-                                        "renseignées dans la base de données des erreurs médicamenteuses. En effet, "
-                                        "dans cette base, les médicaments ne sont pas toujours renseignés par nom de "
-                                        "spécialité. Nous avons sélectionné les dénominations qui se "
-                                        "rapprochent le plus de ",
-                                        className="normal-text",
-                                    ),
-                                    html.Strong(
-                                        "{}".format(series_spe.nom.capitalize()),
-                                        className="normal-text-bold",
-                                    ),
-                                    html.Span(
-                                        " pour mener notre analyse.",
-                                        className="normal-text",
-                                    ),
-                                ],
-                                className="text-justify",
-                            ),
-                            BoxListDenomination(df_denom),
-                        ],
+                        html.Div(
+                            [
+                                html.P(
+                                    [
+                                        html.Span(
+                                            "Ci-dessous vous trouverez la liste des dénominations de médicaments "
+                                            "renseignées dans la base de données des erreurs médicamenteuses. En effet, "
+                                            "dans cette base, les médicaments ne sont pas toujours renseignés par nom de "
+                                            "spécialité. Nous avons sélectionné les dénominations qui se "
+                                            "rapprochent le plus de ",
+                                            className="normal-text",
+                                        ),
+                                        html.Strong(
+                                            "{}".format(series_spe.nom.capitalize()),
+                                            className="normal-text-bold",
+                                        ),
+                                        html.Span(
+                                            " pour mener notre analyse.",
+                                            className="normal-text",
+                                        ),
+                                    ],
+                                    className="text-justify",
+                                ),
+                                BoxListDenomination(df_denom),
+                            ]
+                        ),
                     ),
                 ]
             ),
