@@ -511,16 +511,11 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
         html.Div(
             [
-                html.Span(
-                    substance,
-                    className="AdverseEffectRowLabel normal-text",
-                    style={"color": "#00B3CC"},
-                ),
+                html.Span(substance, className="AdverseEffectRowLabel",),
                 html.A(
                     "Consulter les effets indésirables",
                     href="/apps/substance?search={}#effets-indesirables".format(code),
-                    className="InternalLink normal-text",
-                    style={"color": "#A03189"},
+                    className="Link",
                 ),
             ],
             className="AdverseEffectRow",
