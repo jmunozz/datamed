@@ -15,6 +15,16 @@ from logos_formes_pharma import get_specialite_icon
 
 engine = db.connect_db()
 
+MESURES = {
+    "CTQL": "Contingentement qualitatif",
+    "CTQT": "Contingentement quantitatif",
+    "RSTR": "Restriction du circuit de distribution",
+    "IMP": "Importation",
+    "AUT": "Importation",
+    "STCK": "Mise en place d'un stock de dépannage",
+    "FLEX": "Dérogation réglementaire",
+}
+
 
 def create_table_cis_atc(_settings: Dict):
     df = helpers.load_excel_to_df(_settings)
@@ -414,6 +424,11 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def get_acronyme_mesure(identifiant: str) -> str:
+    code = identifiant.split("-")[1]
+    return MESURES.get(code, code)
+
+
 def create_table_mesures(_settings: Dict):
     df = helpers.load_csv_to_df(_settings)
     df = df.rename(
@@ -430,6 +445,9 @@ def create_table_mesures(_settings: Dict):
             "Justification": "justification",
         }
     )
+
+    df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
+    df = df[~df.mesure.isin(["REAP", "QST"])]
     helpers.serie_to_lowercase(df, ["etat_mesure", "nom"])
     db.create_table_from_df(df, _settings["to_sql"])
 

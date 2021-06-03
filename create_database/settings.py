@@ -495,6 +495,7 @@ files = {
             "nature": "nature_erreur",
             "cause": "cause_erreur",
             "effet_indesirable": "effet_indesirable",
+            "gravite": "gravite"
         },
         "to_sql": {
             "if_exists": "replace",
