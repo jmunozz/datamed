@@ -363,21 +363,25 @@ def ErreursMedicamenteuses(
                 Box(
                     Accordion(
                         [
-                            html.Span(
-                                "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
-                                "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
-                                "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
-                                className="normal-text",
-                            ),
-                            html.A(
-                                "portail des signalements",
-                                href="https://signalement.social-sante.gouv.fr",
-                                className="normal-text link",
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
+                                        "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
+                                        "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
+                                    ),
+                                    html.A(
+                                        "portail des signalements",
+                                        href="https://signalement.social-sante.gouv.fr",
+                                        className="Link",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
                             ),
                             html.P(
                                 "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
                                 "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur.",
-                                className="normal-text text-justify mt-2",
+                                className="justify-text normal-text",
                             ),
                         ],
                         labelClass="InternalLink normal-text",
@@ -470,7 +474,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                                 "d’être liés à l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, "
                                 "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
                                 "un comité d’experts.",
-                                className="normal-text",
+                                className="normal-text justify-text",
                             ),
                         ],
                         labelClass="InternalLink normal-text",
