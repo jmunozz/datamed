@@ -501,6 +501,13 @@ a.btn-lg {
   margin-bottom: 2.25rem;
 }
 
+:target::before {
+  content: "";
+  display: block;
+  height: 88px; /* fixed header height*/
+  margin: -88px 0 0; /* negative fixed header height */
+}
+
 .SectionRow {
   flex: 1;
   display: flex;
