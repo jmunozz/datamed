@@ -9,10 +9,21 @@ from tqdm import tqdm
 import db
 import erreurs_med as em
 import helpers
+import mesusage
 import settings
 from logos_formes_pharma import get_specialite_icon
 
 engine = db.connect_db()
+
+MESURES = {
+    "CTQL": "Contingentement qualitatif",
+    "CTQT": "Contingentement quantitatif",
+    "RSTR": "Restriction du circuit de distribution",
+    "IMP": "Importation",
+    "AUT": "Importation",
+    "STCK": "Mise en place d'un stock de dépannage",
+    "FLEX": "Dérogation réglementaire",
+}
 
 
 def create_table_cis_atc(_settings: Dict):
@@ -332,51 +343,6 @@ def create_table_emed(_settings: Dict):
         db.create_table_from_df(df_table, args)
 
 
-# def get_old_ruptures_df() -> pd.DataFrame:
-#     df = pd.read_csv(
-#         "data/ruptures.csv",
-#         sep=";",
-#         header=0,
-#         parse_dates=[
-#             "date_signalement",
-#             "date_previ_ville",
-#             "date_previ_hopital",
-#         ],
-#         usecols=[
-#             "signalement",
-#             "date_signalement",
-#             "laboratoire",
-#             "specialite",
-#             "rupture",
-#             "atc",
-#             "date_previ_ville",
-#             "date_previ_hopital",
-#         ],
-#     )
-#     df = df.rename(
-#         columns={
-#             "signalement": "numero",
-#             "date_signalement": "date",
-#             "specialite": "nom",
-#             "rupture": "classification",
-#             "date_previ_ville": "prevision_remise_dispo_ville",
-#             "date_previ_hopital": "prevision_remise_dispo_hopital",
-#         }
-#     )
-#     df = df.where(pd.notnull(df), None)
-#
-#     df.atc = df.atc.str.upper()
-#     df.nom = df.apply(
-#         lambda x: x.nom.replace(" /", "/")
-#         .replace("/ ", "/")
-#         .replace("intraoculaire", "intra-oculaire")
-#         if x.nom
-#         else None,
-#         axis=1,
-#     )
-#     return df[df.date.dt.year >= 2014]
-
-
 def get_circuit(row: pd.Series) -> Optional[str]:
     if row.Circuit_Touche_Ville == "NR" and row.Circuit_Touche_Hopital == "NR":
         return None
@@ -436,6 +402,14 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     )
 
     df["circuit"] = df.apply(get_circuit, axis=1)
+
+    # If "ville et hôpital", insert two rows: one "ville" and one "hôpital"
+    s = df.circuit.str.split(" et ").apply(pd.Series, 1).stack()
+    s.index = s.index.droplevel(-1)  # to line up with df's index
+    s.name = "circuit"
+    del df["circuit"]
+    df = df.join(s)
+
     df = df.drop(["Circuit_Touche_Ville", "Circuit_Touche_Hopital"], axis=1)
     df.cause = df.cause.str.lower()
     df.dci = df.dci.str.lower()
@@ -450,26 +424,12 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def create_table_mesures(_settings: Dict):
-    cols = [
-        "Etat",
-        "Numéro Rupture",
-        "Identifiant",
-        "Description",
-        "Nom Produit",
-        "Demande de mise en place",
-        "Date mise en place",
-        "Date de fin prévisionnelle",
-        "Date de clotûre",
-        "Justification",
-    ]
-    df = pd.read_csv(
-        "data/Mesure_180521.csv",
-        sep=";",
-        encoding="utf-8",
-        usecols=cols,
-    )
+def get_acronyme_mesure(identifiant: str) -> str:
+    code = identifiant.split("-")[1]
+    return MESURES.get(code, code)
 
+
+def create_table_mesures(_settings: Dict):
     df = helpers.load_csv_to_df(_settings)
     df = df.rename(
         columns={
@@ -485,6 +445,9 @@ def create_table_mesures(_settings: Dict):
             "Justification": "justification",
         }
     )
+
+    df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
+    df = df[~df.mesure.isin(["REAP", "QST"])]
     helpers.serie_to_lowercase(df, ["etat_mesure", "nom"])
     db.create_table_from_df(df, _settings["to_sql"])
 
@@ -513,7 +476,8 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
         lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
     )
     df.prevision_remise_dispo_hopital = df.prevision_remise_dispo_hopital.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None)
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
 
     df.cip13 = df.cip13.astype(str)
 
@@ -564,6 +528,32 @@ def create_table_icones(_settings: Dict):
     db.create_table_from_df(df.set_index("cis"), _settings["to_sql"])
 
 
+def create_table_mesusage(_settings: Dict):
+    df = helpers.load_excel_to_df(_settings)
+    df = mesusage.clean_df(df, _settings)
+    df = mesusage.reformat_dataframe(df)
+
+    df_spe = pd.read_sql("specialite", engine)
+    df = df.merge(df_spe[["cis", "nom"]], on="nom", how="left")
+
+    for table_name, table_columns in _settings["tables"].items():
+        if table_name.startswith("mesusage_global"):
+            df_agg = mesusage.get_proporition_df(df, table_columns)
+            args = {
+                **{"name": table_name},
+                **_settings["to_sql"],
+            }
+            db.create_table_from_df(df_agg, args)
+        else:
+            df_agg = mesusage.get_proporition_df(df, table_columns)
+            df_agg = df_agg.set_index("cis")
+            args = {
+                **{"name": table_name},
+                **_settings["to_sql"],
+            }
+            db.create_table_from_df(df_agg, args)
+
+
 create_table_bdpm_cis(settings.files["bdpm_cis"])
 create_tables_rsp_compo(settings.files["rsp_compo"])
 create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
@@ -592,3 +582,6 @@ create_table_mesures(settings.files["mesures"])
 
 # Logos
 create_table_icones(settings.files["icones"])
+
+# Mésusage
+create_table_mesusage(settings.files["mesusage"])

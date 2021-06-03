@@ -1,6 +1,7 @@
 import os
 from urllib.parse import urlparse, unquote_plus
 
+import dash_auth
 import dash_core_components as dcc
 from dash.dependencies import Output, Input
 from dash_html_components import Div
@@ -9,6 +10,10 @@ from app import app, server
 from apps import app1, app2, app3, app4, app5, app6
 
 app.layout = Div([dcc.Location(id="url", refresh=False), Div(id="page-content")])
+
+USERNAME = os.environ["USERNAME"]
+PASSWORD = os.environ["PASSWORD"]
+dash_auth.BasicAuth(app, {USERNAME: PASSWORD})
 
 
 @app.callback(Output("page-content", "children"), Input("url", "href"))

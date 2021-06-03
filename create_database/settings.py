@@ -495,6 +495,7 @@ files = {
             "nature": "nature_erreur",
             "cause": "cause_erreur",
             "effet_indesirable": "effet_indesirable",
+            "gravite": "gravite"
         },
         "to_sql": {
             "if_exists": "replace",
@@ -665,10 +666,18 @@ files = {
             "Consommateur/autre non professionnel de santé": "Patient",
         },
         "sexes": {
-            "H": "Hommes",
+            "M": "Hommes",
             "F": "Femmes",
         },
-        "tables": {},
+        "tables": {
+            "mesusage_global_sexe": "sexe",
+            "mesusage_global_age": "age",
+            "mesusage_global_gravite": "grave",
+            "mesusage_global_declarant": "type_notif",
+            "mesusage_specialite_sexe": ["cis", "sexe"],
+            "mesusage_specialite_age": ["cis", "age"],
+            "mesusage_specialite_soc": ["cis", "soc_long"],
+        },
         "to_sql": {
             "if_exists": "replace",
             "index": True,
