@@ -1,9 +1,13 @@
-<svg width="152" height="81" viewBox="0 0 152 81" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect y="65" width="24" height="16" fill="white"/>
-<rect x="32" y="57" width="24" height="24" fill="white"/>
-<rect x="64" y="49" width="24" height="32" fill="white"/>
-<rect x="96" y="33" width="24" height="48" fill="white"/>
-<rect opacity="0.2" x="128" y="25" width="24" height="56" fill="white"/>
-<path d="M108 15C109.105 15 110 14.1046 110 13C110 11.8954 109.105 11 108 11C106.895 11 106 11.8954 106 13C106 14.1046 106.895 15 108 15Z" fill="white"/>
-<path d="M111.89 17.11C111.5 16.72 110.83 16 109.53 16C109.32 16 108.11 16 106.99 16C104.53 15.99 102.48 14.2 102.07 11.85C101.99 11.36 101.58 11 101.09 11C100.48 11 100 11.54 100.09 12.14C100.53 14.8 102.47 16.95 105 17.71V30C105 30.55 105.45 31 106 31C106.55 31 107 30.55 107 30V25H109V30C109 30.55 109.45 31 110 31C110.55 31 111 30.55 111 30V19.05L114.24 22.29C114.63 22.68 115.26 22.68 115.65 22.29C116.04 21.9 116.04 21.27 115.65 20.88L111.89 17.11Z" fill="white"/>
+<svg width="153" height="81" viewBox="0 0 153 81" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.5 65.5H24.5V80.5H1.5V65.5Z" fill="white" stroke="black"/>
+<rect opacity="0.2" x="33" y="57" width="24" height="24" fill="white"/>
+<rect opacity="0.2" x="65" y="49" width="24" height="32" fill="white"/>
+<rect opacity="0.2" x="97" y="33" width="24" height="48" fill="white"/>
+<rect opacity="0.2" x="129" y="25" width="24" height="56" fill="white"/>
+<rect x="1.375" y="43.7383" width="9" height="24" rx="4.5" transform="rotate(-45 1.375 43.7383)" fill="white"/>
+<path d="M4.55698 46.9198C2.79962 45.1624 2.79962 42.3132 4.55698 40.5558V40.5558C6.31434 38.7985 9.16358 38.7985 10.9209 40.5558L16.3648 45.9997C16.3648 45.9997 13.8614 47.0764 12.625 48.2497C11.2427 49.5614 10.0009 52.3637 10.0009 52.3637L4.55698 46.9198Z" fill="#9E9E9E"/>
+<ellipse cx="7.44434" cy="41.1943" rx="1.16147" ry="1.05791" transform="rotate(-45 7.44434 41.1943)" fill="white"/>
+<path d="M3.62509 43.75L18.2499 58.375C17.3124 58.375 16.3734 57.9305 15.8125 57.4375C15.5992 57.25 4.70309 46.375 4.56258 46.1875C3.57904 44.875 3.62509 43.75 3.62509 43.75Z" fill="#E0E0E0"/>
+<rect x="1.375" y="43.7388" width="9" height="24" rx="4.5" transform="rotate(-45 1.375 43.7388)" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.0203 52.3454C10.0203 52.3454 11.3867 49.5592 12.8126 48.25C13.9771 47.1807 16.2517 46.114 16.2517 46.114" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -34,12 +34,12 @@ UTILISATION = {
 }
 
 UTILISATION_IMG_URL = {
-    "-": app.get_asset_url("Indice-noData.svg"),
-    1: app.get_asset_url("Indice-4.svg"),
-    2: app.get_asset_url("Indice-3.svg"),
-    3: app.get_asset_url("Indice-2.svg"),
-    4: app.get_asset_url("Indice-1.svg"),
-    5: app.get_asset_url("Indice-5.svg"),
+    "-": app.get_asset_url("indice-nodata.svg"),
+    1: app.get_asset_url("indice-4.svg"),
+    2: app.get_asset_url("indice-3.svg"),
+    3: app.get_asset_url("indice-2.svg"),
+    4: app.get_asset_url("indice-1.svg"),
+    5: app.get_asset_url("indice-5.svg"),
 }
 
 SEXE = {1: "Hommes", 2: "Femmes"}
@@ -118,7 +118,7 @@ def NoData(class_name="") -> html.Div:
     return html.Div(
         [
             html.Img(
-                src=app.get_asset_url("notfound.svg"),
+                src=app.get_asset_url("Indice-nodata.svg"),
                 className="img-fluid",
                 alt="Responsive image",
             ),
@@ -135,57 +135,53 @@ def Tooltip() -> Component:
                 [
                     html.Div(
                         [
-                            html.Span(
-                                "Estimations obtenues à partir des données Open Medic portant sur l’usage du "
-                                "médicament, délivré en ",
-                                className="normal-text",
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Estimations obtenues à partir des données Open Medic portant sur l’usage du "
+                                        "médicament, délivré en ",
+                                        className="normal-text",
+                                    ),
+                                    html.B(html.Span("pharmacie de ville",)),
+                                    html.Span(" entre 2014 et 2018 et remboursé par ",),
+                                    html.B(html.Span("l’Assurance Maladie.",)),
+                                    html.Span(
+                                        " Pour plus d’informations, consultez : ",
+                                    ),
+                                    html.A(
+                                        "open-data-assurance-maladie.ameli.fr",
+                                        href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
+                                        className="Link",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
                             ),
-                            html.Span(
-                                "pharmacie de ville", className="normal-text-bold",
+                            html.P(
+                                [
+                                    html.B(html.Span("Attention : ")),
+                                    html.Span(
+                                        "Un patient est comptabilisé autant de fois qu’il a acheté de types "
+                                        "de conditionnements (ou présentations) différents de la spécialité / "
+                                        "substance active. Pour la spécialité Doliprane 500 mg, gélule, un patient qui "
+                                        "aura acheté 2 boîtes de 16 gélules et 3 boîtes de 100 gélules au cours de "
+                                        "l’année 2016 sera comptabilisé 2 fois pour 2016.",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
                             ),
-                            html.Span(
-                                " entre 2014 et 2018 et remboursé par ",
-                                className="normal-text",
-                            ),
-                            html.Span(
-                                "l’Assurance Maladie.", className="normal-text-bold",
-                            ),
-                            html.Span(
-                                " Pour plus d’informations, consultez : ",
-                                className="normal-text",
-                            ),
-                            html.A(
-                                "open-data-assurance-maladie.ameli.fr",
-                                href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
-                                className="normal-text link",
-                            ),
-                        ],
-                        className="text-justify mb-3",
-                    ),
-                    html.Div(
-                        [
-                            html.Span("Attention : ", className="normal-text-bold",),
-                            html.Span(
-                                "Un patient est comptabilisé autant de fois qu’il a acheté de types "
-                                "de conditionnements (ou présentations) différents de la spécialité / "
-                                "substance active. Pour la spécialité Doliprane 500 mg, gélule, un patient qui "
-                                "aura acheté 2 boîtes de 16 gélules et 3 boîtes de 100 gélules au cours de "
-                                "l’année 2016 sera comptabilisé 2 fois pour 2016.",
-                                className="normal-text",
-                            ),
-                        ],
-                        className="text-justify mb-3",
-                    ),
-                    html.Div(
-                        [
-                            html.Span(
-                                "La somme de ce nombre de patients sur la période 2014-2018 est ensuite "
-                                "divisée par 5 pour obtenir un chiffre moyen de patients traités par an.",
-                                className="normal-text text-justify",
+                            html.P(
+                                [
+                                    html.Span(
+                                        "La somme de ce nombre de patients sur la période 2014-2018 est ensuite "
+                                        "divisée par 5 pour obtenir un chiffre moyen de patients traités par an."
+                                    )
+                                ],
+                                className="justify-text normal-text",
                             ),
                         ],
-                        className="mb-3",
                     ),
+                    html.Div([], className="text-justify mb-3",),
+                    html.Div([], className="mb-3",),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",

@@ -40,7 +40,7 @@ PIE_LAYOUT = {
     "width": 400,
     "plot_bgcolor": "#FFFFFF",
     "paper_bgcolor": "#FFFFFF",
-    "margin": dict(t=0, b=0, l=0, r=0),
+    "margin": dict(t=1, b=1, l=0, r=0),
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     "hoverlabel": dict(
         bgcolor="white",
