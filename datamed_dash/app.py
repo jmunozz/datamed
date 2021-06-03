@@ -14,7 +14,7 @@ app = DashProxy(
         __file__.replace("index.py", "./assets/crisp.js"),
     ],
     suppress_callback_exceptions=True,
-    title="Dashboard - DataMed",
+    title="data.ansm",
     transforms=[MultiplexerTransform()],
 )
 

@@ -379,7 +379,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
             ),
         )
     elif type == "rupture":
-        title = "Observatoire des ruptures de stock"
+        title = "Données ruptures de stock"
         css_class = "Header-isRupture"
         icon_url = app.get_asset_url("Liquide-64.png")
         type_label = "Base de données"

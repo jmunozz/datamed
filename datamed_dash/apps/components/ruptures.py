@@ -10,8 +10,7 @@ from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from dash_html_components import Div, P, Article, H1, H4, Span, A
-from datamed_custom_components import Accordion
+from dash_html_components import Div, P, Article, H1, H4, A
 from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
@@ -29,6 +28,7 @@ from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS
 from ..constants.layouts import (
     RUPTURES_BAR_LAYOUT,
     TREEMAP_LAYOUT,
+    CURVE_LAYOUT,
     get_ruptures_curve_layout,
 )
 
@@ -36,6 +36,7 @@ INITIAL_YEAR = 2020
 
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
+df_mesures = fetch_data.fetch_table("mesures", "index")
 
 
 def Description() -> Component:
@@ -56,12 +57,30 @@ def Description() -> Component:
                     [
                         ArticleTitle("Description"),
                         P(
-                            "L’ANSM a pour mission d’observer tout au long de l’année l’état des ruptures de stock de "
-                            "médicaments présents dans les circuits Ville et Hôpital et de s’assurer du maintien des "
-                            "stocks en cas de tension d’approvisionnement et de rupture. Retrouvez les différentes "
-                            "formes et chiffres de signalements que l’Agence reçoit, et les actions mises en place "
-                            "pour y remédier et maintenir ainsi l’alimentation des officines au niveau national.",
+                            " Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute rupture "
+                            "ou risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
+                            "l'ANSM. L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques "
+                            "de rupture de stock de ces médicaments qui peuvent entraîner un risque de santé publique.",
                             className="normal-text text-justify",
+                        ),
+                        P(
+                            "Retrouvez différentes statistiques sur les signalements reçus par "
+                            "l’Agence et les actions mises en place pour y remédier.",
+                            className="normal-text text-justify",
+                        ),
+                        Div(
+                            [
+                                P(
+                                    "Pour toutes les dernières informations à destination des patients et "
+                                    "professionnels de santé sur les ruptures de stock en cours, consultez : ",
+                                    className="normal-text text-justify d-inline",
+                                ),
+                                A(
+                                    "ansm.sante.fr.",
+                                    href="https://ansm.sante.fr/",
+                                    className="normal-text ExternalLink d-inline",
+                                ),
+                            ],
                         ),
                     ]
                 ),
@@ -70,11 +89,10 @@ def Description() -> Component:
                         ArticleTitle("Avertissement"),
                         P(
                             "Les chiffres présentés ici ont pour but d’ouvrir les données au grand public afin de "
-                            "communiquer sur les actions de l’Agence. Leur interprétation et diffusion est soumise à "
-                            "de strictes réglementations. L’Agence ne se tient pas responsable en cas d’interprétation "
-                            "erronnée et de divulgation de ces chiffres et/ou dans un contexte qui ne permettrait pas "
-                            "leur lecture dans les conditions optimales. En cas de doute, veuillez nous contacter, "
-                            "vous contribuerez directement à l’amélioration de l’information diffusée.",
+                            "communiquer sur les actions de l’Agence. Leur périmètre se limite aux ruptures de stock "
+                            "au niveau des laboratoires exploitants et ne prennent pas en compte notamment les "
+                            "ruptures qui peuvent être causées par le circuit de distribution. Les données antérieures "
+                            "à Mai 2021 sont susceptibles de faire l'objet d'erreur de saisie.",
                             className="normal-text text-justify",
                         ),
                     ]
@@ -123,22 +141,7 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
             )
         )
 
-    fig.update_layout(
-        {
-            "xaxis_showgrid": False,
-            "yaxis_showgrid": False,
-            "hovermode": "x unified",
-            "plot_bgcolor": "#FFF",
-            "paper_bgcolor": "#FFF",
-            "margin": dict(t=0, b=0, l=0, r=0),
-            "font": {"size": 12, "color": "black"},
-            "legend": dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-            ),
-            "hoverlabel": {"namelength": -1},
-        }
-    )
-
+    fig.update_layout(CURVE_LAYOUT)
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
@@ -272,7 +275,14 @@ def get_causes(annee=INITIAL_YEAR):
 
 
 def Signalements(df: pd.DataFrame) -> Component:
-    signalements = round(len(df) / len(range(2014, dt.now().year + 1)))
+    signalements = len(df[df.annee == dt.now().year - 1])
+    this_year = str(dt.now().year)[-2:]
+    mesures = len(
+        df_mesures[
+            (df_mesures.etat_mesure == "accord")
+            & (df_mesures.identifiant.str.startswith(this_year))
+        ].identifiant.unique()
+    )
     return TopicSection(
         [
             SectionRow(
@@ -286,10 +296,12 @@ def Signalements(df: pd.DataFrame) -> Component:
                             FigureGraph(
                                 [
                                     {
-                                        "figure": "{} signalements / an".format(
-                                            signalements
+                                        "figure": "{} signalements".format(
+                                            signalements,
                                         ),
-                                        "caption": "Nombre moyen de signalements par an",
+                                        "caption": "Nombre de signalements en {}".format(
+                                            dt.now().year - 1
+                                        ),
                                     }
                                 ]
                             ),
@@ -301,8 +313,11 @@ def Signalements(df: pd.DataFrame) -> Component:
                             FigureGraph(
                                 [
                                     {
-                                        "figure": "- actions réalisées",
-                                        "caption": "Signalements ayant fait l'objet d'une mesure de gestion",
+                                        "figure": "{} actions réalisées".format(
+                                            mesures
+                                        ),
+                                        "caption": "Signalements ayant fait l'objet d'une "
+                                        "mesure de gestion pour l'année en cours",
                                     }
                                 ]
                             ),
@@ -377,21 +392,6 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         style={"float": "right"},
                                     ),
                                 ],
-                                className="mb-5",
-                            ),
-                            Box(
-                                Accordion(
-                                    [
-                                        Div(
-                                            "Toutes les ruptures en circuit ville de moins de 15"
-                                            " jours sont sans conséquence sur la consommation de médicaments en "
-                                            "France.",
-                                            className="normal-text",
-                                        ),
-                                    ],
-                                    labelClass="InternalLink normal-text",
-                                    label="Le saviez-vous ?",
-                                ),
                                 className="mb-5",
                             ),
                             H4(

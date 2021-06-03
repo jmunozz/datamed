@@ -25,7 +25,6 @@ BAR_LAYOUT = {
 CURVE_LAYOUT = {
     "xaxis_showgrid": False,
     "yaxis_showgrid": False,
-    "yaxis2_showgrid": False,
     "hovermode": "x unified",
     "plot_bgcolor": "#FFF",
     "margin": dict(t=0, b=0, l=0, r=0),
