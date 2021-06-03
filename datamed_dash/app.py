@@ -7,8 +7,9 @@ load_dotenv()
 
 app = DashProxy(
     __name__,
-    external_stylesheets=[__file__.replace("index.py", "./assets/style.css"),],
+    external_stylesheets=[__file__.replace("index.py", "./assets/style.css"), dbc.themes.BOOTSTRAP],
     external_scripts=[
+        dbc.themes.BOOTSTRAP,
         __file__.replace("index.py", "./assets/menu.js"),
         __file__.replace("index.py", "./assets/crisp.js"),
     ],
