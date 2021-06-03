@@ -97,6 +97,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_pop = specialite.get_erreur_med_population(cis)
     df_denom = specialite.get_erreur_med_denom(cis)
     df_rup = specialite.get_ruptures(cis)
+    df_init = specialite.get_erreur_med_init(cis)
 
     return (
         Header(series_spe),
@@ -129,7 +130,13 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_ei, df_pop, df_cause, df_nat, df_denom, series_spe,
+                                df_init,
+                                df_ei,
+                                df_pop,
+                                df_cause,
+                                df_nat,
+                                df_denom,
+                                series_spe,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -348,6 +355,7 @@ def BoxListDenomination(df_denom):
 
 
 def ErreursMedicamenteuses(
+    df_init: pd.DataFrame,
     df_ei: pd.DataFrame,
     df_pop: pd.DataFrame,
     df_cause: pd.DataFrame,
@@ -401,6 +409,14 @@ def ErreursMedicamenteuses(
                     ),
                 ],
                 withGutter=True,
+            ),
+            SectionRow(
+                [
+                    GraphBox(
+                        "Erreurs initiales",
+                        [StackBarGraph(df_init, "initial_erreur",)],
+                    ),
+                ]
             ),
             SectionRow(
                 [
