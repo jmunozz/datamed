@@ -46,7 +46,7 @@ def BddCard(
                 ),
                 Box(
                     [
-                        Div(title, className="medium-text"),
+                        H3(title, className="withSubtitle"),
                         Div(
                             [
                                 "Open data : ",

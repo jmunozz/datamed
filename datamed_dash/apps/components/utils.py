@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import unidecode
 from dash.development.base_component import Component
-from dash_html_components import Div, A, Img, H4, H1, Label, Section
+from dash_html_components import Div, A, Img, H5, H1, H4, Label, Section
 
 
 def SectionRow(children, withGutter=False):
@@ -26,13 +26,13 @@ def Box(children, className="", isBordered=True, hasNoPadding=False) -> Componen
 
 
 def ArticleTitle(title: str) -> Component:
-    return H4(title, className="small-text-bold with-margin")
+    return H5(title)
 
 
 # Add a Title and return a Box Component
 def GraphBox(title: str, children: List, className="") -> Component:
     if title:
-        children = [Div(title, className="normal-text-bold mb-4")] + children
+        children = [Div(H4(title)), Div(children, className="BoxContentWrapper")]
     return Box(children, className)
 
 
@@ -86,7 +86,7 @@ def ExternalLink(label: str, link: str):
         href=link,
         target="_blank",
         rel="noopener noreferrer",
-        className="ExternalLink normal-text",
+        className="Link",
         id="refresh-substances",
     )
 

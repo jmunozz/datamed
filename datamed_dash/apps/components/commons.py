@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from app import app
 from dash.development.base_component import Component
 from dash_core_components import Graph
-from dash_html_components import Div
+from dash_html_components import Div, H1
 from datamed_custom_components import Accordion
 from db import fetch_data
 from db import specialite
@@ -22,7 +22,7 @@ from .utils import (
     SectionRow,
     normalize_string,
 )
-from ..constants.layouts import PIE_LAYOUT
+from ..constants.layouts import PIE_LAYOUT, PIE_TRACES
 
 UTILISATION = {
     1: "Utilisation très faible",
@@ -46,8 +46,19 @@ SEXE = {1: "Hommes", 2: "Femmes"}
 
 SEXE_IMG_URL = {
     1: app.get_asset_url("Homme-250.svg"),
-    2: app.get_asset_url("Femme-250.svg"),
+    2: app.get_asset_url("FemmeViolet-250.svg"),
 }
+
+
+def BoxRow(children):
+    return html.Div(html.Div(children, className="BoxRowWrapper"), className="BoxRow")
+
+
+def BoxArticle(children, in_row=False):
+    class_names = ["BoxArticle"]
+    if in_row:
+        class_names = class_names + ["BoxArticle-isInRow"]
+    return html.Article(children, className=" ".join(class_names))
 
 
 def FrontPageSectionPart(children, class_name=""):
@@ -86,18 +97,24 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 
 def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
-    return go.Figure(
-        go.Pie(
-            labels=labels,
-            values=values,
-            marker_colors=pie_colors,
-            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+    return (
+        go.Figure(
+            go.Pie(
+                labels=labels,
+                values=values,
+                marker_colors=pie_colors,
+                hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+            )
         )
-    ).update_layout(PIE_LAYOUT)
+        .update_layout(PIE_LAYOUT)
+        .update_traces(PIE_TRACES)
+    )
 
 
 def NoData(class_name="") -> html.Div:
-    class_name = " ".join((["Stack", "Stack-isCentered"] + class_name.split(" ")))
+    class_name = " ".join(
+        (["NoData", "Stack", "Stack-isCentered"] + class_name.split(" "))
+    )
     return html.Div(
         [
             html.Img(
@@ -105,11 +122,7 @@ def NoData(class_name="") -> html.Div:
                 className="img-fluid",
                 alt="Responsive image",
             ),
-            html.Div(
-                "Données insuffisantes pour affichage",
-                className="small-text",
-                style={"color": "#9e9e9e"},
-            ),
+            html.Div("Données insuffisantes pour affichage",),
         ],
         className=class_name,
     )
@@ -354,11 +367,13 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         df_icones = specialite.get_icones(series_spe.name)
         series_icones = fetch_data.as_series(df_icones)
         icon_url = app.get_asset_url(
-            f"icons/pres_{normalize_string(series_icones.icone)}.svg"
+            f"icons/pres_{normalize_string(series_icones.icone)}_120.svg"
         )
         type_label = "Spécialité de médicament"
         help_link = html.A(
-            "Qu'est-ce qu'une spécialité de médicament ?", id="definition-open"
+            "Qu'est-ce qu'une spécialité de médicament ?",
+            id="definition-open",
+            className="Link Link-isOnDarkBackground",
         )
         modal_body.append(
             html.Div(
@@ -372,7 +387,11 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         css_class = "Header-isRupture"
         icon_url = app.get_asset_url("Liquide-64.png")
         type_label = "Base de données"
-        help_link = html.A("Qu'est-ce qu'une base de données ?", id="definition-open")
+        help_link = html.A(
+            "Qu'est-ce qu'une base de données ?",
+            id="definition-open",
+            className="Link Link-isOnDarkBackground",
+        )
         modal_body = [
             html.Div(
                 "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
@@ -382,35 +401,39 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
 
     return html.Div(
         html.Div(
-            [
-                html.Div(html.Img(src=icon_url), className="content-header-img",),
-                html.Div(
-                    [
-                        html.Div(title, className="heading-4"),
-                        html.Div(type_label, className="large-text"),
-                        help_link,
-                        dbc.Modal(
-                            [
-                                dbc.ModalHeader("Définition"),
-                                dbc.ModalBody(
-                                    modal_body, className="normal-text text-justify",
-                                ),
-                                dbc.ModalFooter(
-                                    dbc.Button(
-                                        "Fermer",
-                                        id="definition-close",
-                                        className="ml-auto",
-                                        style={"background-color": "#a03189"},
-                                    )
-                                ),
-                            ],
-                            id="definition-modal",
-                        ),
-                    ],
-                    className="content-header-text",
-                ),
-            ],
-            className="HeaderContent",
+            html.Div(
+                [
+                    html.Div(html.Img(src=icon_url), className="HeaderImg",),
+                    html.Div(
+                        [
+                            H1(title),
+                            html.P(type_label, className="large-text"),
+                            help_link,
+                            dbc.Modal(
+                                [
+                                    dbc.ModalHeader("Définition"),
+                                    dbc.ModalBody(
+                                        modal_body,
+                                        className="normal-text text-justify",
+                                    ),
+                                    dbc.ModalFooter(
+                                        dbc.Button(
+                                            "Fermer",
+                                            id="definition-close",
+                                            className="ml-auto",
+                                            style={"background-color": "#a03189"},
+                                        )
+                                    ),
+                                ],
+                                id="definition-modal",
+                            ),
+                        ],
+                        className="content-header-text",
+                    ),
+                ],
+                className="HeaderWrapper",
+            ),
+            className="HeaderLayoutWrapper",
         ),
         className=f"Header {css_class}",
     )
