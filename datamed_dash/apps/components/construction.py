@@ -11,9 +11,7 @@ def Construction() -> Component:
             Div(
                 [
                     Div(
-                        Img(
-                            src=app.get_asset_url("Illustration-construction.svg"),
-                        ),
+                        Img(src=app.get_asset_url("illustration-construction.svg"),),
                         className="fp-section fp-section-1 justify-content-center",
                     ),
                     Div(
@@ -35,7 +33,7 @@ def Construction() -> Component:
                                         className="normal-text link d-block",
                                     ),
                                 ],
-                                className="col-lg-6 col-md-10 col-sm-10 text-center mb-5"
+                                className="col-lg-6 col-md-10 col-sm-10 text-center mb-5",
                             )
                         ],
                         className="fp-section fp-section-1 justify-content-md-center d-flex",

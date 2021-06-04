@@ -31,7 +31,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             class_name="Stack Stack-isCentered Stack-isVerticalCentered",
                         ),
                         FrontPageSectionPart(
-                            html.Img(src=app.get_asset_url("Big illustration 1.svg"))
+                            html.Img(src=app.get_asset_url("big_illustration_1.svg"))
                         ),
                     ],
                     has_appendice=True,
@@ -40,7 +40,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                 FrontPageSection(
                     [
                         FrontPageSectionPart(
-                            html.Img(src=app.get_asset_url("Big illustration 2.svg"))
+                            html.Img(src=app.get_asset_url("big_illustration_2.svg"))
                         ),
                         FrontPageSectionPart(
                             [
@@ -75,7 +75,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                             [
                                                 html.Img(
                                                     src=app.get_asset_url(
-                                                        "Public-Male-250.svg"
+                                                        "public-male-250.svg"
                                                     ),
                                                     style={"height": "250px"},
                                                 ),
@@ -94,7 +94,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                             [
                                                 html.Img(
                                                     src=app.get_asset_url(
-                                                        "Doctor-Female-250.svg"
+                                                        "doctor-female-250.svg"
                                                     ),
                                                     style={"height": "250px"},
                                                 ),
@@ -114,7 +114,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                             [
                                                 html.Img(
                                                     src=app.get_asset_url(
-                                                        "DataScentist-250.svg"
+                                                        "datascentist-250.svg"
                                                     ),
                                                     style={"height": "250px"},
                                                 ),
@@ -163,7 +163,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             class_name="Stack Stack-isVerticalCentered",
                         ),
                         FrontPageSectionPart(
-                            html.Img(src=app.get_asset_url("Big illustration 3.svg"))
+                            html.Img(src=app.get_asset_url("big_illustration_3.svg"))
                         ),
                     ]
                 ),

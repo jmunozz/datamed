@@ -381,7 +381,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
     elif type == "rupture":
         title = "Données ruptures de stock"
         css_class = "Header-isRupture"
-        icon_url = app.get_asset_url("Liquide-64.png")
+        icon_url = app.get_asset_url("liquide-64.png")
         type_label = "Base de données"
         help_link = html.A(
             "Qu'est-ce qu'une base de données ?",

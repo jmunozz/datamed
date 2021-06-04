@@ -409,7 +409,9 @@ def SystemesOrganesTooltip():
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
     return TopicSection(
         [
-            SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe")),
+            SectionRow(
+                html.H1("Déclarations d'effets indésirables par système d'organe")
+            ),
             SystemesOrganesTooltip(),
             SectionRow(
                 [
