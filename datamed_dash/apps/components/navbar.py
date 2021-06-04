@@ -23,18 +23,14 @@ def truncate_str(text: str) -> str:
 
 def to_search_bar_options(df: DataFrame, type: str) -> List[Dict]:
     return [
-        {
-            "label": truncate_str(val),
-            "value": index,
-            "type": type,
-        }
+        {"label": truncate_str(val), "value": index, "type": type,}
         for index, val in df.nom.items()
     ]
 
 
 def LogoAnsm() -> Component:
     img = html.Img(
-        src=app.get_asset_url("Logo.svg"),
+        src=app.get_asset_url("logo.svg"),
         style={"width": "100px", "display": "inline-block"},
         className="mr-4",
     )
@@ -42,11 +38,7 @@ def LogoAnsm() -> Component:
 
 
 def MenuItem(title: str, href: str) -> Component:
-    return html.A(
-        title,
-        href=href,
-        className="NavbarItem normal-text",
-    )
+    return html.A(title, href=href, className="NavbarItem normal-text",)
 
 
 def Navbar() -> Component:
@@ -70,8 +62,7 @@ def Navbar() -> Component:
 
 
 @app.callback(
-    dd.Output("url", "href"),
-    dd.Input("search-bar", "value"),
+    dd.Output("url", "href"), dd.Input("search-bar", "value"),
 )
 def update_path(value):
     ctx = dash.callback_context
