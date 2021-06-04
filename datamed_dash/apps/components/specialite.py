@@ -1,3 +1,4 @@
+from os import name
 import urllib
 from typing import Tuple
 
@@ -15,7 +16,7 @@ from datamed_custom_components import Accordion
 from db import specialite, fetch_data
 from sm import SideMenu
 
-from .commons import PatientsTraites, NoData, Header
+from .commons import PatientsTraites, NoData, Header, BoxArticle, BoxRow
 from .utils import (
     Box,
     GraphBox,
@@ -28,7 +29,12 @@ from .utils import (
     nested_get,
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
-from ..constants.layouts import PIE_LAYOUT, STACKED_BAR_CHART_LAYOUT
+from ..constants.layouts import (
+    PIE_LAYOUT,
+    STACKED_BAR_CHART_LAYOUT,
+    PIE_TRACES,
+    STACKED_BAR_CHART_TRACES,
+)
 
 
 def get_rcp_link(cis: str) -> str:
@@ -91,6 +97,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_pop = specialite.get_erreur_med_population(cis)
     df_denom = specialite.get_erreur_med_denom(cis)
     df_rup = specialite.get_ruptures(cis)
+    df_init = specialite.get_erreur_med_init(cis)
 
     return (
         Header(series_spe),
@@ -123,7 +130,13 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_ei, df_pop, df_cause, df_nat, df_denom, series_spe,
+                                df_init,
+                                df_ei,
+                                df_pop,
+                                df_cause,
+                                df_nat,
+                                df_denom,
+                                series_spe,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -139,16 +152,20 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
 
 
 def SubstanceLinks(df_sub: pd.DataFrame) -> Component:
-    return html.Div(
+    return html.Ul(
         [
-            html.A(
-                series.nom.capitalize(),
-                href="/apps/substance?search={}".format(code),
-                className="InternalLink d-block",
-                id="refresh-substances",
+            html.Li(
+                html.A(
+                    series.nom.capitalize(),
+                    href="/apps/substance?search={}".format(code),
+                    className="Link",
+                    id="refresh-substances",
+                ),
+                className="ListItem",
             )
             for code, series in df_sub.iterrows()
-        ]
+        ],
+        className="List",
     )
 
 
@@ -167,27 +184,10 @@ def Description(
         SectionRow(
             Box(
                 [
-                    html.Article(
+                    BoxArticle(
                         [ArticleTitle("Substance(s) active(s)"), SubstanceLinks(df_sub)]
                     ),
-                    html.Article(
-                        [
-                            ArticleTitle("État de commercialisation"),
-                            html.Div(
-                                series_spe.etat_commercialisation.capitalize(),
-                                className="Badge normal-text",
-                            ),
-                        ]
-                    ),
-                    html.Article(
-                        [
-                            ArticleTitle("Laboratoire"),
-                            html.Div(
-                                series_spe.titulaires.title(), className="normal-text",
-                            ),
-                        ]
-                    ),
-                    html.Article(
+                    BoxArticle(
                         [
                             ArticleTitle(
                                 "Classe ATC (Anatomique, Thérapeutique et Chimique)"
@@ -200,7 +200,24 @@ def Description(
                             ),
                         ]
                     ),
-                    html.Article(
+                    BoxArticle(
+                        [
+                            ArticleTitle("État de commercialisation"),
+                            html.Div(
+                                series_spe.etat_commercialisation.capitalize(),
+                                className="Badge normal-text",
+                            ),
+                        ],
+                    ),
+                    BoxArticle(
+                        [
+                            ArticleTitle("Laboratoire"),
+                            html.Div(
+                                series_spe.titulaires.title(), className="normal-text",
+                            ),
+                        ],
+                    ),
+                    BoxArticle(
                         [
                             ArticleTitle("Description"),
                             html.P(
@@ -209,26 +226,37 @@ def Description(
                             ),
                         ]
                     ),
-                    html.Article(
+                    BoxRow(
                         [
-                            ArticleTitle("Recommandations de la HAS"),
-                            ExternalLink(
-                                "Afficher les recommandations",
-                                get_has_link(series_spe),
+                            BoxArticle(
+                                [
+                                    ArticleTitle("Recommandations de la HAS"),
+                                    ExternalLink(
+                                        "Afficher les recommandations",
+                                        get_has_link(series_spe),
+                                    ),
+                                ],
+                                in_row=True,
                             ),
-                        ]
-                    ),
-                    html.Article(
-                        [
-                            ArticleTitle("Infos pour les professionnels de santé"),
-                            ExternalLink("Afficher le RCP", get_rcp_link(cis)),
-                        ]
-                    ),
-                    html.Article(
-                        [
-                            ArticleTitle("Infos pour les patients"),
-                            ExternalLink("Afficher la notice", get_notice_link(cis)),
-                        ]
+                            BoxArticle(
+                                [
+                                    ArticleTitle(
+                                        "Infos pour les professionnels de santé"
+                                    ),
+                                    ExternalLink("Afficher le RCP", get_rcp_link(cis)),
+                                ],
+                                in_row=True,
+                            ),
+                            BoxArticle(
+                                [
+                                    ArticleTitle("Infos pour les patients"),
+                                    ExternalLink(
+                                        "Afficher la notice", get_notice_link(cis)
+                                    ),
+                                ],
+                                in_row=True,
+                            ),
+                        ],
                     ),
                 ],
             ),
@@ -253,17 +281,13 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             },
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
+            hover_name=field,
+            hover_data={field: False,},
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
-        # Change hover appearance
-        fig.update_layout(
-            hoverlabel=dict(
-                bgcolor="white",
-                bordercolor="white",
-                font=dict(color="black", size=12, family="Roboto"),
-            ),
-        )
+        fig.update_traces(STACKED_BAR_CHART_TRACES)
+
         return html.Div(
             Graph(figure=fig, id="stack-bar", responsive=True, style={"height": 225}),
             className="ErrMedStackBar",
@@ -303,6 +327,7 @@ def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
             hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
         )
     ).update_layout(PIE_LAYOUT)
+    fig_pop.update_traces(PIE_TRACES)
     return Graph(figure=fig_pop, responsive=False)
 
 
@@ -330,6 +355,7 @@ def BoxListDenomination(df_denom):
 
 
 def ErreursMedicamenteuses(
+    df_init: pd.DataFrame,
     df_ei: pd.DataFrame,
     df_pop: pd.DataFrame,
     df_cause: pd.DataFrame,
@@ -345,21 +371,25 @@ def ErreursMedicamenteuses(
                 Box(
                     Accordion(
                         [
-                            html.Span(
-                                "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
-                                "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
-                                "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
-                                className="normal-text",
-                            ),
-                            html.A(
-                                "portail des signalements",
-                                href="https://signalement.social-sante.gouv.fr",
-                                className="normal-text link",
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
+                                        "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
+                                        "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
+                                    ),
+                                    html.A(
+                                        "portail des signalements",
+                                        href="https://signalement.social-sante.gouv.fr",
+                                        className="Link",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
                             ),
                             html.P(
                                 "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
                                 "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur.",
-                                className="normal-text text-justify mt-2",
+                                className="justify-text normal-text",
                             ),
                         ],
                         labelClass="InternalLink normal-text",
@@ -383,8 +413,16 @@ def ErreursMedicamenteuses(
             SectionRow(
                 [
                     GraphBox(
+                        "Erreurs initiales",
+                        [StackBarGraph(df_init, "initial_erreur",)],
+                    ),
+                ]
+            ),
+            SectionRow(
+                [
+                    GraphBox(
                         "Cause des erreurs médicamenteuses",
-                        [StackBarGraph(df_cause, "cause_erreur")],
+                        [StackBarGraph(df_cause, "cause_erreur",)],
                     ),
                 ]
             ),
@@ -392,7 +430,7 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
-                        [StackBarGraph(df_nat, "nature_erreur")],
+                        [StackBarGraph(df_nat, "nature_erreur",)],
                     ),
                 ]
             ),
@@ -400,30 +438,32 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Liste des dénominations des médicaments concernés par ces erreurs médicamenteuses",
-                        [
-                            html.P(
-                                [
-                                    html.Span(
-                                        "Ci-dessous vous trouverez la liste des dénominations de médicaments "
-                                        "renseignées dans la base de données des erreurs médicamenteuses. En effet, "
-                                        "dans cette base, les médicaments ne sont pas toujours renseignés par nom de "
-                                        "spécialité. Nous avons sélectionné les dénominations qui se "
-                                        "rapprochent le plus de ",
-                                        className="normal-text",
-                                    ),
-                                    html.Strong(
-                                        "{}".format(series_spe.nom.capitalize()),
-                                        className="normal-text-bold",
-                                    ),
-                                    html.Span(
-                                        " pour mener notre analyse.",
-                                        className="normal-text",
-                                    ),
-                                ],
-                                className="text-justify",
-                            ),
-                            BoxListDenomination(df_denom),
-                        ],
+                        html.Div(
+                            [
+                                html.P(
+                                    [
+                                        html.Span(
+                                            "Ci-dessous vous trouverez la liste des dénominations de médicaments "
+                                            "renseignées dans la base de données des erreurs médicamenteuses. En effet, "
+                                            "dans cette base, les médicaments ne sont pas toujours renseignés par nom de "
+                                            "spécialité. Nous avons sélectionné les dénominations qui se "
+                                            "rapprochent le plus de ",
+                                            className="normal-text",
+                                        ),
+                                        html.Strong(
+                                            "{}".format(series_spe.nom.capitalize()),
+                                            className="normal-text-bold",
+                                        ),
+                                        html.Span(
+                                            " pour mener notre analyse.",
+                                            className="normal-text",
+                                        ),
+                                    ],
+                                    className="text-justify",
+                                ),
+                                BoxListDenomination(df_denom),
+                            ]
+                        ),
                     ),
                 ]
             ),
@@ -450,7 +490,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                                 "d’être liés à l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, "
                                 "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
                                 "un comité d’experts.",
-                                className="normal-text",
+                                className="normal-text justify-text",
                             ),
                         ],
                         labelClass="InternalLink normal-text",
@@ -471,16 +511,11 @@ def AdverseEffectLink(substance: str, code: str) -> Component:
     return Box(
         html.Div(
             [
-                html.Span(
-                    substance,
-                    className="AdverseEffectRowLabel normal-text",
-                    style={"color": "#00B3CC"},
-                ),
+                html.Span(substance, className="AdverseEffectRowLabel",),
                 html.A(
                     "Consulter les effets indésirables",
                     href="/apps/substance?search={}#effets-indesirables".format(code),
-                    className="InternalLink normal-text",
-                    style={"color": "#A03189"},
+                    className="Link",
                 ),
             ],
             className="AdverseEffectRow",

@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from app import app
 from dash.development.base_component import Component
 from dash_core_components import Graph
-from dash_html_components import Div
+from dash_html_components import Div, H1
 from datamed_custom_components import Accordion
 from db import fetch_data
 from db import specialite
@@ -22,7 +22,7 @@ from .utils import (
     SectionRow,
     normalize_string,
 )
-from ..constants.layouts import PIE_LAYOUT
+from ..constants.layouts import PIE_LAYOUT, PIE_TRACES
 
 UTILISATION = {
     1: "Utilisation très faible",
@@ -34,20 +34,31 @@ UTILISATION = {
 }
 
 UTILISATION_IMG_URL = {
-    "-": app.get_asset_url("Indice-noData.svg"),
-    1: app.get_asset_url("Indice-4.svg"),
-    2: app.get_asset_url("Indice-3.svg"),
-    3: app.get_asset_url("Indice-2.svg"),
-    4: app.get_asset_url("Indice-1.svg"),
-    5: app.get_asset_url("Indice-5.svg"),
+    "-": app.get_asset_url("indice-nodata.svg"),
+    1: app.get_asset_url("indice-4.svg"),
+    2: app.get_asset_url("indice-3.svg"),
+    3: app.get_asset_url("indice-2.svg"),
+    4: app.get_asset_url("indice-1.svg"),
+    5: app.get_asset_url("indice-5.svg"),
 }
 
 SEXE = {1: "Hommes", 2: "Femmes"}
 
 SEXE_IMG_URL = {
-    1: app.get_asset_url("Homme-250.svg"),
-    2: app.get_asset_url("Femme-250.svg"),
+    1: app.get_asset_url("man_bw_150.svg"),
+    2: app.get_asset_url("woman_bw_150.svg"),
 }
+
+
+def BoxRow(children):
+    return html.Div(html.Div(children, className="BoxRowWrapper"), className="BoxRow")
+
+
+def BoxArticle(children, in_row=False):
+    class_names = ["BoxArticle"]
+    if in_row:
+        class_names = class_names + ["BoxArticle-isInRow"]
+    return html.Article(children, className=" ".join(class_names))
 
 
 def FrontPageSectionPart(children, class_name=""):
@@ -55,11 +66,12 @@ def FrontPageSectionPart(children, class_name=""):
     return html.Div(children, className=class_name)
 
 
-def FrontPageSection(children, class_name=""):
+def FrontPageSection(children, class_name="", has_appendice=False):
+    layout = [html.Div(children, className="FrontPageSectionContainer")]
+    if has_appendice:
+        layout = layout + [Div(className="FrontPageSectionAppendice")]
     class_name = " ".join(["FrontPageSection"] + class_name.split(" "))
-    return html.Div(
-        html.Div(children, className="FrontPageSectionContainer"), className=class_name,
-    )
+    return html.Div(layout, className=class_name)
 
 
 def FrontPageSectionFull(children, class_name=""):
@@ -85,30 +97,32 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 
 def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
-    return go.Figure(
-        go.Pie(
-            labels=labels,
-            values=values,
-            marker_colors=pie_colors,
-            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+    return (
+        go.Figure(
+            go.Pie(
+                labels=labels,
+                values=values,
+                marker_colors=pie_colors,
+                hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+            )
         )
-    ).update_layout(PIE_LAYOUT)
+        .update_layout(PIE_LAYOUT)
+        .update_traces(PIE_TRACES)
+    )
 
 
 def NoData(class_name="") -> html.Div:
-    class_name = " ".join((["Stack", "Stack-isCentered"] + class_name.split(" ")))
+    class_name = " ".join(
+        (["NoData", "Stack", "Stack-isCentered"] + class_name.split(" "))
+    )
     return html.Div(
         [
             html.Img(
-                src=app.get_asset_url("notfound.svg"),
+                src=app.get_asset_url("Indice-nodata.svg"),
                 className="img-fluid",
                 alt="Responsive image",
             ),
-            html.Div(
-                "Données insuffisantes pour affichage",
-                className="small-text",
-                style={"color": "#9e9e9e"},
-            ),
+            html.Div("Données insuffisantes pour affichage",),
         ],
         className=class_name,
     )
@@ -121,57 +135,53 @@ def Tooltip() -> Component:
                 [
                     html.Div(
                         [
-                            html.Span(
-                                "Estimations obtenues à partir des données Open Medic portant sur l’usage du "
-                                "médicament, délivré en ",
-                                className="normal-text",
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Estimations obtenues à partir des données Open Medic portant sur l’usage du "
+                                        "médicament, délivré en ",
+                                        className="normal-text",
+                                    ),
+                                    html.B(html.Span("pharmacie de ville",)),
+                                    html.Span(" entre 2014 et 2018 et remboursé par ",),
+                                    html.B(html.Span("l’Assurance Maladie.",)),
+                                    html.Span(
+                                        " Pour plus d’informations, consultez : ",
+                                    ),
+                                    html.A(
+                                        "open-data-assurance-maladie.ameli.fr",
+                                        href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
+                                        className="Link",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
                             ),
-                            html.Span(
-                                "pharmacie de ville", className="normal-text-bold",
+                            html.P(
+                                [
+                                    html.B(html.Span("Attention : ")),
+                                    html.Span(
+                                        "Un patient est comptabilisé autant de fois qu’il a acheté de types "
+                                        "de conditionnements (ou présentations) différents de la spécialité / "
+                                        "substance active. Pour la spécialité Doliprane 500 mg, gélule, un patient qui "
+                                        "aura acheté 2 boîtes de 16 gélules et 3 boîtes de 100 gélules au cours de "
+                                        "l’année 2016 sera comptabilisé 2 fois pour 2016.",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
                             ),
-                            html.Span(
-                                " entre 2014 et 2018 et remboursé par ",
-                                className="normal-text",
-                            ),
-                            html.Span(
-                                "l’Assurance Maladie.", className="normal-text-bold",
-                            ),
-                            html.Span(
-                                " Pour plus d’informations, consultez : ",
-                                className="normal-text",
-                            ),
-                            html.A(
-                                "open-data-assurance-maladie.ameli.fr",
-                                href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
-                                className="normal-text link",
-                            ),
-                        ],
-                        className="text-justify mb-3",
-                    ),
-                    html.Div(
-                        [
-                            html.Span("Attention : ", className="normal-text-bold",),
-                            html.Span(
-                                "Un patient est comptabilisé autant de fois qu’il a acheté de types "
-                                "de conditionnements (ou présentations) différents de la spécialité / "
-                                "substance active. Pour la spécialité Doliprane 500 mg, gélule, un patient qui "
-                                "aura acheté 2 boîtes de 16 gélules et 3 boîtes de 100 gélules au cours de "
-                                "l’année 2016 sera comptabilisé 2 fois pour 2016.",
-                                className="normal-text",
-                            ),
-                        ],
-                        className="text-justify mb-3",
-                    ),
-                    html.Div(
-                        [
-                            html.Span(
-                                "La somme de ce nombre de patients sur la période 2014-2018 est ensuite "
-                                "divisée par 5 pour obtenir un chiffre moyen de patients traités par an.",
-                                className="normal-text text-justify",
+                            html.P(
+                                [
+                                    html.Span(
+                                        "La somme de ce nombre de patients sur la période 2014-2018 est ensuite "
+                                        "divisée par 5 pour obtenir un chiffre moyen de patients traités par an."
+                                    )
+                                ],
+                                className="justify-text normal-text",
                             ),
                         ],
-                        className="mb-3",
                     ),
+                    html.Div([], className="text-justify mb-3",),
+                    html.Div([], className="mb-3",),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -353,11 +363,13 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         df_icones = specialite.get_icones(series_spe.name)
         series_icones = fetch_data.as_series(df_icones)
         icon_url = app.get_asset_url(
-            f"icons/pres_{normalize_string(series_icones.icone)}.svg"
+            f"icons/pres_{normalize_string(series_icones.icone)}_120.svg"
         )
         type_label = "Spécialité de médicament"
         help_link = html.A(
-            "Qu'est-ce qu'une spécialité de médicament ?", id="definition-open"
+            "Qu'est-ce qu'une spécialité de médicament ?",
+            id="definition-open",
+            className="Link Link-isOnDarkBackground",
         )
         modal_body.append(
             html.Div(
@@ -367,11 +379,15 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
             ),
         )
     elif type == "rupture":
-        title = "Observatoire des ruptures de stock"
+        title = "Données ruptures de stock"
         css_class = "Header-isRupture"
         icon_url = app.get_asset_url("Liquide-64.png")
         type_label = "Base de données"
-        help_link = html.A("Qu'est-ce qu'une base de données ?", id="definition-open")
+        help_link = html.A(
+            "Qu'est-ce qu'une base de données ?",
+            id="definition-open",
+            className="Link Link-isOnDarkBackground",
+        )
         modal_body = [
             html.Div(
                 "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
@@ -381,35 +397,39 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
 
     return html.Div(
         html.Div(
-            [
-                html.Div(html.Img(src=icon_url), className="content-header-img",),
-                html.Div(
-                    [
-                        html.Div(title, className="heading-4"),
-                        html.Div(type_label, className="large-text"),
-                        help_link,
-                        dbc.Modal(
-                            [
-                                dbc.ModalHeader("Définition"),
-                                dbc.ModalBody(
-                                    modal_body, className="normal-text text-justify",
-                                ),
-                                dbc.ModalFooter(
-                                    dbc.Button(
-                                        "Fermer",
-                                        id="definition-close",
-                                        className="ml-auto",
-                                        style={"background-color": "#a03189"},
-                                    )
-                                ),
-                            ],
-                            id="definition-modal",
-                        ),
-                    ],
-                    className="content-header-text",
-                ),
-            ],
-            className="HeaderContent",
+            html.Div(
+                [
+                    html.Div(html.Img(src=icon_url), className="HeaderImg",),
+                    html.Div(
+                        [
+                            H1(title),
+                            html.P(type_label, className="large-text"),
+                            help_link,
+                            dbc.Modal(
+                                [
+                                    dbc.ModalHeader("Définition"),
+                                    dbc.ModalBody(
+                                        modal_body,
+                                        className="normal-text text-justify",
+                                    ),
+                                    dbc.ModalFooter(
+                                        dbc.Button(
+                                            "Fermer",
+                                            id="definition-close",
+                                            className="ml-auto",
+                                            style={"background-color": "#a03189"},
+                                        )
+                                    ),
+                                ],
+                                id="definition-modal",
+                            ),
+                        ],
+                        className="content-header-text",
+                    ),
+                ],
+                className="HeaderWrapper",
+            ),
+            className="HeaderLayoutWrapper",
         ),
         className=f"Header {css_class}",
     )

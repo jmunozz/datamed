@@ -114,16 +114,7 @@
   padding-left: 350px;
 }
 
-.content-header-img {
-  max-height: 150px;
-  margin-right: 15px;
-}
-
 .content-header-text {
   display: flex;
   flex-direction: column;
-}
-
-.content-header-text * {
-  margin-bottom: 15px;
 }

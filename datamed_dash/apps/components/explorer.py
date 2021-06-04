@@ -4,7 +4,7 @@ from app import app
 from dash.development.base_component import Component
 from dash_bootstrap_components import Card, CardImg, CardBody, CardLink
 from dash_bootstrap_components import Row
-from dash_html_components import Div, B, I, Img, A, H3, H1, P
+from dash_html_components import Div, B, I, Img, A, H3, H1, P, Span, H2
 
 from .commons import FrontPageSection, FrontPageSectionFull, FrontPageSectionPart
 
@@ -18,13 +18,16 @@ def ExplorerHeader() -> Component:
                     "L’Agence Nationale de Sécurité du Médicament et des "
                     "Produits de Santé met à votre disposition une sélection de ses "
                     "bases de données. Laissez-vous guider par ses modalités d’utilisation",
-                    className="normal-text",
+                    className="medium-text",
                 ),
-                Img(src=app.get_asset_url("Illustration-explorer.svg"), className=""),
+                Img(
+                    src=app.get_asset_url("Illustration-explorer.svg"),
+                    className="ExploreDescriptionImage",
+                ),
             ],
             class_name="ExplorerPageMainSection",
         ),
-        class_name="FrontPageSection-isColorWhite",
+        class_name="FrontPageSection-isColorWhite FrontPageSection-isBottomBoxShadowed",
     )
 
 
@@ -36,15 +39,14 @@ def BddCard(
         Div(
             [
                 Box(
-                    Div(),
-                    # Img(src=src_img, style={"width": "270px", "height": "240px"}),
+                    Img(src=app.get_asset_url(src_img)),
                     isBordered=False,
                     hasNoPadding=True,
                     className="CardBoxImage ExploreDataItemImage",
                 ),
                 Box(
                     [
-                        Div(title, className="heading-6"),
+                        H3(title, className="withSubtitle"),
                         Div(
                             [
                                 "Open data : ",
@@ -55,21 +57,18 @@ def BddCard(
                         ),
                         Div(
                             [
-                                Div(
-                                    body,
-                                    className="button-text d-inline-block text-justify col-6",
-                                ),
+                                Div(body, className="regular-text",),
                                 Div(
                                     [B("Source de données : "), source_bdd,],
-                                    className="button-text d-inline-block col-6",
+                                    className="regular-text",
                                 ),
                             ],
-                            className="d-flex row mt-4 mb-5",
+                            className="CardBoxTextContentLayout",
                         ),
                         A(
-                            "DÉCOUVRIR LE JEU DE DONNÉES",
+                            "Découvrir le jeu de données",
                             href=href,
-                            className="normal-text link",
+                            className="normal-text Link",
                         ),
                     ],
                     isBordered=False,
@@ -84,7 +83,7 @@ def BddCard(
 
 def ModaliteItem(question: str, answer) -> Component():
     return Div(
-        [P(question, className="heading-5 mb-4"), P(answer, className="normal-text"),],
+        [H3(question), P(answer, className="normal-text"),], className="ModaliteItem"
     )
 
 
@@ -97,16 +96,25 @@ def Explorer() -> Component:
                 FrontPageSectionFull(
                     [
                         BddCard(
-                            "/assets/pills_2.svg",
-                            "Observatoire des ruptures de stock",
+                            "icons/pres_autre.svg",
+                            "Données ruptures de stock",
                             "Non",
-                            "Renseignez-vous sur le statut des ruptures de stock de médicaments et trouvez des "
-                            "alternatives thérapeutiques au traitement du patient en fonction de son profil.",
+                            Div(
+                                [
+                                    "Renseignez-vous sur l'historique des ruptures de stock "
+                                    "des médicaments d'intéret thérapeutique majeur.",
+                                    A(
+                                        "Trouvez des informations complémentaires sur le site de l'ANSM.",
+                                        href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                                        className="ExternalLink d-block",
+                                    ),
+                                ]
+                            ),
                             "TrustMed (ANSM)",
                             "/apps/ruptures",
                         ),
                         BddCard(
-                            "/assets/ansm_entree.svg",
+                            "icons/pres_autre.svg",
                             "Cartographie des sites de fabrication",
                             "Non",
                             "Découvrez les indicateurs utilisés par les agents de l’ANSM pour anticiper "
@@ -135,19 +143,12 @@ def Explorer() -> Component:
                                     "de la donnée.",
                                 ),
                                 ModaliteItem(
-                                    "Il y a-t-il des données sensibles ?",
+                                    "Y'a-t-il des données sensibles ?",
                                     [
                                         "L’ensemble des données affichées ont été approuvées par la CNIL et correspondent aux "
                                         "standards d’anonymisation. Si toutefois vous rencontrez des anomalies, n’hésitez pas "
                                         "à nous le ",
-                                        A(
-                                            "signaler",
-                                            href="",
-                                            style={
-                                                "color": "#A03189",
-                                                "text-decoration": "none",
-                                            },
-                                        ),
+                                        A("signaler", href="", className="Link"),
                                         ".",
                                     ],
                                 ),

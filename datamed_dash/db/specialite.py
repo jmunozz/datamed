@@ -98,3 +98,7 @@ def get_ruptures(cis):
 
 def get_icones(cis):
     return return_sub_df_or_none(fetch_table("icones", "cis"), cis)
+
+
+def get_erreur_med_init(cis):
+    return return_sub_df_or_none(fetch_table("erreur_med_initial", "cis"), cis)

@@ -1,0 +1,33 @@
+.Accordion {
+    position: relative;
+}
+
+.AccordionToggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.AccordionToggleIcon {
+    transition: transform 500ms ease-in-out;
+}
+
+.AccordionLabel::before {
+    content: '';
+}
+
+.AccordionLabel {
+    padding-right: 1.5rem;
+}
+
+.AccordionContent {
+    height: 0;
+    overflow: hidden;
+    transition: height 500ms ease-out;
+}
+
+.AccordionContent-isVisible {
+    margin-top: 0.75rem;
+    height: auto;
+    transition: height 500ms ease-out;
+}
