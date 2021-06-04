@@ -322,17 +322,29 @@ def create_hlt_table(_settings_soclong: Dict, _settings: Dict):
     db.create_table_from_df(final_df, _settings["to_sql"])
 
 
+def check_threshold(df: pd.DataFrame, x: pd.Series):
+    dfx = df.loc[x.name]
+    if (
+        dfx[dfx.grave == "oui"].cas.values[0] > 10
+        and dfx[dfx.grave == "non"].cas.values[0] > 10
+    ):
+        return x.cas
+    else:
+        return None
+
+
 def create_cas_grave_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings)
 
-    df["grave_oui"] = df.apply(lambda x: x.cas if x.grave == "OUI" else 0, axis=1)
-    df["grave_non"] = df.apply(lambda x: x.cas if x.grave == "NON" else 0, axis=1)
+    df.grave = df.grave.str.lower()
+    df = df.set_index("code")
+    df.cas = df.apply(lambda x: check_threshold(df, x), axis=1)
+    df.grave = df.grave.apply(lambda x: "Grave" if x == "oui" else "Non grave")
 
-    df_grave = df.groupby("code").agg({"grave_oui": "sum", "grave_non": "sum"})
-    df_grave = df_grave[(df_grave.grave_oui > 10) & (df_grave.grave_non > 10)]
+    df = df.where(pd.notnull(df), None)
+    df = df.sort_index()
 
-    db.create_table_from_df(df_grave, _settings["to_sql"])
-
+    db.create_table_from_df(df, _settings["to_sql"])
 
 
 def create_table_emed(_settings: Dict):
