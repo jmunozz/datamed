@@ -170,11 +170,18 @@ df_age.loc[code]
 # In[11]:
 
 
+PIE_LAYOUT = {
+    "paper_bgcolor": "#FFF",
+    "margin": dict(t=0, b=0, l=0, r=0),
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+}
+
 fig = go.Figure(
     go.Pie(
         labels=df_age.loc[code].age,
         values=df_age.loc[code].pourcentage_patients,
-        marker_colors=PIE_COLORS,  # px.colors.qualitative.Set3,
+        marker_colors=PIE_COLORS,
+        hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
     )
 ).update_layout(PIE_LAYOUT)
 
@@ -237,7 +244,8 @@ fig.add_trace(
         mode="lines",
         name="Patients traités",
         line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
-        hoverlabel={"namelength" :-1}
+        hoverlabel={"namelength" :-1},
+        hovertemplate="%{y:int}",
     ),
     secondary_y=True,
 )
@@ -264,20 +272,20 @@ df_notif.loc[code]
 # ### Effets indésirables par système d'organe
 # #### On n'affiche que le top 10
 
-# In[81]:
+# In[18]:
 
 
 df_soc = pd.read_sql("substance_soclong_ordei", con=engine, index_col="code")
 df_soc.loc[code].sort_values(by="pourcentage_cas", ascending=False)
 
 
-# In[30]:
+# In[19]:
 
 
 top_soc_long = df_soc.loc[code].sort_values(by="pourcentage_cas", ascending=False).head(10).soc_long.tolist()
 
 
-# In[19]:
+# In[20]:
 
 
 TREE_COLORS = [
@@ -327,26 +335,26 @@ fig.show()
 # #### Ici, le fait de cliquer sur un des carrés soc_long ouvrira une modale avec le treemap des effets HLT correspondant à ce soc_long
 # #### On n'affiche que le top 10
 
-# In[135]:
+# In[21]:
 
 
 # Sélection d'un soc_long
 soc_long = "Affections de la peau et du tissu sous-cutané"
 
 
-# In[136]:
+# In[22]:
 
 
 df_hlt = pd.read_sql("substance_hlt_ordei", con=engine, index_col="code")
 
 
-# In[137]:
+# In[23]:
 
 
 df_hlt[df_hlt.soc_long == soc_long].loc[code].sort_values(by="pourcentage_cas", ascending=False)
 
 
-# In[138]:
+# In[24]:
 
 
 fig = px.treemap(
@@ -381,7 +389,7 @@ fig.show()
 
 # #### Treemap plus complexe
 
-# In[ ]:
+# In[25]:
 
 
 df_hlt = pd.read_sql("substance_hlt_ordei", con=engine, index_col="code").reset_index()
@@ -403,7 +411,7 @@ df_soc.pourcentage_cas_hlt = df_soc.apply(
 df_soc = df_soc.set_index("code")
 
 
-# In[134]:
+# In[26]:
 
 
 fig = px.treemap(
@@ -432,6 +440,41 @@ fig.update_layout(
 
 fig.update_traces(texttemplate="%{label}<br>%{value:.0f}%", textposition='middle center', textfont_size=18,
                  hovertemplate='<b>%{label}</b> <br> %{value:.0f}%')
+
+fig.show()
+
+
+# ### Cas graves
+
+# In[27]:
+
+
+dfg = pd.read_sql("substance_cas_grave_ordei", con=engine, index_col="code")
+
+
+# In[28]:
+
+
+dfg.head()
+
+
+# In[29]:
+
+
+PIE_LAYOUT = {
+    "paper_bgcolor": "#FFF",
+    "margin": dict(t=0, b=0, l=0, r=0),
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+}
+
+fig = go.Figure(
+    go.Pie(
+        labels=dfg.loc[code].grave,
+        values=dfg.loc[code].cas,
+        marker_colors=PIE_COLORS,
+        hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+    )
+).update_layout(PIE_LAYOUT)
 
 fig.show()
 
