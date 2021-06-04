@@ -445,6 +445,20 @@ def create_table_mesures(_settings: Dict):
             "Justification": "justification",
         }
     )
+    df = df.where(pd.notnull(df), None)
+
+    df.date_demande = df.date_demande.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
+    df.date_mise_en_place = df.date_mise_en_place.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
+    df.date_previ_fin = df.date_previ_fin.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
+    df.date_cloture = df.date_cloture.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+    )
 
     df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
     df = df[~df.mesure.isin(["REAP", "QST"])]

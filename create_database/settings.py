@@ -495,7 +495,7 @@ files = {
             "nature": "nature_erreur",
             "cause": "cause_erreur",
             "effet_indesirable": "effet_indesirable",
-            "gravite": "gravite"
+            "gravite": "gravite",
         },
         "to_sql": {
             "if_exists": "replace",
@@ -504,7 +504,7 @@ files = {
         },
     },
     "mesures": {
-        "source": {"pattern": "Mesure_180521.csv"},
+        "source": {"pattern": "Mesure_040621.csv"},
         "read_csv": {
             "encoding": "utf-8",
             "sep": ";",
@@ -521,11 +521,6 @@ files = {
                 "Date de clotûre",
                 "Justification",
             ],
-            "parse_dates": [
-                "Date mise en place",
-                "Date de fin prévisionnelle",
-                "Date de clotûre",
-            ],
         },
         "to_sql": {
             "name": "mesures",
@@ -540,7 +535,7 @@ files = {
         },
     },
     "ruptures": {
-        "source": {"pattern": "Dossier_de_rupture_180521.csv"},
+        "source": {"pattern": "Dossier_de_rupture_040621.csv"},
         "read_csv": {
             "encoding": "utf-8",
             "sep": ";",
