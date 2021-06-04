@@ -118,7 +118,7 @@ def NoData(class_name="") -> html.Div:
     return html.Div(
         [
             html.Img(
-                src=app.get_asset_url("Indice-nodata.svg"),
+                src=app.get_asset_url("indice-nodata.svg"),
                 className="img-fluid",
                 alt="Responsive image",
             ),
