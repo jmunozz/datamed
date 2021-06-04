@@ -322,6 +322,19 @@ def create_hlt_table(_settings_soclong: Dict, _settings: Dict):
     db.create_table_from_df(final_df, _settings["to_sql"])
 
 
+def create_cas_grave_table(_settings: Dict):
+    df = helpers.load_csv_to_df(_settings)
+
+    df["grave_oui"] = df.apply(lambda x: x.cas if x.grave == "OUI" else 0, axis=1)
+    df["grave_non"] = df.apply(lambda x: x.cas if x.grave == "NON" else 0, axis=1)
+
+    df_grave = df.groupby("code").agg({"grave_oui": "sum", "grave_non": "sum"})
+    df_grave = df_grave[(df_grave.grave_oui > 10) & (df_grave.grave_non > 10)]
+
+    db.create_table_from_df(df_grave, _settings["to_sql"])
+
+
+
 def create_table_emed(_settings: Dict):
     df = helpers.load_excel_to_df(_settings)
     df = em.clean_emed_df(df, _settings)
@@ -586,6 +599,7 @@ create_substance_cas_age_table(settings.files["ordei_substance"])
 create_notificateurs_table(settings.files["ordei_notificateurs"])
 create_substance_soclong_table(settings.files["ordei_soclong"])
 create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+create_cas_grave_table(settings.files["ordei_cas_grave"])
 
 # Erreurs médicamenteuses
 create_table_emed(settings.files["erreurs_med"])

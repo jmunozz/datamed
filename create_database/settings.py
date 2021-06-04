@@ -441,6 +441,36 @@ files = {
             },
         },
     },
+    "ordei_cas_grave": {
+        "source": {"pattern": "bnpv_cas_grave_sa_codex_open.csv"},
+        "read_csv": {
+            "encoding": "ISO-8859-1",
+            "sep": ";",
+            "dtype": {"code": str},
+            "usecols": [
+                "grave",
+                "code",
+                "cas",
+            ],
+            "header": 0,
+            "names": [
+                "grave",
+                "subtance_active",
+                "code",
+                "cas",
+            ],
+        },
+        "to_sql": {
+            "name": "substance_cas_grave_ordei",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {
+                "code": String(16),
+                "grave": String(16),
+                "pourcentage_cas": Float,
+            },
+        },
+    },
     "cis_atc": {
         "source": {"pattern": "CIS-ATC_2021-01-04.xlsx"},
         "read_excel": {
