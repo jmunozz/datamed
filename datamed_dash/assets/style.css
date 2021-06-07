@@ -524,6 +524,11 @@ a.btn-lg {
   margin-right: calc(var(--postive-side-margin) * -1);
 }
 
+.SectionRow-withGutter::after {
+  content: "";
+  flex: auto;
+}
+
 .SectionRow-withGutter > * {
   margin-top: 1.5rem;
   margin-left: calc(var(--gutter) / 2);
@@ -880,9 +885,18 @@ a.btn-lg {
 
 .EffetIndesirableBox {
   --content-width: calc(
-    var(--specialite-content-max-width) - (var(--gutter) * 2)
+    var(--specialite-content-max-width) - (var(--gutter) * 3)
   );
-  max-width: calc(var(--content-width) / 3);
+  min-width: calc(var(--content-width) / 3);
+  flex: 1 0 29%;
+}
+
+.EmptyEffetIndesirableBox {
+  --content-width: calc(
+    var(--specialite-content-max-width) - (var(--gutter) * 3)
+  );
+  min-width: calc(var(--content-width) / 3);
+  flex: 1 0 29%;
 }
 
 .EffetIndesirableBox:hover {
@@ -892,4 +906,13 @@ a.btn-lg {
 
 .EffetIndesirableBox:hover .EffetIndesirableBoxLink {
   color: var(--color-white);
+}
+
+.EffetIndesirableBox:hover .EffetIndesirableBoxTitle {
+  color: var(--color-white);
+}
+
+.EffetIndesirableBoxTitle {
+  max-width: 200px;
+  text-align: center;
 }

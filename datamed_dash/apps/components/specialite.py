@@ -473,6 +473,9 @@ def ErreursMedicamenteuses(
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
+    # Hack to display as a grid (last row items do not resize), add empty elems
+    NB_ELEM_PER_ROW = 3
+    nb_empty_div = NB_ELEM_PER_ROW - (df_sub.size % NB_ELEM_PER_ROW)
     return TopicSection(
         [
             SectionRow(
@@ -503,7 +506,10 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     Box(
                         html.Div(
                             [
-                                html.H4(sub.nom.capitalize()),
+                                html.H4(
+                                    sub.nom.capitalize(),
+                                    className="EffetIndesirableBoxTitle",
+                                ),
                                 html.Div(
                                     html.Img(
                                         src=app.get_asset_url("substance_icon.svg")
@@ -522,6 +528,10 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                         className="EffetIndesirableBox",
                     )
                     for code, sub in df_sub.iterrows()
+                ]
+                + [
+                    html.Div(className="EmptyEffetIndesirableBox")
+                    for n in range(nb_empty_div)
                 ],
                 withGutter=True,
             ),
