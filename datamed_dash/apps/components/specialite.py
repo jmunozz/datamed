@@ -96,7 +96,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_nat = specialite.get_erreur_med_nature(cis)
     df_pop = specialite.get_erreur_med_population(cis)
     df_denom = specialite.get_erreur_med_denom(cis)
-    df_rup = specialite.get_ruptures(cis)
+    df_rup = specialite.get_ruptures(cis, df_spe)
     df_init = specialite.get_erreur_med_init(cis)
 
     return (
