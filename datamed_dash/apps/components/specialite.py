@@ -316,6 +316,12 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
     )
 
 
+def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData("BoxContent-isHalf")
+    # put code her
+
+
 def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
     if df_pop is None:
         return NoData("BoxContent-isHalf")
@@ -406,6 +412,16 @@ def ErreursMedicamenteuses(
                     GraphBox(
                         "Répartition de la population concernée par les erreurs médicamenteuses",
                         [BoxRepartitionPopulationConcernee(df_pop)],
+                    ),
+                ],
+                withGutter=True,
+            ),
+            SectionRow(
+                [
+                    GraphBox(
+                        "Répartition des cas par gravité",
+                        [BoxRepartitionGravite(df_pop)],
+                        className="Box-isHalf",
                     ),
                 ],
                 withGutter=True,
