@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 from app import cache
 
@@ -92,8 +94,11 @@ def get_presentation_df(cis):
 #     return return_sub_df_or_none(fetch_table("ruptures", "cip13"), cips)
 
 
-def get_ruptures(cis):
-    return return_sub_df_or_none(fetch_table("ruptures", "cis"), cis)
+def get_ruptures(cis: str, df_spe: pd.DataFrame):
+    nom = re.sub(r"[^\w\s+-]", "", df_spe.loc[cis].nom).split(" ")[0]
+    df_ruptures = fetch_table("ruptures", "cis").reset_index()
+    df_ruptures = df_ruptures[~df_ruptures.nom.isnull()]
+    return df_ruptures[df_ruptures.nom.apply(lambda x: nom in x if x else None)]
 
 
 def get_icones(cis):
