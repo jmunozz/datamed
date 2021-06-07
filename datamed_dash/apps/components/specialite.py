@@ -498,10 +498,33 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     )
                 )
             ),
-            *[
-                SectionRow(AdverseEffectLink(sub.nom.capitalize(), code))
-                for code, sub in df_sub.iterrows()
-            ],
+            SectionRow(
+                [
+                    Box(
+                        html.Div(
+                            [
+                                html.H4(sub.nom.capitalize()),
+                                html.Div(
+                                    html.Img(
+                                        src=app.get_asset_url("substance_icon.svg")
+                                    )
+                                ),
+                                html.A(
+                                    "Voir les effets indésirables",
+                                    href="/apps/substance?search={}#effets-indesirables".format(
+                                        code
+                                    ),
+                                    className="Link EffetIndesirableBoxLink",
+                                ),
+                            ],
+                            className="Stack Stack-isCentered",
+                        ),
+                        className="EffetIndesirableBox",
+                    )
+                    for code, sub in df_sub.iterrows()
+                ],
+                withGutter=True,
+            ),
         ],
         id="",
     )

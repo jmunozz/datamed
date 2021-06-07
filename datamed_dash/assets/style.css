@@ -21,6 +21,7 @@
   --box-shadow-appendice: 3px 2px 6px rgba(0, 0, 0, 0.1);
   --navbar-height: 88px;
   --top-overlap-first-section: 6rem;
+  --gutter: 1.5rem;
 }
 
 a {
@@ -517,15 +518,16 @@ a.btn-lg {
 }
 
 .SectionRow-withGutter {
+  --postive-side-margin: calc(var(--gutter) / 2);
   margin-top: -1.5rem;
-  margin-left: -0.75rem;
-  margin-right: -0.75rem;
+  margin-left: calc(var(--postive-side-margin) * -1);
+  margin-right: calc(var(--postive-side-margin) * -1);
 }
 
 .SectionRow-withGutter > * {
   margin-top: 1.5rem;
-  margin-left: 0.75rem;
-  margin-right: 0.75rem;
+  margin-left: calc(var(--gutter) / 2);
+  margin-right: calc(var(--gutter) / 2);
 }
 
 /*
@@ -874,4 +876,20 @@ a.btn-lg {
 
 .FooterLinkContainer > li {
   margin: 0.5rem 0;
+}
+
+.EffetIndesirableBox {
+  --content-width: calc(
+    var(--specialite-content-max-width) - (var(--gutter) * 2)
+  );
+  max-width: calc(var(--content-width) / 3);
+}
+
+.EffetIndesirableBox:hover {
+  background-color: var(--color-5);
+  transition: background-color 0.5s;
+}
+
+.EffetIndesirableBox:hover .EffetIndesirableBoxLink {
+  color: var(--color-white);
 }
