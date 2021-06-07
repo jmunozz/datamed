@@ -10,12 +10,12 @@ from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from dash_html_components import Div, P, Article, H1, H4, A
+from dash_html_components import Div, P, Article, H1, H4, A, Span
 from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import Header
+from .commons import BoxArticle, Header
 from .utils import (
     Box,
     GraphBox,
@@ -43,7 +43,7 @@ def Description() -> Component:
     return TopicSection(
         Box(
             [
-                Article(
+                BoxArticle(
                     [
                         ArticleTitle("Bases de données exploitées"),
                         Div(
@@ -53,7 +53,7 @@ def Description() -> Component:
                         ),
                     ]
                 ),
-                Article(
+                BoxArticle(
                     [
                         ArticleTitle("Description"),
                         P(
@@ -61,30 +61,30 @@ def Description() -> Component:
                             "ou risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
                             "l'ANSM. L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques "
                             "de rupture de stock de ces médicaments qui peuvent entraîner un risque de santé publique.",
-                            className="normal-text text-justify",
+                            className="normal-text justify-text",
                         ),
                         P(
                             "Retrouvez différentes statistiques sur les signalements reçus par "
                             "l’Agence et les actions mises en place pour y remédier.",
-                            className="normal-text text-justify",
+                            className="normal-text justify-text",
                         ),
                         Div(
                             [
-                                P(
+                                Span(
                                     "Pour toutes les dernières informations à destination des patients et "
                                     "professionnels de santé sur les ruptures de stock en cours, consultez : ",
-                                    className="normal-text text-justify d-inline",
+                                    className="normal-text justify-text",
                                 ),
                                 A(
                                     "ansm.sante.fr.",
                                     href="https://ansm.sante.fr/",
-                                    className="normal-text ExternalLink d-inline",
+                                    className="normal-text Link",
                                 ),
                             ],
                         ),
                     ]
                 ),
-                Article(
+                BoxArticle(
                     [
                         ArticleTitle("Avertissement"),
                         P(
@@ -95,12 +95,6 @@ def Description() -> Component:
                             "à Mai 2021 sont susceptibles de faire l'objet d'erreur de saisie.",
                             className="normal-text text-justify",
                         ),
-                    ]
-                ),
-                Article(
-                    [
-                        ArticleTitle("Réutilisation des données"),
-                        P("", className="normal-text"),
                     ]
                 ),
             ],
@@ -115,12 +109,7 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
         y=y,
         mode="lines",
         name=name,
-        line={
-            "shape": "spline",
-            "smoothing": 1,
-            "width": 4,
-            "color": color,
-        },
+        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
     )
 
 
@@ -150,10 +139,7 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
-    return Graph(
-        figure=fig,
-        responsive=True,
-    )
+    return Graph(figure=fig, responsive=True,)
 
 
 def get_signalements_circuit(circuit: str = "ville") -> Dict:
@@ -212,9 +198,7 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
 
 def get_signalement_atc_curve(annee=INITIAL_YEAR):
     # set up plotly figure
-    fig = make_subplots(
-        specs=[[{"secondary_y": True}]],
-    )
+    fig = make_subplots(specs=[[{"secondary_y": True}]],)
 
     # add first bar trace at row = 1, col = 1
     fig.add_trace(
@@ -233,12 +217,7 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         go.Scatter(
             x=df_sig.loc[annee].head(10).label,
             y=df_sig.loc[annee].head(10).nb_presentations,
-            line={
-                "shape": "spline",
-                "smoothing": 1,
-                "width": 4,
-                "color": "#00B3CC",
-            },
+            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#00B3CC",},
             mode="lines",
             name="Nombre de présentations",
         ),
@@ -249,9 +228,7 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     fig.update_xaxes(title_text="Classe thérapeutique")
     fig.update_yaxes(autorange="reversed")
     fig.update_yaxes(
-        title_text="Nombre de signalements",
-        color="#009640",
-        secondary_y=False,
+        title_text="Nombre de signalements", color="#009640", secondary_y=False,
     )
     fig.update_yaxes(
         title_text="Nombre de présentations", color="#00B3CC", secondary_y=True
@@ -399,10 +376,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value="ville",
                                         options=[
                                             {"label": y.capitalize(), "value": y}
-                                            for y in [
-                                                "ville",
-                                                "hôpital",
-                                            ]
+                                            for y in ["ville", "hôpital",]
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -483,10 +457,7 @@ def Ruptures() -> Tuple[Component, Div]:
                     items=[
                         {"id": "description", "label": "Description"},
                         {"id": "signalements", "label": "Signalements"},
-                        {
-                            "id": "gestion-ruptures",
-                            "label": "Gestion des ruptures",
-                        },
+                        {"id": "gestion-ruptures", "label": "Gestion des ruptures",},
                     ],
                     className="SideMenu",
                 ),
@@ -504,8 +475,7 @@ def Ruptures() -> Tuple[Component, Div]:
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"),
-    dd.Input("annee-dropdown", "value"),
+    dd.Output("atc-bar-chart", "figure"), dd.Input("annee-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
@@ -527,8 +497,7 @@ def update_figure(value: str):
 
 
 @app.callback(
-    dd.Output("causes-treemap", "figure"),
-    dd.Input("annee-causes-dropdown", "value"),
+    dd.Output("causes-treemap", "figure"), dd.Input("annee-causes-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:

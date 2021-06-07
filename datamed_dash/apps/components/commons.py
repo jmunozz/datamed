@@ -398,7 +398,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         help_link = html.A(
             "Qu'est-ce qu'une base de données ?",
             id="definition-open",
-            className="Link Link-isOnDarkBackground",
+            className="Link Link",
         )
         modal_body = [
             html.Div(

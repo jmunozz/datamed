@@ -203,7 +203,7 @@ def Description(
                     BoxArticle(
                         [
                             ArticleTitle("État de commercialisation"),
-                            html.Div(
+                            html.Span(
                                 series_spe.etat_commercialisation.capitalize(),
                                 className="Badge normal-text",
                             ),
@@ -212,7 +212,7 @@ def Description(
                     BoxArticle(
                         [
                             ArticleTitle("Laboratoire"),
-                            html.Div(
+                            html.Span(
                                 series_spe.titulaires.title(), className="normal-text",
                             ),
                         ],
@@ -222,7 +222,7 @@ def Description(
                             ArticleTitle("Description"),
                             html.P(
                                 series_desc.description,
-                                className="normal-text text-justify mt-3",
+                                className="normal-text text-justify",
                             ),
                         ]
                     ),
