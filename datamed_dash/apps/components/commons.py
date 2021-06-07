@@ -35,10 +35,10 @@ UTILISATION = {
 
 UTILISATION_IMG_URL = {
     "-": app.get_asset_url("indice-nodata.svg"),
-    1: app.get_asset_url("indice-4.svg"),
-    2: app.get_asset_url("indice-3.svg"),
-    3: app.get_asset_url("indice-2.svg"),
-    4: app.get_asset_url("indice-1.svg"),
+    1: app.get_asset_url("indice-1.svg"),
+    2: app.get_asset_url("indice-2.svg"),
+    3: app.get_asset_url("indice-3.svg"),
+    4: app.get_asset_url("indice-4.svg"),
     5: app.get_asset_url("indice-5.svg"),
 }
 
