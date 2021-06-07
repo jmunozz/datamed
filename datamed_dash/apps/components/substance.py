@@ -352,7 +352,7 @@ def EffetsIndesirables(
             SectionRow(
                 [
                     GraphBox(
-                        "Répartition par type de notificateur",
+                        "Répartition par déclarant",
                         [NotifFigureGraph(df_notif)],
                     ),
                 ]

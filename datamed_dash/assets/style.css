@@ -414,6 +414,10 @@ a.btn-lg {
   min-width: var(--half-min-width);
 }
 
+.Box-isHalf {
+  max-width: calc(var(--specialite-content-max-width) / 2 - var(--gutter));
+}
+
 .Box-isBordered {
   border: var(--border);
   border-radius: var(--border-radius);
