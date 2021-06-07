@@ -102,3 +102,7 @@ def get_icones(cis):
 
 def get_erreur_med_init(cis):
     return return_sub_df_or_none(fetch_table("erreur_med_initial", "cis"), cis)
+
+
+def get_erreur_med_gravite(cis):
+    return return_sub_df_or_none(fetch_table("erreur_med_gravite", "cis"), cis)
