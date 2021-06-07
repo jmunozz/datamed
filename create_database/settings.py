@@ -617,6 +617,7 @@ files = {
                 "generique_ville",
                 "generique_hopital",
             ],
+            "dtype": {"numero": str, "cip13": int},
         },
         "to_sql": {
             "name": "ruptures",

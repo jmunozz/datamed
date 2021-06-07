@@ -1,4 +1,5 @@
 import math
+import re
 from datetime import datetime as dt
 from os import path
 from typing import Dict, Optional
@@ -445,7 +446,10 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     df = df.where(pd.notnull(df), None)
     df = df.drop_duplicates()
 
-    df = df.merge(df_spe[["cis", "nom"]], on="nom", how="left")
+    df["nom_abbrev"] = df.nom.apply(lambda x: re.sub(r"[^\w\s]", "", x))
+    df_spe["nom_abbrev"] = df_spe.nom.apply(lambda x: re.sub(r"[^\w\s]", "", x))
+    df = df.merge(df_spe[["cis", "nom_abbrev"]], on="nom_abbrev", how="left")
+    df = df.drop(["nom_abbrev"], axis=1)
     return df
 
 
