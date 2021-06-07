@@ -194,10 +194,16 @@ def Tooltip() -> Component:
 def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
-        exposition = int(series_exposition.exposition)
-        patients = "{:,} patients / an".format(
-            int(series_exposition.conso_an_trunc)
-        ).replace(",", " ")
+        if not np.isnan(series_exposition.exposition):
+            exposition = int(series_exposition.exposition)
+        else:
+            exposition = "-"
+        if not np.isnan(series_exposition.conso_an_trunc):
+            patients = "{:,} patients / an".format(
+                int(series_exposition.conso_an_trunc)
+            ).replace(",", " ")
+        else:
+            patients = "Données insuffisantes"
     else:
         exposition = "-"
         patients = "Données insuffisantes"
@@ -285,8 +291,14 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
 
 def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
+    no_data = NoData(class_name="BoxContent-isHalf")
     if df_sexe is None:
-        return NoData(class_name="BoxContent-isHalf")
+        return no_data
+    df_sexe = df_sexe.where(pd.notnull(df_sexe), None)
+    sexe_percentage_data = fetch_data.transform_df_to_series_list(df_sexe)
+    for d in sexe_percentage_data:
+        if d.pourcentage_patients is None:
+            return no_data
     return FigureGraph(
         get_sexe_figures_from_df(df_sexe, "pourcentage_patients"),
         class_name="BoxContent-isHalf",
