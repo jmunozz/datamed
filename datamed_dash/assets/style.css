@@ -524,11 +524,6 @@ a.btn-lg {
   margin-right: calc(var(--postive-side-margin) * -1);
 }
 
-.SectionRow-withGutter::after {
-  content: "";
-  flex: auto;
-}
-
 .SectionRow-withGutter > * {
   margin-top: 1.5rem;
   margin-left: calc(var(--gutter) / 2);
