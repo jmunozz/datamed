@@ -501,6 +501,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                         ],
                         labelClass="InternalLink normal-text",
                         label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+                        isOpenOnFirstRender=True,
                     )
                 )
             ),
