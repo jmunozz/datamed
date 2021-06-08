@@ -1,5 +1,7 @@
 from typing import Dict
 
+import pandas as pd
+
 BAR_LAYOUT = {
     "xaxis": dict(
         showgrid=False, showline=False, showticklabels=False, zeroline=False,
@@ -111,9 +113,9 @@ RUPTURES_BAR_LAYOUT = {
 }
 
 
-def get_ruptures_curve_layout(tick0) -> Dict:
+def get_ruptures_curve_layout(tickvals: pd.Series) -> Dict:
     return {
-        "xaxis": {"tickmode": "linear", "tick0": tick0, "dtick": 1,},
+        "xaxis": {"tickmode": "array", "tickvals": tickvals},
         "xaxis_showgrid": False,
         "yaxis_showgrid": False,
         "hovermode": "x unified",

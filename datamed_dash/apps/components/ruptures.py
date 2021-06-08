@@ -79,7 +79,7 @@ def Description() -> Component:
                                     "ansm.sante.fr.",
                                     href="https://ansm.sante.fr/",
                                     className="normal-text Link",
-                                    target="_blank"
+                                    target="_blank",
                                 ),
                             ],
                         ),
@@ -110,7 +110,12 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
         y=y,
         mode="lines",
         name=name,
-        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
+        line={
+            "shape": "spline",
+            "smoothing": 1,
+            "width": 4,
+            "color": color,
+        },
     )
 
 
@@ -140,15 +145,21 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(
+        figure=fig,
+        responsive=True,
+    )
 
 
 def get_signalements_circuit(circuit: str = "ville") -> Dict:
     colors = ["#5E2A7E", "#009640"]
     df = df_ruptures.reset_index()
+
+    df_circuit = df[(df.circuit == circuit) & (df.date >= "2021-05-04")]
+    df_circuit.date = df_circuit.date.apply(lambda x: dt(x.year, x.month, 1))
     df_circuit = (
-        df[df.circuit == circuit]
-        .groupby(["annee", "etat"])
+        df_circuit[df_circuit.circuit == circuit]
+        .groupby(["date", "etat"])
         .numero.count()
         .reset_index()
     )
@@ -158,11 +169,11 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
     for idx, e in enumerate(["ouvert", "clôturé"]):
         df_etat = df_circuit[df_circuit.etat == e]
         fig.add_trace(
-            SingleCurve(df_etat.annee, df_etat.nombre, e.capitalize(), colors[idx])
+            SingleCurve(df_etat.date, df_etat.nombre, e.capitalize(), colors[idx])
         )
 
-    fig.update_layout(get_ruptures_curve_layout(df_etat.annee.min()))
-    fig.update_xaxes(title_text="Année")
+    fig.update_layout(get_ruptures_curve_layout(df_circuit.date))
+    fig.update_xaxes(title_text="Date")
     fig.update_yaxes(title_text="Nombre de signalements")
 
     return fig
@@ -190,7 +201,7 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
         )
     )
 
-    fig.update_layout(get_ruptures_curve_layout(df_rupture_circuit.annee.min()))
+    fig.update_layout(get_ruptures_curve_layout(df_rupture_circuit.annee))
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de ruptures")
 
@@ -199,7 +210,9 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
 
 def get_signalement_atc_curve(annee=INITIAL_YEAR):
     # set up plotly figure
-    fig = make_subplots(specs=[[{"secondary_y": True}]],)
+    fig = make_subplots(
+        specs=[[{"secondary_y": True}]],
+    )
 
     # add first bar trace at row = 1, col = 1
     fig.add_trace(
@@ -218,7 +231,12 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         go.Scatter(
             x=df_sig.loc[annee].head(10).label,
             y=df_sig.loc[annee].head(10).nb_presentations,
-            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#00B3CC",},
+            line={
+                "shape": "spline",
+                "smoothing": 1,
+                "width": 4,
+                "color": "#00B3CC",
+            },
             mode="lines",
             name="Nombre de présentations",
         ),
@@ -229,7 +247,9 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     fig.update_xaxes(title_text="Classe thérapeutique")
     fig.update_yaxes(autorange="reversed")
     fig.update_yaxes(
-        title_text="Nombre de signalements", color="#009640", secondary_y=False,
+        title_text="Nombre de signalements",
+        color="#009640",
+        secondary_y=False,
     )
     fig.update_yaxes(
         title_text="Nombre de présentations", color="#00B3CC", secondary_y=True
@@ -377,7 +397,10 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value="ville",
                                         options=[
                                             {"label": y.capitalize(), "value": y}
-                                            for y in ["ville", "hôpital",]
+                                            for y in [
+                                                "ville",
+                                                "hôpital",
+                                            ]
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -458,7 +481,10 @@ def Ruptures() -> Tuple[Component, Div]:
                     items=[
                         {"id": "description", "label": "Description"},
                         {"id": "signalements", "label": "Signalements"},
-                        {"id": "gestion-ruptures", "label": "Gestion des ruptures",},
+                        {
+                            "id": "gestion-ruptures",
+                            "label": "Gestion des ruptures",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -476,7 +502,8 @@ def Ruptures() -> Tuple[Component, Div]:
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"), dd.Input("annee-dropdown", "value"),
+    dd.Output("atc-bar-chart", "figure"),
+    dd.Input("annee-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
@@ -498,7 +525,8 @@ def update_figure(value: str):
 
 
 @app.callback(
-    dd.Output("causes-treemap", "figure"), dd.Input("annee-causes-dropdown", "value"),
+    dd.Output("causes-treemap", "figure"),
+    dd.Input("annee-causes-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
