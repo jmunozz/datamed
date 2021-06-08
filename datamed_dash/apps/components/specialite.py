@@ -489,10 +489,13 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     Accordion(
                         [
                             html.P(
-                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
-                                "d’être liés à l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, "
-                                "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
-                                "un comité d’experts.",
+                                [
+                                    "Les données concernent des effets indésirables ",
+                                    html.B("suspectés"),
+                                    " suite à la prise d'un  médicament, mais qui ne sont pas ",
+                                    html.B("obligatoirement liés ou dus"),
+                                    " au médicament. Les déclarations d'effets indésirables ne doivent pas être interprétées comme signifiant que le médicament provoque l'effet observé ou que son utilisation présente un risque. Seule une analyse détaillée et une évaluation scientifique de toutes les données disponibles permettent des tirer des conclusions robustes sur les bénéfices et les risques d'un médicament.",
+                                ],
                                 className="normal-text justify-text",
                             ),
                         ],
@@ -517,9 +520,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                                 ),
                                 html.A(
                                     "Voir les effets indésirables",
-                                    href="/apps/substance?search={}#effets-indesirables".format(
-                                        code
-                                    ),
+                                    href="/apps/substance?search={}".format(code),
                                     className="Link EffetIndesirableBoxLink",
                                 ),
                             ],
