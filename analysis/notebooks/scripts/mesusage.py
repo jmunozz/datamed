@@ -449,21 +449,78 @@ fig.update_layout(CURVE_LAYOUT)
 fig.show()
 
 
-# # Par spécialité
-
 # In[26]:
 
 
-cis = "60234100"
+pv_dict = [
+    {"annee": 2014, "cas": 42444},
+    {"annee": 2015, "cas": 42396},
+    {"annee": 2016, "cas": 45515},
+    {"annee": 2017, "cas": 72687},
+    {"annee": 2018, "cas": 58425},
+    {"annee": 2019, "cas": 48147},
+    {"annee": 2020, "cas": 45015},
+    {"annee": 2021, "cas": 55774},
+]
+
+df_pv = pd.DataFrame(pv_dict)
+df_pv.head()
 
 
 # In[27]:
 
 
+fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+fig.add_trace(
+    go.Scatter(
+        x=df_annee.annee_notif,
+        y=df_annee.cas_crpv,
+        mode="lines",
+        name="Déclarations d'effets indésirables liés au mésusage",
+        line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#F599B5"},
+    ),
+    secondary_y=False,
+)
+
+fig.add_trace(
+    go.Scatter(
+        x=df_pv.annee,
+        y=df_pv.cas,
+        mode="lines",
+        name="Cas de pharmacovigilance",
+        line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
+        hoverlabel={"namelength" :-1},
+        hovertemplate="%{y:int}",
+    ),
+    secondary_y=True,
+)
+
+fig.update_yaxes(title_text="Déclarations d'effets indésirables liés au mésusage",
+                 color="#F599B5",
+                 secondary_y=False)
+fig.update_yaxes(title_text="Cas de pharmacovigilance", color="#EA336B", secondary_y=True)
+fig.update_xaxes(title_text="Années")
+#fig.update_xaxes(nticks=len(df_decla.loc[code]))
+fig.update_layout(CURVE_LAYOUT)
+fig.show()
+
+
+# # Par spécialité
+
+# In[28]:
+
+
+cis = "60234100"
+
+
+# In[29]:
+
+
 df[df.cis == cis].head(2)
 
 
-# In[28]:
+# In[30]:
 
 
 df_cis = df[df.cis == cis]
@@ -471,7 +528,7 @@ df_cis = df[df.cis == cis]
 
 # ## SOC
 
-# In[29]:
+# In[31]:
 
 
 df_soc = df_cis[["soc_long", "cas_crpv"]].groupby("soc_long").cas_crpv.count().reset_index()
@@ -480,7 +537,7 @@ df_soc = df_soc[df_soc.cas_crpv >= 10]
 df_soc
 
 
-# In[30]:
+# In[32]:
 
 
 TREE_COLORS = ["#5E2A7E", "#7E5598", "#9E7FB2", "#BFAACB", "#DFD4E5",
@@ -519,7 +576,7 @@ fig.show()
 
 # ## Sexe
 
-# In[31]:
+# In[33]:
 
 
 df_sexe = df_cis[["sexe", "cas_crpv"]].groupby("sexe").cas_crpv.count().reset_index()
@@ -527,7 +584,7 @@ df_sexe = df_cis[["sexe", "cas_crpv"]].groupby("sexe").cas_crpv.count().reset_in
 df_sexe
 
 
-# In[32]:
+# In[34]:
 
 
 PIE_COLORS = ["#F599B5", "#FACCDA", "#EF6690"]
