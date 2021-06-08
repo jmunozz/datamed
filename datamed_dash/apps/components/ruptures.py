@@ -79,6 +79,7 @@ def Description() -> Component:
                                     "ansm.sante.fr.",
                                     href="https://ansm.sante.fr/",
                                     className="normal-text Link",
+                                    target="_blank"
                                 ),
                             ],
                         ),

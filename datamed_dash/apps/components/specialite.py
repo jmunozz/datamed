@@ -382,6 +382,7 @@ def ErreursMedicamenteuses(
                                         "portail des signalements",
                                         href="https://signalement.social-sante.gouv.fr",
                                         className="Link",
+                                        target="_blank",
                                     ),
                                 ],
                                 className="justify-text normal-text",
@@ -539,22 +540,6 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
             ),
         ],
         id="",
-    )
-
-
-def AdverseEffectLink(substance: str, code: str) -> Component:
-    return Box(
-        html.Div(
-            [
-                html.Span(substance, className="AdverseEffectRowLabel",),
-                html.A(
-                    "Consulter les effets indésirables",
-                    href="/apps/substance?search={}#effets-indesirables".format(code),
-                    className="Link",
-                ),
-            ],
-            className="AdverseEffectRow",
-        )
     )
 
 
