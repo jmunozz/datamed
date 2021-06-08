@@ -344,7 +344,7 @@ def Signalements(df: pd.DataFrame) -> Component:
             SectionRow(
                 [
                     GraphBox(
-                        "Nombre de signalements par an, par catégorie",
+                        "Nombre de signalements par an",
                         [SignalementsTotal(df_ruptures)],
                     ),
                 ]
@@ -409,7 +409,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 className="mb-5",
                             ),
                             H4(
-                                "Évolution du nombre d'ouvertures et de clôtures de dossiers dans le circuit",
+                                "Évolution du nombre d'ouvertures et de clôtures de dossier",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(
@@ -420,7 +420,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 style={"height": 300},
                             ),
                             H4(
-                                "Évolution du nombre de ruptures dans le circuit",
+                                "Évolution du nombre de ruptures",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(

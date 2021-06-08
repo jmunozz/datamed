@@ -4,7 +4,10 @@ import pandas as pd
 
 BAR_LAYOUT = {
     "xaxis": dict(
-        showgrid=False, showline=False, showticklabels=False, zeroline=False,
+        showgrid=False,
+        showline=False,
+        showticklabels=False,
+        zeroline=False,
     ),
     "yaxis": dict(
         showgrid=False,
@@ -90,7 +93,12 @@ TREEMAP_LAYOUT = {
 }
 
 RUPTURES_BAR_LAYOUT = {
-    "xaxis": dict(showgrid=False, showline=False, showticklabels=True, zeroline=False,),
+    "xaxis": dict(
+        showgrid=False,
+        showline=False,
+        showticklabels=True,
+        zeroline=False,
+    ),
     "yaxis": dict(
         showgrid=False,
         showline=False,
@@ -125,4 +133,5 @@ def get_ruptures_curve_layout(tickvals: pd.Series) -> Dict:
         "font": {"size": 12, "color": "black"},
         "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         "hoverlabel": {"namelength": -1},
+        "showlegend": True,
     }
