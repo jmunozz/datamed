@@ -665,6 +665,47 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                     ],
                 ),
             ),
+            SectionRow(
+                Box(
+                    html.Div(
+                        [
+                            Box(
+                                [
+                                    html.Img(
+                                        src=app.get_asset_url(
+                                            "icons/pres_autre_120.svg"
+                                        ),
+                                    ),
+                                ],
+                                isBordered=False,
+                                className="CardBoxImage RupturesBox",
+                            ),
+                            Box(
+                                [
+                                    BoxArticle(
+                                        [
+                                            html.H3("Données de rupture de stock"),
+                                            html.P(
+                                                "Accédez aux données globales de l’état des ruptures de stock en France, ainsi qu’aux mesures prises par l’Agence pour prévenir la pénurie de médicaments."
+                                            ),
+                                            html.A(
+                                                "visualiser les données",
+                                                className="Btn Btn-isPrimary",
+                                                role="button",
+                                                href="/apps/ruptures",
+                                            ),
+                                        ]
+                                    )
+                                ],
+                                isBordered=False,
+                                className="CardBoxText",
+                            ),
+                        ],
+                        className="CardBox",
+                    ),
+                    hasNoPadding=True,
+                ),
+            ),
         ],
         id="rupture-de-stock",
     )
