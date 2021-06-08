@@ -98,6 +98,7 @@ def EffetsIndesirablesTooltip() -> Component:
                         "signalement.social-sante.gouv.fr",
                         href="https://signalement.social-sante.gouv.fr",
                         className="normal-text link",
+                        target="_blank"
                     ),
                 ],
                 labelClass="InternalLink normal-text",
