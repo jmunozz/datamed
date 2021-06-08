@@ -75,7 +75,7 @@ def Partners():
                     "Etalab",
                     href="https://www.etalab.gouv.fr/",
                     className="normal-text Link Link-isOnDarkBackground",
-                    taget="_blank"
+                    target="_blank"
                 ),
                 A(
                     "DINUM",

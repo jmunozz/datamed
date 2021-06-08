@@ -122,7 +122,9 @@ def NoData(class_name="") -> html.Div:
                 className="img-fluid",
                 alt="Responsive image",
             ),
-            html.Div("Données insuffisantes pour affichage",),
+            html.Div(
+                "Données insuffisantes pour affichage",
+            ),
         ],
         className=class_name,
     )
@@ -142,9 +144,19 @@ def Tooltip() -> Component:
                                         "médicament, délivré en ",
                                         className="normal-text",
                                     ),
-                                    html.B(html.Span("pharmacie de ville",)),
-                                    html.Span(" entre 2014 et 2018 et remboursé par ",),
-                                    html.B(html.Span("l’Assurance Maladie.",)),
+                                    html.B(
+                                        html.Span(
+                                            "pharmacie de ville",
+                                        )
+                                    ),
+                                    html.Span(
+                                        " entre 2014 et 2018 et remboursé par ",
+                                    ),
+                                    html.B(
+                                        html.Span(
+                                            "l’Assurance Maladie.",
+                                        )
+                                    ),
                                     html.Span(
                                         " Pour plus d’informations, consultez : ",
                                     ),
@@ -180,8 +192,14 @@ def Tooltip() -> Component:
                             ),
                         ],
                     ),
-                    html.Div([], className="text-justify mb-3",),
-                    html.Div([], className="mb-3",),
+                    html.Div(
+                        [],
+                        className="text-justify mb-3",
+                    ),
+                    html.Div(
+                        [],
+                        className="mb-3",
+                    ),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -210,7 +228,13 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
     df = pd.DataFrame(
         {
-            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
+            "Utilisation": [
+                "Très faible",
+                "Faible",
+                "Modéré",
+                "Élevé",
+                "Très élevé",
+            ],
             "Nombre de patients (niveau spécialité)": [
                 "< 1 000",
                 "1 000 - 5 000",
@@ -344,30 +368,15 @@ def PatientsTraites(
 
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
-    modal_body = [
-        html.Div(
-            "Les médicaments peuvent être regroupés suivant différents niveaux "
-            "de précision (du plus au moins précis) :",
-            className="mb-3",
-        ),
-        html.Div(
-            "- La présentation : " "Doliprane 1000 mg, comprimé, boîte de 8 comprimés"
-        ),
-        html.Div("- La spécialité : Doliprane 1000 mg, comprimé"),
-        html.Div("- Le produit : Doliprane"),
-        html.Div("- La substance active : Paracétamol", className="mb-3",),
-    ]
     if type == "substance":
         title = series_spe.nom.capitalize()
         css_class = "Header-isSubstance"
         icon_url = app.get_asset_url("substance_icon.svg")
         type_label = "Substance active"
         help_link = html.A("Qu'est-ce qu'une substance active ?", id="definition-open")
-        modal_body.append(
-            html.Div(
-                "La substance active d'un médicament est une substance chimique entrant dans la composition du"
-                " médicament et ayant un effet thérapeutique ou préventif."
-            ),
+        modal_body = html.Div(
+            "La substance active d'un médicament est une substance chimique entrant dans "
+            "la composition du médicament et ayant un effet thérapeutique ou préventif."
         )
     elif type == "specialite":
         title = series_spe.nom.capitalize()
@@ -383,13 +392,25 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
             id="definition-open",
             className="Link Link-isOnDarkBackground",
         )
-        modal_body.append(
+        modal_body = [
+            html.Div(
+                "Les médicaments peuvent être regroupés suivant différents niveaux "
+                "de précision (du plus au moins précis) :",
+                className="mb-3",
+            ),
+            html.Div(
+                "- La présentation : "
+                "Doliprane 1000 mg, comprimé, boîte de 8 comprimés"
+            ),
+            html.Div("- La spécialité : Doliprane 1000 mg, comprimé"),
+            html.Div("- Le produit : Doliprane"),
+            html.Div("- La substance active : Paracétamol", className="mb-3"),
             html.Div(
                 "La spécialité d’un médicament est donc caractérisée par "
                 "une dénomination spéciale (Doliprane) et un conditionnement "
                 "particulier (1000 mg, comprimé)."
             ),
-        )
+        ]
     elif type == "rupture":
         title = "Données ruptures de stock"
         css_class = "Header-isRupture"
@@ -411,7 +432,10 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         html.Div(
             html.Div(
                 [
-                    html.Div(html.Img(src=icon_url), className="HeaderImg",),
+                    html.Div(
+                        html.Img(src=icon_url),
+                        className="HeaderImg",
+                    ),
                     html.Div(
                         [
                             H1(title),
