@@ -96,8 +96,9 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_nat = specialite.get_erreur_med_nature(cis)
     df_pop = specialite.get_erreur_med_population(cis)
     df_denom = specialite.get_erreur_med_denom(cis)
-    df_rup = specialite.get_ruptures(cis)
+    df_rup = specialite.get_ruptures(cis, df_spe)
     df_init = specialite.get_erreur_med_init(cis)
+    df_gravite = specialite.get_erreur_med_gravite(cis)
 
     return (
         Header(series_spe),
@@ -136,6 +137,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 df_cause,
                                 df_nat,
                                 df_denom,
+                                df_gravite,
                                 series_spe,
                             ),
                             EffetsIndesirables(df_sub),
@@ -194,7 +196,8 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(), series_atc.atc,
+                                    series_atc.label.capitalize(),
+                                    series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -282,7 +285,9 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
             hover_name=field,
-            hover_data={field: False,},
+            hover_data={
+                field: False,
+            },
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
@@ -316,6 +321,21 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
     )
 
 
+def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData("BoxContent-isHalf")
+    fig = go.Figure(
+        go.Pie(
+            labels=df.gravite,
+            values=df.pourcentage,
+            marker_colors=PIE_COLORS_SPECIALITE,
+            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+        )
+    ).update_layout(PIE_LAYOUT)
+    fig.update_traces(PIE_TRACES)
+    return Graph(figure=fig, responsive=False)
+
+
 def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
     if df_pop is None:
         return NoData("BoxContent-isHalf")
@@ -342,7 +362,10 @@ def BoxListDenomination(df_denom):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={"height": "50px", "backgroundColor": "#FFF",},
+        style_cell={
+            "height": "50px",
+            "backgroundColor": "#FFF",
+        },
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -361,6 +384,7 @@ def ErreursMedicamenteuses(
     df_cause: pd.DataFrame,
     df_nat: pd.DataFrame,
     df_denom: pd.DataFrame,
+    df_gravite: pd.DataFrame,
     series_spe: pd.DataFrame,
 ) -> Component:
 
@@ -414,8 +438,23 @@ def ErreursMedicamenteuses(
             SectionRow(
                 [
                     GraphBox(
+                        "Répartition des cas par gravité",
+                        [BoxRepartitionGravite(df_gravite)],
+                        className="Box-isHalf",
+                    ),
+                ],
+                withGutter=True,
+            ),
+            SectionRow(
+                [
+                    GraphBox(
                         "Erreurs initiales",
-                        [StackBarGraph(df_init, "initial_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_init,
+                                "initial_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),
@@ -423,7 +462,12 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Cause des erreurs médicamenteuses",
-                        [StackBarGraph(df_cause, "cause_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_cause,
+                                "cause_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),
@@ -431,7 +475,12 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
-                        [StackBarGraph(df_nat, "nature_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_nat,
+                                "nature_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),
@@ -541,7 +590,6 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
         ],
         id="",
     )
-
 
 mapCircuitColRupture = {
     "ville": {
