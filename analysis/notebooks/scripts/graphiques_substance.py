@@ -285,7 +285,7 @@ df_soc.loc[code].sort_values(by="pourcentage_cas", ascending=False)
 top_soc_long = df_soc.loc[code].sort_values(by="pourcentage_cas", ascending=False).head(10).soc_long.tolist()
 
 
-# In[20]:
+# In[ ]:
 
 
 TREE_COLORS = [
@@ -335,26 +335,26 @@ fig.show()
 # #### Ici, le fait de cliquer sur un des carrés soc_long ouvrira une modale avec le treemap des effets HLT correspondant à ce soc_long
 # #### On n'affiche que le top 10
 
-# In[21]:
+# In[ ]:
 
 
 # Sélection d'un soc_long
 soc_long = "Affections de la peau et du tissu sous-cutané"
 
 
-# In[22]:
+# In[ ]:
 
 
 df_hlt = pd.read_sql("substance_hlt_ordei", con=engine, index_col="code")
 
 
-# In[23]:
+# In[ ]:
 
 
 df_hlt[df_hlt.soc_long == soc_long].loc[code].sort_values(by="pourcentage_cas", ascending=False)
 
 
-# In[24]:
+# In[ ]:
 
 
 fig = px.treemap(
@@ -389,7 +389,7 @@ fig.show()
 
 # #### Treemap plus complexe
 
-# In[25]:
+# In[ ]:
 
 
 df_hlt = pd.read_sql("substance_hlt_ordei", con=engine, index_col="code").reset_index()
@@ -411,7 +411,7 @@ df_soc.pourcentage_cas_hlt = df_soc.apply(
 df_soc = df_soc.set_index("code")
 
 
-# In[26]:
+# In[ ]:
 
 
 fig = px.treemap(
@@ -444,21 +444,43 @@ fig.update_traces(texttemplate="%{label}<br>%{value:.0f}%", textposition='middle
 fig.show()
 
 
+# In[ ]:
+
+
+fig = px.sunburst(
+    df_soc.loc[code].sort_values(by="pourcentage_cas_hlt", ascending=False),
+    path=["soc_long", "effet_hlt"],
+    values="pourcentage_cas_hlt",
+    #color='lifeExp',
+    #hover_data=['iso_alpha'],
+    color_continuous_scale=TREE_COLORS,
+    #color_continuous_midpoint=np.average(df['lifeExp'], weights=df['pop'])
+)
+
+fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+
+
+# In[ ]:
+
+
+
+
+
 # ### Cas graves
 
-# In[27]:
+# In[ ]:
 
 
 dfg = pd.read_sql("substance_cas_grave_ordei", con=engine, index_col="code")
 
 
-# In[28]:
+# In[ ]:
 
 
 dfg.head()
 
 
-# In[29]:
+# In[ ]:
 
 
 PIE_LAYOUT = {
