@@ -274,7 +274,6 @@ def get_causes(annee=INITIAL_YEAR):
 
 
 def get_mesures(annee=INITIAL_YEAR):
-    df_mesures["annee"] = df_mesures.numero.apply(lambda x: 2000 + int(x[:2]))
     df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
     df = df.rename(columns={"numero": "nombre"}).set_index("annee")
 
@@ -363,7 +362,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value=INITIAL_YEAR,
                                         options=[
                                             {"label": y, "value": y}
-                                            for y in range(2014, dt.now().year + 1)
+                                            for y in sorted(df_ruptures.annee.unique())
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -477,10 +476,10 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value=INITIAL_YEAR,
                                         options=[
                                             {
-                                                "label": dt.now().year,
-                                                "value": dt.now().year,
+                                                "label": y,
+                                                "value": y,
                                             }
-                                            for y in range(2014, dt.now().year + 1)
+                                            for y in sorted(df_mesures.annee.unique())
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
