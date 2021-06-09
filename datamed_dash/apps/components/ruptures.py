@@ -10,7 +10,7 @@ from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from dash_html_components import Div, P, Article, H1, H4, A, Span
+from dash_html_components import Div, P, H1, H4, A, Span
 from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
@@ -24,15 +24,16 @@ from .utils import (
     FigureGraph,
     SectionRow,
 )
-from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS
+from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS, PIE_COLORS_SPECIALITE
 from ..constants.layouts import (
+    PIE_LAYOUT,
     RUPTURES_BAR_LAYOUT,
     TREEMAP_LAYOUT,
     CURVE_LAYOUT,
     get_ruptures_curve_layout,
 )
 
-INITIAL_YEAR = 2020
+INITIAL_YEAR = 2021
 
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
@@ -289,6 +290,21 @@ def get_causes(annee=INITIAL_YEAR):
     return fig
 
 
+def get_mesures(annee=INITIAL_YEAR):
+    df_mesures["annee"] = df_mesures.numero.apply(lambda x: 2000 + int(x[:2]))
+    df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
+    df = df.rename(columns={"numero": "nombre"}).set_index("annee")
+
+    fig = go.Figure(
+        go.Pie(
+            labels=df.loc[annee].mesure,
+            values=df.loc[annee].nombre,
+            marker_colors=PIE_COLORS_SPECIALITE,
+        )
+    ).update_layout(PIE_LAYOUT)
+    return fig
+
+
 def Signalements(df: pd.DataFrame) -> Component:
     signalements = len(df[df.annee == dt.now().year - 1])
     this_year = str(dt.now().year)[-2:]
@@ -364,7 +380,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value=INITIAL_YEAR,
                                         options=[
                                             {"label": y, "value": y}
-                                            for y in range(2014, 2021)
+                                            for y in range(2014, dt.now().year + 1)
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -448,7 +464,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value=INITIAL_YEAR,
                                         options=[
                                             {"label": y, "value": y}
-                                            for y in range(2014, 2021)
+                                            for y in range(2014, dt.now().year + 1)
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -460,6 +476,39 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 figure=get_causes(),
                                 responsive=True,
                                 id="causes-treemap",
+                                style={"height": 450},
+                            ),
+                        ],
+                    )
+                )
+            ),
+            SectionRow(
+                Box(
+                    Div(
+                        [
+                            Div(
+                                [
+                                    H4(
+                                        "Mesures prises",
+                                        className="GraphTitle d-inline-block",
+                                    ),
+                                    dbc.Select(
+                                        id="annee-mesures-dropdown",
+                                        value=INITIAL_YEAR,
+                                        options=[
+                                            {"label": dt.now().year, "value": dt.now().year}
+                                            for y in range(2014, dt.now().year + 1)
+                                        ],
+                                        className="GraphSelect d-inline-block",
+                                        style={"float": "right"},
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
+                            Graph(
+                                figure=get_mesures(),
+                                responsive=True,
+                                id="pie-mesures",
                                 style={"height": 450},
                             ),
                         ],
@@ -532,3 +581,13 @@ def update_figure(value: str):
     if not value:
         raise PreventUpdate
     return get_causes(int(value))
+
+
+@app.callback(
+    dd.Output("pie-mesures", "figure"),
+    dd.Input("annee-mesures-dropdown", "value"),
+)
+def update_figure(value: str):
+    if not value:
+        raise PreventUpdate
+    return get_mesures(int(value))
