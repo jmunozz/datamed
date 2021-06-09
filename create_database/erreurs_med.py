@@ -93,6 +93,8 @@ def get_table_df(df: pd.DataFrame, df_spe: pd.DataFrame, col: str) -> pd.DataFra
 
 
 def clean_emed_df(df: pd.DataFrame, _settings: Dict) -> pd.DataFrame:
+    gravite_dict = {"NR": "Non renseigné", "Oui": "Grave", "Non": "Non grave"}
+
     # Cleaning
     df = df[~df.denomination.isna()]
     df.denomination = df.denomination.apply(lambda x: x.lower().strip() if x else None)
@@ -108,7 +110,7 @@ def clean_emed_df(df: pd.DataFrame, _settings: Dict) -> pd.DataFrame:
     df.effet_indesirable = df.effet_indesirable.apply(
         lambda x: "Non renseigné" if x == "NR" else x
     )
-    df.gravite = df.gravite.apply(lambda x: "Non renseigné" if x == "NR" else x)
+    df.gravite = df.gravite.apply(lambda x: gravite_dict.get(x, x))
     df.initial_erreur = df.initial_erreur.apply(
         lambda x: "Non renseigné" if x == "NI" else x
     )
