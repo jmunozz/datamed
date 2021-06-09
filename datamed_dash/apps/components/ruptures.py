@@ -454,7 +454,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Motifs des signalements",
+                                        "Causes des signalements",
                                         className="GraphTitle d-inline-block",
                                     ),
                                     dbc.Select(
