@@ -96,8 +96,9 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_nat = specialite.get_erreur_med_nature(cis)
     df_pop = specialite.get_erreur_med_population(cis)
     df_denom = specialite.get_erreur_med_denom(cis)
-    df_rup = specialite.get_ruptures(cis)
+    df_rup = specialite.get_ruptures(cis, df_spe)
     df_init = specialite.get_erreur_med_init(cis)
+    df_gravite = specialite.get_erreur_med_gravite(cis)
 
     return (
         Header(series_spe),
@@ -136,6 +137,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 df_cause,
                                 df_nat,
                                 df_denom,
+                                df_gravite,
                                 series_spe,
                             ),
                             EffetsIndesirables(df_sub),
@@ -316,6 +318,21 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
     )
 
 
+def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData("BoxContent-isHalf")
+    fig = go.Figure(
+        go.Pie(
+            labels=df.gravite,
+            values=df.pourcentage,
+            marker_colors=PIE_COLORS_SPECIALITE,
+            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+        )
+    ).update_layout(PIE_LAYOUT)
+    fig.update_traces(PIE_TRACES)
+    return Graph(figure=fig, responsive=False)
+
+
 def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
     if df_pop is None:
         return NoData("BoxContent-isHalf")
@@ -361,6 +378,7 @@ def ErreursMedicamenteuses(
     df_cause: pd.DataFrame,
     df_nat: pd.DataFrame,
     df_denom: pd.DataFrame,
+    df_gravite: pd.DataFrame,
     series_spe: pd.DataFrame,
 ) -> Component:
 
@@ -407,6 +425,16 @@ def ErreursMedicamenteuses(
                     GraphBox(
                         "Répartition de la population concernée par les erreurs médicamenteuses",
                         [BoxRepartitionPopulationConcernee(df_pop)],
+                    ),
+                ],
+                withGutter=True,
+            ),
+            SectionRow(
+                [
+                    GraphBox(
+                        "Répartition des cas par gravité",
+                        [BoxRepartitionGravite(df_gravite)],
+                        className="Box-isHalf",
                     ),
                 ],
                 withGutter=True,

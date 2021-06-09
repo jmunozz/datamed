@@ -1,8 +1,13 @@
 from typing import Dict
 
+import pandas as pd
+
 BAR_LAYOUT = {
     "xaxis": dict(
-        showgrid=False, showline=False, showticklabels=False, zeroline=False,
+        showgrid=False,
+        showline=False,
+        showticklabels=False,
+        zeroline=False,
     ),
     "yaxis": dict(
         showgrid=False,
@@ -88,7 +93,12 @@ TREEMAP_LAYOUT = {
 }
 
 RUPTURES_BAR_LAYOUT = {
-    "xaxis": dict(showgrid=False, showline=False, showticklabels=True, zeroline=False,),
+    "xaxis": dict(
+        showgrid=False,
+        showline=False,
+        showticklabels=True,
+        zeroline=False,
+    ),
     "yaxis": dict(
         showgrid=False,
         showline=False,
@@ -111,9 +121,9 @@ RUPTURES_BAR_LAYOUT = {
 }
 
 
-def get_ruptures_curve_layout(tick0) -> Dict:
+def get_ruptures_curve_layout(tickvals: pd.Series) -> Dict:
     return {
-        "xaxis": {"tickmode": "linear", "tick0": tick0, "dtick": 1,},
+        "xaxis": {"tickmode": "array", "tickvals": tickvals},
         "xaxis_showgrid": False,
         "yaxis_showgrid": False,
         "hovermode": "x unified",
@@ -123,4 +133,5 @@ def get_ruptures_curve_layout(tick0) -> Dict:
         "font": {"size": 12, "color": "black"},
         "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         "hoverlabel": {"namelength": -1},
+        "showlegend": True,
     }
