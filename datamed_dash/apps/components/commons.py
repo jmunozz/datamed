@@ -152,6 +152,7 @@ def Tooltip() -> Component:
                                         "open-data-assurance-maladie.ameli.fr",
                                         href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
                                         className="Link",
+                                        target="_blank",
                                     ),
                                 ],
                                 className="justify-text normal-text",

@@ -332,14 +332,6 @@ def EffetsIndesirables(
             SectionRow(
                 [
                     GraphBox(
-                        "Évolution du nombre de déclarations d’effets indésirables au cours du temps",
-                        [CasDeclaresGraphBox(df_decla)],
-                    ),
-                ]
-            ),
-            SectionRow(
-                [
-                    GraphBox(
                         "Répartition par sexe des cas déclarés",
                         [RepartitionSexeFigureBox(df_cas_sexe)],
                     ),
