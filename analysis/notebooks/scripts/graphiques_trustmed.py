@@ -308,27 +308,23 @@ fig.show()
 
 # # Motifs de rupture
 
-# In[22]:
+# In[61]:
 
 
-df_cause = df.groupby(["annee", "cause"]).numero.count().reset_index()
-df_cause.numero = df_cause.apply(lambda x: x.numero / len(df_cause[df_cause.annee == x.annee]), axis=1)
-df_cause = df_cause.rename(columns={"numero": "nombre_signalements"}).set_index("annee")
-
-
-# In[23]:
-
-
+df = fetch_data.fetch_table("ruptures", "numero")
+df_cause = df.groupby(["annee", "cause"]).etat.count().reset_index()
+df_cause.etat = df_cause.apply(lambda x: x.etat / len(df_cause[df_cause.annee == x.annee]), axis=1)
+df_cause = df_cause.rename(columns={"etat": "nombre_signalements"}).set_index("annee")
 df_cause.head()
 
 
-# In[24]:
+# In[62]:
 
 
 df_cause.loc[2019].sort_values(by="nombre_signalements", ascending=False).head(10)
 
 
-# In[25]:
+# In[63]:
 
 
 fig = px.treemap(
@@ -427,15 +423,15 @@ df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
 # In[35]:
 
 
-dfm = fetch_data.fetch_table("mesures", "index").reset_index()
+dfm = fetch_data.fetch_table("mesures", "index")
 dfm.head(2)
 
 
 # In[36]:
 
 
-df_mesure = dfm.groupby("mesure").numero.count().reset_index()
-df_mesure = df_mesure.rename(columns={"numero": "nombre"})
+df_mesure = dfm.groupby(["annee", "mesure"]).numero.count().reset_index()
+df_mesure = df_mesure.rename(columns={"numero": "nombre"}).set_index("annee")
 df_mesure.head()
 
 
@@ -457,8 +453,8 @@ PIE_LAYOUT = {
 
 fig = go.Figure(
     go.Pie(
-        labels=df_mesure.mesure,
-        values=df_mesure.nombre,
+        labels=df_mesure.loc[2021].mesure,
+        values=df_mesure.loc[2021].nombre,
         marker_colors=PIE_COLORS,    #px.colors.qualitative.Set3,
     )
 ).update_layout(PIE_LAYOUT)

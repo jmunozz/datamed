@@ -491,6 +491,7 @@ def create_table_mesures(_settings: Dict):
 
     df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
     df = df[~df.mesure.isin(["REAP", "QST"])]
+    df["annee"] = df.numero.apply(lambda x: 2000 + int(x[:2]))
     helpers.serie_to_lowercase(df, ["etat_mesure", "nom"])
     db.create_table_from_df(df, _settings["to_sql"])
 

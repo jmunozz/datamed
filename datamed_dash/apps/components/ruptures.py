@@ -111,7 +111,12 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
         y=y,
         mode="lines",
         name=name,
-        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
+        line={
+            "shape": "spline",
+            "smoothing": 1,
+            "width": 4,
+            "color": color,
+        },
     )
 
 
@@ -141,7 +146,10 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(
+        figure=fig,
+        responsive=True,
+    )
 
 
 def get_signalements_circuit(circuit: str = "ville") -> Dict:
@@ -203,7 +211,9 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
 
 def get_signalement_atc_curve(annee=INITIAL_YEAR):
     # set up plotly figure
-    fig = make_subplots(specs=[[{"secondary_y": True}]],)
+    fig = make_subplots(
+        specs=[[{"secondary_y": True}]],
+    )
 
     # add first bar trace at row = 1, col = 1
     fig.add_trace(
@@ -222,7 +232,12 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         go.Scatter(
             x=df_sig.loc[annee].head(10).label,
             y=df_sig.loc[annee].head(10).nb_presentations,
-            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#00B3CC",},
+            line={
+                "shape": "spline",
+                "smoothing": 1,
+                "width": 4,
+                "color": "#00B3CC",
+            },
             mode="lines",
             name="Nombre de présentations",
         ),
@@ -233,7 +248,9 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     fig.update_xaxes(title_text="Classe thérapeutique")
     fig.update_yaxes(autorange="reversed")
     fig.update_yaxes(
-        title_text="Nombre de signalements", color="#009640", secondary_y=False,
+        title_text="Nombre de signalements",
+        color="#009640",
+        secondary_y=False,
     )
     fig.update_yaxes(
         title_text="Nombre de présentations", color="#00B3CC", secondary_y=True
@@ -243,15 +260,14 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
 
 
 def get_causes(annee=INITIAL_YEAR):
-    df = df_ruptures.reset_index()
-    df_cause = df.groupby(["annee", "cause"]).numero.count().reset_index()
-    df_cause.numero = df_cause.apply(
-        lambda x: x.numero / len(df_cause[df_cause.annee == x.annee]), axis=1
+    df_cause = df_ruptures.groupby(["annee", "cause"]).etat.count().reset_index()
+    df_cause = df_cause.rename(columns={"etat": "nombre_signalements"})
+    df_cause.nombre_signalements = df_cause.apply(
+        lambda x: x.nombre_signalements / len(df_cause[df_cause.annee == x.annee]),
+        axis=1,
     )
     df_cause.cause = df_cause.cause.str.capitalize()
-    df_cause = df_cause.rename(columns={"numero": "nombre_signalements"}).set_index(
-        "annee"
-    )
+    df_cause = df_cause.set_index("annee")
 
     fig = px.treemap(
         df_cause.loc[annee]
@@ -274,7 +290,6 @@ def get_causes(annee=INITIAL_YEAR):
 
 
 def get_mesures(annee=INITIAL_YEAR):
-    df_mesures["annee"] = df_mesures.numero.apply(lambda x: 2000 + int(x[:2]))
     df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
     df = df.rename(columns={"numero": "nombre"}).set_index("annee")
 
@@ -363,7 +378,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value=INITIAL_YEAR,
                                         options=[
                                             {"label": y, "value": y}
-                                            for y in range(2014, dt.now().year + 1)
+                                            for y in sorted(df_ruptures.annee.unique())
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -396,7 +411,10 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value="ville",
                                         options=[
                                             {"label": y.capitalize(), "value": y}
-                                            for y in ["ville", "hôpital",]
+                                            for y in [
+                                                "ville",
+                                                "hôpital",
+                                            ]
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -436,7 +454,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Motifs des signalements",
+                                        "Causes des signalements",
                                         className="GraphTitle d-inline-block",
                                     ),
                                     dbc.Select(
@@ -477,10 +495,10 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value=INITIAL_YEAR,
                                         options=[
                                             {
-                                                "label": dt.now().year,
-                                                "value": dt.now().year,
+                                                "label": y,
+                                                "value": y,
                                             }
-                                            for y in range(2014, dt.now().year + 1)
+                                            for y in sorted(df_mesures.annee.unique())
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -513,7 +531,10 @@ def Ruptures() -> Tuple[Component, Div]:
                     items=[
                         {"id": "description", "label": "Description"},
                         {"id": "signalements", "label": "Signalements"},
-                        {"id": "gestion-ruptures", "label": "Gestion des ruptures",},
+                        {
+                            "id": "gestion-ruptures",
+                            "label": "Gestion des ruptures",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -531,7 +552,8 @@ def Ruptures() -> Tuple[Component, Div]:
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"), dd.Input("annee-dropdown", "value"),
+    dd.Output("atc-bar-chart", "figure"),
+    dd.Input("annee-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
@@ -553,7 +575,8 @@ def update_figure(value: str):
 
 
 @app.callback(
-    dd.Output("causes-treemap", "figure"), dd.Input("annee-causes-dropdown", "value"),
+    dd.Output("causes-treemap", "figure"),
+    dd.Input("annee-causes-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
@@ -562,7 +585,8 @@ def update_figure(value: str):
 
 
 @app.callback(
-    dd.Output("pie-mesures", "figure"), dd.Input("annee-mesures-dropdown", "value"),
+    dd.Output("pie-mesures", "figure"),
+    dd.Input("annee-mesures-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
