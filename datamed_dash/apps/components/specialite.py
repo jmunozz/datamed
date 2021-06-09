@@ -442,13 +442,16 @@ def ErreursMedicamenteuses(
             SectionRow(
                 [
                     GraphBox(
-                        "Répartition des cas par gravité",
+                        "Gravité des erreurs médicamenteuses",
                         [BoxRepartitionGravite(df_gravite)],
                         className="Box-isHalf",
                         tooltip=[
                             html.H4("Cas grave"),
                             html.P(
-                                "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant une invalidité ou une incapacité importantes ou durables, ou provoquant ou prolongeant une hospitalisation, ou se manifestant par une anomalie ou une malformation congénitale.",
+                                "Effet indésirable létal, ou susceptible de mettre la vie en danger, "
+                                "ou entraînant une invalidité ou une incapacité importante ou durable, "
+                                "ou provoquant ou prolongeant une hospitalisation, ou se manifestant par "
+                                "une anomalie ou une malformation congénitale.",
                                 className="regular-text",
                             ),
                         ],

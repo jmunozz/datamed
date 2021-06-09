@@ -97,7 +97,7 @@ def EffetsIndesirablesTooltip() -> Component:
                         "signalement.social-sante.gouv.fr",
                         href="https://signalement.social-sante.gouv.fr",
                         className="normal-text link",
-                        target="_blank"
+                        target="_blank",
                     ),
                 ],
                 labelClass="InternalLink normal-text",
@@ -120,6 +120,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
     df_cas_age = substance.get_age_cas_df(code)
     df_cas_sexe = substance.get_sexe_cas_df(code)
     df_soc = substance.get_soc_df(code)
+    df_gravite = substance.get_gravite(code)
 
     return (
         Header(series_sub, type="substance"),
@@ -129,8 +130,14 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                     id="side-menu",
                     items=[
                         {"id": "patients-traites", "label": "Patients traités"},
-                        {"id": "effets-indesirables", "label": "Effets indésirables",},
-                        {"id": "liste-specialites", "label": "Liste des spécialités",},
+                        {
+                            "id": "effets-indesirables",
+                            "label": "Effets indésirables",
+                        },
+                        {
+                            "id": "liste-specialites",
+                            "label": "Liste des spécialités",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -144,7 +151,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SUBSTANCE,
                             ),
                             EffetsIndesirables(
-                                df_decla, df_notif, df_cas_age, df_cas_sexe
+                                df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite
                             ),
                             SystemesOrganes(df_soc, code),
                             ListeSpecialites(df_sub, df_sub_spe),
@@ -176,7 +183,10 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 page_size=10,
                 style_as_list_view=True,
                 style_table={"overflowX": "auto"},
-                style_cell={"height": "50px", "backgroundColor": "#FFF",},
+                style_cell={
+                    "height": "50px",
+                    "backgroundColor": "#FFF",
+                },
                 style_data={
                     "fontSize": "14px",
                     "fontWeight": "400",
@@ -203,7 +213,9 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                     series_sub.nom.capitalize()
                 )
             ),
-            Box(box_children,),
+            Box(
+                box_children,
+            ),
         ],
         id="liste-specialites",
     )
@@ -285,8 +297,13 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
         df_cas_age is not None
         and not np.isnan(df_cas_age.pourcentage_cas.unique()).any()
     ):
-        fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, PIE_COLORS_SUBSTANCE)
-        return Graph(figure=fig_age, responsive=False,)
+        fig_age = makePie(
+            df_cas_age.age, df_cas_age.pourcentage_cas, PIE_COLORS_SUBSTANCE
+        )
+        return Graph(
+            figure=fig_age,
+            responsive=False,
+        )
     else:
         return NoData(class_name="BoxContent-isHalf")
 
@@ -303,11 +320,19 @@ def NotifFigureGraph(df_notif: pd.DataFrame) -> Component:
         )
 
 
+def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData("BoxContent-isHalf")
+    fig = makePie(df.grave, df.cas, PIE_COLORS_SUBSTANCE)
+    return Graph(figure=fig, responsive=False)
+
+
 def EffetsIndesirables(
     df_decla: pd.DataFrame,
     df_notif: pd.DataFrame,
     df_cas_age: pd.DataFrame,
     df_cas_sexe: pd.DataFrame,
+    df_gravite: pd.DataFrame,
 ) -> Component:
 
     return TopicSection(
@@ -316,8 +341,14 @@ def EffetsIndesirables(
             EffetsIndesirablesTooltip(),
             SectionRow(
                 [
-                    GraphBox("", [CasDeclareFigureBox(df_decla)],),
-                    GraphBox("", [TauxDeclarationBox(df_decla)],),
+                    GraphBox(
+                        "",
+                        [CasDeclareFigureBox(df_decla)],
+                    ),
+                    GraphBox(
+                        "",
+                        [TauxDeclarationBox(df_decla)],
+                    ),
                 ],
                 withGutter=True,
             ),
@@ -330,6 +361,26 @@ def EffetsIndesirables(
                     GraphBox(
                         "Répartition par âge des cas déclarés",
                         [RepartitionAgeGraphBox(df_cas_age)],
+                    ),
+                ],
+                withGutter=True,
+            ),
+            SectionRow(
+                [
+                    GraphBox(
+                        "Gravité des déclarations",
+                        [BoxRepartitionGravite(df_gravite)],
+                        className="Box-isHalf",
+                        tooltip=[
+                            html.H4("Cas grave"),
+                            html.P(
+                                "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant "
+                                "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
+                                "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
+                                "malformation congénitale.",
+                                className="regular-text",
+                            ),
+                        ],
                     ),
                 ],
                 withGutter=True,
