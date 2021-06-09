@@ -98,6 +98,7 @@ def EffetsIndesirablesTooltip() -> Component:
                         "signalement.social-sante.gouv.fr",
                         href="https://signalement.social-sante.gouv.fr",
                         className="normal-text link",
+                        target="_blank"
                     ),
                 ],
                 labelClass="InternalLink normal-text",
@@ -219,7 +220,7 @@ def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
             [
                 {
                     "figure": cas_str,
-                    "caption": "Nombre de cas déclarés sur la période 2014-2018",
+                    "caption": "Nombre de déclarations sur la période 2014-2018",
                 }
             ]
         )
@@ -255,7 +256,7 @@ def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
                 x=df_decla.annee,
                 y=df_decla.cas_annee,
                 mode="lines",
-                name="Cas déclarés",
+                name="Déclarations",
                 line={
                     "shape": "spline",
                     "smoothing": 1,
@@ -331,7 +332,7 @@ def EffetsIndesirables(
             SectionRow(
                 [
                     GraphBox(
-                        "Évolution du nombre de cas déclarés d’effets indésirables au cours du temps",
+                        "Évolution du nombre de déclarations d’effets indésirables au cours du temps",
                         [CasDeclaresGraphBox(df_decla)],
                     ),
                 ]

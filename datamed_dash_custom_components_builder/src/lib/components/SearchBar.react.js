@@ -123,7 +123,7 @@ export default class SearchBar extends Component {
         const {id, className, opts} = this.props;
         const {isDropDownOpen, inputValue} = this.state;
         const selectOpts = inputValue ? opts.filter((opt) =>
-            opt.label.startsWith(inputValue)
+            opt.label.toLowerCase().startsWith(inputValue.toLowerCase())
         ).slice(0, 100) : [];
 
 

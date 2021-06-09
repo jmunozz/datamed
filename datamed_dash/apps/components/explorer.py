@@ -107,6 +107,7 @@ def Explorer() -> Component:
                                         "Trouvez des informations complémentaires sur le site de l'ANSM.",
                                         href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
                                         className="ExternalLink d-block",
+                                        target="_blank"
                                     ),
                                 ]
                             ),

@@ -206,7 +206,7 @@ def Description(
                     BoxArticle(
                         [
                             ArticleTitle("État de commercialisation"),
-                            html.Div(
+                            html.Span(
                                 series_spe.etat_commercialisation.capitalize(),
                                 className="Badge normal-text",
                             ),
@@ -215,9 +215,8 @@ def Description(
                     BoxArticle(
                         [
                             ArticleTitle("Laboratoire"),
-                            html.Div(
-                                series_spe.titulaires.title(),
-                                className="normal-text",
+                            html.Span(
+                                series_spe.titulaires.title(), className="normal-text",
                             ),
                         ],
                     ),
@@ -226,7 +225,7 @@ def Description(
                             ArticleTitle("Description"),
                             html.P(
                                 series_desc.description,
-                                className="normal-text text-justify mt-3",
+                                className="normal-text text-justify",
                             ),
                         ]
                     ),
@@ -407,6 +406,7 @@ def ErreursMedicamenteuses(
                                         "portail des signalements",
                                         href="https://signalement.social-sante.gouv.fr",
                                         className="Link",
+                                        target="_blank",
                                     ),
                                 ],
                                 className="justify-text normal-text",
@@ -523,6 +523,9 @@ def ErreursMedicamenteuses(
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
+    # Hack to display as a grid (last row items do not resize), add empty elems
+    NB_ELEM_PER_ROW = 3
+    nb_empty_div = NB_ELEM_PER_ROW - (df_sub.size % NB_ELEM_PER_ROW)
     return TopicSection(
         [
             SectionRow(
@@ -536,15 +539,19 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     Accordion(
                         [
                             html.P(
-                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
-                                "d’être liés à l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, "
-                                "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
-                                "un comité d’experts.",
+                                [
+                                    "Les données concernent des effets indésirables ",
+                                    html.B("suspectés"),
+                                    " suite à la prise d'un  médicament, mais qui ne sont pas ",
+                                    html.B("obligatoirement liés ou dus"),
+                                    " au médicament. Les déclarations d'effets indésirables ne doivent pas être interprétées comme signifiant que le médicament provoque l'effet observé ou que son utilisation présente un risque. Seule une analyse détaillée et une évaluation scientifique de toutes les données disponibles permettent des tirer des conclusions robustes sur les bénéfices et les risques d'un médicament.",
+                                ],
                                 className="normal-text justify-text",
                             ),
                         ],
                         labelClass="InternalLink normal-text",
                         label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+                        isOpenOnFirstRender=True,
                     )
                 )
             ),
@@ -553,7 +560,10 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     Box(
                         html.Div(
                             [
-                                html.H4(sub.nom.capitalize()),
+                                html.H4(
+                                    sub.nom.capitalize(),
+                                    className="EffetIndesirableBoxTitle",
+                                ),
                                 html.Div(
                                     html.Img(
                                         src=app.get_asset_url("substance_icon.svg")
@@ -561,9 +571,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                                 ),
                                 html.A(
                                     "Voir les effets indésirables",
-                                    href="/apps/substance?search={}#effets-indesirables".format(
-                                        code
-                                    ),
+                                    href="/apps/substance?search={}".format(code),
                                     className="Link EffetIndesirableBoxLink",
                                 ),
                             ],
@@ -572,32 +580,16 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                         className="EffetIndesirableBox",
                     )
                     for code, sub in df_sub.iterrows()
+                ]
+                + [
+                    html.Div(className="EmptyEffetIndesirableBox")
+                    for n in range(nb_empty_div)
                 ],
                 withGutter=True,
             ),
         ],
         id="",
     )
-
-
-def AdverseEffectLink(substance: str, code: str) -> Component:
-    return Box(
-        html.Div(
-            [
-                html.Span(
-                    substance,
-                    className="AdverseEffectRowLabel",
-                ),
-                html.A(
-                    "Consulter les effets indésirables",
-                    href="/apps/substance?search={}#effets-indesirables".format(code),
-                    className="Link",
-                ),
-            ],
-            className="AdverseEffectRow",
-        )
-    )
-
 
 mapCircuitColRupture = {
     "ville": {
@@ -706,6 +698,47 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                         ),
                         RuptureDeStockTable(df_rup),
                     ],
+                ),
+            ),
+            SectionRow(
+                Box(
+                    html.Div(
+                        [
+                            Box(
+                                [
+                                    html.Img(
+                                        src=app.get_asset_url(
+                                            "icons/pres_autre_120.svg"
+                                        ),
+                                    ),
+                                ],
+                                isBordered=False,
+                                className="CardBoxImage RupturesBox",
+                            ),
+                            Box(
+                                [
+                                    BoxArticle(
+                                        [
+                                            html.H3("Données de rupture de stock"),
+                                            html.P(
+                                                "Accédez aux données globales de l’état des ruptures de stock en France, ainsi qu’aux mesures prises par l’Agence pour prévenir la pénurie de médicaments."
+                                            ),
+                                            html.A(
+                                                "visualiser les données",
+                                                className="Btn Btn-isPrimary",
+                                                role="button",
+                                                href="/apps/ruptures",
+                                            ),
+                                        ]
+                                    )
+                                ],
+                                isBordered=False,
+                                className="CardBoxText",
+                            ),
+                        ],
+                        className="CardBox",
+                    ),
+                    hasNoPadding=True,
                 ),
             ),
         ],
