@@ -2,6 +2,7 @@ import datetime
 from typing import List, Dict
 
 import dash_bootstrap_components as dbc
+import dash_html_components as html
 import pandas as pd
 import unidecode
 from dash.development.base_component import Component
@@ -29,10 +30,28 @@ def ArticleTitle(title: str) -> Component:
     return H5(title)
 
 
+def generate_title_id(title: str) -> str:
+    return title.lower().replace(" ", "-")
+
+
 # Add a Title and return a Box Component
-def GraphBox(title: str, children: List, className="") -> Component:
+def GraphBox(title: str, children: List, tooltip=None, className="") -> Component:
     if title:
-        children = [Div(H4(title)), Div(children, className="BoxContentWrapper")]
+        title_component = (
+            Div(
+                [
+                    H4(
+                        [title, InformationIcon()],
+                        id=generate_title_id(title),
+                        className="GraphBoxTitle",
+                    ),
+                    Tooltip(tooltip, target=generate_title_id(title)),
+                ]
+            )
+            if tooltip
+            else Div(H4(title))
+        )
+        children = [title_component, Div(children, className="BoxContentWrapper")]
     return Box(children, className)
 
 
@@ -91,6 +110,19 @@ def ExternalLink(label: str, link: str):
     )
 
 
+def Tooltip(children: str, target: str):
+    return dbc.Tooltip(
+        children,
+        target=target,
+        placement="bottom",
+        innerClassName="TooltipInner",
+        arrowClassName="TooltipArrow",
+        className="Tooltip",
+        boundaries_element="window",
+        offset=2,
+    )
+
+
 def date_as_string(date) -> str:
     # pd.NaT is somehow instance of date
     if not isinstance(date, datetime.date) or pd.isnull(date):
@@ -112,3 +144,7 @@ def nested_get(dictionary: Dict, key: str, default):
 
 def normalize_string(text: str):
     return unidecode.unidecode(text)
+
+
+def InformationIcon() -> Component:
+    return html.I(className="bi bi-info-circle Icon")
