@@ -25,6 +25,7 @@ def Logos() -> Component:
                 Img(src=app.get_asset_url("Logo ANSM blanc.svg"),),
                 href="https://ansm.sante.fr/",
                 className="normal-text FooterLogo",
+                target="_blank",
             ),
         ],
         className="FooterLogoContainer Stack",
@@ -68,21 +69,25 @@ def Partners():
                     "Base de données publique des médicaments",
                     href="https://base-donnees-publique.medicaments.gouv.fr/",
                     className="normal-text Link Link-isOnDarkBackground",
+                    target="_blank"
                 ),
                 A(
                     "Etalab",
                     href="https://www.etalab.gouv.fr/",
                     className="normal-text Link Link-isOnDarkBackground",
+                    target="_blank"
                 ),
                 A(
                     "DINUM",
                     href="https://www.numerique.gouv.fr/dinum/",
                     className="normal-text Link Link-isOnDarkBackground",
+                    target="_blank"
                 ),
                 A(
                     "Health Data Hub",
                     href="https://www.health-data-hub.fr/",
                     className="normal-text Link Link-isOnDarkBackground",
+                    target="_blank"
                 ),
             ],
         ),

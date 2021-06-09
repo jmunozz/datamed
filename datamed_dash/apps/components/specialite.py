@@ -98,6 +98,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_denom = specialite.get_erreur_med_denom(cis)
     df_rup = specialite.get_ruptures(cis, df_spe)
     df_init = specialite.get_erreur_med_init(cis)
+    df_gravite = specialite.get_erreur_med_gravite(cis)
 
     return (
         Header(series_spe),
@@ -136,6 +137,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 df_cause,
                                 df_nat,
                                 df_denom,
+                                df_gravite,
                                 series_spe,
                             ),
                             EffetsIndesirables(df_sub),
@@ -194,7 +196,8 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(), series_atc.atc,
+                                    series_atc.label.capitalize(),
+                                    series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -203,7 +206,7 @@ def Description(
                     BoxArticle(
                         [
                             ArticleTitle("État de commercialisation"),
-                            html.Div(
+                            html.Span(
                                 series_spe.etat_commercialisation.capitalize(),
                                 className="Badge normal-text",
                             ),
@@ -212,7 +215,7 @@ def Description(
                     BoxArticle(
                         [
                             ArticleTitle("Laboratoire"),
-                            html.Div(
+                            html.Span(
                                 series_spe.titulaires.title(), className="normal-text",
                             ),
                         ],
@@ -222,7 +225,7 @@ def Description(
                             ArticleTitle("Description"),
                             html.P(
                                 series_desc.description,
-                                className="normal-text text-justify mt-3",
+                                className="normal-text text-justify",
                             ),
                         ]
                     ),
@@ -282,7 +285,9 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
             hover_name=field,
-            hover_data={field: False,},
+            hover_data={
+                field: False,
+            },
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
@@ -316,6 +321,21 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
     )
 
 
+def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData("BoxContent-isHalf")
+    fig = go.Figure(
+        go.Pie(
+            labels=df.gravite,
+            values=df.pourcentage,
+            marker_colors=PIE_COLORS_SPECIALITE,
+            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
+        )
+    ).update_layout(PIE_LAYOUT)
+    fig.update_traces(PIE_TRACES)
+    return Graph(figure=fig, responsive=False)
+
+
 def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
     if df_pop is None:
         return NoData("BoxContent-isHalf")
@@ -342,7 +362,10 @@ def BoxListDenomination(df_denom):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={"height": "50px", "backgroundColor": "#FFF",},
+        style_cell={
+            "height": "50px",
+            "backgroundColor": "#FFF",
+        },
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -361,6 +384,7 @@ def ErreursMedicamenteuses(
     df_cause: pd.DataFrame,
     df_nat: pd.DataFrame,
     df_denom: pd.DataFrame,
+    df_gravite: pd.DataFrame,
     series_spe: pd.DataFrame,
 ) -> Component:
 
@@ -382,6 +406,7 @@ def ErreursMedicamenteuses(
                                         "portail des signalements",
                                         href="https://signalement.social-sante.gouv.fr",
                                         className="Link",
+                                        target="_blank",
                                     ),
                                 ],
                                 className="justify-text normal-text",
@@ -413,8 +438,23 @@ def ErreursMedicamenteuses(
             SectionRow(
                 [
                     GraphBox(
+                        "Répartition des cas par gravité",
+                        [BoxRepartitionGravite(df_gravite)],
+                        className="Box-isHalf",
+                    ),
+                ],
+                withGutter=True,
+            ),
+            SectionRow(
+                [
+                    GraphBox(
                         "Erreurs initiales",
-                        [StackBarGraph(df_init, "initial_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_init,
+                                "initial_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),
@@ -422,7 +462,12 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Cause des erreurs médicamenteuses",
-                        [StackBarGraph(df_cause, "cause_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_cause,
+                                "cause_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),
@@ -430,7 +475,12 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
-                        [StackBarGraph(df_nat, "nature_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_nat,
+                                "nature_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),
@@ -473,6 +523,9 @@ def ErreursMedicamenteuses(
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
+    # Hack to display as a grid (last row items do not resize), add empty elems
+    NB_ELEM_PER_ROW = 3
+    nb_empty_div = NB_ELEM_PER_ROW - (df_sub.size % NB_ELEM_PER_ROW)
     return TopicSection(
         [
             SectionRow(
@@ -486,15 +539,19 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     Accordion(
                         [
                             html.P(
-                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
-                                "d’être liés à l’utilisation d’un ou plusieurs médicaments, ainsi que les mésusages, "
-                                "abus ou erreurs médicamenteuses. Il s’agit de cas évalués et validés par "
-                                "un comité d’experts.",
+                                [
+                                    "Les données concernent des effets indésirables ",
+                                    html.B("suspectés"),
+                                    " suite à la prise d'un  médicament, mais qui ne sont pas ",
+                                    html.B("obligatoirement liés ou dus"),
+                                    " au médicament. Les déclarations d'effets indésirables ne doivent pas être interprétées comme signifiant que le médicament provoque l'effet observé ou que son utilisation présente un risque. Seule une analyse détaillée et une évaluation scientifique de toutes les données disponibles permettent des tirer des conclusions robustes sur les bénéfices et les risques d'un médicament.",
+                                ],
                                 className="normal-text justify-text",
                             ),
                         ],
                         labelClass="InternalLink normal-text",
                         label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+                        isOpenOnFirstRender=True,
                     )
                 )
             ),
@@ -503,7 +560,10 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     Box(
                         html.Div(
                             [
-                                html.H4(sub.nom.capitalize()),
+                                html.H4(
+                                    sub.nom.capitalize(),
+                                    className="EffetIndesirableBoxTitle",
+                                ),
                                 html.Div(
                                     html.Img(
                                         src=app.get_asset_url("substance_icon.svg")
@@ -511,9 +571,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                                 ),
                                 html.A(
                                     "Voir les effets indésirables",
-                                    href="/apps/substance?search={}#effets-indesirables".format(
-                                        code
-                                    ),
+                                    href="/apps/substance?search={}".format(code),
                                     className="Link EffetIndesirableBoxLink",
                                 ),
                             ],
@@ -522,29 +580,16 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                         className="EffetIndesirableBox",
                     )
                     for code, sub in df_sub.iterrows()
+                ]
+                + [
+                    html.Div(className="EmptyEffetIndesirableBox")
+                    for n in range(nb_empty_div)
                 ],
                 withGutter=True,
             ),
         ],
         id="",
     )
-
-
-def AdverseEffectLink(substance: str, code: str) -> Component:
-    return Box(
-        html.Div(
-            [
-                html.Span(substance, className="AdverseEffectRowLabel",),
-                html.A(
-                    "Consulter les effets indésirables",
-                    href="/apps/substance?search={}#effets-indesirables".format(code),
-                    className="Link",
-                ),
-            ],
-            className="AdverseEffectRow",
-        )
-    )
-
 
 mapCircuitColRupture = {
     "ville": {
@@ -653,6 +698,47 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                         ),
                         RuptureDeStockTable(df_rup),
                     ],
+                ),
+            ),
+            SectionRow(
+                Box(
+                    html.Div(
+                        [
+                            Box(
+                                [
+                                    html.Img(
+                                        src=app.get_asset_url(
+                                            "icons/pres_autre_120.svg"
+                                        ),
+                                    ),
+                                ],
+                                isBordered=False,
+                                className="CardBoxImage RupturesBox",
+                            ),
+                            Box(
+                                [
+                                    BoxArticle(
+                                        [
+                                            html.H3("Données de rupture de stock"),
+                                            html.P(
+                                                "Accédez aux données globales de l’état des ruptures de stock en France, ainsi qu’aux mesures prises par l’Agence pour prévenir la pénurie de médicaments."
+                                            ),
+                                            html.A(
+                                                "visualiser les données",
+                                                className="Btn Btn-isPrimary",
+                                                role="button",
+                                                href="/apps/ruptures",
+                                            ),
+                                        ]
+                                    )
+                                ],
+                                isBordered=False,
+                                className="CardBoxText",
+                            ),
+                        ],
+                        className="CardBox",
+                    ),
+                    hasNoPadding=True,
                 ),
             ),
         ],

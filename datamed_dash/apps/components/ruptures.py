@@ -10,12 +10,12 @@ from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from dash_html_components import Div, P, Article, H1, H4, A
+from dash_html_components import Div, P, Article, H1, H4, A, Span
 from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import Header
+from .commons import BoxArticle, Header
 from .utils import (
     Box,
     GraphBox,
@@ -43,7 +43,7 @@ def Description() -> Component:
     return TopicSection(
         Box(
             [
-                Article(
+                BoxArticle(
                     [
                         ArticleTitle("Bases de données exploitées"),
                         Div(
@@ -53,7 +53,7 @@ def Description() -> Component:
                         ),
                     ]
                 ),
-                Article(
+                BoxArticle(
                     [
                         ArticleTitle("Description"),
                         P(
@@ -61,30 +61,31 @@ def Description() -> Component:
                             "ou risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
                             "l'ANSM. L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques "
                             "de rupture de stock de ces médicaments qui peuvent entraîner un risque de santé publique.",
-                            className="normal-text text-justify",
+                            className="normal-text justify-text",
                         ),
                         P(
                             "Retrouvez différentes statistiques sur les signalements reçus par "
                             "l’Agence et les actions mises en place pour y remédier.",
-                            className="normal-text text-justify",
+                            className="normal-text justify-text",
                         ),
                         Div(
                             [
-                                P(
+                                Span(
                                     "Pour toutes les dernières informations à destination des patients et "
                                     "professionnels de santé sur les ruptures de stock en cours, consultez : ",
-                                    className="normal-text text-justify d-inline",
+                                    className="normal-text justify-text",
                                 ),
                                 A(
                                     "ansm.sante.fr.",
                                     href="https://ansm.sante.fr/",
-                                    className="normal-text ExternalLink d-inline",
+                                    className="normal-text Link",
+                                    target="_blank",
                                 ),
                             ],
                         ),
                     ]
                 ),
-                Article(
+                BoxArticle(
                     [
                         ArticleTitle("Avertissement"),
                         P(
@@ -95,12 +96,6 @@ def Description() -> Component:
                             "à Mai 2021 sont susceptibles de faire l'objet d'erreur de saisie.",
                             className="normal-text text-justify",
                         ),
-                    ]
-                ),
-                Article(
-                    [
-                        ArticleTitle("Réutilisation des données"),
-                        P("", className="normal-text"),
                     ]
                 ),
             ],
@@ -159,9 +154,12 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
 def get_signalements_circuit(circuit: str = "ville") -> Dict:
     colors = ["#5E2A7E", "#009640"]
     df = df_ruptures.reset_index()
+
+    df_circuit = df[(df.circuit == circuit) & (df.date >= "2021-05-04")]
+    df_circuit.date = df_circuit.date.apply(lambda x: dt(x.year, x.month, 1))
     df_circuit = (
-        df[df.circuit == circuit]
-        .groupby(["annee", "etat"])
+        df_circuit[df_circuit.circuit == circuit]
+        .groupby(["date", "etat"])
         .numero.count()
         .reset_index()
     )
@@ -171,11 +169,11 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
     for idx, e in enumerate(["ouvert", "clôturé"]):
         df_etat = df_circuit[df_circuit.etat == e]
         fig.add_trace(
-            SingleCurve(df_etat.annee, df_etat.nombre, e.capitalize(), colors[idx])
+            SingleCurve(df_etat.date, df_etat.nombre, e.capitalize(), colors[idx])
         )
 
-    fig.update_layout(get_ruptures_curve_layout(df_etat.annee.min()))
-    fig.update_xaxes(title_text="Année")
+    fig.update_layout(get_ruptures_curve_layout(df_circuit.date))
+    fig.update_xaxes(title_text="Date")
     fig.update_yaxes(title_text="Nombre de signalements")
 
     return fig
@@ -203,7 +201,7 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
         )
     )
 
-    fig.update_layout(get_ruptures_curve_layout(df_rupture_circuit.annee.min()))
+    fig.update_layout(get_ruptures_curve_layout(df_rupture_circuit.annee))
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de ruptures")
 
@@ -346,7 +344,7 @@ def Signalements(df: pd.DataFrame) -> Component:
             SectionRow(
                 [
                     GraphBox(
-                        "Nombre de signalements par an, par catégorie",
+                        "Nombre de signalements par an",
                         [SignalementsTotal(df_ruptures)],
                     ),
                 ]
@@ -411,7 +409,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 className="mb-5",
                             ),
                             H4(
-                                "Évolution du nombre d'ouvertures et de clôtures de dossiers dans le circuit",
+                                "Évolution du nombre d'ouvertures et de clôtures de dossier",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(
@@ -422,7 +420,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 style={"height": 300},
                             ),
                             H4(
-                                "Évolution du nombre de ruptures dans le circuit",
+                                "Évolution du nombre de ruptures",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(

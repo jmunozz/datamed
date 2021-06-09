@@ -106,6 +106,7 @@ h5 {
 .Btn:hover {
   transition: background-color 0.3s;
   transition: color 0.3s;
+  text-decoration: none;
 }
 
 .Btn-isPrimary {
@@ -414,6 +415,10 @@ a.btn-lg {
   min-width: var(--half-min-width);
 }
 
+.Box-isHalf {
+  max-width: calc(var(--specialite-content-max-width) / 2 - var(--gutter));
+}
+
 .Box-isBordered {
   border: var(--border);
   border-radius: var(--border-radius);
@@ -611,6 +616,14 @@ a.btn-lg {
   align-items: center;
   background-color: var(--color-blue);
   color: var(--color-white);
+}
+
+.RupturesBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--color-white);
+  justify-content: center;
 }
 
 .AdverseEffectRow {
@@ -880,9 +893,18 @@ a.btn-lg {
 
 .EffetIndesirableBox {
   --content-width: calc(
-    var(--specialite-content-max-width) - (var(--gutter) * 2)
+    var(--specialite-content-max-width) - (var(--gutter) * 3)
   );
-  max-width: calc(var(--content-width) / 3);
+  min-width: calc(var(--content-width) / 3);
+  flex: 1 0 29%;
+}
+
+.EmptyEffetIndesirableBox {
+  --content-width: calc(
+    var(--specialite-content-max-width) - (var(--gutter) * 3)
+  );
+  min-width: calc(var(--content-width) / 3);
+  flex: 1 0 29%;
 }
 
 .EffetIndesirableBox:hover {
@@ -892,4 +914,13 @@ a.btn-lg {
 
 .EffetIndesirableBox:hover .EffetIndesirableBoxLink {
   color: var(--color-white);
+}
+
+.EffetIndesirableBox:hover .EffetIndesirableBoxTitle {
+  color: var(--color-white);
+}
+
+.EffetIndesirableBoxTitle {
+  max-width: 200px;
+  text-align: center;
 }
