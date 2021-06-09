@@ -280,10 +280,10 @@ def get_causes(annee=INITIAL_YEAR):
 
     fig.update_layout(TREEMAP_LAYOUT)
     fig.update_traces(
-        texttemplate="%{label}<br>%{value:.0f}%",
+        texttemplate="%{label}<br>%{value:.2f}%",
         textposition="middle center",
         textfont_size=18,
-        hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
+        hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{value:.2f}%</b> <extra></extra>",
     )
     return fig
 
