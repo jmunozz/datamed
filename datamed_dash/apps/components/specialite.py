@@ -27,6 +27,8 @@ from .utils import (
     SectionRow,
     date_as_string,
     nested_get,
+    Tooltip,
+    InformationIcon,
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import (
@@ -425,6 +427,29 @@ def ErreursMedicamenteuses(
                     GraphBox(
                         "Répartition de la population concernée par les erreurs médicamenteuses",
                         [BoxRepartitionPopulationConcernee(df_pop)],
+                        tooltip=[
+                            html.H4("Répartition des âges"),
+                            html.P(
+                                [html.B("Nouveau-né: "), "0 à 28 jours"],
+                                className="regular-text",
+                            ),
+                            html.P(
+                                [html.B("Nourrisson: "), "> à 28 jours et < à 2 ans"],
+                                className="regular-text",
+                            ),
+                            html.P(
+                                [html.B("Enfant: "), "⩾ à 2 ans et < 18 ans"],
+                                className="regular-text",
+                            ),
+                            html.P(
+                                [html.B("Adulte: "), "⩾ à 18 ans et < à 60 ans"],
+                                className="regular-text",
+                            ),
+                            html.P(
+                                [html.B("Personne âgée: "), "⩾ à 60 ans"],
+                                className="regular-text",
+                            ),
+                        ],
                     ),
                 ],
                 withGutter=True,
@@ -435,6 +460,13 @@ def ErreursMedicamenteuses(
                         "Répartition des cas par gravité",
                         [BoxRepartitionGravite(df_gravite)],
                         className="Box-isHalf",
+                        tooltip=[
+                            html.H4("Cas grave"),
+                            html.P(
+                                "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant une invalidité ou une incapacité importantes ou durables, ou provoquant ou prolongeant une hospitalisation, ou se manifestant par une anomalie ou une malformation congénitale.",
+                                className="regular-text",
+                            ),
+                        ],
                     ),
                 ],
                 withGutter=True,
