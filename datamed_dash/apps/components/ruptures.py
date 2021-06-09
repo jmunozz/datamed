@@ -15,7 +15,7 @@ from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import BoxArticle, Header
+from .commons import BoxArticle, Header, makePie
 from .utils import (
     Box,
     GraphBox,
@@ -26,14 +26,13 @@ from .utils import (
 )
 from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS, PIE_COLORS_SPECIALITE
 from ..constants.layouts import (
-    PIE_LAYOUT,
     RUPTURES_BAR_LAYOUT,
     TREEMAP_LAYOUT,
     CURVE_LAYOUT,
     get_ruptures_curve_layout,
 )
 
-INITIAL_YEAR = 2021
+INITIAL_YEAR = dt.now().year
 
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
@@ -292,15 +291,7 @@ def get_causes(annee=INITIAL_YEAR):
 def get_mesures(annee=INITIAL_YEAR):
     df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
     df = df.rename(columns={"numero": "nombre"}).set_index("annee")
-
-    fig = go.Figure(
-        go.Pie(
-            labels=df.loc[annee].mesure,
-            values=df.loc[annee].nombre,
-            marker_colors=PIE_COLORS_SPECIALITE,
-        )
-    ).update_layout(PIE_LAYOUT)
-    return fig
+    return makePie(df.loc[annee].mesure, df.loc[annee].nombre, PIE_COLORS_SPECIALITE)
 
 
 def Signalements(df: pd.DataFrame) -> Component:

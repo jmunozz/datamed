@@ -1,4 +1,3 @@
-from os import name
 import urllib
 from typing import Tuple
 
@@ -6,7 +5,6 @@ import dash_html_components as html
 import dash_table
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import requests
 from app import app
 from bs4 import BeautifulSoup
@@ -16,7 +14,7 @@ from datamed_custom_components import Accordion
 from db import specialite, fetch_data
 from sm import SideMenu
 
-from .commons import PatientsTraites, NoData, Header, BoxArticle, BoxRow
+from .commons import PatientsTraites, NoData, Header, BoxArticle, BoxRow, makePie
 from .utils import (
     Box,
     GraphBox,
@@ -27,14 +25,10 @@ from .utils import (
     SectionRow,
     date_as_string,
     nested_get,
-    Tooltip,
-    InformationIcon,
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import (
-    PIE_LAYOUT,
     STACKED_BAR_CHART_LAYOUT,
-    PIE_TRACES,
     STACKED_BAR_CHART_TRACES,
 )
 
@@ -198,7 +192,8 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(), series_atc.atc,
+                                    series_atc.label.capitalize(),
+                                    series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -217,7 +212,8 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Span(
-                                series_spe.titulaires.title(), className="normal-text",
+                                series_spe.titulaires.title(),
+                                className="normal-text",
                             ),
                         ],
                     ),
@@ -286,7 +282,9 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
             hover_name=field,
-            hover_data={field: False,},
+            hover_data={
+                field: False,
+            },
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
@@ -298,8 +296,8 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
         )
 
 
-def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
-    if df_ei is None:
+def BoxPourcentageEffetsIndesirable(df: pd.DataFrame) -> Component:
+    if df is None:
         return NoData(class_name="BoxContent-isHalf")
 
     EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
@@ -315,7 +313,7 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
                 "caption": EI[series.effet_indesirable],
                 "img": EI_IMG_URL[series.effet_indesirable],
             }
-            for cis, series in df_ei.iterrows()
+            for cis, series in df.iterrows()
         ]
     )
 
@@ -323,45 +321,32 @@ def BoxPourcentageEffetsIndesirable(df_ei: pd.DataFrame) -> Component:
 def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
     if df is None:
         return NoData("BoxContent-isHalf")
-    fig = go.Figure(
-        go.Pie(
-            labels=df.gravite,
-            values=df.pourcentage,
-            marker_colors=PIE_COLORS_SPECIALITE,
-            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
-        )
-    ).update_layout(PIE_LAYOUT)
-    fig.update_traces(PIE_TRACES)
+    fig = makePie(df.gravite, df.pourcentage, PIE_COLORS_SPECIALITE)
     return Graph(figure=fig, responsive=False)
 
 
-def BoxRepartitionPopulationConcernee(df_pop: pd.DataFrame) -> Component:
-    if df_pop is None:
+def BoxRepartitionPopulationConcernee(df: pd.DataFrame) -> Component:
+    if df is None:
         return NoData("BoxContent-isHalf")
-    fig_pop = go.Figure(
-        go.Pie(
-            labels=df_pop.population_erreur,
-            values=df_pop.pourcentage,
-            marker_colors=PIE_COLORS_SPECIALITE,
-            hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
-        )
-    ).update_layout(PIE_LAYOUT)
-    fig_pop.update_traces(PIE_TRACES)
-    return Graph(figure=fig_pop, responsive=False)
+    fig = makePie(df.population_erreur, df.pourcentage, PIE_COLORS_SPECIALITE)
+    return Graph(figure=fig, responsive=False)
 
 
-def BoxListDenomination(df_denom):
-    if df_denom is None:
+def BoxListDenomination(df: pd.DataFrame):
+    if df is None:
         return NoData()
-    df_denom.denomination = df_denom.denomination.str.capitalize()
+    df.denomination = df.denomination.str.capitalize()
     return dash_table.DataTable(
         id="denomination-table",
-        columns=[{"name": i, "id": i} for i in df_denom[["denomination"]].columns],
-        data=df_denom.to_dict("records"),
+        columns=[{"name": i, "id": i} for i in df[["denomination"]].columns],
+        data=df.to_dict("records"),
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={"height": "50px", "backgroundColor": "#FFF",},
+        style_cell={
+            "height": "50px",
+            "backgroundColor": "#FFF",
+        },
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -475,7 +460,12 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Erreurs initiales",
-                        [StackBarGraph(df_init, "initial_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_init,
+                                "initial_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),
@@ -483,7 +473,12 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Cause des erreurs médicamenteuses",
-                        [StackBarGraph(df_cause, "cause_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_cause,
+                                "cause_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),
@@ -491,7 +486,12 @@ def ErreursMedicamenteuses(
                 [
                     GraphBox(
                         "Nature des erreurs médicamenteuses",
-                        [StackBarGraph(df_nat, "nature_erreur",)],
+                        [
+                            StackBarGraph(
+                                df_nat,
+                                "nature_erreur",
+                            )
+                        ],
                     ),
                 ]
             ),

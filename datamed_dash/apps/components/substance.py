@@ -25,10 +25,9 @@ from dash_bootstrap_components import (
 )
 from dash_core_components import Graph
 from datamed_custom_components.Accordion import Accordion
-from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import PatientsTraites, Header
+from .commons import PatientsTraites, Header, makePie
 from .utils import (
     Box,
     FigureGraph,
@@ -38,7 +37,7 @@ from .utils import (
     SectionRow,
 )
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
-from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT, TREEMAP_LAYOUT
+from ..constants.layouts import CURVE_LAYOUT, TREEMAP_LAYOUT
 
 NOTIF_IMAGE_URL = {
     "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
@@ -286,14 +285,7 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
         df_cas_age is not None
         and not np.isnan(df_cas_age.pourcentage_cas.unique()).any()
     ):
-        fig_age = go.Figure(
-            go.Pie(
-                labels=df_cas_age.age,
-                values=df_cas_age.pourcentage_cas,
-                marker_colors=PIE_COLORS_SUBSTANCE,
-                hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
-            )
-        ).update_layout(PIE_LAYOUT)
+        fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, PIE_COLORS_SUBSTANCE)
         return Graph(figure=fig_age, responsive=False,)
     else:
         return NoData(class_name="BoxContent-isHalf")
