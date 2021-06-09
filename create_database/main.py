@@ -231,7 +231,7 @@ def create_substance_cas_sexe_table(_settings: Dict):
     )
     final_df.drop(["cas"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["sexe"])
-    db.create_table_from_df(final_df, _settings[3]["to_sql"])
+    db.create_table_from_df(final_df[final_df.pourcentage_cas.notnull()], _settings[3]["to_sql"])
 
 
 def create_substance_cas_age_table(_settings: Dict):

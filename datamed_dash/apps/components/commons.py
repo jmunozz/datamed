@@ -86,9 +86,7 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
     sexe_percentage_data = fetch_data.transform_df_to_series_list(df)
     return [
         {
-            "figure": "{}%".format(round(x[column]))
-            if x[column]
-            else "Données insuffisantes",
+            "figure": "{}%".format(round(x[column])),
             "caption": SEXE[x["sexe"]],
             "img": SEXE_IMG_URL[x["sexe"]],
         }
