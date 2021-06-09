@@ -471,6 +471,15 @@ def Signalements(df: pd.DataFrame) -> Component:
                     )
                 )
             ),
+        ],
+        id="signalements",
+    )
+
+
+def GestionRuptures() -> Component:
+    return TopicSection(
+        [
+            SectionRow(H1("Gestion des ruptures", className="SectionTitle")),
             SectionRow(
                 Box(
                     Div(
@@ -478,7 +487,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Mesures prises",
+                                        "Mesures prises pour pallier aux ruptures",
                                         className="GraphTitle d-inline-block",
                                     ),
                                     dbc.Select(
@@ -508,7 +517,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                 )
             ),
         ],
-        id="signalements",
+        id="gestion-ruptures",
     )
 
 
@@ -531,7 +540,7 @@ def Ruptures() -> Tuple[Component, Div]:
                 ),
                 Div(
                     Div(
-                        [Description(), Signalements(df_ruptures)],
+                        [Description(), Signalements(df_ruptures), GestionRuptures()],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
                     className="ContentLayoutWrapper",
