@@ -700,7 +700,9 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                                         [
                                             html.H3("Données de rupture de stock"),
                                             html.P(
-                                                "Accédez aux données globales de l’état des ruptures de stock en France, ainsi qu’aux mesures prises par l’Agence pour prévenir la pénurie de médicaments."
+                                                "Accédez aux données globales de l’état des ruptures de stock en "
+                                                "France, ainsi qu’aux mesures prises par l’Agence pour prévenir "
+                                                "la pénurie de médicaments."
                                             ),
                                             html.A(
                                                 "visualiser les données",
