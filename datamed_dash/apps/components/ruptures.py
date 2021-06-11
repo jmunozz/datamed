@@ -15,7 +15,7 @@ from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import BoxArticle, Header
+from .commons import BoxArticle, Header, makePie
 from .utils import (
     Box,
     GraphBox,
@@ -26,14 +26,13 @@ from .utils import (
 )
 from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS, PIE_COLORS_SPECIALITE
 from ..constants.layouts import (
-    PIE_LAYOUT,
     RUPTURES_BAR_LAYOUT,
     TREEMAP_LAYOUT,
     CURVE_LAYOUT,
     get_ruptures_curve_layout,
 )
 
-INITIAL_YEAR = 2021
+INITIAL_YEAR = dt.now().year
 
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
@@ -260,15 +259,14 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
 
 
 def get_causes(annee=INITIAL_YEAR):
-    df = df_ruptures.reset_index()
-    df_cause = df.groupby(["annee", "cause"]).numero.count().reset_index()
-    df_cause.numero = df_cause.apply(
-        lambda x: x.numero / len(df_cause[df_cause.annee == x.annee]), axis=1
+    df_cause = df_ruptures.groupby(["annee", "cause"]).etat.count().reset_index()
+    df_cause = df_cause.rename(columns={"etat": "nombre_signalements"})
+    df_cause.nombre_signalements = df_cause.apply(
+        lambda x: x.nombre_signalements / len(df_cause[df_cause.annee == x.annee]),
+        axis=1,
     )
     df_cause.cause = df_cause.cause.str.capitalize()
-    df_cause = df_cause.rename(columns={"numero": "nombre_signalements"}).set_index(
-        "annee"
-    )
+    df_cause = df_cause.set_index("annee")
 
     fig = px.treemap(
         df_cause.loc[annee]
@@ -282,27 +280,18 @@ def get_causes(annee=INITIAL_YEAR):
 
     fig.update_layout(TREEMAP_LAYOUT)
     fig.update_traces(
-        texttemplate="%{label}<br>%{value:.0f}%",
+        texttemplate="%{label}<br>%{value:.2f}%",
         textposition="middle center",
         textfont_size=18,
-        hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
+        hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{value:.2f}%</b> <extra></extra>",
     )
     return fig
 
 
 def get_mesures(annee=INITIAL_YEAR):
-    df_mesures["annee"] = df_mesures.numero.apply(lambda x: 2000 + int(x[:2]))
     df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
     df = df.rename(columns={"numero": "nombre"}).set_index("annee")
-
-    fig = go.Figure(
-        go.Pie(
-            labels=df.loc[annee].mesure,
-            values=df.loc[annee].nombre,
-            marker_colors=PIE_COLORS_SPECIALITE,
-        )
-    ).update_layout(PIE_LAYOUT)
-    return fig
+    return makePie(df.loc[annee].mesure, df.loc[annee].nombre, PIE_COLORS_SPECIALITE)
 
 
 def Signalements(df: pd.DataFrame) -> Component:
@@ -380,7 +369,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                         value=INITIAL_YEAR,
                                         options=[
                                             {"label": y, "value": y}
-                                            for y in range(2014, dt.now().year + 1)
+                                            for y in sorted(df_ruptures.annee.unique())
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -456,7 +445,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Motifs des signalements",
+                                        "Causes des signalements",
                                         className="GraphTitle d-inline-block",
                                     ),
                                     dbc.Select(
@@ -482,6 +471,15 @@ def Signalements(df: pd.DataFrame) -> Component:
                     )
                 )
             ),
+        ],
+        id="signalements",
+    )
+
+
+def GestionRuptures() -> Component:
+    return TopicSection(
+        [
+            SectionRow(H1("Gestion des ruptures", className="SectionTitle")),
             SectionRow(
                 Box(
                     Div(
@@ -489,15 +487,18 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Mesures prises",
+                                        "Mesures prises pour pallier aux ruptures",
                                         className="GraphTitle d-inline-block",
                                     ),
                                     dbc.Select(
                                         id="annee-mesures-dropdown",
                                         value=INITIAL_YEAR,
                                         options=[
-                                            {"label": dt.now().year, "value": dt.now().year}
-                                            for y in range(2014, dt.now().year + 1)
+                                            {
+                                                "label": y,
+                                                "value": y,
+                                            }
+                                            for y in sorted(df_mesures.annee.unique())
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -516,7 +517,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                 )
             ),
         ],
-        id="signalements",
+        id="gestion-ruptures",
     )
 
 
@@ -539,7 +540,7 @@ def Ruptures() -> Tuple[Component, Div]:
                 ),
                 Div(
                     Div(
-                        [Description(), Signalements(df_ruptures)],
+                        [Description(), Signalements(df_ruptures), GestionRuptures()],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
                     className="ContentLayoutWrapper",

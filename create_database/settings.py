@@ -17,7 +17,7 @@ DBHOSTNAME = config("DBHOSTNAME")
 DBUSERNAME = config("DBUSERNAME")
 DBPWD = config("DBPWD")
 DBNAME = config("DBNAME")
-DBURL = config("DB_URL")
+DBURL = config("DBURL")
 FILTER_THREESHOLD = config("FILTER_THREESHOLD", default=10, cast=int)
 
 EXPOSITION = {
@@ -94,10 +94,7 @@ files = {
                 "name": "substance",
                 "if_exists": "replace",
                 "index": True,
-                "dtype": {
-                    "code": String(16),
-                    "nom": Text,
-                },
+                "dtype": {"code": String(16), "nom": Text,},
             },
         },
         {
@@ -145,6 +142,14 @@ files = {
     "description": {
         "to_sql": {
             "name": "description",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {"cis": String(16)},
+        },
+    },
+    "publications": {
+        "to_sql": {
+            "name": "publications",
             "if_exists": "replace",
             "index": True,
             "dtype": {"cis": String(16)},
@@ -319,11 +324,7 @@ files = {
                 "name": "substance_cas_age_ordei",
                 "if_exists": "replace",
                 "index": True,
-                "dtype": {
-                    "code": String(16),
-                    "age": Text,
-                    "pourcentage_cas": Float,
-                },
+                "dtype": {"code": String(16), "age": Text, "pourcentage_cas": Float,},
             }
         },
     ],
@@ -447,18 +448,9 @@ files = {
             "encoding": "ISO-8859-1",
             "sep": ";",
             "dtype": {"code": str},
-            "usecols": [
-                "grave",
-                "code",
-                "cas",
-            ],
+            "usecols": ["grave", "code", "cas",],
             "header": 0,
-            "names": [
-                "grave",
-                "subtance_active",
-                "code",
-                "cas",
-            ],
+            "names": ["grave", "subtance_active", "code", "cas",],
         },
         "to_sql": {
             "name": "substance_cas_grave_ordei",
@@ -650,11 +642,7 @@ files = {
             "name": "icones",
             "if_exists": "replace",
             "index": True,
-            "dtype": {
-                "cis": String(16),
-                "forme_pharma": Text,
-                "icone": Text,
-            },
+            "dtype": {"cis": String(16), "forme_pharma": Text, "icone": Text,},
         }
     },
     "mesusage": {
@@ -691,10 +679,7 @@ files = {
             "Infirmière": "Infirmier",
             "Consommateur/autre non professionnel de santé": "Patient",
         },
-        "sexes": {
-            "M": "Hommes",
-            "F": "Femmes",
-        },
+        "sexes": {"M": "Hommes", "F": "Femmes",},
         "tables": {
             "mesusage_global_sexe": "sexe",
             "mesusage_global_age": "age",

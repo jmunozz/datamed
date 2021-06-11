@@ -25,10 +25,9 @@ from dash_bootstrap_components import (
 )
 from dash_core_components import Graph
 from datamed_custom_components.Accordion import Accordion
-from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import PatientsTraites, Header
+from .commons import PatientsTraites, Header, makePie
 from .utils import (
     Box,
     FigureGraph,
@@ -38,7 +37,7 @@ from .utils import (
     SectionRow,
 )
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
-from ..constants.layouts import PIE_LAYOUT, CURVE_LAYOUT, TREEMAP_LAYOUT
+from ..constants.layouts import CURVE_LAYOUT, TREEMAP_LAYOUT
 
 NOTIF_IMAGE_URL = {
     "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
@@ -98,7 +97,7 @@ def EffetsIndesirablesTooltip() -> Component:
                         "signalement.social-sante.gouv.fr",
                         href="https://signalement.social-sante.gouv.fr",
                         className="normal-text link",
-                        target="_blank"
+                        target="_blank",
                     ),
                 ],
                 labelClass="InternalLink normal-text",
@@ -121,6 +120,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
     df_cas_age = substance.get_age_cas_df(code)
     df_cas_sexe = substance.get_sexe_cas_df(code)
     df_soc = substance.get_soc_df(code)
+    df_gravite = substance.get_gravite(code)
 
     return (
         Header(series_sub, type="substance"),
@@ -130,8 +130,14 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                     id="side-menu",
                     items=[
                         {"id": "patients-traites", "label": "Patients traités"},
-                        {"id": "effets-indesirables", "label": "Effets indésirables",},
-                        {"id": "liste-specialites", "label": "Liste des spécialités",},
+                        {
+                            "id": "effets-indesirables",
+                            "label": "Effets indésirables",
+                        },
+                        {
+                            "id": "liste-specialites",
+                            "label": "Liste des spécialités",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -145,7 +151,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SUBSTANCE,
                             ),
                             EffetsIndesirables(
-                                df_decla, df_notif, df_cas_age, df_cas_sexe
+                                df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite
                             ),
                             SystemesOrganes(df_soc, code),
                             ListeSpecialites(df_sub, df_sub_spe),
@@ -177,7 +183,10 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 page_size=10,
                 style_as_list_view=True,
                 style_table={"overflowX": "auto"},
-                style_cell={"height": "50px", "backgroundColor": "#FFF",},
+                style_cell={
+                    "height": "50px",
+                    "backgroundColor": "#FFF",
+                },
                 style_data={
                     "fontSize": "14px",
                     "fontWeight": "400",
@@ -204,7 +213,9 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                     series_sub.nom.capitalize()
                 )
             ),
-            Box(box_children,),
+            Box(
+                box_children,
+            ),
         ],
         id="liste-specialites",
     )
@@ -286,15 +297,13 @@ def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
         df_cas_age is not None
         and not np.isnan(df_cas_age.pourcentage_cas.unique()).any()
     ):
-        fig_age = go.Figure(
-            go.Pie(
-                labels=df_cas_age.age,
-                values=df_cas_age.pourcentage_cas,
-                marker_colors=PIE_COLORS_SUBSTANCE,
-                hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
-            )
-        ).update_layout(PIE_LAYOUT)
-        return Graph(figure=fig_age, responsive=False,)
+        fig_age = makePie(
+            df_cas_age.age, df_cas_age.pourcentage_cas, PIE_COLORS_SUBSTANCE
+        )
+        return Graph(
+            figure=fig_age,
+            responsive=False,
+        )
     else:
         return NoData(class_name="BoxContent-isHalf")
 
@@ -311,54 +320,86 @@ def NotifFigureGraph(df_notif: pd.DataFrame) -> Component:
         )
 
 
+def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData("BoxContent-isHalf")
+    fig = makePie(df.grave, df.cas, PIE_COLORS_SUBSTANCE)
+    return Graph(figure=fig, responsive=False)
+
+
 def EffetsIndesirables(
     df_decla: pd.DataFrame,
     df_notif: pd.DataFrame,
     df_cas_age: pd.DataFrame,
     df_cas_sexe: pd.DataFrame,
+    df_gravite: pd.DataFrame,
 ) -> Component:
-
+    children = [SectionRow(html.H1("Effets indésirables"))]
+    dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
+    if all(df is None for df in dataframes):
+        children.append(NoData())
+    else:
+        children.extend(
+            [
+                EffetsIndesirablesTooltip(),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "",
+                            [CasDeclareFigureBox(df_decla)],
+                        ),
+                        GraphBox(
+                            "",
+                            [TauxDeclarationBox(df_decla)],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Répartition par sexe des cas déclarés",
+                            [RepartitionSexeFigureBox(df_cas_sexe)],
+                        ),
+                        GraphBox(
+                            "Répartition par âge des cas déclarés",
+                            [RepartitionAgeGraphBox(df_cas_age)],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Gravité des déclarations",
+                            [BoxRepartitionGravite(df_gravite)],
+                            className="Box-isHalf",
+                            tooltip=[
+                                html.H4("Cas grave"),
+                                html.P(
+                                    "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant "
+                                    "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
+                                    "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
+                                    "malformation congénitale.",
+                                    className="regular-text",
+                                ),
+                            ],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Répartition par déclarant",
+                            [NotifFigureGraph(df_notif)],
+                        ),
+                    ]
+                ),
+            ]
+        )
     return TopicSection(
-        [
-            SectionRow(html.H1("Effets indésirables")),
-            EffetsIndesirablesTooltip(),
-            SectionRow(
-                [
-                    GraphBox("", [CasDeclareFigureBox(df_decla)],),
-                    GraphBox("", [TauxDeclarationBox(df_decla)],),
-                ],
-                withGutter=True,
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Évolution du nombre de déclarations d’effets indésirables au cours du temps",
-                        [CasDeclaresGraphBox(df_decla)],
-                    ),
-                ]
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Répartition par sexe des cas déclarés",
-                        [RepartitionSexeFigureBox(df_cas_sexe)],
-                    ),
-                    GraphBox(
-                        "Répartition par âge des cas déclarés",
-                        [RepartitionAgeGraphBox(df_cas_age)],
-                    ),
-                ],
-                withGutter=True,
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Répartition par déclarant",
-                        [NotifFigureGraph(df_notif)],
-                    ),
-                ]
-            ),
-        ],
+        children,
         id="effets-indesirables",
     )
 
@@ -408,37 +449,40 @@ def SystemesOrganesTooltip():
 
 
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
-    return TopicSection(
-        [
-            SectionRow(
-                html.H1("Déclarations d'effets indésirables par système d'organe")
-            ),
-            SystemesOrganesTooltip(),
-            SectionRow(
-                [
-                    html.Div(
-                        [
-                            html.Div(
-                                Graph(
-                                    figure=Treemap(
-                                        df, code, "soc_long", "pourcentage_cas"
+    children = [
+        SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
+    ]
+    if df is None or np.isnan(df.pourcentage_cas.unique()).all():
+        children.append(NoData())
+    else:
+        children.extend(
+            [
+                SystemesOrganesTooltip(),
+                SectionRow(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    Graph(
+                                        figure=Treemap(
+                                            df, code, "soc_long", "pourcentage_cas"
+                                        ),
+                                        responsive=True,
+                                        id="soc-treemap",
                                     ),
-                                    responsive=True,
-                                    id="soc-treemap",
+                                    id="soc-treemap-container",
                                 ),
-                                id="soc-treemap-container",
-                            ),
-                            html.Div(id="selected-soc", className="d-none"),
-                            HltModal(),
-                        ],
-                        className="col-md-12",
-                    )
-                    if df is not None
-                    and not np.isnan(df.pourcentage_cas.unique()).all()
-                    else GraphBox("", NoData()),
-                ],
-            ),
-        ],
+                                html.Div(id="selected-soc", className="d-none"),
+                                HltModal(),
+                            ],
+                            className="col-md-12",
+                        ),
+                    ],
+                ),
+            ]
+        )
+    return TopicSection(
+        children,
         id="population-concernee",
     )
 

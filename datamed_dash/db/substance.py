@@ -50,6 +50,10 @@ def get_soc_df(code):
     return return_sub_df_or_none(fetch_table("substance_soclong_ordei", "code"), code)
 
 
+def get_gravite(code):
+    return return_sub_df_or_none(fetch_table("substance_cas_grave_ordei", "code"), code)
+
+
 def get_substance_specialite(code):
     return return_sub_df_or_none(
         fetch_table("specialite_substance", "code_substance"), code
