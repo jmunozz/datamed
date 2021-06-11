@@ -462,12 +462,23 @@ def ErreursMedicamenteuses(
             SectionRow(
                 [
                     GraphBox(
-                        "Erreurs initiales",
+                        "Étape de survenue des erreurs médicamenteuses",
                         [
                             StackBarGraph(
                                 df_init,
                                 "initial_erreur",
                             )
+                        ],
+                        tooltip=[
+                            html.H4("Étape de survenue des erreurs médicamenteuses"),
+                            html.P(
+                                "L'erreur médicamenteuse peut survenir aux différentes étapes du processus "
+                                "d'utilisation : l'erreur de prescription par le médecin ou un autre professionnel "
+                                "de santé, ou par le patient lui-même dans le cas d'une auto-prescription, l'erreur "
+                                "de dispenciation ou de préparation et enfin l'erreur d'administration par le patient "
+                                "lui-même, un aidant ou un professionnel de santé.",
+                                className="regular-text",
+                            ),
                         ],
                     ),
                 ]
@@ -482,6 +493,37 @@ def ErreursMedicamenteuses(
                                 "cause_erreur",
                             )
                         ],
+                        tooltip=[
+                            html.H4("Cause des erreurs médicamenteuses"),
+                            html.P(
+                                "C'est l'origine de l'erreur, qui peut être d'origine "
+                                "produit"
+                                ", "
+                                "d'origine "
+                                "humaine"
+                                " ou d'origine "
+                                "technique"
+                                ".",
+                                className="regular-text",
+                            ),
+                            html.P(
+                                "- Cause produit : l’erreur trouve sa source, tout ou partie, dans la conception "
+                                "du médicament et de l’information qui lui est relative (dénomination, conditionnement"
+                                ", étiquetage, notice d’information, etc.).",
+                                className="regular-text",
+                            ),
+                            html.P(
+                                "- Cause humaine : l’erreur peut trouver sa source dans l’organisation du processus "
+                                "de prise en charge thérapeutique du patient (organisation du circuit du médicament, "
+                                "facteurs humains, facteurs environnementaux, pratiques professionnelles, etc.).",
+                                className="regular-text",
+                            ),
+                            html.P(
+                                "- Cause technique : par exemple un logiciel d'aide à la dispensation "
+                                "ou prescription peut être la source de l'erreur médicamenteuse",
+                                className="regular-text",
+                            ),
+                        ],
                     ),
                 ]
             ),
@@ -494,6 +536,16 @@ def ErreursMedicamenteuses(
                                 df_nat,
                                 "nature_erreur",
                             )
+                        ],
+                        tooltip=[
+                            html.H4("Nature des erreurs médicamenteuses"),
+                            html.P(
+                                "Identifie le type d'erreur : par exemple une confusion entre deux médicaments. "
+                                "Il peut s'agir du bon médicament mais d'une erreur sur la dose, sur la durée de "
+                                "traitement ou sur la voie d'administration. Dans certains cas, le patient peut "
+                                "ne pas être la bonne personne.",
+                                className="regular-text",
+                            ),
                         ],
                     ),
                 ]
