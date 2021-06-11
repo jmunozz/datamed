@@ -400,7 +400,6 @@ a.btn-lg {
 }
 
 .BoxContentWrapper {
-  flex-grow: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -411,7 +410,6 @@ a.btn-lg {
 }
 
 .BoxArticle-isInRow {
-  margin-bottom: 2.5rem;
   margin: 1.25rem;
 }
 
@@ -788,6 +786,7 @@ a.btn-lg {
 }
 
 .Line-isSpacedEvenly {
+  flex-grow: 1;
   justify-content: space-evenly;
 }
 
@@ -966,4 +965,8 @@ a.btn-lg {
 .Icon {
   margin-left: 0.25rem;
   font-size: 1rem;
+}
+
+.dash-graph {
+  flex-grow: 1;
 }
