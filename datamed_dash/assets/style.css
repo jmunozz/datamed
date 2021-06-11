@@ -87,6 +87,10 @@ h5 {
   margin-top: 0;
 }
 
+.GraphBoxTitle {
+  display: inline-block;
+}
+
 .withSubtitle {
   margin-bottom: 0.25rem;
 }
@@ -396,7 +400,6 @@ a.btn-lg {
 }
 
 .BoxContentWrapper {
-  flex-grow: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -407,7 +410,6 @@ a.btn-lg {
 }
 
 .BoxArticle-isInRow {
-  margin-bottom: 2.5rem;
   margin: 1.25rem;
 }
 
@@ -784,6 +786,7 @@ a.btn-lg {
 }
 
 .Line-isSpacedEvenly {
+  flex-grow: 1;
   justify-content: space-evenly;
 }
 
@@ -923,4 +926,47 @@ a.btn-lg {
 .EffetIndesirableBoxTitle {
   max-width: 200px;
   text-align: center;
+}
+
+.TooltipInner {
+  background-color: var(--color-white);
+  box-shadow: var(--box-shadow);
+  color: black;
+  padding: 1rem;
+  max-width: 450px;
+}
+
+.TooltipArrow::before {
+  border-top-color: var(--color-white) !important;
+  border-bottom-color: var(--color-white) !important;
+}
+
+.Tooltip {
+  opacity: 1 !important;
+  --border-radius: 5px !important;
+}
+
+.TooltipInner h4 {
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.TooltipInner P {
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+/*
+* Hack - make opacity of wrapper equals to Tooltip
+*/
+.tooltip.show {
+  opacity: inherit;
+}
+
+.Icon {
+  margin-left: 0.25rem;
+  font-size: 1rem;
+}
+
+.dash-graph {
+  flex-grow: 1;
 }

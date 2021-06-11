@@ -86,9 +86,7 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
     sexe_percentage_data = fetch_data.transform_df_to_series_list(df)
     return [
         {
-            "figure": "{}%".format(round(x[column]))
-            if x[column]
-            else "Données insuffisantes",
+            "figure": "{}%".format(round(x[column])),
             "caption": SEXE[x["sexe"]],
             "img": SEXE_IMG_URL[x["sexe"]],
         }
@@ -164,6 +162,7 @@ def Tooltip() -> Component:
                                         "open-data-assurance-maladie.ameli.fr",
                                         href="http://open-data-assurance-maladie.ameli.fr/medicaments/index.php",
                                         className="Link",
+                                        target="_blank",
                                     ),
                                 ],
                                 className="justify-text normal-text",
@@ -344,25 +343,34 @@ def PatientsTraites(
     df_expo: pd.DataFrame,
     pie_colors: List,
 ) -> Component:
+    children = [
+        SectionRow(html.H1("Patients traités", className="SectionTitle")),
+    ]
+    dataframes = [df_age, df_sexe, df_expo]
+    if all(df is None for df in dataframes):
+        children.append(NoData())
+    else:
+        children.extend(
+            [
+                Tooltip(),
+                Utilisation(df_expo),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Répartition par sexe des patients traités",
+                            [RepartitionSexeBox(df_sexe)],
+                        ),
+                        GraphBox(
+                            "Répartition par âge des patients traités",
+                            [RepartitionAgeBox(df_age, pie_colors)],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+            ]
+        )
     return TopicSection(
-        [
-            SectionRow(html.H1("Patients traités", className="SectionTitle")),
-            Tooltip(),
-            Utilisation(df_expo),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Répartition par sexe des patients traités",
-                        [RepartitionSexeBox(df_sexe)],
-                    ),
-                    GraphBox(
-                        "Répartition par âge des patients traités",
-                        [RepartitionAgeBox(df_age, pie_colors)],
-                    ),
-                ],
-                withGutter=True,
-            ),
-        ],
+        children,
         id="patients-traites",
     )
 
