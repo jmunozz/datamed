@@ -343,25 +343,33 @@ def PatientsTraites(
     df_expo: pd.DataFrame,
     pie_colors: List,
 ) -> Component:
+    children = [
+        SectionRow(html.H1("Patients traités", className="SectionTitle")),
+    ]
+    if df_age is None and df_sexe is None and df_expo is None:
+        children.append(NoData())
+    else:
+        children.extend(
+            [
+                Tooltip(),
+                Utilisation(df_expo),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Répartition par sexe des patients traités",
+                            [RepartitionSexeBox(df_sexe)],
+                        ),
+                        GraphBox(
+                            "Répartition par âge des patients traités",
+                            [RepartitionAgeBox(df_age, pie_colors)],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+            ]
+        )
     return TopicSection(
-        [
-            SectionRow(html.H1("Patients traités", className="SectionTitle")),
-            Tooltip(),
-            Utilisation(df_expo),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Répartition par sexe des patients traités",
-                        [RepartitionSexeBox(df_sexe)],
-                    ),
-                    GraphBox(
-                        "Répartition par âge des patients traités",
-                        [RepartitionAgeBox(df_age, pie_colors)],
-                    ),
-                ],
-                withGutter=True,
-            ),
-        ],
+        children,
         id="patients-traites",
     )
 
