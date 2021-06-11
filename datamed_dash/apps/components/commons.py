@@ -346,7 +346,8 @@ def PatientsTraites(
     children = [
         SectionRow(html.H1("Patients traités", className="SectionTitle")),
     ]
-    if df_age is None and df_sexe is None and df_expo is None:
+    dataframes = [df_age, df_sexe, df_expo]
+    if all(df is None for df in dataframes):
         children.append(NoData())
     else:
         children.extend(

@@ -334,66 +334,72 @@ def EffetsIndesirables(
     df_cas_sexe: pd.DataFrame,
     df_gravite: pd.DataFrame,
 ) -> Component:
-
+    children = [SectionRow(html.H1("Effets indésirables"))]
+    dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
+    if all(df is None for df in dataframes):
+        children.append(NoData())
+    else:
+        children.extend(
+            [
+                EffetsIndesirablesTooltip(),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "",
+                            [CasDeclareFigureBox(df_decla)],
+                        ),
+                        GraphBox(
+                            "",
+                            [TauxDeclarationBox(df_decla)],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Répartition par sexe des cas déclarés",
+                            [RepartitionSexeFigureBox(df_cas_sexe)],
+                        ),
+                        GraphBox(
+                            "Répartition par âge des cas déclarés",
+                            [RepartitionAgeGraphBox(df_cas_age)],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Gravité des déclarations",
+                            [BoxRepartitionGravite(df_gravite)],
+                            className="Box-isHalf",
+                            tooltip=[
+                                html.H4("Cas grave"),
+                                html.P(
+                                    "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant "
+                                    "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
+                                    "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
+                                    "malformation congénitale.",
+                                    className="regular-text",
+                                ),
+                            ],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Répartition par déclarant",
+                            [NotifFigureGraph(df_notif)],
+                        ),
+                    ]
+                ),
+            ]
+        )
     return TopicSection(
-        [
-            SectionRow(html.H1("Effets indésirables")),
-            EffetsIndesirablesTooltip(),
-            SectionRow(
-                [
-                    GraphBox(
-                        "",
-                        [CasDeclareFigureBox(df_decla)],
-                    ),
-                    GraphBox(
-                        "",
-                        [TauxDeclarationBox(df_decla)],
-                    ),
-                ],
-                withGutter=True,
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Répartition par sexe des cas déclarés",
-                        [RepartitionSexeFigureBox(df_cas_sexe)],
-                    ),
-                    GraphBox(
-                        "Répartition par âge des cas déclarés",
-                        [RepartitionAgeGraphBox(df_cas_age)],
-                    ),
-                ],
-                withGutter=True,
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Gravité des déclarations",
-                        [BoxRepartitionGravite(df_gravite)],
-                        className="Box-isHalf",
-                        tooltip=[
-                            html.H4("Cas grave"),
-                            html.P(
-                                "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant "
-                                "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
-                                "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
-                                "malformation congénitale.",
-                                className="regular-text",
-                            ),
-                        ],
-                    ),
-                ],
-                withGutter=True,
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Répartition par déclarant",
-                        [NotifFigureGraph(df_notif)],
-                    ),
-                ]
-            ),
-        ],
+        children,
         id="effets-indesirables",
     )
 
@@ -443,37 +449,40 @@ def SystemesOrganesTooltip():
 
 
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
-    return TopicSection(
-        [
-            SectionRow(
-                html.H1("Déclarations d'effets indésirables par système d'organe")
-            ),
-            SystemesOrganesTooltip(),
-            SectionRow(
-                [
-                    html.Div(
-                        [
-                            html.Div(
-                                Graph(
-                                    figure=Treemap(
-                                        df, code, "soc_long", "pourcentage_cas"
+    children = [
+        SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
+    ]
+    if df is None or np.isnan(df.pourcentage_cas.unique()).all():
+        children.append(NoData())
+    else:
+        children.extend(
+            [
+                SystemesOrganesTooltip(),
+                SectionRow(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    Graph(
+                                        figure=Treemap(
+                                            df, code, "soc_long", "pourcentage_cas"
+                                        ),
+                                        responsive=True,
+                                        id="soc-treemap",
                                     ),
-                                    responsive=True,
-                                    id="soc-treemap",
+                                    id="soc-treemap-container",
                                 ),
-                                id="soc-treemap-container",
-                            ),
-                            html.Div(id="selected-soc", className="d-none"),
-                            HltModal(),
-                        ],
-                        className="col-md-12",
-                    )
-                    if df is not None
-                    and not np.isnan(df.pourcentage_cas.unique()).all()
-                    else GraphBox("", NoData()),
-                ],
-            ),
-        ],
+                                html.Div(id="selected-soc", className="d-none"),
+                                HltModal(),
+                            ],
+                            className="col-md-12",
+                        ),
+                    ],
+                ),
+            ]
+        )
+    return TopicSection(
+        children,
         id="population-concernee",
     )
 

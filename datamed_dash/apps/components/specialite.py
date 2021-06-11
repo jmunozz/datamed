@@ -91,7 +91,6 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_cause = specialite.get_erreur_med_cause(cis)
     df_nat = specialite.get_erreur_med_nature(cis)
     df_pop = specialite.get_erreur_med_population(cis)
-    df_denom = specialite.get_erreur_med_denom(cis)
     df_rup = specialite.get_ruptures(cis, df_spe)
     df_init = specialite.get_erreur_med_init(cis)
     df_gravite = specialite.get_erreur_med_gravite(cis)
@@ -132,9 +131,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 df_pop,
                                 df_cause,
                                 df_nat,
-                                df_denom,
                                 df_gravite,
-                                series_spe,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -364,193 +361,204 @@ def ErreursMedicamenteuses(
     df_pop: pd.DataFrame,
     df_cause: pd.DataFrame,
     df_nat: pd.DataFrame,
-    df_denom: pd.DataFrame,
     df_gravite: pd.DataFrame,
-    series_spe: pd.DataFrame,
 ) -> Component:
-
-    return TopicSection(
-        [
-            SectionRow(html.H1("Erreurs médicamenteuses", className="SectionTitle")),
-            SectionRow(
-                Box(
-                    Accordion(
-                        [
-                            html.P(
-                                [
-                                    html.Span(
-                                        "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
-                                        "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
-                                        "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
-                                    ),
-                                    html.A(
-                                        "portail des signalements",
-                                        href="https://signalement.social-sante.gouv.fr",
-                                        className="Link",
-                                        target="_blank",
-                                    ),
-                                ],
-                                className="justify-text normal-text",
-                            ),
-                            html.P(
-                                "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
-                                "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur.",
-                                className="justify-text normal-text",
-                            ),
-                        ],
-                        labelClass="InternalLink normal-text",
-                        label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+    children = [
+        SectionRow(html.H1("Erreurs médicamenteuses", className="SectionTitle")),
+    ]
+    dataframes = [df_ei, df_pop, df_init, df_cause, df_nat, df_gravite]
+    if all(df is None for df in dataframes):
+        children.append(NoData())
+    else:
+        children.extend(
+            [
+                SectionRow(
+                    Box(
+                        Accordion(
+                            [
+                                html.P(
+                                    [
+                                        html.Span(
+                                            "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
+                                            "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
+                                            "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
+                                        ),
+                                        html.A(
+                                            "portail des signalements",
+                                            href="https://signalement.social-sante.gouv.fr",
+                                            className="Link",
+                                            target="_blank",
+                                        ),
+                                    ],
+                                    className="justify-text normal-text",
+                                ),
+                                html.P(
+                                    "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
+                                    "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur.",
+                                    className="justify-text normal-text",
+                                ),
+                            ],
+                            labelClass="InternalLink normal-text",
+                            label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+                        )
                     )
-                )
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Existence d’effets indésirables suite aux erreurs médicamenteuses",
-                        [BoxPourcentageEffetsIndesirable(df_ei)],
-                    ),
-                    GraphBox(
-                        "Répartition de la population concernée par les erreurs médicamenteuses",
-                        [BoxRepartitionPopulationConcernee(df_pop)],
-                        tooltip=[
-                            html.H4("Répartition des âges"),
-                            html.P(
-                                [html.B("Nouveau-né: "), "0 à 28 jours"],
-                                className="regular-text",
-                            ),
-                            html.P(
-                                [html.B("Nourrisson: "), "> à 28 jours et < à 2 ans"],
-                                className="regular-text",
-                            ),
-                            html.P(
-                                [html.B("Enfant: "), "⩾ à 2 ans et < 18 ans"],
-                                className="regular-text",
-                            ),
-                            html.P(
-                                [html.B("Adulte: "), "⩾ à 18 ans et < à 60 ans"],
-                                className="regular-text",
-                            ),
-                            html.P(
-                                [html.B("Personne âgée: "), "⩾ à 60 ans"],
-                                className="regular-text",
-                            ),
-                        ],
-                    ),
-                ],
-                withGutter=True,
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Gravité des erreurs médicamenteuses",
-                        [BoxRepartitionGravite(df_gravite)],
-                        className="Box-isHalf",
-                        tooltip=[
-                            html.H4("Cas grave"),
-                            html.P(
-                                "Effet indésirable létal, ou susceptible de mettre la vie en danger, "
-                                "ou entraînant une invalidité ou une incapacité importante ou durable, "
-                                "ou provoquant ou prolongeant une hospitalisation, ou se manifestant par "
-                                "une anomalie ou une malformation congénitale.",
-                                className="regular-text",
-                            ),
-                        ],
-                    ),
-                ],
-                withGutter=True,
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Étape de survenue des erreurs médicamenteuses",
-                        [
-                            StackBarGraph(
-                                df_init,
-                                "initial_erreur",
-                            )
-                        ],
-                        tooltip=[
-                            html.H4("Étape de survenue des erreurs médicamenteuses"),
-                            html.P(
-                                "L'erreur médicamenteuse peut survenir aux différentes étapes du processus "
-                                "d'utilisation : l'erreur de prescription par le médecin ou un autre professionnel "
-                                "de santé, ou par le patient lui-même dans le cas d'une auto-prescription, l'erreur "
-                                "de dispenciation ou de préparation et enfin l'erreur d'administration par le patient "
-                                "lui-même, un aidant ou un professionnel de santé.",
-                                className="regular-text",
-                            ),
-                        ],
-                    ),
-                ]
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Cause des erreurs médicamenteuses",
-                        [
-                            StackBarGraph(
-                                df_cause,
-                                "cause_erreur",
-                            )
-                        ],
-                        tooltip=[
-                            html.H4("Cause des erreurs médicamenteuses"),
-                            html.P(
-                                "C'est l'origine de l'erreur, qui peut être d'origine "
-                                "produit"
-                                ", "
-                                "d'origine "
-                                "humaine"
-                                " ou d'origine "
-                                "technique"
-                                ".",
-                                className="regular-text",
-                            ),
-                            html.P(
-                                "- Cause produit : l’erreur trouve sa source, tout ou partie, dans la conception "
-                                "du médicament et de l’information qui lui est relative (dénomination, conditionnement"
-                                ", étiquetage, notice d’information, etc.).",
-                                className="regular-text",
-                            ),
-                            html.P(
-                                "- Cause humaine : l’erreur peut trouver sa source dans l’organisation du processus "
-                                "de prise en charge thérapeutique du patient (organisation du circuit du médicament, "
-                                "facteurs humains, facteurs environnementaux, pratiques professionnelles, etc.).",
-                                className="regular-text",
-                            ),
-                            html.P(
-                                "- Cause technique : par exemple un logiciel d'aide à la dispensation "
-                                "ou prescription peut être la source de l'erreur médicamenteuse",
-                                className="regular-text",
-                            ),
-                        ],
-                    ),
-                ]
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Nature des erreurs médicamenteuses",
-                        [
-                            StackBarGraph(
-                                df_nat,
-                                "nature_erreur",
-                            )
-                        ],
-                        tooltip=[
-                            html.H4("Nature des erreurs médicamenteuses"),
-                            html.P(
-                                "Identifie le type d'erreur : par exemple une confusion entre deux médicaments. "
-                                "Il peut s'agir du bon médicament mais d'une erreur sur la dose, sur la durée de "
-                                "traitement ou sur la voie d'administration. Dans certains cas, le patient peut "
-                                "ne pas être la bonne personne.",
-                                className="regular-text",
-                            ),
-                        ],
-                    ),
-                ]
-            ),
-        ],
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Existence d’effets indésirables suite aux erreurs médicamenteuses",
+                            [BoxPourcentageEffetsIndesirable(df_ei)],
+                        ),
+                        GraphBox(
+                            "Répartition de la population concernée par les erreurs médicamenteuses",
+                            [BoxRepartitionPopulationConcernee(df_pop)],
+                            tooltip=[
+                                html.H4("Répartition des âges"),
+                                html.P(
+                                    [html.B("Nouveau-né: "), "0 à 28 jours"],
+                                    className="regular-text",
+                                ),
+                                html.P(
+                                    [
+                                        html.B("Nourrisson: "),
+                                        "> à 28 jours et < à 2 ans",
+                                    ],
+                                    className="regular-text",
+                                ),
+                                html.P(
+                                    [html.B("Enfant: "), "⩾ à 2 ans et < 18 ans"],
+                                    className="regular-text",
+                                ),
+                                html.P(
+                                    [html.B("Adulte: "), "⩾ à 18 ans et < à 60 ans"],
+                                    className="regular-text",
+                                ),
+                                html.P(
+                                    [html.B("Personne âgée: "), "⩾ à 60 ans"],
+                                    className="regular-text",
+                                ),
+                            ],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Gravité des erreurs médicamenteuses",
+                            [BoxRepartitionGravite(df_gravite)],
+                            className="Box-isHalf",
+                            tooltip=[
+                                html.H4("Cas grave"),
+                                html.P(
+                                    "Effet indésirable létal, ou susceptible de mettre la vie en danger, "
+                                    "ou entraînant une invalidité ou une incapacité importante ou durable, "
+                                    "ou provoquant ou prolongeant une hospitalisation, ou se manifestant par "
+                                    "une anomalie ou une malformation congénitale.",
+                                    className="regular-text",
+                                ),
+                            ],
+                        ),
+                    ],
+                    withGutter=True,
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Étape de survenue des erreurs médicamenteuses",
+                            [
+                                StackBarGraph(
+                                    df_init,
+                                    "initial_erreur",
+                                )
+                            ],
+                            tooltip=[
+                                html.H4(
+                                    "Étape de survenue des erreurs médicamenteuses"
+                                ),
+                                html.P(
+                                    "L'erreur médicamenteuse peut survenir aux différentes étapes du processus "
+                                    "d'utilisation : l'erreur de prescription par le médecin ou un autre professionnel "
+                                    "de santé, ou par le patient lui-même dans le cas d'une auto-prescription, l'erreur "
+                                    "de dispenciation ou de préparation et enfin l'erreur d'administration par le patient "
+                                    "lui-même, un aidant ou un professionnel de santé.",
+                                    className="regular-text",
+                                ),
+                            ],
+                        ),
+                    ]
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Cause des erreurs médicamenteuses",
+                            [
+                                StackBarGraph(
+                                    df_cause,
+                                    "cause_erreur",
+                                )
+                            ],
+                            tooltip=[
+                                html.H4("Cause des erreurs médicamenteuses"),
+                                html.P(
+                                    "C'est l'origine de l'erreur, qui peut être d'origine "
+                                    "produit"
+                                    ", "
+                                    "d'origine "
+                                    "humaine"
+                                    " ou d'origine "
+                                    "technique"
+                                    ".",
+                                    className="regular-text",
+                                ),
+                                html.P(
+                                    "- Cause produit : l’erreur trouve sa source, tout ou partie, dans la conception "
+                                    "du médicament et de l’information qui lui est relative (dénomination, conditionnement"
+                                    ", étiquetage, notice d’information, etc.).",
+                                    className="regular-text",
+                                ),
+                                html.P(
+                                    "- Cause humaine : l’erreur peut trouver sa source dans l’organisation du processus "
+                                    "de prise en charge thérapeutique du patient (organisation du circuit du médicament, "
+                                    "facteurs humains, facteurs environnementaux, pratiques professionnelles, etc.).",
+                                    className="regular-text",
+                                ),
+                                html.P(
+                                    "- Cause technique : par exemple un logiciel d'aide à la dispensation "
+                                    "ou prescription peut être la source de l'erreur médicamenteuse",
+                                    className="regular-text",
+                                ),
+                            ],
+                        ),
+                    ]
+                ),
+                SectionRow(
+                    [
+                        GraphBox(
+                            "Nature des erreurs médicamenteuses",
+                            [
+                                StackBarGraph(
+                                    df_nat,
+                                    "nature_erreur",
+                                )
+                            ],
+                            tooltip=[
+                                html.H4("Nature des erreurs médicamenteuses"),
+                                html.P(
+                                    "Identifie le type d'erreur : par exemple une confusion entre deux médicaments. "
+                                    "Il peut s'agir du bon médicament mais d'une erreur sur la dose, sur la durée de "
+                                    "traitement ou sur la voie d'administration. Dans certains cas, le patient peut "
+                                    "ne pas être la bonne personne.",
+                                    className="regular-text",
+                                ),
+                            ],
+                        ),
+                    ]
+                ),
+            ]
+        )
+    return TopicSection(
+        children,
         id="erreurs-medicamenteuses",
     )
 
@@ -573,11 +581,15 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                         [
                             html.P(
                                 [
-                                    "Les données concernent des effets indésirables ",
+                                    "Les données concernent des effets indésirables ",
                                     html.B("suspectés"),
-                                    " suite à la prise d'un  médicament, mais qui ne sont pas ",
+                                    " suite à la prise d'un médicament, mais qui ne sont pas ",
                                     html.B("obligatoirement liés ou dus"),
-                                    " au médicament. Les déclarations d'effets indésirables ne doivent pas être interprétées comme signifiant que le médicament provoque l'effet observé ou que son utilisation présente un risque. Seule une analyse détaillée et une évaluation scientifique de toutes les données disponibles permettent des tirer des conclusions robustes sur les bénéfices et les risques d'un médicament.",
+                                    " au médicament. Les déclarations d'effets indésirables ne doivent pas être "
+                                    "interprétées comme signifiant que le médicament provoque l'effet observé "
+                                    "ou que son utilisation présente un risque. Seule une analyse détaillée et "
+                                    "une évaluation scientifique de toutes les données disponibles permettent de "
+                                    "tirer des conclusions robustes sur les bénéfices et les risques d'un médicament.",
                                 ],
                                 className="normal-text justify-text",
                             ),

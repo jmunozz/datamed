@@ -11,12 +11,14 @@ def Construction() -> Component:
             Div(
                 [
                     Div(
-                        Img(src=app.get_asset_url("illustration-construction.svg"),),
-                        className="fp-section fp-section-1 justify-content-center",
+                        Img(
+                            src=app.get_asset_url("illustration-construction.svg"),
+                        ),
+                        className="fp-section fp-section-1 d-flex justify-content-center",
                     ),
                     Div(
                         "Page en construction",
-                        className="fp-section fp-section-1 justify-content-center heading-4",
+                        className="fp-section fp-section-1 d-flex justify-content-center h4",
                     ),
                     Row(
                         [
