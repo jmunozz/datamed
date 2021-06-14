@@ -38,7 +38,7 @@ def Website():
         [
             A(
                 "À propos",
-                href="#",
+                href="/apps/a_propos",
                 className="normal-text Link Link-isOnDarkBackground",
             ),
             A(
