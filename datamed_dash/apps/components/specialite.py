@@ -28,6 +28,7 @@ from .utils import (
     BoxArticle,
     BoxRow,
     CardBox,
+    Grid,
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import (
@@ -96,13 +97,13 @@ def Publications(df_pub: pd.DataFrame) -> str:
                     ]
                 ),
                 img_classname="CardBoxImage-isCentered PublicationsBoxImage",
-                classname="Grid-1",
+                classname="GridElem-1",
             )
         )
     return TopicSection(
         [
             SectionRow(html.H1("Publications", className="SectionTitle",)),
-            SectionRow(children, withGutter=True),
+            Grid(children, 1),
         ],
         id="publications",
     )
@@ -604,7 +605,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     )
                 )
             ),
-            SectionRow(
+            Grid(
                 [
                     Box(
                         html.Div(
@@ -629,12 +630,8 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                         className="EffetIndesirableBox",
                     )
                     for code, sub in df_sub.iterrows()
-                ]
-                + [
-                    html.Div(className="EmptyEffetIndesirableBox")
-                    for n in range(nb_empty_div)
                 ],
-                withGutter=True,
+                NB_ELEM_PER_ROW,
             ),
         ],
         id="",

@@ -185,3 +185,13 @@ def CardBox(
         hasNoPadding=True,
         className=classname,
     )
+
+
+def Grid(children, nb_elems_per_row: int):
+    nb_empty_elem = nb_elems_per_row - (len(children) % nb_elems_per_row)
+    empty_elem_classname = " ".join(["GridEmptyElem", f"GridElem-{nb_elems_per_row}"])
+    children = children + [
+        html.Div(className=empty_elem_classname) for n in range(nb_empty_elem)
+    ]
+    return SectionRow(children, withGutter=True)
+
