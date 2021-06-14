@@ -48,7 +48,7 @@ def Website():
             ),
             A(
                 "Mentions légales",
-                href="#",
+                href="/apps/mentions_legales",
                 className="normal-text Link Link-isOnDarkBackground",
             ),
             A(
