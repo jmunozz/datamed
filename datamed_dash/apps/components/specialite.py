@@ -14,7 +14,7 @@ from datamed_custom_components import Accordion
 from db import specialite, fetch_data
 from sm import SideMenu
 
-from .commons import PatientsTraites, NoData, Header, BoxArticle, BoxRow, makePie
+from .commons import PatientsTraites, NoData, Header, makePie
 from .utils import (
     Box,
     GraphBox,
@@ -25,6 +25,9 @@ from .utils import (
     SectionRow,
     date_as_string,
     nested_get,
+    BoxArticle,
+    BoxRow,
+    CardBox,
 )
 from ..constants.colors import PIE_COLORS_SPECIALITE
 from ..constants.layouts import (
@@ -77,6 +80,34 @@ def get_has_link(series_spe: pd.Series) -> str:
     )
 
 
+def Publications(df_pub: pd.DataFrame) -> str:
+    if df_pub is None:
+        return NoData()
+    children = []
+    for i, x in df_pub.iterrows():
+        children.append(
+            CardBox(
+                html.Div(
+                    [
+                        html.H3(x.title),
+                        html.A(
+                            f"{x.type}", href=x.link, target="_blank", className="Link"
+                        ),
+                    ]
+                ),
+                img_classname="CardBoxImage-isCentered PublicationsBoxImage",
+                classname="Grid-1",
+            )
+        )
+    return TopicSection(
+        [
+            SectionRow(html.H1("Publications", className="SectionTitle",)),
+            SectionRow(children, withGutter=True),
+        ],
+        id="publications",
+    )
+
+
 def Specialite(cis: str) -> Tuple[Component, html.Div]:
 
     df_spe = specialite.get_specialite_df(cis)
@@ -94,6 +125,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_rup = specialite.get_ruptures(cis, df_spe)
     df_init = specialite.get_erreur_med_init(cis)
     df_gravite = specialite.get_erreur_med_gravite(cis)
+    df_pub = specialite.get_publications(cis)
 
     return (
         Header(series_spe),
@@ -112,6 +144,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                             "id": "rupture-de-stock",
                             "label": "Historique des ruptures de stock",
                         },
+                        {"id": "publications", "label": "Publications",},
                     ],
                     className="SideMenu",
                 ),
@@ -126,15 +159,11 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_init,
-                                df_ei,
-                                df_pop,
-                                df_cause,
-                                df_nat,
-                                df_gravite,
+                                df_init, df_ei, df_pop, df_cause, df_nat, df_gravite,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
+                            Publications(df_pub),
                         ],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
@@ -189,8 +218,7 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(),
-                                    series_atc.atc,
+                                    series_atc.label.capitalize(), series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -209,8 +237,7 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Span(
-                                series_spe.titulaires.title(),
-                                className="normal-text",
+                                series_spe.titulaires.title(), className="normal-text",
                             ),
                         ],
                     ),
@@ -279,9 +306,7 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
             color_discrete_sequence=PIE_COLORS_SPECIALITE,
             orientation="h",
             hover_name=field,
-            hover_data={
-                field: False,
-            },
+            hover_data={field: False,},
         )
 
         fig.update_layout(STACKED_BAR_CHART_LAYOUT)
@@ -340,10 +365,7 @@ def BoxListDenomination(df: pd.DataFrame):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={
-            "height": "50px",
-            "backgroundColor": "#FFF",
-        },
+        style_cell={"height": "50px", "backgroundColor": "#FFF",},
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -466,12 +488,7 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Étape de survenue des erreurs médicamenteuses",
-                            [
-                                StackBarGraph(
-                                    df_init,
-                                    "initial_erreur",
-                                )
-                            ],
+                            [StackBarGraph(df_init, "initial_erreur",)],
                             tooltip=[
                                 html.H4(
                                     "Étape de survenue des erreurs médicamenteuses"
@@ -492,12 +509,7 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Cause des erreurs médicamenteuses",
-                            [
-                                StackBarGraph(
-                                    df_cause,
-                                    "cause_erreur",
-                                )
-                            ],
+                            [StackBarGraph(df_cause, "cause_erreur",)],
                             tooltip=[
                                 html.H4("Cause des erreurs médicamenteuses"),
                                 html.P(
@@ -536,12 +548,7 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Nature des erreurs médicamenteuses",
-                            [
-                                StackBarGraph(
-                                    df_nat,
-                                    "nature_erreur",
-                                )
-                            ],
+                            [StackBarGraph(df_nat, "nature_erreur",)],
                             tooltip=[
                                 html.H4("Nature des erreurs médicamenteuses"),
                                 html.P(
@@ -557,10 +564,7 @@ def ErreursMedicamenteuses(
                 ),
             ]
         )
-    return TopicSection(
-        children,
-        id="erreurs-medicamenteuses",
-    )
+    return TopicSection(children, id="erreurs-medicamenteuses",)
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
@@ -759,7 +763,7 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                                     ),
                                 ],
                                 isBordered=False,
-                                className="CardBoxImage RupturesBox",
+                                className="CardBoxImage CardBoxImage-isCentered RupturesBoxImage",
                             ),
                             Box(
                                 [
