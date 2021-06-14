@@ -987,6 +987,7 @@ a.btn-lg {
 
 .mentions {
   margin: auto;
+  margin-bottom: 100px;
   padding: 40px;
   background-color: white;
   max-width: var(--frontpage-max-width);
