@@ -111,3 +111,7 @@ def get_erreur_med_init(cis):
 
 def get_erreur_med_gravite(cis):
     return return_sub_df_or_none(fetch_table("erreur_med_gravite", "cis"), cis)
+
+
+def get_publications(cis):
+    return return_sub_df_or_none(fetch_table("publications", "cis"), cis)

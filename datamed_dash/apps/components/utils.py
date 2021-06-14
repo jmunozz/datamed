@@ -7,6 +7,7 @@ import pandas as pd
 import unidecode
 from dash.development.base_component import Component
 from dash_html_components import Div, A, Img, H5, H1, H4, Label, Section
+from app import app
 
 
 def SectionRow(children, withGutter=False):
@@ -24,6 +25,17 @@ def Box(children, className="", isBordered=True, hasNoPadding=False) -> Componen
         classes.append("Box-hasNoPadding")
     classes = classes + className.split(" ")
     return Div(children, className=" ".join(classes))
+
+
+def BoxRow(children):
+    return html.Div(html.Div(children, className="BoxRowWrapper"), className="BoxRow")
+
+
+def BoxArticle(children, in_row=False):
+    class_names = ["BoxArticle"]
+    if in_row:
+        class_names = class_names + ["BoxArticle-isInRow"]
+    return html.Article(children, className=" ".join(class_names))
 
 
 def ArticleTitle(title: str) -> Component:
@@ -148,3 +160,25 @@ def normalize_string(text: str):
 
 def InformationIcon() -> Component:
     return html.I(className="bi bi-info-circle Icon")
+
+
+def CardBox(
+    children,
+    img_url=app.get_asset_url("/icons/pres_autre_120.svg"),
+    img_classname="",
+    card_classname="",
+) -> Component:
+    img_classname = " ".join(["CardBoxImage"] + img_classname.split(" "))
+    card_classname = " ".join(["CardBoxText"] + card_classname.split(" "))
+    return Box(
+        html.Div(
+            [
+                Box(
+                    [html.Img(src=img_url),], isBordered=False, className=img_classname,
+                ),
+                Box(children, isBordered=False, className=card_classname,),
+            ],
+            className="CardBox",
+        ),
+        hasNoPadding=True,
+    )

@@ -50,16 +50,6 @@ SEXE_IMG_URL = {
 }
 
 
-def BoxRow(children):
-    return html.Div(html.Div(children, className="BoxRowWrapper"), className="BoxRow")
-
-
-def BoxArticle(children, in_row=False):
-    class_names = ["BoxArticle"]
-    if in_row:
-        class_names = class_names + ["BoxArticle-isInRow"]
-    return html.Article(children, className=" ".join(class_names))
-
 
 def FrontPageSectionPart(children, class_name=""):
     class_name = " ".join(["FrontPageSectionPart"] + class_name.split(" "))
