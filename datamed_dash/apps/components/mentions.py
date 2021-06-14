@@ -1,16 +1,8 @@
-from typing import List
-
 from app import app
 from dash.development.base_component import Component
 from dash_html_components import Div, Img, A
 
-
-def SingleSection(title: str, children_list: List) -> Component:
-    children = [Div(title, className="h3 mb-3")] + children_list
-    return Div(
-        children,
-        className="normal-text mb-5 text-justify",
-    )
+from .commons import SingleSection
 
 
 def FirstSection() -> Component:
