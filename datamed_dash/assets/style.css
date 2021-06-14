@@ -612,6 +612,13 @@ a.btn-lg {
   border-bottom-left-radius: var(--border-radius);
 }
 
+.CardBoxImage-isCentered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .UsageBoxRate {
   display: flex;
   flex-direction: column;
@@ -620,12 +627,12 @@ a.btn-lg {
   color: var(--color-white);
 }
 
-.RupturesBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: var(--color-white);
-  justify-content: center;
+.RupturesBoxImage {
+  background-color: var(--color-white);
+}
+
+.PublicationsBoxImage {
+  background-color: var(--color-6);
 }
 
 .AdverseEffectRow {
@@ -969,4 +976,8 @@ a.btn-lg {
 
 .dash-graph {
   flex-grow: 1;
+}
+
+.Grid-1 {
+  flex-basis: 100%;
 }

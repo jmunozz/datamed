@@ -85,8 +85,27 @@ def Publications(df_pub: pd.DataFrame) -> str:
         return NoData()
     children = []
     for i, x in df_pub.iterrows():
-        children.append(CardBox(html.Div(), img_classname="", card_classname=""))
-    return TopicSection([SectionRow(children)], id="publications")
+        children.append(
+            CardBox(
+                html.Div(
+                    [
+                        html.H3(x.title),
+                        html.A(
+                            f"{x.type}", href=x.link, target="_blank", className="Link"
+                        ),
+                    ]
+                ),
+                img_classname="CardBoxImage-isCentered PublicationsBoxImage",
+                classname="Grid-1",
+            )
+        )
+    return TopicSection(
+        [
+            SectionRow(html.H1("Publications", className="SectionTitle",)),
+            SectionRow(children, withGutter=True),
+        ],
+        id="publications",
+    )
 
 
 def Specialite(cis: str) -> Tuple[Component, html.Div]:
@@ -744,7 +763,7 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                                     ),
                                 ],
                                 isBordered=False,
-                                className="CardBoxImage RupturesBox",
+                                className="CardBoxImage CardBoxImage-isCentered RupturesBoxImage",
                             ),
                             Box(
                                 [

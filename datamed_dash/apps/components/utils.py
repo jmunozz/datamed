@@ -167,9 +167,11 @@ def CardBox(
     img_url=app.get_asset_url("/icons/pres_autre_120.svg"),
     img_classname="",
     card_classname="",
+    classname="",
 ) -> Component:
     img_classname = " ".join(["CardBoxImage"] + img_classname.split(" "))
     card_classname = " ".join(["CardBoxText"] + card_classname.split(" "))
+
     return Box(
         html.Div(
             [
@@ -181,4 +183,5 @@ def CardBox(
             className="CardBox",
         ),
         hasNoPadding=True,
+        className=classname,
     )
