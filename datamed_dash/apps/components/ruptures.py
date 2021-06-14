@@ -15,23 +15,26 @@ from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import Header, makePie
-from .utils import (
+from apps.components.commons import Header
+from apps.components.utils import (
     Box,
     GraphBox,
     TopicSection,
     ArticleTitle,
-    FigureGraph,
     BoxArticle,
-    BoxRow,
     SectionRow,
 )
-from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS, PIE_COLORS_SPECIALITE
-from ..constants.layouts import (
+from apps.constants.colors import BAR_CHART_COLORS, TREE_COLORS, PIE_COLORS_SPECIALITE
+from apps.constants.layouts import (
     RUPTURES_BAR_LAYOUT,
     TREEMAP_LAYOUT,
     CURVE_LAYOUT,
     get_ruptures_curve_layout,
+)
+from apps.graphs import (
+    RupturesSignalementsFigure,
+    RupturesMesuresFigure,
+    getRupturesMesuresRepartitionGraph,
 )
 
 INITIAL_YEAR = dt.now().year
@@ -273,21 +276,20 @@ def get_causes(annee=INITIAL_YEAR):
     return fig
 
 
-def get_mesures(annee=INITIAL_YEAR):
-    df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
-    df = df.rename(columns={"numero": "nombre"}).set_index("annee")
-    return makePie(df.loc[annee].mesure, df.loc[annee].nombre, PIE_COLORS_SPECIALITE)
+def getRupturesMesuresRepartitionGraphBox(annee=INITIAL_YEAR):
+    return getRupturesMesuresRepartitionGraph(df_mesures, annee)
+
+
+def RupturesSignalementsFigureBox(df_sig: pd.DataFrame) -> Component:
+    return RupturesSignalementsFigure(df_sig)
+
+
+def RupturesMesuresFigureBox(df: pd.DataFrame) -> Component:
+    return RupturesMesuresFigure(df)
 
 
 def Signalements(df: pd.DataFrame) -> Component:
-    signalements = len(df[df.annee == dt.now().year - 1])
-    this_year = str(dt.now().year)[-2:]
-    mesures = len(
-        df_mesures[
-            (df_mesures.etat_mesure == "accord")
-            & (df_mesures.identifiant.str.startswith(this_year))
-        ].identifiant.unique()
-    )
+
     return TopicSection(
         [
             SectionRow(
@@ -295,39 +297,8 @@ def Signalements(df: pd.DataFrame) -> Component:
             ),
             SectionRow(
                 [
-                    GraphBox(
-                        "",
-                        [
-                            FigureGraph(
-                                [
-                                    {
-                                        "figure": "{} signalements".format(
-                                            signalements,
-                                        ),
-                                        "caption": "Nombre de signalements en {}".format(
-                                            dt.now().year - 1
-                                        ),
-                                    }
-                                ]
-                            ),
-                        ],
-                    ),
-                    GraphBox(
-                        "",
-                        [
-                            FigureGraph(
-                                [
-                                    {
-                                        "figure": "{} actions réalisées".format(
-                                            mesures
-                                        ),
-                                        "caption": "Signalements ayant fait l'objet d'une "
-                                        "mesure de gestion pour l'année en cours",
-                                    }
-                                ]
-                            ),
-                        ],
-                    ),
+                    GraphBox("", RupturesSignalementsFigureBox(df_sig)),
+                    GraphBox("", RupturesMesuresFigureBox(df_mesures),),
                 ],
                 withGutter=True,
             ),
@@ -485,12 +456,7 @@ def GestionRuptures() -> Component:
                                 ],
                                 className="mb-3",
                             ),
-                            Graph(
-                                figure=get_mesures(),
-                                responsive=True,
-                                id="pie-mesures",
-                                style={"height": 450},
-                            ),
+                            getRupturesMesuresRepartitionGraphBox(df_mesures),
                         ],
                     )
                 )

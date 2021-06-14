@@ -981,3 +981,34 @@ a.btn-lg {
 .GridElem-3 {
   flex: 1 0 29%;
 }
+
+.EffetIndesirableSelect {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  background-color: var(--color-5);
+  padding: 1rem;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+.EffetIndesirableSelectLabel {
+  display: flex;
+  align-items: center;
+  color: var(--color-white);
+}
+
+.EffetIndesirableSelectLabelSpan {
+  margin-left: 1.5rem;
+}
+
+.EffetIndesirableSelectLabelImg {
+  height: 50px;
+}
+
+.EffetIndesirableSelectDropdown {
+  min-width: 15rem;
+}
