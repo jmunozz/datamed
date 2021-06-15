@@ -219,7 +219,7 @@ def RupturesMesuresFigure(df_mesures: pd.DataFrame):
                 {
                     "figure": "{} actions réalisées".format(nb_mesures),
                     "caption": "Signalements ayant fait l'objet d'une "
-                    "mesure de gestion pour l'année en cours",
+                    "mesure de gestion depuis le 3 Mai 2021",
                 }
             ]
         ),
