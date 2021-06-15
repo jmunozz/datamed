@@ -12,18 +12,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
-from apps.components import commons
 from apps.components.specialite import NoData
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
-from dash_bootstrap_components import (
-    Button,
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-)
-from dash_core_components import Graph
 from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
@@ -39,6 +30,7 @@ from .commons import (
     EIRepartitionAgeGraphBox,
     EIRepartitionSexeFigureBox,
     EIRepartitionNotificateursFigureBox,
+    EISystemesOrganesTooltip,
 )
 from .utils import (
     Box,
@@ -48,9 +40,6 @@ from .utils import (
     SectionRow,
 )
 from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
-
-df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
-df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
 
 
 def EffetsIndesirablesTooltip() -> Component:
@@ -202,81 +191,23 @@ def EffetsIndesirables(
             [
                 EffetsIndesirablesTooltip(),
                 SectionRow(
-                    [
-                        GraphBox("", [EICasDeclareFigureBox(df_decla)],),
-                        GraphBox("", [EITauxDeclarationBox(df_decla)],),
-                    ],
+                    [EICasDeclareFigureBox(df_decla), EITauxDeclarationBox(df_decla),],
                     withGutter=True,
                 ),
                 SectionRow(
                     [
-                        GraphBox(
-                            "Répartition par sexe des cas déclarés",
-                            [EIRepartitionSexeFigureBox(df_cas_sexe)],
-                        ),
-                        GraphBox(
-                            "Répartition par âge des cas déclarés",
-                            [EIRepartitionAgeGraphBox(df_cas_age)],
-                        ),
+                        EIRepartitionSexeFigureBox(df_cas_sexe),
+                        EIRepartitionAgeGraphBox(df_cas_age),
                     ],
                     withGutter=True,
                 ),
                 SectionRow(
-                    [
-                        GraphBox(
-                            "Gravité des déclarations",
-                            [EIRepartitionGraviteGraphBox(df_gravite)],
-                            className="Box-isHalf",
-                            tooltip=[
-                                html.H4("Cas grave"),
-                                html.P(
-                                    "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant "
-                                    "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
-                                    "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
-                                    "malformation congénitale.",
-                                    className="regular-text",
-                                ),
-                            ],
-                        ),
-                    ],
-                    withGutter=True,
+                    [EIRepartitionGraviteGraphBox(df_gravite)], withGutter=True,
                 ),
-                SectionRow(
-                    [
-                        GraphBox(
-                            "Répartition par déclarant",
-                            [EIRepartitionNotificateursFigureBox(df_notif)],
-                        ),
-                    ]
-                ),
+                SectionRow([EIRepartitionNotificateursFigureBox(df_notif)]),
             ]
         )
     return TopicSection(children, id="effets-indesirables",)
-
-
-def SystemesOrganesTooltip():
-    return SectionRow(
-        Box(
-            Accordion(
-                [
-                    html.P(
-                        "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
-                        "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
-                        "déclarés.",
-                        className="normal-text text-justify",
-                    ),
-                    html.P(
-                        "Attention : Un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
-                        "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
-                        "différents (en fonction des effets indésirables déclarés).",
-                        className="normal-text text-justify",
-                    ),
-                ],
-                labelClass="InternalLink normal-text",
-                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
-            )
-        )
-    )
 
 
 def EIRepartitionSystemeOrganesBox(df: pd.DataFrame, code: str):
@@ -291,48 +222,9 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
         children.append(NoData())
     else:
         children.extend(
-            [
-                SystemesOrganesTooltip(),
-                SectionRow(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    EIRepartitionSystemeOrganesBox(df, code),
-                                    id="soc-treemap-container",
-                                ),
-                                html.Div(id="selected-soc", className="d-none"),
-                                HltModal(),
-                            ],
-                            className="col-md-12",
-                        ),
-                    ],
-                ),
-            ]
+            [EISystemesOrganesTooltip(), SectionRow([],),]
         )
     return TopicSection(children, id="population-concernee",)
-
-
-def HltModal() -> Modal:
-    return Modal(
-        [
-            ModalHeader(id="header-modal"),
-            ModalBody(id="body-modal"),
-            ModalFooter(
-                Button(
-                    "Fermer",
-                    id="close-backdrop",
-                    className="ml-auto button-text-bold",
-                    color="secondary",
-                    outline=True,
-                )
-            ),
-        ],
-        scrollable=True,
-        centered=True,
-        id="update-on-click-data",
-        size="xl",
-    )
 
 
 @app.callback(
@@ -349,48 +241,3 @@ def getActiveCell(active_cell, page_current, page_size, data):
         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
     else:
         raise PreventUpdate
-
-
-@app.callback(
-    [
-        dd.Output("update-on-click-data", "is_open"),
-        dd.Output("body-modal", "children"),
-        dd.Output("header-modal", "children"),
-        dd.Output("selected-soc", "children"),
-    ],
-    [
-        dd.Input("soc-treemap-container", "n_clicks"),
-        dd.Input("close-backdrop", "n_clicks"),
-        dd.Input("url", "href"),
-        dd.Input("soc-treemap", "clickData"),
-    ],
-    [dd.State("selected-soc", "children")],
-)
-def update_callback(
-    clicks_container, clicks_close, href, click_data, previous_selected_soc
-):
-    if not click_data:
-        return False, "", "", ""
-
-    selected_soc = click_data["points"][0]["label"]
-    selected_soc_has_changed = selected_soc != previous_selected_soc
-
-    if selected_soc_has_changed:
-        parsed_url = urlparse(unquote_plus(href))
-        query = parse_qs(parsed_url.query)
-        code = query["search"][0]
-
-        df_hlt_details = (
-            df_hlt[df_hlt.soc_long == selected_soc]
-            .loc[code]
-            .sort_values(by="pourcentage_cas", ascending=False)
-        )
-
-        return (
-            True,
-            EIRepartitionHLT(df_hlt_details, code),
-            selected_soc,
-            selected_soc,
-        )
-    else:
-        return False, "", "", ""

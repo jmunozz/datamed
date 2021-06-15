@@ -12,16 +12,23 @@ from dash.development.base_component import Component
 from dash_core_components import Graph, Dropdown
 from dash.dependencies import Input, Output
 from datamed_custom_components import Accordion
-from db import specialite, fetch_data
+from db import specialite, fetch_data, substance
 from sm import SideMenu
 
 from apps.components.commons import (
-    EITauxDeclarationBox,
     PatientsTraites,
     NoData,
     Header,
     EICasDeclareFigureBox,
+    EITauxDeclarationBox,
+    EIRepartitionAgeGraphBox,
+    EIRepartitionSexeFigureBox,
+    EIRepartitionGraviteGraphBox,
+    EIRepartitionNotificateursFigureBox,
+    EISystemesOrganesTooltip,
+    EIRepartitionSystemeOrganesBox,
 )
+
 from apps.components.utils import (
     Box,
     GraphBox,
@@ -53,13 +60,43 @@ def EffetsIndesirablesSelect(df_sub: pd.DataFrame):
         dict(label=sub.nom.capitalize(), value=code) for code, sub in df_sub.iterrows()
     ]
     return Dropdown(
-        # id="effets-indesirables-substance-dropdown",
+        id="effets-indesirables-select",
         options=_options,
         searchable=False,
         clearable=False,
         value=_options[0]["value"],
         className="EffetIndesirableSelectDropdown",
-        id="test-component-input",
+        optionHeight=50,
+    )
+
+
+def EffetsIndesirablesContent(sub_code: str = "") -> Component:
+    if sub_code == "":
+        return html.Div("Pas de sélection pour l'instant")
+    # Fetch substances dataframes
+    df_decla = substance.get_decla_df(sub_code)
+    df_cas_sexe = substance.get_sexe_cas_df(sub_code)
+    df_cas_age = substance.get_age_cas_df(sub_code)
+    df_gravite = substance.get_gravite(sub_code)
+    df_notif = substance.get_notif_df(sub_code)
+    df_soclong = substance.get_soc_df(sub_code)
+    return html.Div(
+        [
+            Grid(
+                [
+                    EICasDeclareFigureBox(df_decla),
+                    EITauxDeclarationBox(df_decla),
+                    EIRepartitionSexeFigureBox(df_cas_sexe),
+                    EIRepartitionAgeGraphBox(df_cas_age),
+                    EIRepartitionGraviteGraphBox(df_gravite),
+                ],
+                2,
+            ),
+            SectionRow(EIRepartitionNotificateursFigureBox(df_notif)),
+            SectionRow(html.H3("Effets indésirables par système d'organe")),
+            SectionRow(EISystemesOrganesTooltip()),
+            SectionRow(EIRepartitionSystemeOrganesBox(df_soclong)),
+        ]
     )
 
 
@@ -596,6 +633,9 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     className="EffetIndesirableSelect",
                 )
             ),
+            SectionRow(
+                html.Div(EffetsIndesirablesContent(), id="effets-indesirables-content",)
+            ),
         ],
         id="",
     )
@@ -758,10 +798,9 @@ def RuptureDeStock(df_rup: pd.DataFrame):
     )
 
 
-# @app.callback(
-#     # Output(component_id="test-component", component_property="code"),
-#     Input(component_id="test-component-input", component_property="value"),
-# )
-# def update_effets_indesirables_content(input_value):
-#     print(input_value)
-#     return input_value
+@app.callback(
+    Output(component_id="effets-indesirables-content", component_property="children"),
+    Input(component_id="effets-indesirables-select", component_property="value"),
+)
+def update_effets_indesirables_content(input_value):
+    return EffetsIndesirablesContent(input_value)

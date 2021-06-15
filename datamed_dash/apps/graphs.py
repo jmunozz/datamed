@@ -122,9 +122,9 @@ def EIRepartitionGraviteGraph(df: pd.DataFrame) -> Component:
 
 
 # Représentation de la répartition des effets indésirables par système d'organe (Treemap)
-def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame, code: str) -> Component:
-    fig = Treemap(df_soc, code, "soc_long", "pourcentage_cas")
-    return Graph(figure=fig, responsive=True, id="soc-treemap")
+def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame) -> Component:
+    fig = Treemap(df_soc, "soc_long", "pourcentage_cas")
+    return Graph(figure=fig, responsive=True, id="soc-treemap", style={"height": 450})
 
 
 def EIRepartitionHLT(df_hlt: pd.DataFrame, code: str) -> Component:
@@ -263,9 +263,9 @@ def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return fig
 
 
-def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> List[Component]:
+def Treemap(df_soclong: pd.DataFrame, path: str, values: str) -> List[Component]:
     fig = px.treemap(
-        df.loc[code].sort_values(by=values, ascending=False).head(10),
+        df_soclong.sort_values(by=values, ascending=False).head(10),
         path=[path],
         values=values,
         color_discrete_sequence=TREE_COLORS,

@@ -397,6 +397,7 @@ a.btn-lg {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .BoxContentWrapper {
@@ -975,7 +976,7 @@ a.btn-lg {
 }
 
 .GridElem-2 {
-  flex: 1 0 48%;
+  flex: 1 0 45%;
 }
 
 .GridElem-3 {

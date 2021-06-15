@@ -1,9 +1,12 @@
 from typing import List, Dict, Optional
 import math
+from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
+
 
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+from dash_html_components.Data import Data
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -13,7 +16,14 @@ from dash_core_components import Graph
 from dash_html_components import Div, H1
 from datamed_custom_components import Accordion
 from db import fetch_data
-from db import specialite
+from db import specialite, substance
+from dash_bootstrap_components import (
+    Button,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+)
 
 from apps.components.utils import (
     Box,
@@ -31,6 +41,8 @@ from apps.graphs import (
     EIRepartitionAgeGraph,
     EIRepartitionNotificateursFigure,
     EIRepartitionGraviteGraph,
+    EIRepartitionSystemeOrganes,
+    EIRepartitionHLT,
 )
 from apps.constants.misc import UTILISATION, UTILISATION_IMG_URL
 
@@ -56,50 +68,125 @@ def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
 
 # Return NoData if df is empty
 def EICasDeclareFigureBox(df_decla: pd.DataFrame):
-    if df_decla is None:
-        return NoData(class_name="BoxContent-isHalf")
-    else:
-        EICasDeclareFigure(df_decla)
+    content = NoData(class_name="BoxContent-isHalf")
+    if df_decla is not None:
+        content = EICasDeclareFigure(df_decla)
+    return GraphBox("", content)
 
 
 # Return NoData if df is empty
 def EITauxDeclarationBox(df_decla: pd.DataFrame):
-    if df_decla is None:
-        return NoData(class_name="BoxContent-isHalf")
-    else:
-        EITauxDeclarationGraph(df_decla)
+    content = NoData(class_name="BoxContent-isHalf")
+    if df_decla is not None:
+        content = EITauxDeclarationGraph(df_decla)
+    return GraphBox("", content)
 
 
 # Return NoData if df is empty
 def EIRepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame):
-    if df_cas_sexe is None:
-        return NoData(class_name="BoxContent-isHalf")
-    else:
-        return EIRepartitionSexeFigure(df_cas_sexe)
+    content = NoData(class_name="BoxContent-isHalf")
+    if df_cas_sexe is not None:
+        content = EIRepartitionSexeFigure(df_cas_sexe)
+    return GraphBox("Répartition par sexe des cas déclarés", content)
 
 
 # Return NoData if df is empty or any age category is missing
 def EIRepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
-    if df_cas_age is None and np.isnan(df_cas_age.pourcentage_cas.unique()).any():
-        return NoData(class_name="BoxContent-isHalf")
-    else:
-        return EIRepartitionAgeGraph(df_cas_age)
+    content = NoData(class_name="BoxContent-isHalf")
+    if df_cas_age is not None:
+        content = EIRepartitionAgeGraph(df_cas_age)
+    return GraphBox("Répartition par âge des cas déclarés", content)
 
 
 # Return NoData if df is empty
 def EIRepartitionNotificateursFigureBox(df_notif: pd.DataFrame) -> Component:
-    if df_notif is None:
-        return NoData()
-    else:
-        return EIRepartitionNotificateursFigure(df_notif)
+    content = NoData(class_name="BoxContent-isHalf")
+    if df_notif is not None:
+        content = EIRepartitionNotificateursFigure(df_notif)
+    return GraphBox("Répartition par déclarant", content)
 
 
 # Return NoData if df is empty
 def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame) -> Component:
-    if df_gravite is None:
-        return NoData("BoxContent-isHalf")
-    else:
-        return EIRepartitionGraviteGraph(df_gravite)
+    content = NoData(class_name="BoxContent-isHalf")
+    if df_gravite is not None:
+        content = EIRepartitionGraviteGraph(df_gravite)
+    return GraphBox(
+        "Gravité des déclarations",
+        content,
+        className="Box-isHalf",
+        tooltip=[
+            html.H4("Cas grave"),
+            html.P(
+                "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant "
+                "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
+                "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
+                "malformation congénitale.",
+                className="regular-text",
+            ),
+        ],
+    )
+
+
+def EIRepartitionSystemeOrganesBox(df_soclong: pd.DataFrame):
+    return (
+        html.Div(
+            [
+                html.Div(
+                    EIRepartitionSystemeOrganes(df_soclong), id="soc-treemap-container",
+                ),
+                html.Div(id="selected-soc", className="d-none"),
+                HltModal(),
+            ],
+        ),
+    )
+
+
+def HltModal() -> Modal:
+    return Modal(
+        [
+            ModalHeader(id="header-modal"),
+            ModalBody(id="body-modal"),
+            ModalFooter(
+                Button(
+                    "Fermer",
+                    id="close-backdrop",
+                    className="ml-auto button-text-bold",
+                    color="secondary",
+                    outline=True,
+                )
+            ),
+        ],
+        scrollable=True,
+        centered=True,
+        id="update-on-click-data",
+        size="xl",
+    )
+
+
+def EISystemesOrganesTooltip():
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.P(
+                        "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
+                        "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
+                        "déclarés.",
+                        className="normal-text text-justify",
+                    ),
+                    html.P(
+                        "Attention : Un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
+                        "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
+                        "différents (en fonction des effets indésirables déclarés).",
+                        className="normal-text text-justify",
+                    ),
+                ],
+                labelClass="InternalLink normal-text",
+                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+            )
+        )
+    )
 
 
 def FrontPageSectionPart(children, class_name=""):
@@ -458,3 +545,46 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+
+@app.callback(
+    [
+        dd.Output("update-on-click-data", "is_open"),
+        dd.Output("body-modal", "children"),
+        dd.Output("header-modal", "children"),
+        dd.Output("selected-soc", "children"),
+    ],
+    [
+        dd.Input("soc-treemap-container", "n_clicks"),
+        dd.Input("close-backdrop", "n_clicks"),
+        dd.Input("url", "href"),
+        dd.Input("soc-treemap", "clickData"),
+    ],
+    [dd.State("selected-soc", "children")],
+)
+def update_callback(
+    clicks_container, clicks_close, href, click_data, previous_selected_soc
+):
+    if not click_data:
+        return False, "", "", ""
+
+    selected_soc = click_data["points"][0]["label"]
+    selected_soc_has_changed = selected_soc != previous_selected_soc
+
+    if selected_soc_has_changed:
+        parsed_url = urlparse(unquote_plus(href))
+        query = parse_qs(parsed_url.query)
+        code = query["search"][0]
+
+        df_hlt = substance.get_hlt_df(code).sort_values(
+            by="pourcentage_cas", ascending=False
+        )
+
+        return (
+            True,
+            EIRepartitionHLT(df_hlt, code),
+            selected_soc,
+            selected_soc,
+        )
+    else:
+        return False, "", "", ""
