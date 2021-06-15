@@ -627,7 +627,7 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {
-                "annee": Integer,
+                "annee": String,
                 "nb_signalements": Integer,
                 "nb_presentations": Integer,
             },

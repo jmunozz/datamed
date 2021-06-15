@@ -54,7 +54,7 @@ def Navbar() -> Component:
             LogoAnsm(),
             # MenuItem("Analyses thématiques", "/apps/construction"),
             MenuItem("Explorer", "/apps/explorer"),
-            MenuItem("À propos", "/apps/construction"),
+            MenuItem("À propos", "/apps/a_propos"),
             SearchBar(id="search-bar", opts=opts, fireOnSelect=True),
         ],
         className="Navbar",

@@ -231,7 +231,9 @@ def create_substance_cas_sexe_table(_settings: Dict):
     )
     final_df.drop(["cas"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["sexe"])
-    db.create_table_from_df(final_df[final_df.pourcentage_cas.notnull()], _settings[3]["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings[3]["to_sql"]
+    )
 
 
 def create_substance_cas_age_table(_settings: Dict):
@@ -370,13 +372,11 @@ def create_table_emed(_settings: Dict):
 
 
 def get_circuit(row: pd.Series) -> Optional[str]:
-    if row.Circuit_Touche_Ville == "NR" and row.Circuit_Touche_Hopital == "NR":
-        return None
-    elif row.Circuit_Touche_Ville == "VILLE":
+    if row.Circuit_Touche_Ville and not row.Circuit_Touche_Hopital:
         return "ville"
-    elif row.Circuit_Touche_Hopital == "HOPITAL":
+    elif row.Circuit_Touche_Hopital and not row.Circuit_Touche_Ville:
         return "hôpital"
-    elif row.Circuit_Touche_Ville == "HOPITAL/VILLE":
+    elif row.Circuit_Touche_Ville and row.Circuit_Touche_Hopital:
         return "ville et hôpital"
 
 
@@ -385,8 +385,7 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     Table ruptures
     """
     df = pd.read_excel(
-        "data/Annexe 1_ListeDesRuptures.xlsx",
-        sheet_name="BDD Ruptures",
+        "data/ListeDesRuptures_2021_6_1510_02_58.xlsx",
         header=0,
         parse_dates=[
             "DatePrevi_Ville",
@@ -406,7 +405,7 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
             "Circuit_Touche_Hopital",
             "DatePrevi_Ville",
             "DatePrevi_Hôpital",
-            "Cause propre",
+            "Origine_Cause_RS",
         ],
     )
 
@@ -423,10 +422,11 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
             "Indications": "indications",
             "DatePrevi_Ville": "prevision_remise_dispo_ville",
             "DatePrevi_Hôpital": "prevision_remise_dispo_hopital",
-            "Cause propre": "cause",
+            "Origine_Cause_RS": "cause",
         }
     )
 
+    df = df[df.date >= "01-01-2014"]
     df["circuit"] = df.apply(get_circuit, axis=1)
 
     # If "ville et hôpital", insert two rows: one "ville" and one "hôpital"

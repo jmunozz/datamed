@@ -57,7 +57,7 @@ h2 {
   font-size: 1.5rem;
   font-weight: 500;
   line-height: 2.125rem;
-  letter-spacing: 0px;
+  letter-spacing: 0.25px;
 }
 
 h3 {
@@ -191,6 +191,9 @@ h5 {
 
 .normal-text-bold {
   font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.25rem;
+  letter-spacing: 0.25px;
 }
 
 .normal-text-cap {
@@ -1012,4 +1015,14 @@ a.btn-lg {
 
 .EffetIndesirableSelectDropdown {
   min-width: 15rem;
+}
+
+.mentions {
+  margin: auto;
+  margin-bottom: 100px;
+  padding: 40px;
+  background-color: white;
+  max-width: var(--frontpage-max-width);
+  border: 1px solid #E6E6E6;
+  box-sizing: border-box;
 }

@@ -7,7 +7,7 @@ from dash.dependencies import Output, Input
 from dash_html_components import Div
 
 from app import app, server
-from apps import app1, app2, app3, app4, app5, app6
+from apps import app1, app2, app3, app4, app5, app6, mentions_legales, a_propos
 
 app.layout = Div([dcc.Location(id="url", refresh=False), Div(id="page-content")])
 
@@ -33,6 +33,10 @@ def display_page(href):
         return app4.Layout()
     elif pathname == "/apps/construction":
         return app6.Layout()
+    elif pathname == "/apps/mentions_legales":
+        return mentions_legales.Layout()
+    elif pathname == "/apps/a_propos":
+        return a_propos.Layout()
     else:
         return app1.layout
 

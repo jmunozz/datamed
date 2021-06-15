@@ -188,6 +188,13 @@ def EISystemesOrganesTooltip():
         )
     )
 
+def SingleSection(title: str, children_list: List) -> Component:
+    children = [Div(title, className="h3 mb-3")] + children_list
+    return Div(
+        children,
+        className="normal-text mb-5 text-justify",
+    )
+
 
 def FrontPageSectionPart(children, class_name=""):
     class_name = " ".join(["FrontPageSectionPart"] + class_name.split(" "))
