@@ -385,8 +385,7 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     Table ruptures
     """
     df = pd.read_excel(
-        "data/Annexe 1_ListeDesRuptures.xlsx",
-        sheet_name="BDD Ruptures",
+        "data/ListeDesRuptures_2021_6_1510_02_58.xlsx",
         header=0,
         parse_dates=[
             "DatePrevi_Ville",
@@ -406,7 +405,7 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
             "Circuit_Touche_Hopital",
             "DatePrevi_Ville",
             "DatePrevi_Hôpital",
-            "Cause propre",
+            "Origine_Cause_RS",
         ],
     )
 
@@ -423,10 +422,11 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
             "Indications": "indications",
             "DatePrevi_Ville": "prevision_remise_dispo_ville",
             "DatePrevi_Hôpital": "prevision_remise_dispo_hopital",
-            "Cause propre": "cause",
+            "Origine_Cause_RS": "cause",
         }
     )
 
+    df = df[df.date >= "01-01-2014"]
     df["circuit"] = df.apply(get_circuit, axis=1)
 
     # If "ville et hôpital", insert two rows: one "ville" and one "hôpital"

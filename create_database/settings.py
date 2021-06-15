@@ -557,7 +557,7 @@ files = {
         },
     },
     "ruptures": {
-        "source": {"pattern": "Dossier_de_rupture_040621.csv"},
+        "source": {"pattern": "Dossier_de_rupture_150621.csv"},
         "read_csv": {
             "encoding": "utf-8",
             "sep": ";",
@@ -631,7 +631,7 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {
-                "annee": Integer,
+                "annee": String,
                 "nb_signalements": Integer,
                 "nb_presentations": Integer,
             },
