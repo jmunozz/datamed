@@ -250,7 +250,7 @@ def get_causes(annee=INITIAL_YEAR):
     df_cause = df_ruptures.groupby(["annee", "cause"]).etat.count().reset_index()
     df_cause = df_cause.rename(columns={"etat": "nombre_signalements"})
     df_cause.nombre_signalements = df_cause.apply(
-        lambda x: x.nombre_signalements / len(df_cause[df_cause.annee == x.annee]),
+        lambda x: x.nombre_signalements / df_cause[df_cause.annee == x.annee].nombre_signalements.sum() * 100,
         axis=1,
     )
     df_cause.cause = df_cause.cause.str.capitalize()

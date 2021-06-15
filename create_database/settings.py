@@ -547,6 +547,7 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {
+                "annee": String,
                 "date_demande": Date,
                 "date_mise_en_place": Date,
                 "date_previ_fin": Date,
@@ -612,6 +613,7 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {
+                "annee": String,
                 "cip13": String(16),
                 "date": Date,
                 "debut_ville": Date,
