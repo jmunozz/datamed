@@ -2,8 +2,10 @@ import math
 from typing import List, Dict, Tuple
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
+import dash
 import dash.dependencies as dd
 import dash_html_components as html
+from dash.exceptions import PreventUpdate
 import dash_table
 import db.fetch_data as fetch_data
 import db.substance as substance
@@ -20,7 +22,7 @@ from sm import SideMenu
 
 from apps.graphs import EIRepartitionSystemeOrganes, EIRepartitionHLT
 
-from .commons import (
+from apps.components.commons import (
     EIRepartitionGraviteGraphBox,
     EIRepartitionSexeFigureBox,
     PatientsTraites,
@@ -31,6 +33,7 @@ from .commons import (
     EIRepartitionSexeFigureBox,
     EIRepartitionNotificateursFigureBox,
     EISystemesOrganesTooltip,
+    EIRepartitionSystemeOrganesBox,
 )
 from .utils import (
     Box,
@@ -210,19 +213,18 @@ def EffetsIndesirables(
     return TopicSection(children, id="effets-indesirables",)
 
 
-def EIRepartitionSystemeOrganesBox(df: pd.DataFrame, code: str):
-    return EIRepartitionSystemeOrganes(df, code)
-
-
-def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
+def SystemesOrganes(df_soc: pd.DataFrame, code: str) -> Component:
     children = [
         SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
     ]
-    if df is None or np.isnan(df.pourcentage_cas.unique()).all():
+    if df_soc is None or np.isnan(df_soc.pourcentage_cas.unique()).all():
         children.append(NoData())
     else:
         children.extend(
-            [EISystemesOrganesTooltip(), SectionRow([],),]
+            [
+                EISystemesOrganesTooltip(),
+                SectionRow(EIRepartitionSystemeOrganesBox(df_soc)),
+            ]
         )
     return TopicSection(children, id="population-concernee",)
 
@@ -241,3 +243,51 @@ def getActiveCell(active_cell, page_current, page_size, data):
         return "/apps/specialite?" + urlencode({"search": quote_plus(cellData)})
     else:
         raise PreventUpdate
+
+
+@app.callback(
+    [
+        dd.Output("update-on-click-data", "is_open"),
+        dd.Output("body-modal", "children"),
+        dd.Output("header-modal", "children"),
+        dd.Output("selected-soc", "children"),
+    ],
+    [
+        dd.Input("close-backdrop", "n_clicks"),
+        dd.Input("url", "href"),
+        dd.Input("soc-treemap", "clickData"),
+    ],
+    [dd.State("selected-soc", "children"),],
+)
+def update_callback(clicks_close, href, click_data, previous_selected_soc):
+
+    print("callback called")
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
+
+    # User has not clicked on modal yet
+    if not click_data:
+        raise PreventUpdate()
+    # Modal has been closed by user
+    if "close-backdrop" in changed_id:
+        return False, "", "", ""
+
+    selected_soc = click_data["points"][0]["label"]
+    selected_soc_has_changed = selected_soc != previous_selected_soc
+
+    if selected_soc_has_changed:
+        parsed_url = urlparse(unquote_plus(href))
+        query = parse_qs(parsed_url.query)
+        code = query["search"][0]
+        df_hlt = substance.get_hlt_df(code).sort_values(
+            by="pourcentage_cas", ascending=False
+        )
+
+        return (
+            True,
+            EIRepartitionHLT(df_hlt),
+            selected_soc,
+            selected_soc,
+        )
+
+    else:
+        return False, "", "", ""
