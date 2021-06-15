@@ -56,7 +56,6 @@ def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
 
 # Return NoData if df is empty
 def EICasDeclareFigureBox(df_decla: pd.DataFrame):
-    print(df_decla)
     if df_decla is None:
         return NoData(class_name="BoxContent-isHalf")
     else:

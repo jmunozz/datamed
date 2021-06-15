@@ -37,7 +37,7 @@ from apps.graphs import (
     getRupturesMesuresRepartitionGraph,
 )
 
-INITIAL_YEAR = dt.now().year
+INITIAL_YEAR = str(dt.now().year)
 
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
@@ -145,7 +145,7 @@ def SignalementsTotal(df: pd.DataFrame) -> Component:
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(figure=fig, responsive=True, style={"height": 450})
 
 
 def get_signalements_circuit(circuit: str = "ville") -> Dict:
@@ -276,7 +276,7 @@ def get_causes(annee=INITIAL_YEAR):
     return fig
 
 
-def getRupturesMesuresRepartitionGraphBox(annee=INITIAL_YEAR):
+def getRupturesMesuresRepartitionGraphBox(annee: str = INITIAL_YEAR) -> Component:
     return getRupturesMesuresRepartitionGraph(df_mesures, annee)
 
 
@@ -298,7 +298,7 @@ def Signalements(df: pd.DataFrame) -> Component:
             SectionRow(
                 [
                     GraphBox("", RupturesSignalementsFigureBox(df_sig)),
-                    GraphBox("", RupturesMesuresFigureBox(df_mesures),),
+                    GraphBox("", RupturesMesuresFigureBox(df_mesures)),
                 ],
                 withGutter=True,
             ),
@@ -456,7 +456,7 @@ def GestionRuptures() -> Component:
                                 ],
                                 className="mb-3",
                             ),
-                            getRupturesMesuresRepartitionGraphBox(df_mesures),
+                            getRupturesMesuresRepartitionGraphBox(),
                         ],
                     )
                 )
@@ -499,7 +499,7 @@ def Ruptures() -> Tuple[Component, Div]:
 def update_figure(value: str):
     if not value:
         raise PreventUpdate
-    return get_signalement_atc_curve(int(value))
+    return get_signalement_atc_curve(value)
 
 
 @app.callback(
@@ -521,7 +521,7 @@ def update_figure(value: str):
 def update_figure(value: str):
     if not value:
         raise PreventUpdate
-    return get_causes(int(value))
+    return get_causes(value)
 
 
 @app.callback(
@@ -530,4 +530,4 @@ def update_figure(value: str):
 def update_figure(value: str):
     if not value:
         raise PreventUpdate
-    return get_mesures(int(value))
+    return getRupturesMesuresRepartitionGraphBox(value)

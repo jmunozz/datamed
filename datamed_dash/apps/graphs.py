@@ -189,12 +189,9 @@ def EMRepartitionNatureGraph(df: pd.DataFrame):
 
 # Nombre de signalements pour l'année dernière (Nombre)
 def RupturesSignalementsFigure(df: pd.DataFrame):
-    print(df)
     last_year = dt.now().year - 1
-    print(last_year)
-    df_by_year = fetch_data.return_sub_df_or_none(df, str(last_year))
-    print(df_by_year)
-    nb_signalements = len(df_by_year)
+    df_by_year = df.groupby(df.index)["nb_signalements"].sum()
+    nb_signalements = df_by_year.at[str(last_year)]
     return (
         FigureGraph(
             [
@@ -233,10 +230,8 @@ def RupturesMesuresFigure(df_mesures: pd.DataFrame):
 def getRupturesMesuresRepartitionGraph(df_mesures: pd.DataFrame, annee: str):
     df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
     df = df.rename(columns={"numero": "nombre"}).set_index("annee")
-    fig = makePie(df.loc[annee].mesure, df.loc[annee].nombre, PIE_COLORS_SPECIALITE)
-    return (
-        Graph(figure=fig, responsive=True, id="pie-mesures", style={"height": 450},),
-    )
+    fig = makePie(df.mesure, df.nombre, PIE_COLORS_SPECIALITE)
+    return Graph(figure=fig, responsive=True, id="pie-mesures", style={"height": 450})
 
 
 def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
@@ -253,7 +248,7 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
 
 
 def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
-    return (
+    fig = (
         go.Figure(
             go.Pie(
                 labels=labels,
@@ -265,6 +260,7 @@ def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
         .update_layout(PIE_LAYOUT)
         .update_traces(PIE_TRACES)
     )
+    return fig
 
 
 def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> List[Component]:
