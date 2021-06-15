@@ -164,7 +164,12 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
     for idx, e in enumerate(["ouvert", "clôturé"]):
         df_etat = df_circuit[df_circuit.etat == e]
         fig.add_trace(
-            SingleCurve(df_etat.date, df_etat.nombre, e.capitalize(), colors[idx])
+            go.Bar(
+                x=df_etat.date,
+                y=df_etat.nombre,
+                marker=dict(color=colors[idx]),
+                name=e.capitalize()
+            )
         )
 
     fig.update_layout(get_ruptures_curve_layout(df_circuit.date))
@@ -449,7 +454,7 @@ def Signalements() -> Component:
                                 className="mb-5",
                             ),
                             H4(
-                                "Évolution du nombre d'ouvertures et de clôtures de dossier",
+                                "Nombre d'ouvertures et de clôtures de dossier",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(

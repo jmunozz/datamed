@@ -190,6 +190,8 @@ def EMRepartitionNatureGraph(df: pd.DataFrame):
 # Nombre de signalements pour l'année dernière (Nombre)
 def RupturesSignalementsFigure(df: pd.DataFrame):
     last_year = dt.now().year - 1
+    df = df.reset_index()
+    df = df.drop_duplicates(subset=["numero", "cis"], keep="first")
     df_by_year = df.reset_index().groupby("annee").numero.count()
     nb_signalements = df_by_year.at[str(last_year)]
     return (
