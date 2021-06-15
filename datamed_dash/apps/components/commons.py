@@ -335,8 +335,8 @@ def HistoriqueRupturesTooltip():
                             ),
                         ],
                     ),
-                    html.Div([], className="text-justify mb-3", ),
-                    html.Div([], className="mb-3", ),
+                    html.Div([], className="text-justify mb-3",),
+                    html.Div([], className="mb-3",),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -602,65 +602,3 @@ def toggle_modal(n1, n2, is_open):
         return not is_open
     return is_open
 
-
-@app.callback(
-    [
-        dd.Output("update-on-click-data", "is_open"),
-        dd.Output("body-modal", "children"),
-        dd.Output("header-modal", "children"),
-        dd.Output("selected-soc", "children"),
-    ],
-    [
-        # dd.Input("soc-treemap-container", "n_clicks"),
-        dd.Input("close-backdrop", "n_clicks"),
-        dd.Input("url", "href"),
-        dd.Input("soc-treemap", "clickData"),
-    ],
-    [
-        dd.State("selected-soc", "children"),
-        dd.State("effets-indesirables-select", "value"),
-    ],
-)
-def update_callback(clicks_close, href, click_data, previous_selected_soc, sub_code):
-
-    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
-
-    # User has not clicked on modal yet
-    if not click_data:
-        raise PreventUpdate()
-    # Modal has been closed by user
-    if "close-backdrop" in changed_id:
-        return False, "", "", ""
-
-    selected_soc = click_data["points"][0]["label"]
-    selected_soc_has_changed = selected_soc != previous_selected_soc
-
-    if sub_code:
-        df_hlt = substance.get_hlt_df(sub_code).sort_values(
-            by="pourcentage_cas", ascending=False
-        )
-
-        return (
-            True,
-            EIRepartitionHLT(df_hlt),
-            selected_soc,
-            selected_soc,
-        )
-
-    if selected_soc_has_changed:
-        parsed_url = urlparse(unquote_plus(href))
-        query = parse_qs(parsed_url.query)
-        code = query["search"][0]
-        df_hlt = substance.get_hlt_df(code).sort_values(
-            by="pourcentage_cas", ascending=False
-        )
-
-        return (
-            True,
-            EIRepartitionHLT(df_hlt),
-            selected_soc,
-            selected_soc,
-        )
-
-    else:
-        return False, "", "", ""

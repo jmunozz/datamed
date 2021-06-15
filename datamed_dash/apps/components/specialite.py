@@ -1,7 +1,11 @@
 import urllib
 from typing import Tuple, List
+import dash
+from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
 import dash_html_components as html
+import dash.dependencies as dd
+from dash.exceptions import PreventUpdate
 import dash_table
 import pandas as pd
 import plotly.express as px
@@ -28,6 +32,7 @@ from apps.components.commons import (
     EIRepartitionNotificateursFigureBox,
     EISystemesOrganesTooltip,
     EIRepartitionSystemeOrganesBox,
+    EIRepartitionHLT,
 )
 
 from apps.components.utils import (
@@ -806,3 +811,51 @@ def RuptureDeStock(df_rup: pd.DataFrame):
 )
 def update_effets_indesirables_content(input_value):
     return EffetsIndesirablesContent(input_value)
+
+
+@app.callback(
+    [
+        dd.Output("update-on-click-data", "is_open"),
+        dd.Output("body-modal", "children"),
+        dd.Output("header-modal", "children"),
+        dd.Output("selected-soc", "children"),
+    ],
+    [
+        dd.Input("close-backdrop", "n_clicks"),
+        dd.Input("url", "href"),
+        dd.Input("soc-treemap", "clickData"),
+    ],
+    [
+        dd.State("selected-soc", "children"),
+        dd.State("effets-indesirables-select", "value"),
+    ],
+)
+def update_callback(clicks_close, href, click_data, previous_selected_soc, sub_code):
+
+    print("callback called")
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
+
+    # User has not clicked on modal yet
+    if not click_data:
+        raise PreventUpdate()
+    # Modal has been closed by user
+    if "close-backdrop" in changed_id:
+        return False, "", "", ""
+
+    selected_soc = click_data["points"][0]["label"]
+    selected_soc_has_changed = selected_soc != previous_selected_soc
+
+    # When called on specialite page sub_code state has been previously defined
+    if sub_code and selected_soc_has_changed:
+        df_hlt = substance.get_hlt_df(sub_code).sort_values(
+            by="pourcentage_cas", ascending=False
+        )
+        return (
+            True,
+            EIRepartitionHLT(df_hlt),
+            selected_soc,
+            selected_soc,
+        )
+
+    else:
+        return False, "", "", ""
