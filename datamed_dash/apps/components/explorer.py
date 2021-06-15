@@ -21,7 +21,7 @@ def ExplorerHeader() -> Component:
                     className="medium-text",
                 ),
                 Img(
-                    src=app.get_asset_url("illustration-explorer.svg"),
+                    src=app.get_asset_url("illustration_explorer.svg"),
                     className="ExploreDescriptionImage",
                 ),
             ],
