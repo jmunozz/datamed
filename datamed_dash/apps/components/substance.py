@@ -27,6 +27,8 @@ from dash_core_components import Graph
 from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
+from apps.graphs import EIRepartitionSystemeOrganes, EIRepartitionHLT
+
 from .commons import (
     EIRepartitionGraviteGraphBox,
     EIRepartitionSexeFigureBox,
@@ -277,6 +279,10 @@ def SystemesOrganesTooltip():
     )
 
 
+def EIRepartitionSystemeOrganesBox(df: pd.DataFrame, code: str):
+    return EIRepartitionSystemeOrganes(df, code)
+
+
 def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
     children = [
         SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
@@ -292,13 +298,7 @@ def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
                         html.Div(
                             [
                                 html.Div(
-                                    Graph(
-                                        figure=Treemap(
-                                            df, code, "soc_long", "pourcentage_cas"
-                                        ),
-                                        responsive=True,
-                                        id="soc-treemap",
-                                    ),
+                                    EIRepartitionSystemeOrganesBox(df, code),
                                     id="soc-treemap-container",
                                 ),
                                 html.Div(id="selected-soc", className="d-none"),
@@ -388,10 +388,7 @@ def update_callback(
 
         return (
             True,
-            Graph(
-                figure=Treemap(df_hlt_details, code, "effet_hlt", "pourcentage_cas"),
-                responsive=True,
-            ),
+            EIRepartitionHLT(df_hlt_details, code),
             selected_soc,
             selected_soc,
         )
