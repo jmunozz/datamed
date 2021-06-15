@@ -230,7 +230,7 @@ def RupturesMesuresFigure(df_mesures: pd.DataFrame):
 def getRupturesMesuresRepartitionGraph(df_mesures: pd.DataFrame, annee: str):
     df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
     df = df.rename(columns={"numero": "nombre"}).set_index("annee")
-    fig = makePie(df.mesure, df.nombre, PIE_COLORS_SPECIALITE)
+    fig = makePie(df.mesure, df.nombre, TREE_COLORS)
     return Graph(figure=fig, responsive=True, id="pie-mesures", style={"height": 450})
 
 

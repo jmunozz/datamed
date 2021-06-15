@@ -17,6 +17,7 @@ from sm import SideMenu
 
 from apps.components.commons import (
     PatientsTraites,
+    HistoriqueRupturesTooltip,
     NoData,
     Header,
     EICasDeclareFigureBox,
@@ -738,6 +739,7 @@ def RuptureDeStock(df_rup: pd.DataFrame):
             SectionRow(
                 html.Div("Historique des ruptures de stock", className="SectionTitle")
             ),
+            HistoriqueRupturesTooltip(),
             SectionRow(
                 Box(
                     [

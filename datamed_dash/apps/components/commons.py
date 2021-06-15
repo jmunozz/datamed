@@ -297,6 +297,55 @@ def Tooltip() -> Component:
     )
 
 
+def HistoriqueRupturesTooltip():
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.Div(
+                        [
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Cette rubrique recense l'historique des déclarations de ruptures et de "
+                                        "risques de rupture concernant les médicaments d’intérêt thérapeutique "
+                                        "majeur (MITM) reçues par l'ANSM depuis le 3 Mai 2021.",
+                                        className="normal-text",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
+                            ),
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Pour retrouver les dernières informations destinées aux professionnels de "
+                                        "santé et aux patients concernant les médicaments d’intérêt thérapeutique "
+                                        "majeur faisant actuellement l’objet de difficultés d’approvisionnement et "
+                                        "pour lesquels il n’y a pas d’alternative thérapeutique disponible sur "
+                                        "le marché français, vous pouvez vous référer au site : ",
+                                    ),
+                                    html.A(
+                                        "ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                                        href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                                        className="Link",
+                                        target="_blank",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
+                            ),
+                        ],
+                    ),
+                    html.Div([], className="text-justify mb-3", ),
+                    html.Div([], className="mb-3", ),
+                ],
+                isOpenOnFirstRender=True,
+                labelClass="InternalLink normal-text",
+                label="Quelles données sont affichées ? D’où viennent-elles ?",
+            )
+        )
+    )
+
+
 def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
