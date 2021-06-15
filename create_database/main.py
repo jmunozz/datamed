@@ -459,7 +459,8 @@ def get_acronyme_mesure(identifiant: str) -> str:
 
 
 def create_table_mesures(_settings: Dict):
-    df = helpers.load_csv_to_df(_settings)
+    df = helpers.load_excel_to_df(_settings)
+    df = df[~df["Numéro Rupture"].str.startswith("DRAFT")]
     df = df.rename(
         columns={
             "Etat": "etat_mesure",
@@ -477,16 +478,16 @@ def create_table_mesures(_settings: Dict):
     df = df.where(pd.notnull(df), None)
 
     df.date_demande = df.date_demande.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.date_mise_en_place = df.date_mise_en_place.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.date_previ_fin = df.date_previ_fin.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.date_cloture = df.date_cloture.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
 
     df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
@@ -500,7 +501,8 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df_spe = pd.read_sql("specialite", engine).reset_index()
     df_old = get_old_ruptures_df(df_spe)
 
-    df = helpers.load_csv_to_df(_settings_ruptures).reset_index()
+    df = helpers.load_excel_to_df(_settings_ruptures).reset_index()
+    df = df[df.etat != "Brouillon"]
     df = df.where(pd.notnull(df), None)
     df["cause"] = None
     helpers.serie_to_lowercase(
@@ -509,21 +511,19 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df.laboratoire = df.laboratoire.str.capitalize()
     df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
 
-    df.date = df.date.apply(lambda x: dt.strptime(x, "%d/%m/%Y") if x else None)
+    df.date = df.date.apply(lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x)
     df.debut_ville = df.debut_ville.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.prevision_remise_dispo_ville = df.prevision_remise_dispo_ville.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.debut_hopital = df.debut_hopital.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.prevision_remise_dispo_hopital = df.prevision_remise_dispo_hopital.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
-
-    df.cip13 = df.cip13.astype(str)
 
     df_pres = pd.read_sql("presentation", engine)
     df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
