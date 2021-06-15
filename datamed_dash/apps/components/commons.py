@@ -3,7 +3,9 @@ import math
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
 
+import dash
 import dash.dependencies as dd
+from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash_html_components.Data import Data
@@ -188,12 +190,10 @@ def EISystemesOrganesTooltip():
         )
     )
 
+
 def SingleSection(title: str, children_list: List) -> Component:
     children = [Div(title, className="h3 mb-3")] + children_list
-    return Div(
-        children,
-        className="normal-text mb-5 text-justify",
-    )
+    return Div(children, className="normal-text mb-5 text-justify",)
 
 
 def FrontPageSectionPart(children, class_name=""):
@@ -562,36 +562,56 @@ def toggle_modal(n1, n2, is_open):
         dd.Output("selected-soc", "children"),
     ],
     [
-        dd.Input("soc-treemap-container", "n_clicks"),
+        # dd.Input("soc-treemap-container", "n_clicks"),
         dd.Input("close-backdrop", "n_clicks"),
         dd.Input("url", "href"),
         dd.Input("soc-treemap", "clickData"),
     ],
-    [dd.State("selected-soc", "children")],
+    [
+        dd.State("selected-soc", "children"),
+        dd.State("effets-indesirables-select", "value"),
+    ],
 )
-def update_callback(
-    clicks_container, clicks_close, href, click_data, previous_selected_soc
-):
+def update_callback(clicks_close, href, click_data, previous_selected_soc, sub_code):
+
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
+
+    # User has not clicked on modal yet
     if not click_data:
+        raise PreventUpdate()
+    # Modal has been closed by user
+    if "close-backdrop" in changed_id:
         return False, "", "", ""
 
     selected_soc = click_data["points"][0]["label"]
     selected_soc_has_changed = selected_soc != previous_selected_soc
 
+    if sub_code:
+        df_hlt = substance.get_hlt_df(sub_code).sort_values(
+            by="pourcentage_cas", ascending=False
+        )
+
+        return (
+            True,
+            EIRepartitionHLT(df_hlt),
+            selected_soc,
+            selected_soc,
+        )
+
     if selected_soc_has_changed:
         parsed_url = urlparse(unquote_plus(href))
         query = parse_qs(parsed_url.query)
         code = query["search"][0]
-
         df_hlt = substance.get_hlt_df(code).sort_values(
             by="pourcentage_cas", ascending=False
         )
 
         return (
             True,
-            EIRepartitionHLT(df_hlt, code),
+            EIRepartitionHLT(df_hlt),
             selected_soc,
             selected_soc,
         )
+
     else:
         return False, "", "", ""

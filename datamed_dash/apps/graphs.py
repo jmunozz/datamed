@@ -127,8 +127,8 @@ def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame) -> Component:
     return Graph(figure=fig, responsive=True, id="soc-treemap", style={"height": 450})
 
 
-def EIRepartitionHLT(df_hlt: pd.DataFrame, code: str) -> Component:
-    fig = Treemap(df_hlt, code, "effet_hlt", "pourcentage_cas")
+def EIRepartitionHLT(df_hlt: pd.DataFrame) -> Component:
+    fig = Treemap(df_hlt, "effet_hlt", "pourcentage_cas")
     return Graph(figure=fig, responsive=True,)
 
 

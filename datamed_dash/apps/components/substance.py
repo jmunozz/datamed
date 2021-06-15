@@ -210,19 +210,22 @@ def EffetsIndesirables(
     return TopicSection(children, id="effets-indesirables",)
 
 
-def EIRepartitionSystemeOrganesBox(df: pd.DataFrame, code: str):
-    return EIRepartitionSystemeOrganes(df, code)
+def EIRepartitionSystemeOrganesBox(df: pd.DataFrame):
+    return EIRepartitionSystemeOrganes(df)
 
 
-def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
+def SystemesOrganes(df_soc: pd.DataFrame, code: str) -> Component:
     children = [
         SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
     ]
-    if df is None or np.isnan(df.pourcentage_cas.unique()).all():
+    if df_soc is None or np.isnan(df_soc.pourcentage_cas.unique()).all():
         children.append(NoData())
     else:
         children.extend(
-            [EISystemesOrganesTooltip(), SectionRow([],),]
+            [
+                EISystemesOrganesTooltip(),
+                SectionRow([EIRepartitionSystemeOrganesBox(df_soc)]),
+            ]
         )
     return TopicSection(children, id="population-concernee",)
 
