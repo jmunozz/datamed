@@ -231,7 +231,9 @@ def create_substance_cas_sexe_table(_settings: Dict):
     )
     final_df.drop(["cas"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["sexe"])
-    db.create_table_from_df(final_df[final_df.pourcentage_cas.notnull()], _settings[3]["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings[3]["to_sql"]
+    )
 
 
 def create_substance_cas_age_table(_settings: Dict):
@@ -370,13 +372,11 @@ def create_table_emed(_settings: Dict):
 
 
 def get_circuit(row: pd.Series) -> Optional[str]:
-    if row.Circuit_Touche_Ville == "NR" and row.Circuit_Touche_Hopital == "NR":
-        return None
-    elif row.Circuit_Touche_Ville == "VILLE":
+    if row.Circuit_Touche_Ville and not row.Circuit_Touche_Hopital:
         return "ville"
-    elif row.Circuit_Touche_Hopital == "HOPITAL":
+    elif row.Circuit_Touche_Hopital and not row.Circuit_Touche_Ville:
         return "hôpital"
-    elif row.Circuit_Touche_Ville == "HOPITAL/VILLE":
+    elif row.Circuit_Touche_Ville and row.Circuit_Touche_Hopital:
         return "ville et hôpital"
 
 
