@@ -11,6 +11,10 @@ def APropos() -> Component:
             Div(className="header-space"),
             Div(
                 [
+                    # Video(
+                    #     src=app.get_asset_url("DataMed 09-06-21.m4v"),
+                    #     controls=True,
+                    # ),
                     Div(
                         Img(
                             src=app.get_asset_url("frontpage_img_1.svg"),
@@ -102,18 +106,18 @@ def APropos() -> Component:
                                 className="mb-3",
                             ),
                             Div(
-                                "- les données de la direction de l’inspection (sur les ruptures de stocks de "
+                                "- les données de la Direction de l’Inspection (sur les ruptures de stocks de "
                                 "médicaments et sur la production de médicaments en France et à l'étranger)",
                                 className="mb-3",
                             ),
                             Div(
-                                "- les données de la direction de la surveillance (sur les effets indésirables des "
+                                "- les données de la Direction de la Surveillance (sur les effets indésirables des "
                                 "médicaments, sur les erreurs médicamenteuses et sur le bon usage du médicament).",
                                 className="mb-3"
                             ),
                             Div(
                                 "Ces dernières ont fait l’objet d’un nettoyage, d’une analyse et d’une "
-                                "agrégation rigoureuse afin de respecter la confidentialité des données.",
+                                "agrégation rigoureuse afin d'assurer la confidentialité des données.",
                             ),
                         ],
                     ),
