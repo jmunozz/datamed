@@ -1,32 +1,11 @@
-from typing import List, Dict, Optional
-import math
-from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
+from typing import List, Optional
 
-
-import dash
 import dash.dependencies as dd
-from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-from dash_html_components.Data import Data
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 from app import app
-from dash.development.base_component import Component
-from dash_core_components import Graph
-from dash_html_components import Div, H1
-from datamed_custom_components import Accordion
-from db import fetch_data
-from db import specialite, substance
-from dash_bootstrap_components import (
-    Button,
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-)
-
 from apps.components.utils import (
     Box,
     GraphBox,
@@ -34,6 +13,7 @@ from apps.components.utils import (
     SectionRow,
     normalize_string,
 )
+from apps.constants.misc import UTILISATION, UTILISATION_IMG_URL
 from apps.graphs import (
     ReparitionSexeFigure,
     RepartitionAgeGraph,
@@ -44,9 +24,20 @@ from apps.graphs import (
     EIRepartitionNotificateursFigure,
     EIRepartitionGraviteGraph,
     EIRepartitionSystemeOrganes,
-    EIRepartitionHLT,
 )
-from apps.constants.misc import UTILISATION, UTILISATION_IMG_URL
+from dash.development.base_component import Component
+from dash_bootstrap_components import (
+    Button,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+)
+from dash_html_components import Div, H1
+from datamed_custom_components import Accordion
+from db import fetch_data
+from db import specialite
+
 
 # Return NoData if df empty or figure missing for man or woman
 def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
@@ -382,9 +373,13 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
         else:
             exposition = "-"
         if not np.isnan(series_exposition.conso_an_trunc):
-            patients = "{:,} patients / an".format(
+            # For démo day
+            conso = (
                 int(series_exposition.conso_an_trunc)
-            ).replace(",", " ")
+                if int(series_exposition.conso_an_trunc) <= 65000000
+                else 65000000
+            )
+            patients = "{:,} patients / an".format(conso).replace(",", " ")
         else:
             patients = "Données insuffisantes"
     else:
