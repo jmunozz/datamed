@@ -1,10 +1,7 @@
 from typing import Tuple
 
-import dash_bootstrap_components as dbc
 import dash_html_components as html
-from dash_html_components.Div import Div
 from app import app
-
 
 from .commons import FrontPageSection, FrontPageSectionPart, FrontPageSectionFull
 
@@ -84,7 +81,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     className="center-text",
                                                 ),
                                                 html.P(
-                                                    "Citoyen, patient, aidant, associations de patients",
+                                                    "Citoyens, patients, aidants, associations de patients",
                                                     className="medium-text center-text",
                                                 ),
                                             ],
@@ -99,12 +96,12 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     style={"height": "250px"},
                                                 ),
                                                 html.H2(
-                                                    "Professionnel de santé",
+                                                    "Professionnels de santé",
                                                     className="center-text",
                                                 ),
                                                 html.P(
-                                                    "Médecin, pharmacien, sage-femme, infirmier, "
-                                                    "intervenant du paramédical",
+                                                    "Médecins, pharmaciens, sages-femmes, infirmiers, "
+                                                    "intervenants du paramédical",
                                                     className="medium-text center-text",
                                                 ),
                                             ],
@@ -119,11 +116,11 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     style={"height": "250px"},
                                                 ),
                                                 html.H2(
-                                                    "Expert en données",
+                                                    "Experts en données",
                                                     className="center-text",
                                                 ),
                                                 html.P(
-                                                    "Journaliste, data analyst, chercheur, éditeur de logiciel",
+                                                    "Journalistes, data analysts, chercheurs, éditeurs de logiciel",
                                                     className="medium-text center-text",
                                                 ),
                                             ],

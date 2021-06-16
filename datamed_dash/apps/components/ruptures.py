@@ -335,7 +335,8 @@ def Signalements() -> Component:
                                 className="regular-text",
                             ),
                             P(
-                                "Attention, l'année 2021 n'est pas terminée !",
+                                "Attention, l'année 2021 n'est pas terminée ! "
+                                "Le nombre de signalements peut être amené à augmenter.",
                                 className="regular-text",
                             ),
                         ],

@@ -28,7 +28,7 @@ def FirstSection() -> Component:
                         "Fax : +33(0)1 55 87 30 12",
                     ),
                     Div(
-                        "Directrice de la publication : Christelle Ratignier-Carbonneil",
+                        "Directrice de la publication : Direction Générale de l'ANSM",
                     ),
                     Div(
                         "Pour contacter les webmasters : webmaster@ansm.sante.fr",

@@ -1,24 +1,14 @@
 import urllib
-from typing import Tuple, List
-import dash
-from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
+from typing import Tuple
+from urllib.parse import urlparse
 
-import dash_html_components as html
+import dash
 import dash.dependencies as dd
-from dash.exceptions import PreventUpdate
+import dash_html_components as html
 import dash_table
 import pandas as pd
-import plotly.express as px
 import requests
 from app import app
-from bs4 import BeautifulSoup
-from dash.development.base_component import Component
-from dash_core_components import Graph, Dropdown
-from dash.dependencies import Input, Output
-from datamed_custom_components import Accordion
-from db import specialite, fetch_data, substance
-from sm import SideMenu
-
 from apps.components.commons import (
     PatientsTraites,
     HistoriqueRupturesTooltip,
@@ -34,7 +24,6 @@ from apps.components.commons import (
     EIRepartitionSystemeOrganesBox,
     EIRepartitionHLTBox,
 )
-
 from apps.components.utils import (
     Box,
     GraphBox,
@@ -49,6 +38,7 @@ from apps.components.utils import (
     CardBox,
     Grid,
 )
+from apps.constants.colors import PIE_COLORS_SPECIALITE
 from apps.graphs import (
     EMRepartitionGraviteGraph,
     EMRepartitionPopulationConcernee,
@@ -57,8 +47,20 @@ from apps.graphs import (
     EMRepartitionErreursInitialesGraph,
     EMRepartitionCausesGraph,
 )
+from bs4 import BeautifulSoup
+from dash.dependencies import Input, Output
+from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
+from dash_core_components import Dropdown
+from datamed_custom_components import Accordion
+from db import specialite, fetch_data, substance
+from sm import SideMenu
 
-from apps.constants.colors import PIE_COLORS_SPECIALITE
+PUBLICATIONS_IMG = {
+    "Autre": "autre_120.svg",
+    "Point d'Information": "pointinfo_120.svg",
+    "Communiqué": "communique_120.svg",
+}
 
 
 def EffetsIndesirablesSelect(df_sub: pd.DataFrame):
@@ -165,13 +167,19 @@ def Publications(df_pub: pd.DataFrame) -> str:
                         ),
                     ]
                 ),
+                img_url=app.get_asset_url(PUBLICATIONS_IMG[x.type]),
                 img_classname="CardBoxImage-isCentered PublicationsBoxImage",
                 classname="GridElem-1",
             )
         )
     return TopicSection(
         [
-            SectionRow(html.H1("Publications", className="SectionTitle",)),
+            SectionRow(
+                html.H1(
+                    "Publications",
+                    className="SectionTitle",
+                )
+            ),
             Grid(children, 1),
         ],
         id="publications",
@@ -210,12 +218,18 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                             "id": "erreurs-medicamenteuses",
                             "label": "Erreurs médicamenteuses",
                         },
-                        {"id": "effets-indesirables", "label": "Effets indésirables",},
+                        {
+                            "id": "effets-indesirables",
+                            "label": "Effets indésirables",
+                        },
                         {
                             "id": "rupture-de-stock",
                             "label": "Historique des ruptures de stock",
                         },
-                        {"id": "publications", "label": "Publications",},
+                        {
+                            "id": "publications",
+                            "label": "Publications",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -230,7 +244,12 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_init, df_ei, df_pop, df_cause, df_nat, df_gravite,
+                                df_init,
+                                df_ei,
+                                df_pop,
+                                df_cause,
+                                df_nat,
+                                df_gravite,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -289,7 +308,8 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(), series_atc.atc,
+                                    series_atc.label.capitalize(),
+                                    series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -308,7 +328,8 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Span(
-                                series_spe.titulaires.title(), className="normal-text",
+                                series_spe.titulaires.title(),
+                                className="normal-text",
                             ),
                         ],
                     ),
@@ -408,7 +429,10 @@ def BoxListDenomination(df: pd.DataFrame):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={"height": "50px", "backgroundColor": "#FFF",},
+        style_cell={
+            "height": "50px",
+            "backgroundColor": "#FFF",
+        },
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -608,7 +632,10 @@ def ErreursMedicamenteuses(
                 ),
             ]
         )
-    return TopicSection(children, id="erreurs-medicamenteuses",)
+    return TopicSection(
+        children,
+        id="erreurs-medicamenteuses",
+    )
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
@@ -825,7 +852,9 @@ def update_effets_indesirables_content(input_value):
         dd.Input("close-backdrop-specialite", "n_clicks"),
         dd.Input("soc-treemap-specialite", "clickData"),
     ],
-    [dd.State("effets-indesirables-select", "value"),],
+    [
+        dd.State("effets-indesirables-select", "value"),
+    ],
 )
 def open_ei_modal_on_specialite_page(clicks_close, click_data, sub_code):
 

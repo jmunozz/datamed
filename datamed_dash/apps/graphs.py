@@ -1,19 +1,13 @@
 import math
-from typing import List, Dict, Tuple
-from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 from datetime import datetime as dt
-import dash.dependencies as dd
+from typing import List, Dict
+
 import dash_html_components as html
 import db.fetch_data as fetch_data
-import db.substance as substance
-import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
-from dash.development.base_component import Component
-from dash_core_components import Graph
-
 from apps.constants.colors import (
     PIE_COLORS_SUBSTANCE,
     TREE_COLORS,
@@ -28,6 +22,8 @@ from apps.constants.layouts import (
     STACKED_BAR_CHART_TRACES,
 )
 from apps.constants.misc import NOTIF_IMAGE_URL, NOTIF_NOM, SEXE, SEXE_IMG_URL
+from dash.development.base_component import Component
+from dash_core_components import Graph
 
 
 def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
@@ -111,7 +107,7 @@ def EIRepartitionNotificateursFigure(df_notif: pd.DataFrame) -> Component:
     df_notif = df_notif.sort_values(by="pourcentage_notif", ascending=False)
     return FigureGraph(
         get_notif_figures_from_df(df_notif),
-        height="80px",
+        height="100px",
         class_name="justify-content-between",
     )
 
@@ -165,8 +161,8 @@ def EMRepartitionPopulationConcernee(df: pd.DataFrame):
 def EMRepartitionEffetsIndesirablesFigure(df: pd.DataFrame):
     EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
     EI_IMG_URL = {
-        "Non": app.get_asset_url("healthy_man.svg"),
-        "Oui": app.get_asset_url("sick_man.svg"),
+        "Non": app.get_asset_url("EI-no_BW_150.svg"),
+        "Oui": app.get_asset_url("EI-yes_BW_150.svg"),
     }
     return FigureGraph(
         [
@@ -337,7 +333,7 @@ def FigureGraph(
             if "img" in f
             else []
         )
-        elems = elems + [html.H1(f["figure"])] if "figure" in f else []
+        elems = elems + [html.H1(f["figure"], className="m-0")] if "figure" in f else []
         elems = (
             elems
             + [
