@@ -1,18 +1,14 @@
-import math
-from typing import List, Dict, Tuple
+from typing import Tuple
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
 import dash
 import dash.dependencies as dd
 import dash_html_components as html
-from dash.exceptions import PreventUpdate
 import dash_table
 import db.fetch_data as fetch_data
 import db.substance as substance
 import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 from app import app
 from apps.components.specialite import NoData
 from dash.development.base_component import Component
@@ -22,7 +18,6 @@ from sm import SideMenu
 
 from apps.components.commons import (
     EIRepartitionGraviteGraphBox,
-    EIRepartitionSexeFigureBox,
     PatientsTraites,
     Header,
     EICasDeclareFigureBox,
@@ -34,14 +29,19 @@ from apps.components.commons import (
     EIRepartitionSystemeOrganesBox,
     EIRepartitionHLTBox,
 )
+from apps.components.specialite import NoData
+from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
+from datamed_custom_components.Accordion import Accordion
+from sm import SideMenu
+
 from .utils import (
     Box,
-    GraphBox,
     TopicSection,
     SectionTitle,
     SectionRow,
 )
-from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
+from ..constants.colors import PIE_COLORS_SUBSTANCE
 
 
 def EffetsIndesirablesTooltip() -> Component:
