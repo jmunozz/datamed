@@ -259,9 +259,10 @@ def getActiveCell(active_cell, page_current, page_size, data):
     ],
     [dd.State("selected-soc", "children"),],
 )
-def update_callback(clicks_close, href, click_data, previous_selected_soc):
+def open_ei_modal_on_substance_page(
+    clicks_close, href, click_data, previous_selected_soc
+):
 
-    print("callback called")
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet
@@ -277,8 +278,9 @@ def update_callback(clicks_close, href, click_data, previous_selected_soc):
     if selected_soc_has_changed:
         parsed_url = urlparse(unquote_plus(href))
         query = parse_qs(parsed_url.query)
-        code = query["search"][0]
-        df_hlt = substance.get_hlt_df(code).sort_values(
+        sub_code = query["search"][0]
+        df_hlt = substance.get_hlt_df(sub_code)
+        df_hlt = df_hlt[df_hlt.soc_long == selected_soc].sort_values(
             by="pourcentage_cas", ascending=False
         )
 

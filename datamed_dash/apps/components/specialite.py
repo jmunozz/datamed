@@ -830,9 +830,10 @@ def update_effets_indesirables_content(input_value):
         dd.State("effets-indesirables-select", "value"),
     ],
 )
-def update_callback(clicks_close, href, click_data, previous_selected_soc, sub_code):
+def open_ei_modal_on_specialite_page(
+    clicks_close, href, click_data, previous_selected_soc, sub_code
+):
 
-    print("callback called")
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet
@@ -847,7 +848,8 @@ def update_callback(clicks_close, href, click_data, previous_selected_soc, sub_c
 
     # When called on specialite page sub_code state has been previously defined
     if sub_code and selected_soc_has_changed:
-        df_hlt = substance.get_hlt_df(sub_code).sort_values(
+        df_hlt = substance.get_hlt_df(sub_code)
+        df_hlt = df_hlt[df_hlt.soc_long == selected_soc].sort_values(
             by="pourcentage_cas", ascending=False
         )
         return (
