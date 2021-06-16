@@ -210,6 +210,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                             "id": "erreurs-medicamenteuses",
                             "label": "Erreurs médicamenteuses",
                         },
+                        {"id": "effets-indesirables", "label": "Effets indésirables",},
                         {
                             "id": "rupture-de-stock",
                             "label": "Historique des ruptures de stock",
@@ -618,32 +619,32 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     className="SectionTitle",
                 )
             ),
-            SectionRow(
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.Img(
-                                    src=app.get_asset_url("/substance_icon.svg"),
-                                    className="EffetIndesirableSelectLabelImg",
-                                ),
-                                html.Span(
-                                    "Effets indésirables de la substance active",
-                                    className="normal-text EffetIndesirableSelectLabelSpan",
-                                ),
-                            ],
-                            className="EffetIndesirableSelectLabel",
-                        ),
-                        EffetsIndesirablesSelect(df_sub),
-                    ],
-                    className="EffetIndesirableSelect",
-                )
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Img(
+                                src=app.get_asset_url("/substance_icon.svg"),
+                                className="EffetIndesirableSelectLabelImg",
+                            ),
+                            html.Span(
+                                "Effets indésirables de la substance active",
+                                className="normal-text EffetIndesirableSelectLabelSpan",
+                            ),
+                        ],
+                        className="EffetIndesirableSelectLabel",
+                    ),
+                    EffetsIndesirablesSelect(df_sub),
+                ],
+                className="EffetIndesirableSelect",
             ),
-            SectionRow(
-                html.Div(EffetsIndesirablesContent(), id="effets-indesirables-content",)
+            html.Div(
+                EffetsIndesirablesContent(),
+                id="effets-indesirables-content",
+                className="EffetsIndesirablesContent",
             ),
         ],
-        id="",
+        id="effets-indesirables",
     )
 
 
@@ -851,7 +852,6 @@ def open_ei_modal_on_specialite_page(clicks_close, click_data, sub_code):
         return (
             True,
             EIRepartitionHLTBox(df_hlt),
-            selected_soc,
             selected_soc,
         )
 

@@ -12,6 +12,7 @@ from apps.components.utils import (
     TopicSection,
     SectionRow,
     normalize_string,
+    Grid,
 )
 from apps.constants.misc import UTILISATION, UTILISATION_IMG_URL
 from apps.graphs import (
@@ -455,7 +456,7 @@ def PatientsTraites(
             [
                 Tooltip(),
                 Utilisation(df_expo),
-                SectionRow(
+                Grid(
                     [
                         GraphBox(
                             "Répartition par sexe des patients traités",
@@ -466,7 +467,7 @@ def PatientsTraites(
                             [RepartitionAgeBox(df_age, pie_colors)],
                         ),
                     ],
-                    withGutter=True,
+                    2,
                 ),
             ]
         )

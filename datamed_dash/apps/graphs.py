@@ -20,6 +20,7 @@ from apps.constants.colors import (
     PIE_COLORS_SPECIALITE,
 )
 from apps.constants.layouts import (
+    TREEMAP_LAYOUT_OVERRIDE_SPECIALITE,
     TREEMAP_LAYOUT,
     PIE_LAYOUT,
     PIE_TRACES,
@@ -123,7 +124,14 @@ def EIRepartitionGraviteGraph(df: pd.DataFrame) -> Component:
 
 # Représentation de la répartition des effets indésirables par système d'organe (Treemap)
 def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame, type: str) -> Component:
-    fig = Treemap(df_soc, "soc_long", "pourcentage_cas")
+    print(type)
+    layout = (
+        {**TREEMAP_LAYOUT, **TREEMAP_LAYOUT_OVERRIDE_SPECIALITE}
+        if type == "specialite"
+        else TREEMAP_LAYOUT
+    )
+    print(layout)
+    fig = Treemap(df_soc, "soc_long", "pourcentage_cas", layout)
     return Graph(
         figure=fig,
         responsive=True,
@@ -269,7 +277,9 @@ def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
     return fig
 
 
-def Treemap(df_soclong: pd.DataFrame, path: str, values: str) -> List[Component]:
+def Treemap(
+    df_soclong: pd.DataFrame, path: str, values: str, layout=TREEMAP_LAYOUT
+) -> List[Component]:
     fig = px.treemap(
         df_soclong.sort_values(by=values, ascending=False).head(10),
         path=[path],
@@ -278,7 +288,7 @@ def Treemap(df_soclong: pd.DataFrame, path: str, values: str) -> List[Component]
         hover_name=path,
     )
 
-    fig.update_layout(TREEMAP_LAYOUT)
+    fig.update_layout(layout)
     fig.update_traces(
         texttemplate="%{label}<br>%{value:.0f}%",
         textposition="middle center",

@@ -35,12 +35,7 @@ from dash.exceptions import PreventUpdate
 from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
-from .utils import (
-    Box,
-    TopicSection,
-    SectionTitle,
-    SectionRow,
-)
+from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid
 from ..constants.colors import PIE_COLORS_SUBSTANCE
 
 
@@ -192,19 +187,15 @@ def EffetsIndesirables(
         children.extend(
             [
                 EffetsIndesirablesTooltip(),
-                SectionRow(
-                    [EICasDeclareFigureBox(df_decla), EITauxDeclarationBox(df_decla),],
-                    withGutter=True,
-                ),
-                SectionRow(
+                Grid(
                     [
+                        EICasDeclareFigureBox(df_decla),
+                        EITauxDeclarationBox(df_decla),
                         EIRepartitionSexeFigureBox(df_cas_sexe),
                         EIRepartitionAgeGraphBox(df_cas_age),
+                        EIRepartitionGraviteGraphBox(df_gravite),
                     ],
-                    withGutter=True,
-                ),
-                SectionRow(
-                    [EIRepartitionGraviteGraphBox(df_gravite)], withGutter=True,
+                    2,
                 ),
                 SectionRow([EIRepartitionNotificateursFigureBox(df_notif)]),
             ]
