@@ -270,6 +270,10 @@ def open_ei_modal_on_substance_page(
     # Modal has been closed by user
     if "close-backdrop" in changed_id:
         return False, "", "", ""
+    current_entry = click_data["points"][0]["entry"]
+    # User is going up in treemap
+    if current_entry is not "":
+        return False, "", "", ""
 
     selected_soc = click_data["points"][0]["label"]
     selected_soc_has_changed = selected_soc != previous_selected_soc

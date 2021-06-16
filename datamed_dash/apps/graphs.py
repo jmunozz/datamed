@@ -124,7 +124,12 @@ def EIRepartitionGraviteGraph(df: pd.DataFrame) -> Component:
 # Représentation de la répartition des effets indésirables par système d'organe (Treemap)
 def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame) -> Component:
     fig = Treemap(df_soc, "soc_long", "pourcentage_cas")
-    return Graph(figure=fig, responsive=True, id="soc-treemap", style={"height": 450})
+    return Graph(
+        figure=fig,
+        responsive=True,
+        id="soc-treemap",
+        style={"min-height": 450, "width": "100%"},
+    )
 
 
 def EIRepartitionHLT(df_hlt: pd.DataFrame) -> Component:
