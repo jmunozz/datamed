@@ -122,11 +122,10 @@ def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame) -> Component:
     )
 
 
-def EIRepartitionSystemeOrganesBox(df_soclong: pd.DataFrame):
+def EIRepartitionSystemeOrganesBox(df_soclong: pd.DataFrame, type: str):
     return [
-        EIRepartitionSystemeOrganes(df_soclong),
-        html.Div(id="selected-soc", className="d-none"),
-        HltModal(),
+        EIRepartitionSystemeOrganes(df_soclong, type),
+        HltModal(type),
     ]
 
 
@@ -134,7 +133,7 @@ def EIRepartitionHLTBox(df_hlt: pd.DataFrame):
     return EIRepartitionHLT(df_hlt)
 
 
-def HltModal() -> Modal:
+def HltModal(type: str) -> Modal:
     return Modal(
         [
             ModalHeader(id="header-modal"),
@@ -142,7 +141,7 @@ def HltModal() -> Modal:
             ModalFooter(
                 Button(
                     "Fermer",
-                    id="close-backdrop",
+                    id=f"close-backdrop-{type}",
                     className="ml-auto button-text-bold",
                     color="secondary",
                     outline=True,

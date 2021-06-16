@@ -222,7 +222,7 @@ def SystemesOrganes(df_soc: pd.DataFrame, code: str) -> Component:
         children.extend(
             [
                 EISystemesOrganesTooltip(),
-                SectionRow(EIRepartitionSystemeOrganesBox(df_soc)),
+                SectionRow(EIRepartitionSystemeOrganesBox(df_soc, "substance")),
             ]
         )
     return TopicSection(children, id="population-concernee",)
@@ -249,18 +249,16 @@ def getActiveCell(active_cell, page_current, page_size, data):
         dd.Output("update-on-click-data", "is_open"),
         dd.Output("body-modal", "children"),
         dd.Output("header-modal", "children"),
-        dd.Output("selected-soc", "children"),
     ],
     [
-        dd.Input("close-backdrop", "n_clicks"),
+        dd.Input("close-backdrop-substance", "n_clicks"),
         dd.Input("url", "href"),
-        dd.Input("soc-treemap", "clickData"),
+        dd.Input("soc-treemap-substance", "clickData"),
     ],
-    [dd.State("selected-soc", "children"),],
 )
-def open_ei_modal_on_substance_page(
-    clicks_close, href, click_data, previous_selected_soc
-):
+def open_ei_modal_on_substance_page(clicks_close, href, click_data):
+
+    print("on est la !!!")
 
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
@@ -269,30 +267,24 @@ def open_ei_modal_on_substance_page(
         raise PreventUpdate()
     # Modal has been closed by user
     if "close-backdrop" in changed_id:
-        return False, "", "", ""
+        return False, "", ""
     current_entry = click_data["points"][0]["entry"]
     # User is going up in treemap
-    if current_entry is not "":
-        return False, "", "", ""
+    if current_entry != "":
+        return False, "", ""
 
     selected_soc = click_data["points"][0]["label"]
-    selected_soc_has_changed = selected_soc != previous_selected_soc
 
-    if selected_soc_has_changed:
-        parsed_url = urlparse(unquote_plus(href))
-        query = parse_qs(parsed_url.query)
-        sub_code = query["search"][0]
-        df_hlt = substance.get_hlt_df(sub_code)
-        df_hlt = df_hlt[df_hlt.soc_long == selected_soc].sort_values(
-            by="pourcentage_cas", ascending=False
-        )
+    parsed_url = urlparse(unquote_plus(href))
+    query = parse_qs(parsed_url.query)
+    sub_code = query["search"][0]
+    df_hlt = substance.get_hlt_df(sub_code)
+    df_hlt = df_hlt[df_hlt.soc_long == selected_soc].sort_values(
+        by="pourcentage_cas", ascending=False
+    )
 
-        return (
-            True,
-            EIRepartitionHLTBox(df_hlt),
-            selected_soc,
-            selected_soc,
-        )
-
-    else:
-        return False, "", "", ""
+    return (
+        True,
+        EIRepartitionHLTBox(df_hlt),
+        selected_soc,
+    )

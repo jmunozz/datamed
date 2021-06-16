@@ -101,7 +101,7 @@ def EffetsIndesirablesContent(sub_code: str = "") -> Component:
             SectionRow(EIRepartitionNotificateursFigureBox(df_notif)),
             SectionRow(html.H3("Effets indésirables par système d'organe")),
             SectionRow(EISystemesOrganesTooltip()),
-            SectionRow(EIRepartitionSystemeOrganesBox(df_soclong)),
+            SectionRow(EIRepartitionSystemeOrganesBox(df_soclong, "specialite")),
         ]
     )
 
@@ -818,21 +818,14 @@ def update_effets_indesirables_content(input_value):
         dd.Output("update-on-click-data", "is_open"),
         dd.Output("body-modal", "children"),
         dd.Output("header-modal", "children"),
-        dd.Output("selected-soc", "children"),
     ],
     [
-        dd.Input("close-backdrop", "n_clicks"),
-        dd.Input("url", "href"),
-        dd.Input("soc-treemap", "clickData"),
+        dd.Input("close-backdrop-specialite", "n_clicks"),
+        dd.Input("soc-treemap-specialite", "clickData"),
     ],
-    [
-        dd.State("selected-soc", "children"),
-        dd.State("effets-indesirables-select", "value"),
-    ],
+    [dd.State("effets-indesirables-select", "value"),],
 )
-def open_ei_modal_on_specialite_page(
-    clicks_close, href, click_data, previous_selected_soc, sub_code
-):
+def open_ei_modal_on_specialite_page(clicks_close, click_data, sub_code):
 
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
@@ -841,17 +834,16 @@ def open_ei_modal_on_specialite_page(
         raise PreventUpdate()
     # Modal has been closed by user
     if "close-backdrop" in changed_id:
-        return False, "", "", ""
+        return False, "", ""
     current_entry = click_data["points"][0]["entry"]
     # User is going up in treemap
-    if current_entry is not "":
-        return False, "", "", ""
+    if current_entry != "":
+        return False, "", ""
 
     selected_soc = click_data["points"][0]["label"]
-    selected_soc_has_changed = selected_soc != previous_selected_soc
 
     # When called on specialite page sub_code state has been previously defined
-    if sub_code and selected_soc_has_changed:
+    if sub_code:
         df_hlt = substance.get_hlt_df(sub_code)
         df_hlt = df_hlt[df_hlt.soc_long == selected_soc].sort_values(
             by="pourcentage_cas", ascending=False
@@ -864,4 +856,4 @@ def open_ei_modal_on_specialite_page(
         )
 
     else:
-        return False, "", "", ""
+        return False, "", ""
