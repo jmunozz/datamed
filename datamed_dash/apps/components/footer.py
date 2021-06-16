@@ -1,9 +1,9 @@
-from apps.components.commons import FrontPageSection, FrontPageSectionPart
 from typing import List
 
 from app import app
+from apps.components.commons import FrontPageSection, FrontPageSectionPart
 from dash.development.base_component import Component
-from dash_html_components import Div, H3, Img, B, A, Span, H2, Ul, Li
+from dash_html_components import Div, Img, A, H2, Ul, Li
 
 
 def FooterElement(title: str, element_list: List[str]) -> Component:
@@ -22,7 +22,9 @@ def Logos() -> Component:
     return Div(
         [
             A(
-                Img(src=app.get_asset_url("Logo ANSM blanc.svg"),),
+                Img(
+                    src=app.get_asset_url("Logo ANSM blanc.svg"),
+                ),
                 href="https://ansm.sante.fr/",
                 className="normal-text FooterLogo",
                 target="_blank",
@@ -43,7 +45,7 @@ def Website():
             ),
             A(
                 "Plan du site",
-                href="#",
+                href="/apps/construction",
                 className="normal-text Link Link-isOnDarkBackground",
             ),
             A(
@@ -53,7 +55,7 @@ def Website():
             ),
             A(
                 "Contact",
-                href="#",
+                href="/apps/construction",
                 className="normal-text Link Link-isOnDarkBackground",
             ),
         ],
@@ -69,25 +71,25 @@ def Partners():
                     "Base de données publique des médicaments",
                     href="https://base-donnees-publique.medicaments.gouv.fr/",
                     className="normal-text Link Link-isOnDarkBackground",
-                    target="_blank"
+                    target="_blank",
                 ),
                 A(
                     "Etalab",
                     href="https://www.etalab.gouv.fr/",
                     className="normal-text Link Link-isOnDarkBackground",
-                    target="_blank"
+                    target="_blank",
                 ),
                 A(
                     "DINUM",
                     href="https://www.numerique.gouv.fr/dinum/",
                     className="normal-text Link Link-isOnDarkBackground",
-                    target="_blank"
+                    target="_blank",
                 ),
                 A(
                     "Health Data Hub",
                     href="https://www.health-data-hub.fr/",
                     className="normal-text Link Link-isOnDarkBackground",
-                    target="_blank"
+                    target="_blank",
                 ),
             ],
         ),
