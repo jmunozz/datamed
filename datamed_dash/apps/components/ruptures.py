@@ -103,6 +103,12 @@ def Description() -> Component:
                             "à Mai 2021 sont susceptibles de faire l'objet d'erreur de saisie.",
                             className="normal-text text-justify",
                         ),
+                        A(
+                            "Trouvez des informations complémentaires sur le site de l'ANSM.",
+                            href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                            className="ExternalLink d-block",
+                            target="_blank"
+                        ),
                     ]
                 ),
             ],

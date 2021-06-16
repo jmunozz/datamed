@@ -57,9 +57,15 @@ def BddCard(
                         ),
                         Div(
                             [
-                                Div(body, className="regular-text",),
                                 Div(
-                                    [B("Source de données : "), source_bdd,],
+                                    body,
+                                    className="regular-text",
+                                ),
+                                Div(
+                                    [
+                                        B("Source de données : "),
+                                        source_bdd,
+                                    ],
                                     className="regular-text",
                                 ),
                             ],
@@ -83,7 +89,11 @@ def BddCard(
 
 def ModaliteItem(question: str, answer) -> Component():
     return Div(
-        [H3(question), P(answer, className="normal-text"),], className="ModaliteItem"
+        [
+            H3(question),
+            P(answer, className="normal-text"),
+        ],
+        className="ModaliteItem",
     )
 
 
@@ -96,20 +106,12 @@ def Explorer() -> Component:
                 FrontPageSectionFull(
                     [
                         BddCard(
-                            "icons/pres_autre.svg",
+                            "rupturedestock-160.svg",
                             "Données ruptures de stock",
                             "Non",
                             Div(
-                                [
-                                    "Renseignez-vous sur l'historique des ruptures de stock "
-                                    "des médicaments d'intéret thérapeutique majeur.",
-                                    A(
-                                        "Trouvez des informations complémentaires sur le site de l'ANSM.",
-                                        href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
-                                        className="ExternalLink d-block",
-                                        target="_blank"
-                                    ),
-                                ]
+                                "Renseignez-vous sur l'historique des ruptures de stock "
+                                "des médicaments d'intéret thérapeutique majeur."
                             ),
                             "TrustMed (ANSM)",
                             "/apps/ruptures",

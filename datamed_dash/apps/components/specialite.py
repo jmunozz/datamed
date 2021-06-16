@@ -539,8 +539,9 @@ def ErreursMedicamenteuses(
                                     "L'erreur médicamenteuse peut survenir aux différentes étapes du processus "
                                     "d'utilisation : l'erreur de prescription par le médecin ou un autre professionnel "
                                     "de santé, ou par le patient lui-même dans le cas d'une auto-prescription, l'erreur "
-                                    "de dispenciation ou de préparation et enfin l'erreur d'administration par le patient "
-                                    "lui-même, un aidant ou un professionnel de santé.",
+                                    "de dispenciation, l'erreur de préparation, l'erreur de suivi thérapeutique, et "
+                                    "enfin l'erreur d'administration par le patient lui-même, un aidant "
+                                    "ou un professionnel de santé.",
                                     className="regular-text",
                                 ),
                             ],
@@ -555,14 +556,8 @@ def ErreursMedicamenteuses(
                             tooltip=[
                                 html.H4("Cause des erreurs médicamenteuses"),
                                 html.P(
-                                    "C'est l'origine de l'erreur, qui peut être d'origine "
-                                    "produit"
-                                    ", "
-                                    "d'origine "
-                                    "humaine"
-                                    " ou d'origine "
-                                    "technique"
-                                    ".",
+                                    "C'est l'origine de l'erreur, qui peut être d'origine produit, d'origine "
+                                    "humaine ou d'origine technique.",
                                     className="regular-text",
                                 ),
                                 html.P(
@@ -580,6 +575,11 @@ def ErreursMedicamenteuses(
                                 html.P(
                                     "- Cause technique : par exemple un logiciel d'aide à la dispensation "
                                     "ou prescription peut être la source de l'erreur médicamenteuse",
+                                    className="regular-text",
+                                ),
+                                html.P(
+                                    "Seules les erreurs de type produit et de type technique sont dans le champs "
+                                    "d'action de l'ANSM.",
                                     className="regular-text",
                                 ),
                             ],
