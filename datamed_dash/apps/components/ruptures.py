@@ -329,6 +329,12 @@ def Signalements() -> Component:
                         tooltip=[
                             H4("Nombre de signalements par an"),
                             P(
+                                "Les industriels qui produisent des Médicaments d’Intérêt Thérapeutique Majeur (MITM) "
+                                "sont tenus de signaler à l’ANSM toute rupture de stock ou risque de rupture de stock "
+                                "les concernant (CSP Art. R. 5124-49-1).",
+                                className="regular-text",
+                            ),
+                            P(
                                 "Attention, l'année 2021 n'est pas terminée !",
                                 className="regular-text",
                             ),
