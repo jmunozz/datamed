@@ -17,7 +17,7 @@ from apps.components.utils import (
     SectionRow,
     Tooltip,
     generate_title_id,
-    InformationIcon
+    InformationIcon,
 )
 from apps.constants.colors import BAR_CHART_COLORS, TREE_COLORS
 from apps.constants.layouts import (
@@ -103,6 +103,12 @@ def Description() -> Component:
                             "à Mai 2021 sont susceptibles de faire l'objet d'erreur de saisie.",
                             className="normal-text text-justify",
                         ),
+                        A(
+                            "Trouvez des informations complémentaires sur le site de l'ANSM.",
+                            href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                            className="ExternalLink d-block",
+                            target="_blank"
+                        ),
                     ]
                 ),
             ],
@@ -127,26 +133,17 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
 
 
 def SignalementsTotal(df: pd.DataFrame) -> Component:
-    colors = ["#009640", "#00B3CC"]
-    df_annee = (
-        df.reset_index()
-        .groupby(["annee", "classification"])
-        .numero.count()
-        .reset_index()
-    )
+    df_annee = df.reset_index().groupby("annee").numero.count().reset_index()
     df_annee = df_annee.rename(columns={"numero": "nb_signalements"})
 
-    fig = make_subplots()
-    for idx, status in enumerate(["rupture", "risque de rupture"]):
-        df_status = df_annee[df_annee.classification == status]
-        fig.add_trace(
-            SingleCurve(
-                df_status.annee,
-                df_status.nb_signalements,
-                status.capitalize(),
-                colors[idx],
-            )
+    fig = go.Figure(
+        SingleCurve(
+            df_annee.annee,
+            df_annee.nb_signalements,
+            "Signalements",
+            "#00B3CC",
         )
+    )
 
     fig.update_layout(CURVE_LAYOUT)
     fig.update_xaxes(title_text="Année")
@@ -173,7 +170,12 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
     for idx, e in enumerate(["ouvert", "clôturé"]):
         df_etat = df_circuit[df_circuit.etat == e]
         fig.add_trace(
-            SingleCurve(df_etat.date, df_etat.nombre, e.capitalize(), colors[idx])
+            go.Bar(
+                x=df_etat.date,
+                y=df_etat.nombre,
+                marker=dict(color=colors[idx]),
+                name=e.capitalize()
+            )
         )
 
     fig.update_layout(get_ruptures_curve_layout(df_circuit.date))
@@ -306,8 +308,7 @@ def RupturesMesuresFigureBox(df: pd.DataFrame) -> Component:
     return RupturesMesuresFigure(df)
 
 
-def Signalements(df: pd.DataFrame) -> Component:
-
+def Signalements() -> Component:
     return TopicSection(
         [
             SectionRow(
@@ -315,7 +316,7 @@ def Signalements(df: pd.DataFrame) -> Component:
             ),
             SectionRow(
                 [
-                    GraphBox("", RupturesSignalementsFigureBox(df_sig)),
+                    GraphBox("", RupturesSignalementsFigureBox(df_ruptures)),
                     GraphBox("", RupturesMesuresFigureBox(df_mesures)),
                 ],
                 withGutter=True,
@@ -325,6 +326,13 @@ def Signalements(df: pd.DataFrame) -> Component:
                     GraphBox(
                         "Nombre de signalements par an",
                         [SignalementsTotal(df_ruptures)],
+                        tooltip=[
+                            H4("Nombre de signalements par an"),
+                            P(
+                                "Attention, l'année 2021 n'est pas terminée !",
+                                className="regular-text",
+                            ),
+                        ],
                     ),
                 ]
             ),
@@ -335,13 +343,20 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        ["Nombre de signalements par classe thérapeutique", InformationIcon()],
-                                        id=generate_title_id("Nombre de signalements par classe thérapeutique"),
+                                        [
+                                            "Nombre de signalements par classe thérapeutique",
+                                            InformationIcon(),
+                                        ],
+                                        id=generate_title_id(
+                                            "Nombre de signalements par classe thérapeutique"
+                                        ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
-                                            H4("Nombre de signalements par classe thérapeutique"),
+                                            H4(
+                                                "Nombre de signalements par classe thérapeutique"
+                                            ),
                                             P(
                                                 "Le Système de classification anatomique, thérapeutique et chimique "
                                                 "(en anglais : Anatomical Therapeutic Chemical (ATC) Classification "
@@ -365,7 +380,9 @@ def Signalements(df: pd.DataFrame) -> Component:
                                                 className="regular-text",
                                             ),
                                         ],
-                                        target=generate_title_id("Nombre de signalements par classe thérapeutique"),
+                                        target=generate_title_id(
+                                            "Nombre de signalements par classe thérapeutique"
+                                        ),
                                     ),
                                     dbc.Select(
                                         id="annee-dropdown",
@@ -397,8 +414,13 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        ["Statut des dossiers dans le circuit", InformationIcon()],
-                                        id=generate_title_id("Statut des dossiers dans le circuit"),
+                                        [
+                                            "Statut des dossiers dans le circuit",
+                                            InformationIcon(),
+                                        ],
+                                        id=generate_title_id(
+                                            "Statut des dossiers dans le circuit"
+                                        ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
@@ -417,7 +439,9 @@ def Signalements(df: pd.DataFrame) -> Component:
                                                 className="regular-text",
                                             ),
                                         ],
-                                        target=generate_title_id("Statut des dossiers dans le circuit"),
+                                        target=generate_title_id(
+                                            "Statut des dossiers dans le circuit"
+                                        ),
                                     ),
                                     dbc.Select(
                                         id="circuit-dropdown",
@@ -436,7 +460,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 className="mb-5",
                             ),
                             H4(
-                                "Évolution du nombre d'ouvertures et de clôtures de dossier",
+                                "Nombre d'ouvertures et de clôtures de dossier",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(
@@ -481,7 +505,9 @@ def Signalements(df: pd.DataFrame) -> Component:
                                                 className="regular-text",
                                             ),
                                         ],
-                                        target=generate_title_id("Causes des signalements"),
+                                        target=generate_title_id(
+                                            "Causes des signalements"
+                                        ),
                                     ),
                                     dbc.Select(
                                         id="annee-causes-dropdown",
@@ -541,7 +567,12 @@ def GestionRuptures() -> Component:
                                 ],
                                 className="mb-3",
                             ),
-                            getRupturesMesuresRepartitionGraphBox(),
+                            Graph(
+                                figure=getRupturesMesuresRepartitionGraphBox(),
+                                responsive=True,
+                                id="pie-mesures",
+                                style={"height": 450},
+                            ),
                         ],
                     )
                 )
@@ -570,7 +601,7 @@ def Ruptures() -> Tuple[Component, Div]:
                 ),
                 Div(
                     Div(
-                        [Description(), Signalements(df_ruptures), GestionRuptures()],
+                        [Description(), Signalements(), GestionRuptures()],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
                     className="ContentLayoutWrapper",

@@ -135,7 +135,8 @@ def EIRepartitionSystemeOrganesBox(df_soclong: pd.DataFrame):
         html.Div(
             [
                 html.Div(
-                    EIRepartitionSystemeOrganes(df_soclong), id="soc-treemap-container",
+                    EIRepartitionSystemeOrganes(df_soclong),
+                    id="soc-treemap-container",
                 ),
                 html.Div(id="selected-soc", className="d-none"),
                 HltModal(),
@@ -193,7 +194,10 @@ def EISystemesOrganesTooltip():
 
 def SingleSection(title: str, children_list: List) -> Component:
     children = [Div(title, className="h3 mb-3")] + children_list
-    return Div(children, className="normal-text mb-5 text-justify",)
+    return Div(
+        children,
+        className="normal-text mb-5 text-justify",
+    )
 
 
 def FrontPageSectionPart(children, class_name=""):
@@ -227,7 +231,9 @@ def NoData(class_name="") -> html.Div:
                 className="img-fluid",
                 alt="Responsive image",
             ),
-            html.Div("Données insuffisantes pour affichage",),
+            html.Div(
+                "Données insuffisantes pour affichage",
+            ),
         ],
         className=class_name,
     )
@@ -247,9 +253,19 @@ def Tooltip() -> Component:
                                         "médicament, délivré en ",
                                         className="normal-text",
                                     ),
-                                    html.B(html.Span("pharmacie de ville",)),
-                                    html.Span(" entre 2014 et 2018 et remboursé par ",),
-                                    html.B(html.Span("l’Assurance Maladie.",)),
+                                    html.B(
+                                        html.Span(
+                                            "pharmacie de ville",
+                                        )
+                                    ),
+                                    html.Span(
+                                        " entre 2014 et 2018 et remboursé par ",
+                                    ),
+                                    html.B(
+                                        html.Span(
+                                            "l’Assurance Maladie.",
+                                        )
+                                    ),
                                     html.Span(
                                         " Pour plus d’informations, consultez : ",
                                     ),
@@ -286,8 +302,14 @@ def Tooltip() -> Component:
                             ),
                         ],
                     ),
-                    html.Div([], className="text-justify mb-3",),
-                    html.Div([], className="mb-3",),
+                    html.Div(
+                        [],
+                        className="text-justify mb-3",
+                    ),
+                    html.Div(
+                        [],
+                        className="mb-3",
+                    ),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -335,8 +357,14 @@ def HistoriqueRupturesTooltip():
                             ),
                         ],
                     ),
-                    html.Div([], className="text-justify mb-3",),
-                    html.Div([], className="mb-3",),
+                    html.Div(
+                        [],
+                        className="text-justify mb-3",
+                    ),
+                    html.Div(
+                        [],
+                        className="mb-3",
+                    ),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -365,7 +393,13 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
     df = pd.DataFrame(
         {
-            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
+            "Utilisation": [
+                "Très faible",
+                "Faible",
+                "Modéré",
+                "Élevé",
+                "Très élevé",
+            ],
             "Nombre de patients (niveau spécialité)": [
                 "< 1 000",
                 "1 000 - 5 000",
@@ -477,7 +511,10 @@ def PatientsTraites(
                 ),
             ]
         )
-    return TopicSection(children, id="patients-traites",)
+    return TopicSection(
+        children,
+        id="patients-traites",
+    )
 
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
@@ -527,7 +564,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
     elif type == "rupture":
         title = "Données ruptures de stock"
         css_class = "Header-isRupture"
-        icon_url = app.get_asset_url("liquide-64.png")
+        icon_url = app.get_asset_url("rupturedestock-120.svg")
         type_label = "Base de données"
         help_link = html.A(
             "Qu'est-ce qu'une base de données ?",
@@ -545,7 +582,10 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         html.Div(
             html.Div(
                 [
-                    html.Div(html.Img(src=icon_url), className="HeaderImg",),
+                    html.Div(
+                        html.Img(src=icon_url),
+                        className="HeaderImg",
+                    ),
                     html.Div(
                         [
                             H1(title),
@@ -601,4 +641,3 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
-

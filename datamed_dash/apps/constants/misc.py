@@ -1,14 +1,14 @@
 from app import app
 
 NOTIF_IMAGE_URL = {
-    "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
-    "Dentiste": app.get_asset_url("./surgeon_1.svg"),
-    "Infirmière": app.get_asset_url("./nurse_1.svg"),
-    "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
-    "Pharmacien": app.get_asset_url("./pharmacist.svg"),
-    "Inconnu": app.get_asset_url("./face.svg"),
-    "Non professionnel de santé": app.get_asset_url("./face.svg"),
-    "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
+    "Autre professionnel de santé": app.get_asset_url("./otherdoctor_male_80.svg"),
+    "Dentiste": app.get_asset_url("./dentist_male_80.svg"),
+    "Infirmière": app.get_asset_url("./nurse_80.svg"),
+    "Médecin généraliste": app.get_asset_url("./doctor_male_80.svg"),
+    "Pharmacien": app.get_asset_url("./pharmacist_male_80.svg"),
+    "Inconnu": app.get_asset_url("./man_80.svg"),
+    "Non professionnel de santé": app.get_asset_url("./patient_80.svg"),
+    "Médecin spécialiste": app.get_asset_url("./specialist_80.svg"),
 }
 
 NOTIF_NOM = {
