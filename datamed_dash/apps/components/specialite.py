@@ -563,14 +563,15 @@ def ErreursMedicamenteuses(
                                 ),
                                 html.P(
                                     "- Cause produit : l’erreur trouve sa source, tout ou partie, dans la conception "
-                                    "du médicament et de l’information qui lui est relative (dénomination, conditionnement"
-                                    ", étiquetage, notice d’information, etc.).",
+                                    "du médicament et de l’information qui lui est relative (dénomination, "
+                                    "conditionnement, étiquetage, notice d’information, etc.).",
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    "- Cause humaine : l’erreur peut trouver sa source dans l’organisation du processus "
-                                    "de prise en charge thérapeutique du patient (organisation du circuit du médicament, "
-                                    "facteurs humains, facteurs environnementaux, pratiques professionnelles, etc.).",
+                                    "- Cause humaine : l’erreur peut trouver sa source dans l’organisation du "
+                                    "processus de prise en charge thérapeutique du patient (organisation du circuit "
+                                    "du médicament, facteurs humains, facteurs environnementaux, pratiques "
+                                    "professionnelles, etc.).",
                                     className="regular-text",
                                 ),
                                 html.P(
@@ -579,8 +580,8 @@ def ErreursMedicamenteuses(
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    "Seules les erreurs de type produit et de type technique sont dans le champs "
-                                    "d'action de l'ANSM.",
+                                    "Afin de prévenir les erreurs médicamenteuses, le champ "
+                                    "d'action de l'ANSM cible les produits de santé.",
                                     className="regular-text",
                                 ),
                             ],
