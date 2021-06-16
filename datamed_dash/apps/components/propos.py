@@ -72,8 +72,7 @@ def APropos() -> Component:
                         "L'ouverture de données complexes et sensibles",
                         [
                             Div(
-                                "L’Agence Nationale de Sécurité du Médicament et des produits de santé (ANSM) "
-                                "est chargée de faciliter l'accès à l'innovation thérapeutique, de garantir la "
+                                "L’ANSM est chargée de faciliter l'accès à l'innovation thérapeutique, de garantir la "
                                 "sécurité des produits de santé et d’informer et échanger avec les patients et "
                                 "professionnels de santé. Elle détient, pour assurer ses missions, de nombreuses "
                                 "données issues de l'ensemble de ses activités.",
@@ -89,7 +88,7 @@ def APropos() -> Component:
                                 "C’est pourquoi, depuis 2019, l’ANSM a mis en place une stratégie d’ouverture de "
                                 "ses données pour communiquer sur ses actions et valoriser son expertise. Cependant, "
                                 "ces données (rapports d’évaluation, vigilance sur les médicaments et les dispositifs "
-                                "médicaux, ruptures de stocks de médicament) sont complexes et sensibles.",
+                                "médicaux, ruptures de stock de médicament) sont complexes et sensibles.",
                             ),
                         ],
                     ),
@@ -102,13 +101,13 @@ def APropos() -> Component:
                                 className="mb-3",
                             ),
                             Div(
-                                "- les données de la Direction de l’Inspection (sur les ruptures de stocks de "
+                                "- les données de la Direction de l’Inspection (sur les ruptures de stock de "
                                 "médicaments et sur la production de médicaments en France et à l'étranger)",
                                 className="mb-3",
                             ),
                             Div(
                                 "- les données de la Direction de la Surveillance (sur les effets indésirables des "
-                                "médicaments, sur les erreurs médicamenteuses et sur le bon usage du médicament).",
+                                "médicaments, les erreurs médicamenteuses et le bon usage du médicament).",
                                 className="mb-3",
                             ),
                             Div(
