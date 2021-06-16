@@ -1,7 +1,7 @@
-import math
-from typing import List, Dict, Tuple
+from typing import Tuple
 from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, unquote_plus
 
+import dash
 import dash.dependencies as dd
 import dash_html_components as html
 import dash_table
@@ -9,72 +9,34 @@ import db.fetch_data as fetch_data
 import db.substance as substance
 import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 from app import app
-from apps.components import commons
 from apps.components.specialite import NoData
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
-from dash_bootstrap_components import (
-    Button,
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-)
-from dash_core_components import Graph
 from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
-from .commons import PatientsTraites, Header, makePie
-from .utils import (
-    Box,
-    FigureGraph,
-    GraphBox,
-    TopicSection,
-    SectionTitle,
-    SectionRow,
+from apps.components.commons import (
+    EIRepartitionGraviteGraphBox,
+    PatientsTraites,
+    Header,
+    EICasDeclareFigureBox,
+    EITauxDeclarationBox,
+    EIRepartitionAgeGraphBox,
+    EIRepartitionSexeFigureBox,
+    EIRepartitionNotificateursFigureBox,
+    EISystemesOrganesTooltip,
+    EIRepartitionSystemeOrganesBox,
+    EIRepartitionHLTBox,
 )
-from ..constants.colors import PIE_COLORS_SUBSTANCE, TREE_COLORS
-from ..constants.layouts import CURVE_LAYOUT, TREEMAP_LAYOUT
+from apps.components.specialite import NoData
+from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
+from datamed_custom_components.Accordion import Accordion
+from sm import SideMenu
 
-NOTIF_IMAGE_URL = {
-    "Autre professionnel de santé": app.get_asset_url("./doctor_1.svg"),
-    "Dentiste": app.get_asset_url("./surgeon_1.svg"),
-    "Infirmière": app.get_asset_url("./nurse_1.svg"),
-    "Médecin généraliste": app.get_asset_url("./doctor_2.svg"),
-    "Pharmacien": app.get_asset_url("./pharmacist.svg"),
-    "Inconnu": app.get_asset_url("./face.svg"),
-    "Non professionnel de santé": app.get_asset_url("./face.svg"),
-    "Médecin spécialiste": app.get_asset_url("./surgeon_1.svg"),
-}
-
-NOTIF_NOM = {
-    "Autre professionnel de santé": "Autre professionnel de santé",
-    "Dentiste": "Dentiste",
-    "Infirmière": "Infirmier",
-    "Médecin généraliste": "Médecin généraliste",
-    "Pharmacien": "Pharmacien",
-    "Inconnu": "Inconnu",
-    "Non professionnel de santé": "Patient",
-    "Médecin spécialiste": "Médecin spécialiste",
-}
-
-df_hlt = fetch_data.fetch_table("substance_hlt_ordei", "code")
-df_hlt = df_hlt.where(pd.notnull(df_hlt), None)
-
-
-def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
-    return [
-        {
-            "figure": "{}%".format(round(x["pourcentage_notif"])).replace(".", ","),
-            "caption": NOTIF_NOM[x["notificateur"]],
-            "img": NOTIF_IMAGE_URL[x["notificateur"]],
-        }
-        for x in fetch_data.transform_df_to_series_list(df)
-        if not math.isnan(x["pourcentage_notif"]) and round(x["pourcentage_notif"])
-    ]
+from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid
+from ..constants.colors import PIE_COLORS_SUBSTANCE
 
 
 def EffetsIndesirablesTooltip() -> Component:
@@ -130,14 +92,8 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                     id="side-menu",
                     items=[
                         {"id": "patients-traites", "label": "Patients traités"},
-                        {
-                            "id": "effets-indesirables",
-                            "label": "Effets indésirables",
-                        },
-                        {
-                            "id": "liste-specialites",
-                            "label": "Liste des spécialités",
-                        },
+                        {"id": "effets-indesirables", "label": "Effets indésirables",},
+                        {"id": "liste-specialites", "label": "Liste des spécialités",},
                     ],
                     className="SideMenu",
                 ),
@@ -183,10 +139,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 page_size=10,
                 style_as_list_view=True,
                 style_table={"overflowX": "auto"},
-                style_cell={
-                    "height": "50px",
-                    "backgroundColor": "#FFF",
-                },
+                style_cell={"height": "50px", "backgroundColor": "#FFF",},
                 style_data={
                     "fontSize": "14px",
                     "fontWeight": "400",
@@ -213,118 +166,10 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                     series_sub.nom.capitalize()
                 )
             ),
-            Box(
-                box_children,
-            ),
+            Box(box_children,),
         ],
         id="liste-specialites",
     )
-
-
-def CasDeclareFigureBox(df_decla: pd.DataFrame) -> Component:
-    if df_decla is None:
-        return NoData(class_name="BoxContent-isHalf")
-    series_decla = fetch_data.as_series(df_decla)
-    if not math.isnan(series_decla.cas):
-        cas_str = "{:,}".format(int(series_decla.cas)).replace(",", " ")
-        return FigureGraph(
-            [
-                {
-                    "figure": cas_str,
-                    "caption": "Nombre de déclarations sur la période 2014-2018",
-                }
-            ]
-        )
-    else:
-        return NoData(class_name="BoxContent-isHalf")
-
-
-def TauxDeclarationBox(df_decla: pd.DataFrame) -> Component:
-    if df_decla is None:
-        return NoData(class_name="BoxContent-isHalf")
-    series_decla = fetch_data.as_series(df_decla)
-    if not math.isnan(series_decla.taux_cas):
-        taux_str = "{:,}".format(int(series_decla.taux_cas)).replace(",", " ")
-        return FigureGraph(
-            [
-                {
-                    "figure": "{} pour 100 000".format(taux_str),
-                    "caption": "Taux de déclaration pour 100 000 patients "
-                    "traités par an sur la période 2014-2018",
-                }
-            ]
-        )
-    else:
-        return NoData(class_name="BoxContent-isHalf")
-
-
-def CasDeclaresGraphBox(df_decla: pd.DataFrame) -> Component:
-    if df_decla is None:
-        return NoData()
-    if df_decla.cas_annee.min() > 10:
-        fig = go.Figure(
-            go.Scatter(
-                x=df_decla.annee,
-                y=df_decla.cas_annee,
-                mode="lines",
-                name="Déclarations",
-                line={
-                    "shape": "spline",
-                    "smoothing": 1,
-                    "width": 4,
-                    "color": "#EA336B",
-                },
-            ),
-        )
-        fig.update_yaxes(title_text="Déclarations d'effets indésirables")
-        fig.update_xaxes(title_text="Années", nticks=len(df_decla.index))
-        fig.update_layout(CURVE_LAYOUT)
-        return Graph(figure=fig, responsive=True)
-
-
-def RepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame) -> Component:
-    if df_cas_sexe is None:
-        return NoData(class_name="BoxContent-isHalf")
-    else:
-        return FigureGraph(
-            commons.get_sexe_figures_from_df(df_cas_sexe, "pourcentage_cas")
-        )
-
-
-def RepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
-    # Check if percentages are NaN values
-    if (
-        df_cas_age is not None
-        and not np.isnan(df_cas_age.pourcentage_cas.unique()).any()
-    ):
-        fig_age = makePie(
-            df_cas_age.age, df_cas_age.pourcentage_cas, PIE_COLORS_SUBSTANCE
-        )
-        return Graph(
-            figure=fig_age,
-            responsive=False,
-        )
-    else:
-        return NoData(class_name="BoxContent-isHalf")
-
-
-def NotifFigureGraph(df_notif: pd.DataFrame) -> Component:
-    if df_notif is None:
-        return NoData()
-    else:
-        df_notif = df_notif.sort_values(by="pourcentage_notif", ascending=False)
-        return FigureGraph(
-            get_notif_figures_from_df(df_notif),
-            height="80px",
-            class_name="justify-content-between",
-        )
-
-
-def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
-    if df is None:
-        return NoData("BoxContent-isHalf")
-    fig = makePie(df.grave, df.cas, PIE_COLORS_SUBSTANCE)
-    return Graph(figure=fig, responsive=False)
 
 
 def EffetsIndesirables(
@@ -342,171 +187,36 @@ def EffetsIndesirables(
         children.extend(
             [
                 EffetsIndesirablesTooltip(),
-                SectionRow(
+                Grid(
                     [
-                        GraphBox(
-                            "",
-                            [CasDeclareFigureBox(df_decla)],
-                        ),
-                        GraphBox(
-                            "",
-                            [TauxDeclarationBox(df_decla)],
-                        ),
+                        EICasDeclareFigureBox(df_decla),
+                        EITauxDeclarationBox(df_decla),
+                        EIRepartitionSexeFigureBox(df_cas_sexe),
+                        EIRepartitionAgeGraphBox(df_cas_age),
+                        EIRepartitionGraviteGraphBox(df_gravite),
                     ],
-                    withGutter=True,
+                    2,
                 ),
-                SectionRow(
-                    [
-                        GraphBox(
-                            "Répartition par sexe des cas déclarés",
-                            [RepartitionSexeFigureBox(df_cas_sexe)],
-                        ),
-                        GraphBox(
-                            "Répartition par âge des cas déclarés",
-                            [RepartitionAgeGraphBox(df_cas_age)],
-                        ),
-                    ],
-                    withGutter=True,
-                ),
-                SectionRow(
-                    [
-                        GraphBox(
-                            "Gravité des déclarations",
-                            [BoxRepartitionGravite(df_gravite)],
-                            className="Box-isHalf",
-                            tooltip=[
-                                html.H4("Cas grave"),
-                                html.P(
-                                    "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant "
-                                    "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
-                                    "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
-                                    "malformation congénitale.",
-                                    className="regular-text",
-                                ),
-                            ],
-                        ),
-                    ],
-                    withGutter=True,
-                ),
-                SectionRow(
-                    [
-                        GraphBox(
-                            "Répartition par déclarant",
-                            [NotifFigureGraph(df_notif)],
-                        ),
-                    ]
-                ),
+                SectionRow([EIRepartitionNotificateursFigureBox(df_notif)]),
             ]
         )
-    return TopicSection(
-        children,
-        id="effets-indesirables",
-    )
+    return TopicSection(children, id="effets-indesirables",)
 
 
-def Treemap(df: pd.DataFrame, code: str, path: str, values: str) -> List[Component]:
-    fig = px.treemap(
-        df.loc[code].sort_values(by=values, ascending=False).head(10),
-        path=[path],
-        values=values,
-        color_discrete_sequence=TREE_COLORS,
-        hover_name=path,
-    )
-
-    fig.update_layout(TREEMAP_LAYOUT)
-    fig.update_traces(
-        texttemplate="%{label}<br>%{value:.0f}%",
-        textposition="middle center",
-        textfont_size=18,
-        hovertemplate="<b>%{label}</b> <br> %{value:.0f}%",
-    )
-    return fig
-
-
-def SystemesOrganesTooltip():
-    return SectionRow(
-        Box(
-            Accordion(
-                [
-                    html.P(
-                        "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
-                        "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
-                        "déclarés.",
-                        className="normal-text text-justify",
-                    ),
-                    html.P(
-                        "Attention : Un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
-                        "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
-                        "différents (en fonction des effets indésirables déclarés).",
-                        className="normal-text text-justify",
-                    ),
-                ],
-                labelClass="InternalLink normal-text",
-                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
-            )
-        )
-    )
-
-
-def SystemesOrganes(df: pd.DataFrame, code: str) -> Component:
+def SystemesOrganes(df_soc: pd.DataFrame, code: str) -> Component:
     children = [
         SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
     ]
-    if df is None or np.isnan(df.pourcentage_cas.unique()).all():
+    if df_soc is None or np.isnan(df_soc.pourcentage_cas.unique()).all():
         children.append(NoData())
     else:
         children.extend(
             [
-                SystemesOrganesTooltip(),
-                SectionRow(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    Graph(
-                                        figure=Treemap(
-                                            df, code, "soc_long", "pourcentage_cas"
-                                        ),
-                                        responsive=True,
-                                        id="soc-treemap",
-                                    ),
-                                    id="soc-treemap-container",
-                                ),
-                                html.Div(id="selected-soc", className="d-none"),
-                                HltModal(),
-                            ],
-                            className="col-md-12",
-                        ),
-                    ],
-                ),
+                EISystemesOrganesTooltip(),
+                SectionRow(EIRepartitionSystemeOrganesBox(df_soc, "substance")),
             ]
         )
-    return TopicSection(
-        children,
-        id="population-concernee",
-    )
-
-
-def HltModal() -> Modal:
-    return Modal(
-        [
-            ModalHeader(id="header-modal"),
-            ModalBody(id="body-modal"),
-            ModalFooter(
-                Button(
-                    "Fermer",
-                    id="close-backdrop",
-                    className="ml-auto button-text-bold",
-                    color="secondary",
-                    outline=True,
-                )
-            ),
-        ],
-        scrollable=True,
-        centered=True,
-        id="update-on-click-data",
-        size="xl",
-    )
+    return TopicSection(children, id="population-concernee",)
 
 
 @app.callback(
@@ -530,44 +240,42 @@ def getActiveCell(active_cell, page_current, page_size, data):
         dd.Output("update-on-click-data", "is_open"),
         dd.Output("body-modal", "children"),
         dd.Output("header-modal", "children"),
-        dd.Output("selected-soc", "children"),
     ],
     [
-        dd.Input("soc-treemap-container", "n_clicks"),
-        dd.Input("close-backdrop", "n_clicks"),
+        dd.Input("close-backdrop-substance", "n_clicks"),
         dd.Input("url", "href"),
-        dd.Input("soc-treemap", "clickData"),
+        dd.Input("soc-treemap-substance", "clickData"),
     ],
-    [dd.State("selected-soc", "children")],
 )
-def update_callback(
-    clicks_container, clicks_close, href, click_data, previous_selected_soc
-):
+def open_ei_modal_on_substance_page(clicks_close, href, click_data):
+
+    print("on est la !!!")
+
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
+
+    # User has not clicked on modal yet
     if not click_data:
-        return False, "", "", ""
+        raise PreventUpdate()
+    # Modal has been closed by user
+    if "close-backdrop" in changed_id:
+        return False, "", ""
+    current_entry = click_data["points"][0]["entry"]
+    # User is going up in treemap
+    if current_entry != "":
+        return False, "", ""
 
     selected_soc = click_data["points"][0]["label"]
-    selected_soc_has_changed = selected_soc != previous_selected_soc
 
-    if selected_soc_has_changed:
-        parsed_url = urlparse(unquote_plus(href))
-        query = parse_qs(parsed_url.query)
-        code = query["search"][0]
+    parsed_url = urlparse(unquote_plus(href))
+    query = parse_qs(parsed_url.query)
+    sub_code = query["search"][0]
+    df_hlt = substance.get_hlt_df(sub_code)
+    df_hlt = df_hlt[df_hlt.soc_long == selected_soc].sort_values(
+        by="pourcentage_cas", ascending=False
+    )
 
-        df_hlt_details = (
-            df_hlt[df_hlt.soc_long == selected_soc]
-            .loc[code]
-            .sort_values(by="pourcentage_cas", ascending=False)
-        )
-
-        return (
-            True,
-            Graph(
-                figure=Treemap(df_hlt_details, code, "effet_hlt", "pourcentage_cas"),
-                responsive=True,
-            ),
-            selected_soc,
-            selected_soc,
-        )
-    else:
-        return False, "", "", ""
+    return (
+        True,
+        EIRepartitionHLTBox(df_hlt),
+        selected_soc,
+    )

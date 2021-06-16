@@ -67,35 +67,6 @@ def GraphBox(title: str, children: List, tooltip=None, className="") -> Componen
     return Box(children, className)
 
 
-def FigureGraph(
-    figures: List[Dict], height="150px", class_name="justify-content-around"
-) -> Component:
-    class_name = " ".join((["Line", "Line-isSpacedEvenly"] + class_name.split(" ")))
-    children_list = []
-    for f in figures:
-        elems = []
-        elems = (
-            elems + [Img(src=f["img"], className="mb-2", style={"height": height})]
-            if "img" in f
-            else []
-        )
-        elems = elems + [H1(f["figure"])] if "figure" in f else []
-        elems = (
-            elems
-            + [Label(f["caption"], className="normal-text", style={"color": "black"})]
-            if f.get("caption")
-            else []
-        )
-        children_list += [
-            Div(
-                elems,
-                className="Stack Stack-isCentered",
-                style={"color": "#00B3CC", "margin": "15px"},
-            )
-        ]
-    return Div(children_list, className=class_name)
-
-
 def TopicSection(children: List, id: str, isFirst=False) -> Component:
     classes = ["Section"]
     if isFirst:
@@ -185,3 +156,14 @@ def CardBox(
         hasNoPadding=True,
         className=classname,
     )
+
+
+def Grid(children, nb_elems_per_row: int):
+    nb_empty_elem = nb_elems_per_row - (len(children) % nb_elems_per_row)
+    grid_classname = f"GridElem-{nb_elems_per_row}"
+    empty_elem_classname = " ".join(["GridEmptyElem", grid_classname])
+    children = list(map(lambda x: html.Div(x, className=grid_classname), children)) + [
+        html.Div(className=empty_elem_classname) for n in range(nb_empty_elem)
+    ]
+    return SectionRow(children, withGutter=True)
+

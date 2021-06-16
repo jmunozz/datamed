@@ -7,6 +7,30 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
+from apps.components.commons import Header
+from apps.components.utils import (
+    Box,
+    GraphBox,
+    TopicSection,
+    ArticleTitle,
+    BoxArticle,
+    SectionRow,
+    Tooltip,
+    generate_title_id,
+    InformationIcon,
+)
+from apps.constants.colors import BAR_CHART_COLORS, TREE_COLORS
+from apps.constants.layouts import (
+    RUPTURES_BAR_LAYOUT,
+    TREEMAP_LAYOUT,
+    CURVE_LAYOUT,
+    get_ruptures_curve_layout,
+)
+from apps.graphs import (
+    RupturesSignalementsFigure,
+    RupturesMesuresFigure,
+    getRupturesMesuresRepartitionGraph,
+)
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
@@ -15,26 +39,7 @@ from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
-from .commons import Header, makePie
-from .utils import (
-    Box,
-    GraphBox,
-    TopicSection,
-    ArticleTitle,
-    FigureGraph,
-    BoxArticle,
-    BoxRow,
-    SectionRow,
-)
-from ..constants.colors import BAR_CHART_COLORS, TREE_COLORS, PIE_COLORS_SPECIALITE
-from ..constants.layouts import (
-    RUPTURES_BAR_LAYOUT,
-    TREEMAP_LAYOUT,
-    CURVE_LAYOUT,
-    get_ruptures_curve_layout,
-)
-
-INITIAL_YEAR = dt.now().year
+INITIAL_YEAR = str(dt.now().year)
 
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
@@ -98,6 +103,12 @@ def Description() -> Component:
                             "à Mai 2021 sont susceptibles de faire l'objet d'erreur de saisie.",
                             className="normal-text text-justify",
                         ),
+                        A(
+                            "Trouvez des informations complémentaires sur le site de l'ANSM.",
+                            href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                            className="ExternalLink d-block",
+                            target="_blank"
+                        ),
                     ]
                 ),
             ],
@@ -112,37 +123,33 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
         y=y,
         mode="lines",
         name=name,
-        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
+        line={
+            "shape": "spline",
+            "smoothing": 1,
+            "width": 4,
+            "color": color,
+        },
     )
 
 
 def SignalementsTotal(df: pd.DataFrame) -> Component:
-    colors = ["#009640", "#00B3CC"]
-    df_annee = (
-        df.reset_index()
-        .groupby(["annee", "classification"])
-        .numero.count()
-        .reset_index()
-    )
+    df_annee = df.reset_index().groupby("annee").numero.count().reset_index()
     df_annee = df_annee.rename(columns={"numero": "nb_signalements"})
 
-    fig = make_subplots()
-    for idx, status in enumerate(["rupture", "risque de rupture"]):
-        df_status = df_annee[df_annee.classification == status]
-        fig.add_trace(
-            SingleCurve(
-                df_status.annee,
-                df_status.nb_signalements,
-                status.capitalize(),
-                colors[idx],
-            )
+    fig = go.Figure(
+        SingleCurve(
+            df_annee.annee,
+            df_annee.nb_signalements,
+            "Signalements",
+            "#00B3CC",
         )
+    )
 
     fig.update_layout(CURVE_LAYOUT)
     fig.update_xaxes(title_text="Année")
     fig.update_yaxes(title_text="Nombre de signalements")
 
-    return Graph(figure=fig, responsive=True,)
+    return Graph(figure=fig, responsive=True, style={"height": 450})
 
 
 def get_signalements_circuit(circuit: str = "ville") -> Dict:
@@ -163,7 +170,12 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
     for idx, e in enumerate(["ouvert", "clôturé"]):
         df_etat = df_circuit[df_circuit.etat == e]
         fig.add_trace(
-            SingleCurve(df_etat.date, df_etat.nombre, e.capitalize(), colors[idx])
+            go.Bar(
+                x=df_etat.date,
+                y=df_etat.nombre,
+                marker=dict(color=colors[idx]),
+                name=e.capitalize()
+            )
         )
 
     fig.update_layout(get_ruptures_curve_layout(df_circuit.date))
@@ -204,7 +216,9 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
 
 def get_signalement_atc_curve(annee=INITIAL_YEAR):
     # set up plotly figure
-    fig = make_subplots(specs=[[{"secondary_y": True}]],)
+    fig = make_subplots(
+        specs=[[{"secondary_y": True}]],
+    )
 
     # add first bar trace at row = 1, col = 1
     fig.add_trace(
@@ -223,7 +237,12 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         go.Scatter(
             x=df_sig.loc[annee].head(10).label,
             y=df_sig.loc[annee].head(10).nb_presentations,
-            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#00B3CC",},
+            line={
+                "shape": "spline",
+                "smoothing": 1,
+                "width": 4,
+                "color": "#00B3CC",
+            },
             mode="lines",
             name="Nombre de présentations",
         ),
@@ -234,7 +253,9 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     fig.update_xaxes(title_text="Classe thérapeutique")
     fig.update_yaxes(autorange="reversed")
     fig.update_yaxes(
-        title_text="Nombre de signalements", color="#009640", secondary_y=False,
+        title_text="Nombre de signalements",
+        color="#009640",
+        secondary_y=False,
     )
     fig.update_yaxes(
         title_text="Nombre de présentations", color="#00B3CC", secondary_y=True
@@ -247,7 +268,9 @@ def get_causes(annee=INITIAL_YEAR):
     df_cause = df_ruptures.groupby(["annee", "cause"]).etat.count().reset_index()
     df_cause = df_cause.rename(columns={"etat": "nombre_signalements"})
     df_cause.nombre_signalements = df_cause.apply(
-        lambda x: x.nombre_signalements / len(df_cause[df_cause.annee == x.annee]),
+        lambda x: x.nombre_signalements
+        / df_cause[df_cause.annee == x.annee].nombre_signalements.sum()
+        * 100,
         axis=1,
     )
     df_cause.cause = df_cause.cause.str.capitalize()
@@ -273,21 +296,19 @@ def get_causes(annee=INITIAL_YEAR):
     return fig
 
 
-def get_mesures(annee=INITIAL_YEAR):
-    df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
-    df = df.rename(columns={"numero": "nombre"}).set_index("annee")
-    return makePie(df.loc[annee].mesure, df.loc[annee].nombre, PIE_COLORS_SPECIALITE)
+def getRupturesMesuresRepartitionGraphBox(annee: str = INITIAL_YEAR) -> Component:
+    return getRupturesMesuresRepartitionGraph(df_mesures, annee)
 
 
-def Signalements(df: pd.DataFrame) -> Component:
-    signalements = len(df[df.annee == dt.now().year - 1])
-    this_year = str(dt.now().year)[-2:]
-    mesures = len(
-        df_mesures[
-            (df_mesures.etat_mesure == "accord")
-            & (df_mesures.identifiant.str.startswith(this_year))
-        ].identifiant.unique()
-    )
+def RupturesSignalementsFigureBox(df_sig: pd.DataFrame) -> Component:
+    return RupturesSignalementsFigure(df_sig)
+
+
+def RupturesMesuresFigureBox(df: pd.DataFrame) -> Component:
+    return RupturesMesuresFigure(df)
+
+
+def Signalements() -> Component:
     return TopicSection(
         [
             SectionRow(
@@ -295,39 +316,8 @@ def Signalements(df: pd.DataFrame) -> Component:
             ),
             SectionRow(
                 [
-                    GraphBox(
-                        "",
-                        [
-                            FigureGraph(
-                                [
-                                    {
-                                        "figure": "{} signalements".format(
-                                            signalements,
-                                        ),
-                                        "caption": "Nombre de signalements en {}".format(
-                                            dt.now().year - 1
-                                        ),
-                                    }
-                                ]
-                            ),
-                        ],
-                    ),
-                    GraphBox(
-                        "",
-                        [
-                            FigureGraph(
-                                [
-                                    {
-                                        "figure": "{} actions réalisées".format(
-                                            mesures
-                                        ),
-                                        "caption": "Signalements ayant fait l'objet d'une "
-                                        "mesure de gestion pour l'année en cours",
-                                    }
-                                ]
-                            ),
-                        ],
-                    ),
+                    GraphBox("", RupturesSignalementsFigureBox(df_ruptures)),
+                    GraphBox("", RupturesMesuresFigureBox(df_mesures)),
                 ],
                 withGutter=True,
             ),
@@ -336,6 +326,19 @@ def Signalements(df: pd.DataFrame) -> Component:
                     GraphBox(
                         "Nombre de signalements par an",
                         [SignalementsTotal(df_ruptures)],
+                        tooltip=[
+                            H4("Nombre de signalements par an"),
+                            P(
+                                "Les industriels qui produisent des Médicaments d’Intérêt Thérapeutique Majeur (MITM) "
+                                "sont tenus de signaler à l’ANSM toute rupture de stock ou risque de rupture de stock "
+                                "les concernant (CSP Art. R. 5124-49-1).",
+                                className="regular-text",
+                            ),
+                            P(
+                                "Attention, l'année 2021 n'est pas terminée !",
+                                className="regular-text",
+                            ),
+                        ],
                     ),
                 ]
             ),
@@ -346,8 +349,46 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Nombre de signalements par classe thérapeutique",
-                                        className="GraphTitle d-inline-block",
+                                        [
+                                            "Nombre de signalements par classe thérapeutique",
+                                            InformationIcon(),
+                                        ],
+                                        id=generate_title_id(
+                                            "Nombre de signalements par classe thérapeutique"
+                                        ),
+                                        className="GraphBoxTitle d-inline-block",
+                                    ),
+                                    Tooltip(
+                                        [
+                                            H4(
+                                                "Nombre de signalements par classe thérapeutique"
+                                            ),
+                                            P(
+                                                "Le Système de classification anatomique, thérapeutique et chimique "
+                                                "(en anglais : Anatomical Therapeutic Chemical (ATC) Classification "
+                                                "System) est utilisé pour classer les médicaments. C'est le "
+                                                "Collaborating Centre for Drug Statistics Methodology de "
+                                                "l'Organisation mondiale de la santé (OMS) qui le contrôle. "
+                                                "Les médicaments sont divisés en groupes selon l'organe ou le "
+                                                "système sur lequel ils agissent ou leurs caractéristiques "
+                                                "thérapeutiques et chimiques.",
+                                                className="regular-text",
+                                            ),
+                                            P(
+                                                "Ce graphique représente le nombre de signalements reçus par classe "
+                                                "pharmacothérapeutique (classification ATC). La courbe bleue indique "
+                                                "le nombre de présentations de médicaments (une présentation correspond"
+                                                " à un conditionnement précis d'un médicament, par exemple une boîte de"
+                                                " 30 gélules et une boîte de 90 gélules d'un même médicament sont deux "
+                                                "présentations différentes). Dans sa globalité, ce graphique permet "
+                                                "d'apprécier le nombre de signalements reçu spar rapport au nombre de "
+                                                "médicaments disponibles.",
+                                                className="regular-text",
+                                            ),
+                                        ],
+                                        target=generate_title_id(
+                                            "Nombre de signalements par classe thérapeutique"
+                                        ),
                                     ),
                                     dbc.Select(
                                         id="annee-dropdown",
@@ -379,15 +420,44 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Statut des dossiers dans le circuit",
-                                        className="GraphTitle d-inline-block",
+                                        [
+                                            "Statut des dossiers dans le circuit",
+                                            InformationIcon(),
+                                        ],
+                                        id=generate_title_id(
+                                            "Statut des dossiers dans le circuit"
+                                        ),
+                                        className="GraphBoxTitle d-inline-block",
+                                    ),
+                                    Tooltip(
+                                        [
+                                            H4("Statut des dossiers dans le circuit"),
+                                            P(
+                                                "Les données antérieures à Mai 2021 ne pas sont dans un format "
+                                                "compatible à leur exploitation.",
+                                                className="regular-text",
+                                            ),
+                                            P(
+                                                "Chaque signalement amène à l'ouverture d'un dossier impactant le "
+                                                "circuit ville ou le circuit hôpital, ou les deux. La clôture d'un "
+                                                "dossier ne peut être faite qu'à la remise à disposition effective "
+                                                "du produit sur le marché.",
+                                                className="regular-text",
+                                            ),
+                                        ],
+                                        target=generate_title_id(
+                                            "Statut des dossiers dans le circuit"
+                                        ),
                                     ),
                                     dbc.Select(
                                         id="circuit-dropdown",
                                         value="ville",
                                         options=[
                                             {"label": y.capitalize(), "value": y}
-                                            for y in ["ville", "hôpital",]
+                                            for y in [
+                                                "ville",
+                                                "hôpital",
+                                            ]
                                         ],
                                         className="GraphSelect d-inline-block",
                                         style={"float": "right"},
@@ -396,7 +466,7 @@ def Signalements(df: pd.DataFrame) -> Component:
                                 className="mb-5",
                             ),
                             H4(
-                                "Évolution du nombre d'ouvertures et de clôtures de dossier",
+                                "Nombre d'ouvertures et de clôtures de dossier",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(
@@ -427,8 +497,23 @@ def Signalements(df: pd.DataFrame) -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Causes des signalements",
-                                        className="GraphTitle d-inline-block",
+                                        ["Causes des signalements", InformationIcon()],
+                                        id=generate_title_id("Causes des signalements"),
+                                        className="GraphBoxTitle d-inline-block",
+                                    ),
+                                    Tooltip(
+                                        [
+                                            H4("Causes des signalements"),
+                                            P(
+                                                "Lorsqu'un signalement arrive à l'ANSM, il est mis en place une"
+                                                " évaluation afin de déterminer les mesures les plus adaptées pour "
+                                                "pallier à l'insuffisance de stock.",
+                                                className="regular-text",
+                                            ),
+                                        ],
+                                        target=generate_title_id(
+                                            "Causes des signalements"
+                                        ),
                                     ),
                                     dbc.Select(
                                         id="annee-causes-dropdown",
@@ -476,7 +561,10 @@ def GestionRuptures() -> Component:
                                         id="annee-mesures-dropdown",
                                         value=INITIAL_YEAR,
                                         options=[
-                                            {"label": y, "value": y,}
+                                            {
+                                                "label": y,
+                                                "value": y,
+                                            }
                                             for y in sorted(df_mesures.annee.unique())
                                         ],
                                         className="GraphSelect d-inline-block",
@@ -486,7 +574,7 @@ def GestionRuptures() -> Component:
                                 className="mb-3",
                             ),
                             Graph(
-                                figure=get_mesures(),
+                                figure=getRupturesMesuresRepartitionGraphBox(),
                                 responsive=True,
                                 id="pie-mesures",
                                 style={"height": 450},
@@ -510,13 +598,16 @@ def Ruptures() -> Tuple[Component, Div]:
                     items=[
                         {"id": "description", "label": "Description"},
                         {"id": "signalements", "label": "Signalements"},
-                        {"id": "gestion-ruptures", "label": "Gestion des ruptures",},
+                        {
+                            "id": "gestion-ruptures",
+                            "label": "Gestion des ruptures",
+                        },
                     ],
                     className="SideMenu",
                 ),
                 Div(
                     Div(
-                        [Description(), Signalements(df_ruptures), GestionRuptures()],
+                        [Description(), Signalements(), GestionRuptures()],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
                     className="ContentLayoutWrapper",
@@ -528,12 +619,13 @@ def Ruptures() -> Tuple[Component, Div]:
 
 
 @app.callback(
-    dd.Output("atc-bar-chart", "figure"), dd.Input("annee-dropdown", "value"),
+    dd.Output("atc-bar-chart", "figure"),
+    dd.Input("annee-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
         raise PreventUpdate
-    return get_signalement_atc_curve(int(value))
+    return get_signalement_atc_curve(value)
 
 
 @app.callback(
@@ -550,18 +642,20 @@ def update_figure(value: str):
 
 
 @app.callback(
-    dd.Output("causes-treemap", "figure"), dd.Input("annee-causes-dropdown", "value"),
+    dd.Output("causes-treemap", "figure"),
+    dd.Input("annee-causes-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
         raise PreventUpdate
-    return get_causes(int(value))
+    return get_causes(value)
 
 
 @app.callback(
-    dd.Output("pie-mesures", "figure"), dd.Input("annee-mesures-dropdown", "value"),
+    dd.Output("pie-mesures", "figure"),
+    dd.Input("annee-mesures-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
         raise PreventUpdate
-    return get_mesures(int(value))
+    return getRupturesMesuresRepartitionGraphBox(value)

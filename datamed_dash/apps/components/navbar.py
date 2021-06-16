@@ -52,7 +52,7 @@ def Navbar() -> Component:
     return html.Div(
         [
             LogoAnsm(),
-            MenuItem("Analyses thématiques", "/apps/construction"),
+            # MenuItem("Analyses thématiques", "/apps/construction"),
             MenuItem("Explorer", "/apps/explorer"),
             MenuItem("À propos", "/apps/a_propos"),
             SearchBar(id="search-bar", opts=opts, fireOnSelect=True),

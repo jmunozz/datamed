@@ -526,10 +526,8 @@ files = {
         },
     },
     "mesures": {
-        "source": {"pattern": "Mesure_040621.csv"},
-        "read_csv": {
-            "encoding": "utf-8",
-            "sep": ";",
+        "source": {"pattern": "Mesure_150621.xlsx"},
+        "read_excel": {
             "header": 0,
             "usecols": [
                 "Etat",
@@ -549,6 +547,7 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {
+                "annee": String,
                 "date_demande": Date,
                 "date_mise_en_place": Date,
                 "date_previ_fin": Date,
@@ -557,10 +556,8 @@ files = {
         },
     },
     "ruptures": {
-        "source": {"pattern": "Dossier_de_rupture_150621.csv"},
-        "read_csv": {
-            "encoding": "utf-8",
-            "sep": ";",
+        "source": {"pattern": "Dossier_de_rupture_150621.xlsx"},
+        "read_excel": {
             "header": 0,
             "index_col": "numero",
             "usecols": [
@@ -609,13 +606,14 @@ files = {
                 "generique_ville",
                 "generique_hopital",
             ],
-            "dtype": {"numero": str, "cip13": int},
+            "dtype": {"numero": str, "cip13": str},
         },
         "to_sql": {
             "name": "ruptures",
             "if_exists": "replace",
             "index": True,
             "dtype": {
+                "annee": String,
                 "cip13": String(16),
                 "date": Date,
                 "debut_ville": Date,

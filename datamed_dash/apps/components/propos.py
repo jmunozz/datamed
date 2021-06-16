@@ -1,6 +1,5 @@
-from app import app
 from dash.development.base_component import Component
-from dash_html_components import Div, Img, A
+from dash_html_components import Div, A, Video
 
 from .commons import SingleSection
 
@@ -11,15 +10,12 @@ def APropos() -> Component:
             Div(className="header-space"),
             Div(
                 [
-                    # Video(
-                    #     src=app.get_asset_url("DataMed 09-06-21.m4v"),
-                    #     controls=True,
-                    # ),
-                    Div(
-                        Img(
-                            src=app.get_asset_url("frontpage_img_1.svg"),
-                        ),
-                        className="fp-section fp-section-1 d-flex justify-content-center",
+                    Video(
+                        src="https://minio.lab.sspcloud.fr/rroffo/DemoDay/DataMed.mp4",
+                        controls=True,
+                        height=700,
+                        title="Vidéo EIG4 DataMed - fin de défi !",
+                        className="d-flex m-auto",
                     ),
                     Div(
                         "À propos de data.ansm",
@@ -52,15 +48,15 @@ def APropos() -> Component:
                                     Div(
                                         "Cet outil est né d’une collaboration entre trois Entrepreneurs "
                                         "d’Intérêt Général et l’ANSM, à travers le défi ",
-                                        className="d-inline"
+                                        className="d-inline",
                                     ),
                                     A(
                                         "DataMed",
                                         href="https://entrepreneur-interet-general.etalab.gouv.fr/defis/2020/datamed.html",
-                                        className="ExternalLink d-inline"
-                                    )
+                                        className="ExternalLink d-inline",
+                                    ),
                                 ],
-                                className="mb-3"
+                                className="mb-3",
                             ),
                             Div(
                                 "Le programme Entrepreneurs d'Intérêt Général a pour objectif de faire travailler "
@@ -113,7 +109,7 @@ def APropos() -> Component:
                             Div(
                                 "- les données de la Direction de la Surveillance (sur les effets indésirables des "
                                 "médicaments, sur les erreurs médicamenteuses et sur le bon usage du médicament).",
-                                className="mb-3"
+                                className="mb-3",
                             ),
                             Div(
                                 "Ces dernières ont fait l’objet d’un nettoyage, d’une analyse et d’une "
