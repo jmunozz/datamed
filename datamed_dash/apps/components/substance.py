@@ -20,8 +20,6 @@ from dash.exceptions import PreventUpdate
 from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
-from apps.graphs import EIRepartitionSystemeOrganes, EIRepartitionHLT
-
 from apps.components.commons import (
     EIRepartitionGraviteGraphBox,
     EIRepartitionSexeFigureBox,
@@ -34,6 +32,7 @@ from apps.components.commons import (
     EIRepartitionNotificateursFigureBox,
     EISystemesOrganesTooltip,
     EIRepartitionSystemeOrganesBox,
+    EIRepartitionHLTBox,
 )
 from .utils import (
     Box,
@@ -286,7 +285,7 @@ def open_ei_modal_on_substance_page(
 
         return (
             True,
-            EIRepartitionHLT(df_hlt),
+            EIRepartitionHLTBox(df_hlt),
             selected_soc,
             selected_soc,
         )

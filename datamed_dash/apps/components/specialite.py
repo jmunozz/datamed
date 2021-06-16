@@ -32,7 +32,7 @@ from apps.components.commons import (
     EIRepartitionNotificateursFigureBox,
     EISystemesOrganesTooltip,
     EIRepartitionSystemeOrganesBox,
-    EIRepartitionHLT,
+    EIRepartitionHLTBox,
 )
 
 from apps.components.utils import (
@@ -854,7 +854,7 @@ def open_ei_modal_on_specialite_page(
         )
         return (
             True,
-            EIRepartitionHLT(df_hlt),
+            EIRepartitionHLTBox(df_hlt),
             selected_soc,
             selected_soc,
         )

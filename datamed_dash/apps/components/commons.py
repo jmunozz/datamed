@@ -137,6 +137,7 @@ def EIRepartitionSystemeOrganesBox(df_soclong: pd.DataFrame):
                 html.Div(
                     EIRepartitionSystemeOrganes(df_soclong),
                     id="soc-treemap-container",
+                    className=""
                 ),
                 html.Div(id="selected-soc", className="d-none"),
                 HltModal(),
@@ -144,6 +145,8 @@ def EIRepartitionSystemeOrganesBox(df_soclong: pd.DataFrame):
         ),
     )
 
+def EIRepartitionHLTBox(df_hlt: pd.DataFrame): 
+    return EIRepartitionHLT(df_hlt)
 
 def HltModal() -> Modal:
     return Modal(
