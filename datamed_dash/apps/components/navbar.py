@@ -56,6 +56,7 @@ def Navbar() -> Component:
             MenuItem("Explorer", "/apps/explorer"),
             MenuItem("À propos", "/apps/a_propos"),
             SearchBar(id="search-bar", opts=opts, fireOnSelect=True),
+            html.Div(id="dash-side-effect-hidden-div"),
         ],
         className="Navbar",
     )

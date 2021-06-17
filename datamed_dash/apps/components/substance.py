@@ -10,12 +10,6 @@ import db.substance as substance
 import numpy as np
 import pandas as pd
 from app import app
-from apps.components.specialite import NoData
-from dash.development.base_component import Component
-from dash.exceptions import PreventUpdate
-from datamed_custom_components.Accordion import Accordion
-from sm import SideMenu
-
 from apps.components.commons import (
     EIRepartitionGraviteGraphBox,
     PatientsTraites,
@@ -35,8 +29,8 @@ from dash.exceptions import PreventUpdate
 from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
-from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid
-from ..constants.colors import PIE_COLORS_SUBSTANCE
+from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid, trim_list
+from ..constants.colors import PIE_COLORS_SPECIALITE, PIE_COLORS_SUBSTANCE
 
 
 def EffetsIndesirablesTooltip() -> Component:
@@ -109,7 +103,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                             EffetsIndesirables(
                                 df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite
                             ),
-                            SystemesOrganes(df_soc, code),
+                            SystemesOrganes(df_soc),
                             ListeSpecialites(df_sub, df_sub_spe),
                         ],
                         className="ContentWrapper",
@@ -192,8 +186,8 @@ def EffetsIndesirables(
                         EICasDeclareFigureBox(df_decla),
                         EITauxDeclarationBox(df_decla),
                         EIRepartitionSexeFigureBox(df_cas_sexe),
-                        EIRepartitionAgeGraphBox(df_cas_age),
-                        EIRepartitionGraviteGraphBox(df_gravite),
+                        EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
+                        EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
                     ],
                     2,
                 ),
@@ -203,7 +197,7 @@ def EffetsIndesirables(
     return TopicSection(children, id="effets-indesirables",)
 
 
-def SystemesOrganes(df_soc: pd.DataFrame, code: str) -> Component:
+def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
     children = [
         SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
     ]
@@ -242,29 +236,27 @@ def getActiveCell(active_cell, page_current, page_size, data):
         dd.Output("header-modal", "children"),
     ],
     [
-        dd.Input("close-backdrop-substance", "n_clicks"),
+        dd.Input({"type": "close-backdrop-substance", "index": dd.ALL}, "n_clicks"),
         dd.Input("url", "href"),
-        dd.Input("soc-treemap-substance", "clickData"),
+        dd.Input({"type": "soc-treemap-substance", "index": dd.ALL}, "clickData"),
     ],
 )
 def open_ei_modal_on_substance_page(clicks_close, href, click_data):
-
-    print("on est la !!!")
-
+    # beware! with Input id as object click_data is a list !!
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet
-    if not click_data:
+    if not click_data or not trim_list(click_data):
         raise PreventUpdate()
     # Modal has been closed by user
     if "close-backdrop" in changed_id:
         return False, "", ""
-    current_entry = click_data["points"][0]["entry"]
+    current_entry = click_data[0]["points"][0]["entry"]
     # User is going up in treemap
     if current_entry != "":
         return False, "", ""
 
-    selected_soc = click_data["points"][0]["label"]
+    selected_soc = click_data[0]["points"][0]["label"]
 
     parsed_url = urlparse(unquote_plus(href))
     query = parse_qs(parsed_url.query)

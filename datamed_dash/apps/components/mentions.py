@@ -543,7 +543,7 @@ def MentionsLegales() -> Component:
                     ),
                     Div(
                         Img(
-                            src=app.get_asset_url("frontpage_img_1.svg"),
+                            src=app.get_asset_url("big_illustration_4.svg"),
                         ),
                         className="fp-section fp-section-1 d-flex justify-content-center",
                     ),

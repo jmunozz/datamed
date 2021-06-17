@@ -79,7 +79,7 @@ def EICasDeclareFigure(df_decla: pd.DataFrame) -> Component:
 # Représentation du taux de déclaration d'effets indésirables pour 100 000 patients (Nombre)
 def EITauxDeclarationGraph(df_decla: pd.DataFrame) -> Component:
     series_decla = fetch_data.as_series(df_decla)
-    taux_str = "{:,}".format(int(series_decla.taux_cas)).replace(",", " ")
+    taux_str = "{:,}".format(int(round(series_decla.taux_cas))).replace(",", " ")
     return FigureGraph(
         [
             {
@@ -97,8 +97,8 @@ def EIRepartitionSexeFigure(df_cas_sexe: pd.DataFrame) -> Component:
 
 
 # Représentation de la répartition des effets indésirables par âge (Camembert)
-def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame) -> Component:
-    fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, PIE_COLORS_SUBSTANCE)
+def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame, pie_colors: dict) -> Component:
+    fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, pie_colors)
     return Graph(figure=fig_age, responsive=False,)
 
 
@@ -113,25 +113,23 @@ def EIRepartitionNotificateursFigure(df_notif: pd.DataFrame) -> Component:
 
 
 # Représentation de la répartition des effets indésirable par gravité (Camembert)
-def EIRepartitionGraviteGraph(df: pd.DataFrame) -> Component:
-    fig = makePie(df.grave, df.cas, PIE_COLORS_SUBSTANCE)
+def EIRepartitionGraviteGraph(df: pd.DataFrame, pie_colors: dict) -> Component:
+    fig = makePie(df.grave, df.cas, pie_colors)
     return Graph(figure=fig, responsive=False)
 
 
 # Représentation de la répartition des effets indésirables par système d'organe (Treemap)
 def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame, type: str) -> Component:
-    print(type)
     layout = (
         {**TREEMAP_LAYOUT, **TREEMAP_LAYOUT_OVERRIDE_SPECIALITE}
         if type == "specialite"
         else TREEMAP_LAYOUT
     )
-    print(layout)
     fig = Treemap(df_soc, "soc_long", "pourcentage_cas", layout)
     return Graph(
         figure=fig,
         responsive=True,
-        id=f"soc-treemap-{type}",
+        id={"type": f"soc-treemap-{type}", "index": 1},
         style={"min-height": 450, "width": "100%"},
     )
 
@@ -147,7 +145,7 @@ def EIRepartitionHLT(df_hlt: pd.DataFrame) -> Component:
 
 # Représentation de la répartition par gravité des erreurs médicamenteuses (Camembert)
 def EMRepartitionGraviteGraph(df: pd.DataFrame):
-    fig = makePie(df.gravite, df.pourcentage)
+    fig = makePie(df.gravite, df.pourcentage, PIE_COLORS_SPECIALITE)
     return Graph(figure=fig, responsive=False)
 
 
