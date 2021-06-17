@@ -1036,3 +1036,7 @@ a.btn-lg {
   border: 1px solid #e6e6e6;
   box-sizing: border-box;
 }
+
+#dash-side-effect-hidden-div {
+  display: none;
+}

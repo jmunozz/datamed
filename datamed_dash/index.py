@@ -1,9 +1,10 @@
 import os
 from urllib.parse import urlparse, unquote_plus
 
+import dash.exceptions as de
 import dash_auth
 import dash_core_components as dcc
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, ClientsideFunction
 from dash_html_components import Div
 
 from app import app, server
@@ -14,6 +15,25 @@ app.layout = Div([dcc.Location(id="url", refresh=False), Div(id="page-content")]
 USERNAME = os.environ["USERNAME"]
 PASSWORD = os.environ["PASSWORD"]
 dash_auth.BasicAuth(app, {USERNAME: PASSWORD})
+
+
+def noop():
+    raise de.PreventUpdate("no operation")
+
+
+app.clientside_callback(
+    ClientsideFunction(namespace="content_updated", function_name="scrollTop"),
+    Output("dash-side-effect-hidden-div", "aria-noop"),
+    Input("dash-side-effect-hidden-div", "children"),
+)
+
+
+@app.callback(
+    Output("dash-side-effect-hidden-div", "children"),
+    Input("page-content", "children"),
+)
+def updated(children):
+    de.PreventUpdate()
 
 
 @app.callback(Output("page-content", "children"), Input("url", "href"))

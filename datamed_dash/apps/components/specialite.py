@@ -713,7 +713,7 @@ def RuptureCell(series_rup):
 
     infos = {
         "Présentation de médicament": series_rup.nom.capitalize(),
-        "Statut": series_rup.classification.capitalize(),
+        "Statut": series_rup.classification.capitalize() if series_rup.classification else "Pas de données",
         "Circuit": circuit.capitalize() if circuit else "Pas de données",
         "Cause": series_rup.cause.capitalize()
         if series_rup.cause
