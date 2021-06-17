@@ -30,7 +30,7 @@ from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
 from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid
-from ..constants.colors import PIE_COLORS_SUBSTANCE
+from ..constants.colors import PIE_COLORS_SPECIALITE, PIE_COLORS_SUBSTANCE
 
 
 def EffetsIndesirablesTooltip() -> Component:
@@ -197,8 +197,8 @@ def EffetsIndesirables(
                         EICasDeclareFigureBox(df_decla),
                         EITauxDeclarationBox(df_decla),
                         EIRepartitionSexeFigureBox(df_cas_sexe),
-                        EIRepartitionAgeGraphBox(df_cas_age),
-                        EIRepartitionGraviteGraphBox(df_gravite),
+                        EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
+                        EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
                     ],
                     2,
                 ),

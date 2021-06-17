@@ -38,7 +38,7 @@ from apps.components.utils import (
     CardBox,
     Grid,
 )
-from apps.constants.colors import PIE_COLORS_SPECIALITE
+from apps.constants.colors import PIE_COLORS_SPECIALITE, PIE_COLORS_SUBSTANCE
 from apps.constants.misc import PUBLICATIONS_IMG
 
 from apps.graphs import (
@@ -95,8 +95,8 @@ def EffetsIndesirablesContent(sub_code: str = "") -> Component:
                         EICasDeclareFigureBox(df_decla),
                         EITauxDeclarationBox(df_decla),
                         EIRepartitionSexeFigureBox(df_cas_sexe),
-                        EIRepartitionAgeGraphBox(df_cas_age),
-                        EIRepartitionGraviteGraphBox(df_gravite),
+                        EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
+                        EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
                     ],
                     2,
                 ),
@@ -721,7 +721,9 @@ def RuptureCell(series_rup):
 
     infos = {
         "Présentation de médicament": series_rup.nom.capitalize(),
-        "Statut": series_rup.classification.capitalize(),
+        "Statut": series_rup.classification.capitalize()
+        if series_rup.classification
+        else "Pas de données",
         "Circuit": circuit.capitalize() if circuit else "Pas de données",
         "Cause": series_rup.cause.capitalize()
         if series_rup.cause
