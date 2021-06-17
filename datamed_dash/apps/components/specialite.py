@@ -84,24 +84,28 @@ def EffetsIndesirablesContent(sub_code: str = "") -> Component:
     df_gravite = substance.get_gravite(sub_code)
     df_notif = substance.get_notif_df(sub_code)
     df_soclong = substance.get_soc_df(sub_code)
-    return html.Div(
-        [
-            Grid(
-                [
-                    EICasDeclareFigureBox(df_decla),
-                    EITauxDeclarationBox(df_decla),
-                    EIRepartitionSexeFigureBox(df_cas_sexe),
-                    EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
-                    EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
-                ],
-                2,
-            ),
-            SectionRow(EIRepartitionNotificateursFigureBox(df_notif)),
-            SectionRow(html.H3("Effets indésirables par système d'organe")),
-            SectionRow(EISystemesOrganesTooltip()),
-            SectionRow(EIRepartitionSystemeOrganesBox(df_soclong, "specialite")),
-        ]
-    )
+    dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
+    if all(df is None for df in dataframes):
+        return NoData()
+    else:
+        return html.Div(
+            [
+                Grid(
+                    [
+                        EICasDeclareFigureBox(df_decla),
+                        EITauxDeclarationBox(df_decla),
+                        EIRepartitionSexeFigureBox(df_cas_sexe),
+                        EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
+                        EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
+                    ],
+                    2,
+                ),
+                SectionRow(EIRepartitionNotificateursFigureBox(df_notif)),
+                SectionRow(html.H3("Effets indésirables par système d'organe")),
+                SectionRow(EISystemesOrganesTooltip()),
+                SectionRow(EIRepartitionSystemeOrganesBox(df_soclong, "specialite")),
+            ]
+        )
 
 
 def get_rcp_link(cis: str) -> str:
@@ -149,33 +153,30 @@ def get_has_link(series_spe: pd.Series) -> str:
 
 
 def Publications(df_pub: pd.DataFrame) -> str:
+    children = [SectionRow(html.H1("Publications", className="SectionTitle",))]
     if df_pub is None:
-        return NoData()
-    children = []
-    for i, x in df_pub.iterrows():
-        children.append(
-            CardBox(
-                html.Div(
-                    [
-                        html.H3(x.title),
-                        html.A(
-                            f"{x.type.capitalize()}",
-                            href=x.link,
-                            target="_blank",
-                            className="Link",
-                        ),
-                    ]
-                ),
-                img_url=PUBLICATIONS_IMG[x.type.capitalize()],
-                img_classname="CardBoxImage-isCentered PublicationsBoxImage",
-                classname="GridElem-1",
+        children.append(NoData())
+    else:
+        children_grid = []
+        for i, x in df_pub.iterrows():
+            children_grid.append(
+                CardBox(
+                    html.Div(
+                        [
+                            html.H3(x.title),
+                            html.A(
+                                f"{x.type.capitalize()}", href=x.link, target="_blank", className="Link"
+                            ),
+                        ]
+                    ),
+                    img_url=PUBLICATIONS_IMG[x.type.capitalize()],
+                    img_classname="CardBoxImage-isCentered PublicationsBoxImage",
+                    classname="GridElem-1",
+                )
             )
-        )
+        children.append(Grid(children_grid, 1))
     return TopicSection(
-        [
-            SectionRow(html.H1("Publications", className="SectionTitle",)),
-            Grid(children, 1),
-        ],
+        children,
         id="publications",
     )
 
@@ -652,6 +653,10 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
 
 
 mapCircuitColRupture = {
+    "commun": {
+        "start": "debut_ville",
+        "availability_date": "prevision_remise_dispo_ville",
+    },
     "ville": {
         "start": "debut_ville",
         "availability_date": "prevision_remise_dispo_ville",

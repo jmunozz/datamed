@@ -75,9 +75,6 @@ def EICasDeclareFigureBox(df_decla: pd.DataFrame):
     )
     if df_decla is None:
         content = placeholder
-    # Check that cas is not NaN
-    elif math.isnan(fetch_data.as_series(df_decla).cas):
-        content = placeholder
     else:
         content = EICasDeclareFigure(df_decla)
     return GraphBox("", content)
@@ -95,8 +92,6 @@ def EITauxDeclarationBox(df_decla: pd.DataFrame):
         ]
     )
     if df_decla is None:
-        content = placeholder
-    elif math.isnan(fetch_data.as_series(df_decla).taux_cas):
         content = placeholder
     else:
         content = EITauxDeclarationGraph(df_decla)
