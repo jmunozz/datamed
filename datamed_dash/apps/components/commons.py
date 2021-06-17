@@ -39,8 +39,7 @@ from dash_bootstrap_components import (
 )
 from dash_html_components import Div, H1
 from datamed_custom_components import Accordion
-from db import fetch_data
-from db import specialite
+from db import fetch_data, specialite
 
 
 # Return NoData if df empty or figure missing for man or woman
@@ -182,7 +181,7 @@ def HltModal(type: str) -> Modal:
             ModalFooter(
                 Button(
                     "Fermer",
-                    id=f"close-backdrop-{type}",
+                    id={"type": f"close-backdrop-{type}", "index": 1},
                     className="ml-auto button-text-bold",
                     color="secondary",
                     outline=True,

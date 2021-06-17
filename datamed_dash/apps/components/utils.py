@@ -167,3 +167,6 @@ def Grid(children, nb_elems_per_row: int):
     ]
     return SectionRow(children, withGutter=True)
 
+
+def trim_list(list: List[any]):
+    return [i for i in list if i]

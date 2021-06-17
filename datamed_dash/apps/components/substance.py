@@ -29,7 +29,7 @@ from dash.exceptions import PreventUpdate
 from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
-from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid
+from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid, trim_list
 from ..constants.colors import PIE_COLORS_SPECIALITE, PIE_COLORS_SUBSTANCE
 
 
@@ -86,14 +86,8 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                     id="side-menu",
                     items=[
                         {"id": "patients-traites", "label": "Patients traités"},
-                        {
-                            "id": "effets-indesirables",
-                            "label": "Effets indésirables",
-                        },
-                        {
-                            "id": "liste-specialites",
-                            "label": "Liste des spécialités",
-                        },
+                        {"id": "effets-indesirables", "label": "Effets indésirables",},
+                        {"id": "liste-specialites", "label": "Liste des spécialités",},
                     ],
                     className="SideMenu",
                 ),
@@ -139,10 +133,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 page_size=10,
                 style_as_list_view=True,
                 style_table={"overflowX": "auto"},
-                style_cell={
-                    "height": "50px",
-                    "backgroundColor": "#FFF",
-                },
+                style_cell={"height": "50px", "backgroundColor": "#FFF",},
                 style_data={
                     "fontSize": "14px",
                     "fontWeight": "400",
@@ -169,9 +160,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                     series_sub.nom.capitalize()
                 )
             ),
-            Box(
-                box_children,
-            ),
+            Box(box_children,),
         ],
         id="liste-specialites",
     )
@@ -205,10 +194,7 @@ def EffetsIndesirables(
                 SectionRow([EIRepartitionNotificateursFigureBox(df_notif)]),
             ]
         )
-    return TopicSection(
-        children,
-        id="effets-indesirables",
-    )
+    return TopicSection(children, id="effets-indesirables",)
 
 
 def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
@@ -224,10 +210,7 @@ def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
                 SectionRow(EIRepartitionSystemeOrganesBox(df_soc, "substance")),
             ]
         )
-    return TopicSection(
-        children,
-        id="population-concernee",
-    )
+    return TopicSection(children, id="population-concernee",)
 
 
 @app.callback(
@@ -253,26 +236,27 @@ def getActiveCell(active_cell, page_current, page_size, data):
         dd.Output("header-modal", "children"),
     ],
     [
-        dd.Input("close-backdrop-substance", "n_clicks"),
+        dd.Input({"type": "close-backdrop-substance", "index": dd.ALL}, "n_clicks"),
         dd.Input("url", "href"),
-        dd.Input("soc-treemap-substance", "clickData"),
+        dd.Input({"type": "soc-treemap-substance", "index": dd.ALL}, "clickData"),
     ],
 )
 def open_ei_modal_on_substance_page(clicks_close, href, click_data):
+    # beware! with Input id as object click_data is a list !!
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet
-    if not click_data:
+    if not click_data or not trim_list(click_data):
         raise PreventUpdate()
     # Modal has been closed by user
     if "close-backdrop" in changed_id:
         return False, "", ""
-    current_entry = click_data["points"][0]["entry"]
+    current_entry = click_data[0]["points"][0]["entry"]
     # User is going up in treemap
     if current_entry != "":
         return False, "", ""
 
-    selected_soc = click_data["points"][0]["label"]
+    selected_soc = click_data[0]["points"][0]["label"]
 
     parsed_url = urlparse(unquote_plus(href))
     query = parse_qs(parsed_url.query)

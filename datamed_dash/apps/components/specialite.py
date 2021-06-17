@@ -37,6 +37,7 @@ from apps.components.utils import (
     BoxRow,
     CardBox,
     Grid,
+    trim_list,
 )
 from apps.constants.colors import PIE_COLORS_SPECIALITE, PIE_COLORS_SUBSTANCE
 from apps.constants.misc import PUBLICATIONS_IMG
@@ -64,7 +65,7 @@ def EffetsIndesirablesSelect(df_sub: pd.DataFrame):
         dict(label=sub.nom.capitalize(), value=code) for code, sub in df_sub.iterrows()
     ]
     return Dropdown(
-        id="effets-indesirables-select",
+        id={"type": "effets-indesirables-select", "index": 1},
         options=_options,
         searchable=False,
         clearable=False,
@@ -165,7 +166,10 @@ def Publications(df_pub: pd.DataFrame) -> str:
                         [
                             html.H3(x.title),
                             html.A(
-                                f"{x.type.capitalize()}", href=x.link, target="_blank", className="Link"
+                                f"{x.type.capitalize()}",
+                                href=x.link,
+                                target="_blank",
+                                className="Link",
                             ),
                         ]
                     ),
@@ -175,10 +179,7 @@ def Publications(df_pub: pd.DataFrame) -> str:
                 )
             )
         children.append(Grid(children_grid, 1))
-    return TopicSection(
-        children,
-        id="publications",
-    )
+    return TopicSection(children, id="publications",)
 
 
 def Specialite(cis: str) -> Tuple[Component, html.Div]:
@@ -487,10 +488,7 @@ def ErreursMedicamenteuses(
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [
-                                        html.B("Nourrisson : "),
-                                        "> 28 jours et < 2 ans",
-                                    ],
+                                    [html.B("Nourrisson : "), "> 28 jours et < 2 ans",],
                                     className="regular-text",
                                 ),
                                 html.P(
@@ -818,10 +816,15 @@ def RuptureDeStock(df_rup: pd.DataFrame):
 
 @app.callback(
     Output(component_id="effets-indesirables-content", component_property="children"),
-    Input(component_id="effets-indesirables-select", component_property="value"),
+    Input(
+        component_id={"type": "effets-indesirables-select", "index": dd.ALL},
+        component_property="value",
+    ),
 )
 def update_effets_indesirables_content(input_value):
-    return EffetsIndesirablesContent(input_value)
+    # Bewre ! with Input id as object input_value is a list !!
+    value = input_value[0]
+    return EffetsIndesirablesContent(value)
 
 
 @app.callback(
@@ -831,26 +834,27 @@ def update_effets_indesirables_content(input_value):
         dd.Output("header-modal", "children"),
     ],
     [
-        dd.Input("close-backdrop-specialite", "n_clicks"),
-        dd.Input("soc-treemap-specialite", "clickData"),
+        dd.Input({"type": "close-backdrop-specialite", "index": dd.ALL}, "n_clicks"),
+        dd.Input({"type": "soc-treemap-specialite", "index": dd.ALL}, "clickData"),
     ],
-    [dd.State("effets-indesirables-select", "value"),],
+    [dd.State({"type": "effets-indesirables-select", "index": dd.ALL}, "value")],
 )
 def open_ei_modal_on_specialite_page(clicks_close, click_data, sub_code):
+    # beware! with Input id as object click_data is a list !!
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet
-    if not click_data:
+    if not click_data or not trim_list(click_data):
         raise PreventUpdate()
     # Modal has been closed by user
     if "close-backdrop" in changed_id:
         return False, "", ""
-    current_entry = click_data["points"][0]["entry"]
+    current_entry = click_data[0]["points"][0]["entry"]
     # User is going up in treemap
     if current_entry != "":
         return False, "", ""
 
-    selected_soc = click_data["points"][0]["label"]
+    selected_soc = click_data[0]["points"][0]["label"]
 
     # When called on specialite page sub_code state has been previously defined
     if sub_code:

@@ -129,7 +129,7 @@ def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame, type: str) -> Component:
     return Graph(
         figure=fig,
         responsive=True,
-        id=f"soc-treemap-{type}",
+        id={"type": f"soc-treemap-{type}", "index": 1},
         style={"min-height": 450, "width": "100%"},
     )
 
