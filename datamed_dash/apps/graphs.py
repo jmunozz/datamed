@@ -97,8 +97,8 @@ def EIRepartitionSexeFigure(df_cas_sexe: pd.DataFrame) -> Component:
 
 
 # Représentation de la répartition des effets indésirables par âge (Camembert)
-def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame) -> Component:
-    fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, PIE_COLORS_SUBSTANCE)
+def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame, pie_colors: dict) -> Component:
+    fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, pie_colors)
     return Graph(figure=fig_age, responsive=False,)
 
 
@@ -113,8 +113,8 @@ def EIRepartitionNotificateursFigure(df_notif: pd.DataFrame) -> Component:
 
 
 # Représentation de la répartition des effets indésirable par gravité (Camembert)
-def EIRepartitionGraviteGraph(df: pd.DataFrame) -> Component:
-    fig = makePie(df.grave, df.cas, PIE_COLORS_SUBSTANCE)
+def EIRepartitionGraviteGraph(df: pd.DataFrame, pie_colors: dict) -> Component:
+    fig = makePie(df.grave, df.cas, pie_colors)
     return Graph(figure=fig, responsive=False)
 
 
@@ -145,7 +145,7 @@ def EIRepartitionHLT(df_hlt: pd.DataFrame) -> Component:
 
 # Représentation de la répartition par gravité des erreurs médicamenteuses (Camembert)
 def EMRepartitionGraviteGraph(df: pd.DataFrame):
-    fig = makePie(df.gravite, df.pourcentage)
+    fig = makePie(df.gravite, df.pourcentage, PIE_COLORS_SPECIALITE)
     return Graph(figure=fig, responsive=False)
 
 

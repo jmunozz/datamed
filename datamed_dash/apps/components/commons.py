@@ -114,14 +114,14 @@ def EIRepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame):
 
 
 # Return NoData if df is empty or any age category is missing
-def EIRepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
+def EIRepartitionAgeGraphBox(df_cas_age: pd.DataFrame, pie_colors: dict) -> Component:
     if df_cas_age is None:
         content = NoData(class_name="BoxContent-isHalf")
     # Check that none of age category is NaN
     elif df_cas_age.pourcentage_cas.isnull().any():
         content = NoData(class_name="BoxContent-isHalf")
     else:
-        content = EIRepartitionAgeGraph(df_cas_age)
+        content = EIRepartitionAgeGraph(df_cas_age, pie_colors)
     return GraphBox("Répartition par âge des cas déclarés", content)
 
 
@@ -138,7 +138,7 @@ def EIRepartitionNotificateursFigureBox(df_notif: pd.DataFrame) -> Component:
 
 
 # Return NoData if df is empty
-def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame) -> Component:
+def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame, pie_colors: dict) -> Component:
     placeholder = NoData(class_name="BoxContent-isHalf")
     if df_gravite is None:
         content = placeholder
@@ -146,7 +146,7 @@ def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame) -> Component:
     elif df_gravite.cas.isnull().any():
         content = placeholder
     else:
-        content = EIRepartitionGraviteGraph(df_gravite)
+        content = EIRepartitionGraviteGraph(df_gravite, pie_colors)
     return GraphBox(
         "Gravité des déclarations",
         content,
