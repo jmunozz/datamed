@@ -117,7 +117,7 @@ def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame) -> Component:
                 "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
                 "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
                 "malformation congénitale.",
-                className="regular-text",
+                className="regular-text text-justify",
             ),
         ],
     )
