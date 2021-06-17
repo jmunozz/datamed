@@ -103,7 +103,7 @@ def round_small_values(conso_value: int) -> Optional[int]:
         return round(conso_value, -int(math.log10(conso_value)))
 
 
-def create_spe_conso_ordei_table(_settings: Dict):
+def create_spe_exposition_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df = df.groupby("cis").agg(n_conso_an=("n_conso_an", "sum"), conso=("conso", "sum"))
     df["exposition"] = df["n_conso_an"].apply(
@@ -142,7 +142,7 @@ def create_spe_patients_age_table(_settings: Dict):
     db.create_table_from_df(final_df, _settings[2]["to_sql"])
 
 
-def create_substance_ordei_table(_settings: Dict):
+def create_substance_exposition_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df_by_years = df.groupby(["code", "annee"]).agg(
         conso_annee=("conso", "sum"), cas_annee=("cas", "sum")
@@ -615,10 +615,10 @@ create_table_atc(settings.files["atc"])
 create_table_cis_atc(settings.files["cis_atc"])
 
 # Ordei
-create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+create_spe_exposition_table(settings.files["ordei_specialite"])
 create_spe_patients_sexe_table(settings.files["ordei_specialite"])
 create_spe_patients_age_table(settings.files["ordei_specialite"])
-create_substance_ordei_table(settings.files["ordei_substance"])
+create_substance_exposition_table(settings.files["ordei_substance"])
 create_substance_patients_sexe_table(settings.files["ordei_substance"])
 create_substance_patients_age_table(settings.files["ordei_substance"])
 create_substance_cas_sexe_table(settings.files["ordei_substance"])
