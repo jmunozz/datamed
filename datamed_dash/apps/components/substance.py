@@ -249,8 +249,6 @@ def getActiveCell(active_cell, page_current, page_size, data):
 )
 def open_ei_modal_on_substance_page(clicks_close, href, click_data):
 
-    print("on est la !!!")
-
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet
