@@ -1,64 +1,228 @@
-from typing import List, Dict, Optional
+from typing import List, Optional
+import math
 
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 from app import app
-from dash.development.base_component import Component
-from dash_core_components import Graph
-from dash_html_components import Div, H1
-from datamed_custom_components import Accordion
-from db import fetch_data
-from db import specialite
-
-from .utils import (
+from apps.components.utils import (
     Box,
     GraphBox,
     TopicSection,
-    FigureGraph,
     SectionRow,
     normalize_string,
+    Grid,
 )
-from ..constants.layouts import PIE_LAYOUT, PIE_TRACES
-
-UTILISATION = {
-    1: "Utilisation très faible",
-    2: "Utilisation faible",
-    3: "Utilisation modérée",
-    4: "Utilisation élevée",
-    5: "Utilisation très élevée",
-    "-": "Utilisation inconnue",
-}
-
-UTILISATION_IMG_URL = {
-    "-": app.get_asset_url("indice-nodata.svg"),
-    1: app.get_asset_url("indice-1.svg"),
-    2: app.get_asset_url("indice-2.svg"),
-    3: app.get_asset_url("indice-3.svg"),
-    4: app.get_asset_url("indice-4.svg"),
-    5: app.get_asset_url("indice-5.svg"),
-}
-
-SEXE = {1: "Hommes", 2: "Femmes"}
-
-SEXE_IMG_URL = {
-    1: app.get_asset_url("man_bw_150.svg"),
-    2: app.get_asset_url("woman_bw_150.svg"),
-}
-
-
-def BoxRow(children):
-    return html.Div(html.Div(children, className="BoxRowWrapper"), className="BoxRow")
+from apps.constants.misc import UTILISATION, UTILISATION_IMG_URL
+from apps.graphs import (
+    ReparitionSexeFigure,
+    RepartitionAgeGraph,
+    EICasDeclareFigure,
+    EITauxDeclarationGraph,
+    EIRepartitionSexeFigure,
+    EIRepartitionAgeGraph,
+    EIRepartitionNotificateursFigure,
+    EIRepartitionGraviteGraph,
+    EIRepartitionSystemeOrganes,
+    EIRepartitionHLT,
+    FigureGraph,
+)
+from dash.development.base_component import Component
+from dash_bootstrap_components import (
+    Button,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+)
+from dash_html_components import Div, H1
+from datamed_custom_components import Accordion
+from db import fetch_data, specialite
 
 
-def BoxArticle(children, in_row=False):
-    class_names = ["BoxArticle"]
-    if in_row:
-        class_names = class_names + ["BoxArticle-isInRow"]
-    return html.Article(children, className=" ".join(class_names))
+# Return NoData if df empty or figure missing for man or woman
+def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
+    no_data = NoData(class_name="BoxContent-isHalf")
+    if df_sexe is None:
+        return no_data
+    df_sexe = df_sexe.where(pd.notnull(df_sexe), None)
+    sexe_percentage_data = fetch_data.transform_df_to_series_list(df_sexe)
+    for d in sexe_percentage_data:
+        if d.pourcentage_patients is None:
+            return no_data
+    return ReparitionSexeFigure(df_sexe)
+
+
+# Return NoData if df empty or one age category is missing
+def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
+    if df_age is None or np.isnan(df_age.pourcentage_patients.unique()).all():
+        return NoData(class_name="BoxContent-isHalf")
+    return RepartitionAgeGraph(df_age, pie_colors)
+
+
+# Return NoData if df is empty
+def EICasDeclareFigureBox(df_decla: pd.DataFrame):
+    placeholder = FigureGraph(
+        [
+            {
+                "figure": "Pas de données",
+                "caption": "Nombre de déclarations sur la période 2014-2018",
+            }
+        ]
+    )
+    if df_decla is None:
+        content = placeholder
+    else:
+        content = EICasDeclareFigure(df_decla)
+    return GraphBox("", content)
+
+
+# Return NoData if df is empty
+def EITauxDeclarationBox(df_decla: pd.DataFrame):
+    placeholder = FigureGraph(
+        [
+            {
+                "figure": "Pas de données",
+                "caption": "Taux de déclaration pour 100 000 patients "
+                "traités par an sur la période 2014-2018",
+            }
+        ]
+    )
+    if df_decla is None:
+        content = placeholder
+    else:
+        content = EITauxDeclarationGraph(df_decla)
+    return GraphBox("", content)
+
+
+# Return NoData if df is empty
+def EIRepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame):
+    placeholder = NoData(class_name="BoxContent-isHalf")
+    if df_cas_sexe is None:
+        content = placeholder
+    else:
+        content = EIRepartitionSexeFigure(df_cas_sexe)
+    return GraphBox("Répartition par sexe des cas déclarés", content)
+
+
+# Return NoData if df is empty or any age category is missing
+def EIRepartitionAgeGraphBox(df_cas_age: pd.DataFrame, pie_colors: dict) -> Component:
+    if df_cas_age is None:
+        content = NoData(class_name="BoxContent-isHalf")
+    # Check that none of age category is NaN
+    elif df_cas_age.pourcentage_cas.isnull().any():
+        content = NoData(class_name="BoxContent-isHalf")
+    else:
+        content = EIRepartitionAgeGraph(df_cas_age, pie_colors)
+    return GraphBox("Répartition par âge des cas déclarés", content)
+
+
+# Return NoData if df is empty
+def EIRepartitionNotificateursFigureBox(df_notif: pd.DataFrame) -> Component:
+    placeholder = NoData(class_name="BoxContent-isHalf")
+    if df_notif is None:
+        content = placeholder
+    elif df_notif.dropna().empty:
+        content = placeholder
+    else:
+        content = EIRepartitionNotificateursFigure(df_notif)
+    return GraphBox("Répartition par déclarant", content)
+
+
+# Return NoData if df is empty
+def EIRepartitionGraviteGraphBox(
+    df_gravite: pd.DataFrame, pie_colors: dict
+) -> Component:
+    placeholder = NoData(class_name="BoxContent-isHalf")
+    if df_gravite is None:
+        content = placeholder
+    # Check that both gravite category are not NaN
+    elif df_gravite.cas.isnull().any():
+        content = placeholder
+    else:
+        content = EIRepartitionGraviteGraph(df_gravite, pie_colors)
+    return GraphBox(
+        "Gravité des déclarations",
+        content,
+        className="Box-isHalf",
+        tooltip=[
+            html.H4("Cas grave"),
+            html.P(
+                "Effet indésirable létal, ou susceptible de mettre la vie en danger, ou entraînant "
+                "une invalidité ou une incapacité importante ou durable, ou provoquant ou "
+                "prolongeant une hospitalisation, ou se manifestant par une anomalie ou une "
+                "malformation congénitale.",
+                className="regular-text text-justify",
+            ),
+        ],
+    )
+
+
+def EIRepartitionSystemeOrganesBox(df_soclong: pd.DataFrame, type: str):
+    if df_soclong is None:
+        return NoData()
+    return [
+        EIRepartitionSystemeOrganes(df_soclong, type),
+        HltModal(type),
+    ]
+
+
+def EIRepartitionHLTBox(df_hlt: pd.DataFrame):
+    return EIRepartitionHLT(df_hlt)
+
+
+def HltModal(type: str) -> Modal:
+    return Modal(
+        [
+            ModalHeader(id="header-modal"),
+            ModalBody(id="body-modal"),
+            ModalFooter(
+                Button(
+                    "Fermer",
+                    id={"type": f"close-backdrop-{type}", "index": 1},
+                    className="ml-auto button-text-bold",
+                    color="secondary",
+                    outline=True,
+                )
+            ),
+        ],
+        scrollable=True,
+        centered=True,
+        id="update-on-click-data",
+        size="xl",
+    )
+
+
+def EISystemesOrganesTooltip():
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.P(
+                        "Les systèmes d’organes (Système Organe Classe ou SOC) représentent les 27 classes de disciplines "
+                        "médicales selon la hiérarchie MedDRA. Sont listés ici les 10 SOC ayant le plus d’effets indésirables "
+                        "déclarés.",
+                        className="normal-text text-justify",
+                    ),
+                    html.P(
+                        "Attention : Un cas n'est comptabilisé qu’une seule fois par SOC en cas de plusieurs effets "
+                        "indésirables affectant le même SOC. Un cas peut en revanche être comptabilisé sur plusieurs SOC "
+                        "différents (en fonction des effets indésirables déclarés).",
+                        className="normal-text text-justify",
+                    ),
+                ],
+                labelClass="InternalLink normal-text",
+                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+            )
+        )
+    )
+
+
+def SingleSection(title: str, children_list: List) -> Component:
+    children = [Div(title, className="h3 mb-3")] + children_list
+    return Div(children, className="normal-text mb-5 text-justify",)
 
 
 def FrontPageSectionPart(children, class_name=""):
@@ -81,34 +245,6 @@ def FrontPageSectionFull(children, class_name=""):
     return html.Div(children, className=class_name)
 
 
-def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
-    df = df.where(pd.notnull(df), None)
-    sexe_percentage_data = fetch_data.transform_df_to_series_list(df)
-    return [
-        {
-            "figure": "{}%".format(round(x[column])),
-            "caption": SEXE[x["sexe"]],
-            "img": SEXE_IMG_URL[x["sexe"]],
-        }
-        for x in sexe_percentage_data
-    ]
-
-
-def makePie(labels: pd.Series, values: pd.Series, pie_colors: List):
-    return (
-        go.Figure(
-            go.Pie(
-                labels=labels,
-                values=values,
-                marker_colors=pie_colors,
-                hovertemplate="<b>%{label}</b> <br> <br>Proportion : <b>%{percent}</b> <extra></extra>",
-            )
-        )
-        .update_layout(PIE_LAYOUT)
-        .update_traces(PIE_TRACES)
-    )
-
-
 def NoData(class_name="") -> html.Div:
     class_name = " ".join(
         (["NoData", "Stack", "Stack-isCentered"] + class_name.split(" "))
@@ -120,9 +256,7 @@ def NoData(class_name="") -> html.Div:
                 className="img-fluid",
                 alt="Responsive image",
             ),
-            html.Div(
-                "Données insuffisantes pour affichage",
-            ),
+            html.Div("Données insuffisantes pour affichage",),
         ],
         className=class_name,
     )
@@ -142,19 +276,9 @@ def Tooltip() -> Component:
                                         "médicament, délivré en ",
                                         className="normal-text",
                                     ),
-                                    html.B(
-                                        html.Span(
-                                            "pharmacie de ville",
-                                        )
-                                    ),
-                                    html.Span(
-                                        " entre 2014 et 2018 et remboursé par ",
-                                    ),
-                                    html.B(
-                                        html.Span(
-                                            "l’Assurance Maladie.",
-                                        )
-                                    ),
+                                    html.B(html.Span("pharmacie de ville",)),
+                                    html.Span(" entre 2014 et 2018 et remboursé par ",),
+                                    html.B(html.Span("l’Assurance Maladie.",)),
                                     html.Span(
                                         " Pour plus d’informations, consultez : ",
                                     ),
@@ -191,18 +315,61 @@ def Tooltip() -> Component:
                             ),
                         ],
                     ),
-                    html.Div(
-                        [],
-                        className="text-justify mb-3",
-                    ),
-                    html.Div(
-                        [],
-                        className="mb-3",
-                    ),
+                    html.Div([], className="text-justify mb-3",),
+                    html.Div([], className="mb-3",),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
                 label="Comment sont calculés ces indicateurs ? D’où viennent ces données ?",
+            )
+        )
+    )
+
+
+def HistoriqueRupturesTooltip():
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.Div(
+                        [
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Cette rubrique recense l'historique des déclarations de ruptures et de "
+                                        "risques de rupture concernant les médicaments d’intérêt thérapeutique "
+                                        "majeur (MITM) reçues par l'ANSM depuis le 3 Mai 2021.",
+                                        className="normal-text",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
+                            ),
+                            html.P(
+                                [
+                                    html.Span(
+                                        "Pour retrouver les dernières informations destinées aux professionnels de "
+                                        "santé et aux patients concernant les médicaments d’intérêt thérapeutique "
+                                        "majeur faisant actuellement l’objet de difficultés d’approvisionnement et "
+                                        "pour lesquels il n’y a pas d’alternative thérapeutique disponible sur "
+                                        "le marché français, vous pouvez vous référer au site : ",
+                                    ),
+                                    html.A(
+                                        "ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                                        href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
+                                        className="Link",
+                                        target="_blank",
+                                    ),
+                                ],
+                                className="justify-text normal-text",
+                            ),
+                        ],
+                    ),
+                    html.Div([], className="text-justify mb-3",),
+                    html.Div([], className="mb-3",),
+                ],
+                isOpenOnFirstRender=True,
+                labelClass="InternalLink normal-text",
+                label="Quelles données sont affichées ? D’où viennent-elles ?",
             )
         )
     )
@@ -216,9 +383,13 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
         else:
             exposition = "-"
         if not np.isnan(series_exposition.conso_an_trunc):
-            patients = "{:,} patients / an".format(
+            # For démo day
+            conso = (
                 int(series_exposition.conso_an_trunc)
-            ).replace(",", " ")
+                if int(series_exposition.conso_an_trunc) <= 65000000
+                else 65000000
+            )
+            patients = "{:,} patients / an".format(conso).replace(",", " ")
         else:
             patients = "Données insuffisantes"
     else:
@@ -227,13 +398,7 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
 
     df = pd.DataFrame(
         {
-            "Utilisation": [
-                "Très faible",
-                "Faible",
-                "Modéré",
-                "Élevé",
-                "Très élevé",
-            ],
+            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
             "Nombre de patients (niveau spécialité)": [
                 "< 1 000",
                 "1 000 - 5 000",
@@ -313,30 +478,6 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
     )
 
 
-def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
-    no_data = NoData(class_name="BoxContent-isHalf")
-    if df_sexe is None:
-        return no_data
-    df_sexe = df_sexe.where(pd.notnull(df_sexe), None)
-    sexe_percentage_data = fetch_data.transform_df_to_series_list(df_sexe)
-    for d in sexe_percentage_data:
-        if d.pourcentage_patients is None:
-            return no_data
-    return FigureGraph(
-        get_sexe_figures_from_df(df_sexe, "pourcentage_patients"),
-        class_name="BoxContent-isHalf",
-    )
-
-
-def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
-    if df_age is None or np.isnan(df_age.pourcentage_patients.unique()).all():
-        return NoData(class_name="BoxContent-isHalf")
-    return Graph(
-        figure=makePie(df_age.age, df_age.pourcentage_patients, pie_colors),
-        responsive=False,
-    )
-
-
 def PatientsTraites(
     df_age: pd.DataFrame,
     df_sexe: pd.DataFrame,
@@ -354,7 +495,7 @@ def PatientsTraites(
             [
                 Tooltip(),
                 Utilisation(df_expo),
-                SectionRow(
+                Grid(
                     [
                         GraphBox(
                             "Répartition par sexe des patients traités",
@@ -365,14 +506,11 @@ def PatientsTraites(
                             [RepartitionAgeBox(df_age, pie_colors)],
                         ),
                     ],
-                    withGutter=True,
+                    2,
                 ),
             ]
         )
-    return TopicSection(
-        children,
-        id="patients-traites",
-    )
+    return TopicSection(children, id="patients-traites",)
 
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
@@ -422,7 +560,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
     elif type == "rupture":
         title = "Données ruptures de stock"
         css_class = "Header-isRupture"
-        icon_url = app.get_asset_url("liquide-64.png")
+        icon_url = app.get_asset_url("rupturedestock-120.svg")
         type_label = "Base de données"
         help_link = html.A(
             "Qu'est-ce qu'une base de données ?",
@@ -440,10 +578,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         html.Div(
             html.Div(
                 [
-                    html.Div(
-                        html.Img(src=icon_url),
-                        className="HeaderImg",
-                    ),
+                    html.Div(html.Img(src=icon_url), className="HeaderImg",),
                     html.Div(
                         [
                             H1(title),

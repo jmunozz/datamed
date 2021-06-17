@@ -7,6 +7,7 @@ import pandas as pd
 import unidecode
 from dash.development.base_component import Component
 from dash_html_components import Div, A, Img, H5, H1, H4, Label, Section
+from app import app
 
 
 def SectionRow(children, withGutter=False):
@@ -24,6 +25,17 @@ def Box(children, className="", isBordered=True, hasNoPadding=False) -> Componen
         classes.append("Box-hasNoPadding")
     classes = classes + className.split(" ")
     return Div(children, className=" ".join(classes))
+
+
+def BoxRow(children):
+    return html.Div(html.Div(children, className="BoxRowWrapper"), className="BoxRow")
+
+
+def BoxArticle(children, in_row=False):
+    class_names = ["BoxArticle"]
+    if in_row:
+        class_names = class_names + ["BoxArticle-isInRow"]
+    return html.Article(children, className=" ".join(class_names))
 
 
 def ArticleTitle(title: str) -> Component:
@@ -53,35 +65,6 @@ def GraphBox(title: str, children: List, tooltip=None, className="") -> Componen
         )
         children = [title_component, Div(children, className="BoxContentWrapper")]
     return Box(children, className)
-
-
-def FigureGraph(
-    figures: List[Dict], height="150px", class_name="justify-content-around"
-) -> Component:
-    class_name = " ".join((["Line", "Line-isSpacedEvenly"] + class_name.split(" ")))
-    children_list = []
-    for f in figures:
-        elems = []
-        elems = (
-            elems + [Img(src=f["img"], className="mb-2", style={"height": height})]
-            if "img" in f
-            else []
-        )
-        elems = elems + [H1(f["figure"])] if "figure" in f else []
-        elems = (
-            elems
-            + [Label(f["caption"], className="normal-text", style={"color": "black"})]
-            if f.get("caption")
-            else []
-        )
-        children_list += [
-            Div(
-                elems,
-                className="Stack Stack-isCentered",
-                style={"color": "#00B3CC", "margin": "15px"},
-            )
-        ]
-    return Div(children_list, className=class_name)
 
 
 def TopicSection(children: List, id: str, isFirst=False) -> Component:
@@ -148,3 +131,42 @@ def normalize_string(text: str):
 
 def InformationIcon() -> Component:
     return html.I(className="bi bi-info-circle Icon")
+
+
+def CardBox(
+    children,
+    img_url=app.get_asset_url("/icons/pres_autre_120.svg"),
+    img_classname="",
+    card_classname="",
+    classname="",
+) -> Component:
+    img_classname = " ".join(["CardBoxImage"] + img_classname.split(" "))
+    card_classname = " ".join(["CardBoxText"] + card_classname.split(" "))
+
+    return Box(
+        html.Div(
+            [
+                Box(
+                    [html.Img(src=img_url),], isBordered=False, className=img_classname,
+                ),
+                Box(children, isBordered=False, className=card_classname,),
+            ],
+            className="CardBox",
+        ),
+        hasNoPadding=True,
+        className=classname,
+    )
+
+
+def Grid(children, nb_elems_per_row: int):
+    nb_empty_elem = nb_elems_per_row - (len(children) % nb_elems_per_row)
+    grid_classname = f"GridElem-{nb_elems_per_row}"
+    empty_elem_classname = " ".join(["GridEmptyElem", grid_classname])
+    children = list(map(lambda x: html.Div(x, className=grid_classname), children)) + [
+        html.Div(className=empty_elem_classname) for n in range(nb_empty_elem)
+    ]
+    return SectionRow(children, withGutter=True)
+
+
+def trim_list(list: List[any]):
+    return [i for i in list if i]

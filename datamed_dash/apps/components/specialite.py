@@ -1,36 +1,112 @@
 import urllib
 from typing import Tuple
+from urllib.parse import urlparse
 
+import dash
+import dash.dependencies as dd
 import dash_html_components as html
 import dash_table
 import pandas as pd
-import plotly.express as px
 import requests
 from app import app
-from bs4 import BeautifulSoup
-from dash.development.base_component import Component
-from dash_core_components import Graph
-from datamed_custom_components import Accordion
-from db import specialite, fetch_data
-from sm import SideMenu
-
-from .commons import PatientsTraites, NoData, Header, BoxArticle, BoxRow, makePie
-from .utils import (
+from apps.components.commons import (
+    PatientsTraites,
+    HistoriqueRupturesTooltip,
+    NoData,
+    Header,
+    EICasDeclareFigureBox,
+    EITauxDeclarationBox,
+    EIRepartitionAgeGraphBox,
+    EIRepartitionSexeFigureBox,
+    EIRepartitionGraviteGraphBox,
+    EIRepartitionNotificateursFigureBox,
+    EISystemesOrganesTooltip,
+    EIRepartitionSystemeOrganesBox,
+    EIRepartitionHLTBox,
+)
+from apps.components.utils import (
     Box,
     GraphBox,
     TopicSection,
     ArticleTitle,
     ExternalLink,
-    FigureGraph,
     SectionRow,
     date_as_string,
     nested_get,
+    BoxArticle,
+    BoxRow,
+    CardBox,
+    Grid,
+    trim_list,
 )
-from ..constants.colors import PIE_COLORS_SPECIALITE
-from ..constants.layouts import (
-    STACKED_BAR_CHART_LAYOUT,
-    STACKED_BAR_CHART_TRACES,
+from apps.constants.colors import PIE_COLORS_SPECIALITE, PIE_COLORS_SUBSTANCE
+from apps.constants.misc import PUBLICATIONS_IMG
+
+from apps.graphs import (
+    EMRepartitionGraviteGraph,
+    EMRepartitionPopulationConcernee,
+    EMRepartitionEffetsIndesirablesFigure,
+    EMRepartitionNatureGraph,
+    EMRepartitionErreursInitialesGraph,
+    EMRepartitionCausesGraph,
 )
+from bs4 import BeautifulSoup
+from dash.dependencies import Input, Output
+from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
+from dash_core_components import Dropdown
+from datamed_custom_components import Accordion
+from db import specialite, fetch_data, substance
+from sm import SideMenu
+
+
+def EffetsIndesirablesSelect(df_sub: pd.DataFrame):
+    _options = [
+        dict(label=sub.nom.capitalize(), value=code) for code, sub in df_sub.iterrows()
+    ]
+    return Dropdown(
+        id={"type": "effets-indesirables-select", "index": 1},
+        options=_options,
+        searchable=False,
+        clearable=False,
+        value=_options[0]["value"],
+        className="EffetIndesirableSelectDropdown",
+        optionHeight=50,
+    )
+
+
+def EffetsIndesirablesContent(sub_code: str = "") -> Component:
+    if sub_code == "":
+        return html.Div("Pas de sélection pour l'instant")
+    # Fetch substances dataframes
+    df_decla = substance.get_decla_df(sub_code)
+    df_cas_sexe = substance.get_sexe_cas_df(sub_code)
+    df_cas_age = substance.get_age_cas_df(sub_code)
+    df_gravite = substance.get_gravite(sub_code)
+    df_notif = substance.get_notif_df(sub_code)
+    df_soclong = substance.get_soc_df(sub_code)
+    dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
+    if all(df is None for df in dataframes):
+        return NoData()
+    else:
+        return html.Div(
+            [
+                Grid(
+                    [
+                        EICasDeclareFigureBox(df_decla),
+                        EITauxDeclarationBox(df_decla),
+                        EIRepartitionSexeFigureBox(df_cas_sexe),
+                        EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
+                        EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
+                    ],
+                    2,
+                ),
+                SectionRow(EIRepartitionNotificateursFigureBox(df_notif)),
+                SectionRow(html.H3("Effets indésirables par système d'organe")),
+                SectionRow(EISystemesOrganesTooltip()),
+                SectionRow(EIRepartitionSystemeOrganesBox(df_soclong, "specialite")),
+            ]
+        )
 
 
 def get_rcp_link(cis: str) -> str:
@@ -77,6 +153,35 @@ def get_has_link(series_spe: pd.Series) -> str:
     )
 
 
+def Publications(df_pub: pd.DataFrame) -> str:
+    children = [SectionRow(html.H1("Publications", className="SectionTitle",))]
+    if df_pub is None:
+        children.append(NoData())
+    else:
+        children_grid = []
+        for i, x in df_pub.iterrows():
+            children_grid.append(
+                CardBox(
+                    html.Div(
+                        [
+                            html.H3(x.title),
+                            html.A(
+                                f"{x.type.capitalize()}",
+                                href=x.link,
+                                target="_blank",
+                                className="Link",
+                            ),
+                        ]
+                    ),
+                    img_url=PUBLICATIONS_IMG[x.type.capitalize()],
+                    img_classname="CardBoxImage-isCentered PublicationsBoxImage",
+                    classname="GridElem-1",
+                )
+            )
+        children.append(Grid(children_grid, 1))
+    return TopicSection(children, id="publications",)
+
+
 def Specialite(cis: str) -> Tuple[Component, html.Div]:
 
     df_spe = specialite.get_specialite_df(cis)
@@ -94,6 +199,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_rup = specialite.get_ruptures(cis, df_spe)
     df_init = specialite.get_erreur_med_init(cis)
     df_gravite = specialite.get_erreur_med_gravite(cis)
+    df_pub = specialite.get_publications(cis)
 
     return (
         Header(series_spe),
@@ -108,10 +214,12 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                             "id": "erreurs-medicamenteuses",
                             "label": "Erreurs médicamenteuses",
                         },
+                        {"id": "effets-indesirables", "label": "Effets indésirables",},
                         {
                             "id": "rupture-de-stock",
                             "label": "Historique des ruptures de stock",
                         },
+                        {"id": "publications", "label": "Publications",},
                     ],
                     className="SideMenu",
                 ),
@@ -126,15 +234,11 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_init,
-                                df_ei,
-                                df_pop,
-                                df_cause,
-                                df_nat,
-                                df_gravite,
+                                df_init, df_ei, df_pop, df_cause, df_nat, df_gravite,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
+                            Publications(df_pub),
                         ],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
@@ -189,8 +293,7 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(),
-                                    series_atc.atc,
+                                    series_atc.label.capitalize(), series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -209,8 +312,7 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Span(
-                                series_spe.titulaires.title(),
-                                className="normal-text",
+                                series_spe.titulaires.title(), className="normal-text",
                             ),
                         ],
                     ),
@@ -263,70 +365,40 @@ def Description(
     )
 
 
-def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
-    if df is None:
-        return NoData()
-    else:
-        df.pourcentage = df.pourcentage / 100
-        fig = px.bar(
-            df,
-            x="pourcentage",
-            color=field,
-            labels={
-                "pourcentage": "Proportion",
-                field: field.split("_")[0].capitalize(),
-            },
-            color_discrete_sequence=PIE_COLORS_SPECIALITE,
-            orientation="h",
-            hover_name=field,
-            hover_data={
-                field: False,
-            },
-        )
-
-        fig.update_layout(STACKED_BAR_CHART_LAYOUT)
-        fig.update_traces(STACKED_BAR_CHART_TRACES)
-
-        return html.Div(
-            Graph(figure=fig, id="stack-bar", responsive=True, style={"height": 225}),
-            className="ErrMedStackBar",
-        )
-
-
-def BoxPourcentageEffetsIndesirable(df: pd.DataFrame) -> Component:
+def EMRepartitionEffetsIndesirablesFigureBox(df: pd.DataFrame) -> Component:
     if df is None:
         return NoData(class_name="BoxContent-isHalf")
-
-    EI = {"Non": "Sans effets indésirables", "Oui": "Avec effets indésirables"}
-    EI_IMG_URL = {
-        "Non": app.get_asset_url("healthy_man.svg"),
-        "Oui": app.get_asset_url("sick_man.svg"),
-    }
-
-    return FigureGraph(
-        [
-            {
-                "figure": "{}%".format(round(series.pourcentage)),
-                "caption": EI[series.effet_indesirable],
-                "img": EI_IMG_URL[series.effet_indesirable],
-            }
-            for cis, series in df.iterrows()
-        ]
-    )
+    return EMRepartitionEffetsIndesirablesFigure(df)
 
 
-def BoxRepartitionGravite(df: pd.DataFrame) -> Component:
+def EMRepartitionGraviteGraphBox(df: pd.DataFrame) -> Component:
     if df is None:
         return NoData("BoxContent-isHalf")
-    fig = makePie(df.gravite, df.pourcentage, PIE_COLORS_SPECIALITE)
-    return Graph(figure=fig, responsive=False)
+    return EMRepartitionGraviteGraph(df)
 
 
-def BoxRepartitionPopulationConcernee(df: pd.DataFrame) -> Component:
+def EMRepartitionPopulationConcerneeBox(df: pd.DataFrame) -> Component:
     if df is None:
         return NoData("BoxContent-isHalf")
-    fig = makePie(df.population_erreur, df.pourcentage, PIE_COLORS_SPECIALITE)
-    return Graph(figure=fig, responsive=False)
+    return EMRepartitionPopulationConcernee(df)
+
+
+def EMRepartitionErreursInitialesBox(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData()
+    return EMRepartitionErreursInitialesGraph(df)
+
+
+def EMRepartitionCausesBox(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData()
+    return EMRepartitionCausesGraph(df)
+
+
+def EMRepartitionNatureBox(df: pd.DataFrame) -> Component:
+    if df is None:
+        return NoData()
+    return EMRepartitionNatureGraph(df)
 
 
 def BoxListDenomination(df: pd.DataFrame):
@@ -340,10 +412,7 @@ def BoxListDenomination(df: pd.DataFrame):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={
-            "height": "50px",
-            "backgroundColor": "#FFF",
-        },
+        style_cell={"height": "50px", "backgroundColor": "#FFF",},
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -407,34 +476,31 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Existence d’effets indésirables suite aux erreurs médicamenteuses",
-                            [BoxPourcentageEffetsIndesirable(df_ei)],
+                            [EMRepartitionEffetsIndesirablesFigureBox(df_ei)],
                         ),
                         GraphBox(
                             "Répartition de la population concernée par les erreurs médicamenteuses",
-                            [BoxRepartitionPopulationConcernee(df_pop)],
+                            [EMRepartitionPopulationConcerneeBox(df_pop)],
                             tooltip=[
                                 html.H4("Répartition des âges"),
                                 html.P(
-                                    [html.B("Nouveau-né: "), "0 à 28 jours"],
+                                    [html.B("Nouveau-né : "), "0 à 28 jours"],
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [
-                                        html.B("Nourrisson: "),
-                                        "> à 28 jours et < à 2 ans",
-                                    ],
+                                    [html.B("Nourrisson : "), "> 28 jours et < 2 ans",],
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [html.B("Enfant: "), "⩾ à 2 ans et < 18 ans"],
+                                    [html.B("Enfant : "), "⩾ 2 ans et < 18 ans"],
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [html.B("Adulte: "), "⩾ à 18 ans et < à 60 ans"],
+                                    [html.B("Adulte : "), "⩾ 18 ans et < 60 ans"],
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [html.B("Personne âgée: "), "⩾ à 60 ans"],
+                                    [html.B("Personne âgée : "), "⩾ 60 ans"],
                                     className="regular-text",
                                 ),
                             ],
@@ -446,7 +512,7 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Gravité des erreurs médicamenteuses",
-                            [BoxRepartitionGravite(df_gravite)],
+                            [EMRepartitionGraviteGraphBox(df_gravite)],
                             className="Box-isHalf",
                             tooltip=[
                                 html.H4("Cas grave"),
@@ -455,7 +521,7 @@ def ErreursMedicamenteuses(
                                     "ou entraînant une invalidité ou une incapacité importante ou durable, "
                                     "ou provoquant ou prolongeant une hospitalisation, ou se manifestant par "
                                     "une anomalie ou une malformation congénitale.",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
                                 ),
                             ],
                         ),
@@ -466,12 +532,7 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Étape de survenue des erreurs médicamenteuses",
-                            [
-                                StackBarGraph(
-                                    df_init,
-                                    "initial_erreur",
-                                )
-                            ],
+                            [EMRepartitionErreursInitialesBox(df_init)],
                             tooltip=[
                                 html.H4(
                                     "Étape de survenue des erreurs médicamenteuses"
@@ -480,9 +541,10 @@ def ErreursMedicamenteuses(
                                     "L'erreur médicamenteuse peut survenir aux différentes étapes du processus "
                                     "d'utilisation : l'erreur de prescription par le médecin ou un autre professionnel "
                                     "de santé, ou par le patient lui-même dans le cas d'une auto-prescription, l'erreur "
-                                    "de dispenciation ou de préparation et enfin l'erreur d'administration par le patient "
-                                    "lui-même, un aidant ou un professionnel de santé.",
-                                    className="regular-text",
+                                    "de dispenciation, l'erreur de préparation, l'erreur de suivi thérapeutique, et "
+                                    "enfin l'erreur d'administration par le patient lui-même, un aidant "
+                                    "ou un professionnel de santé.",
+                                    className="regular-text text-justify",
                                 ),
                             ],
                         ),
@@ -492,41 +554,36 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Cause des erreurs médicamenteuses",
-                            [
-                                StackBarGraph(
-                                    df_cause,
-                                    "cause_erreur",
-                                )
-                            ],
+                            [EMRepartitionCausesBox(df_cause)],
                             tooltip=[
                                 html.H4("Cause des erreurs médicamenteuses"),
                                 html.P(
-                                    "C'est l'origine de l'erreur, qui peut être d'origine "
-                                    "produit"
-                                    ", "
-                                    "d'origine "
-                                    "humaine"
-                                    " ou d'origine "
-                                    "technique"
-                                    ".",
-                                    className="regular-text",
+                                    "C'est l'origine de l'erreur, qui peut être d'origine produit, d'origine "
+                                    "humaine ou d'origine technique.",
+                                    className="regular-text text-justify",
                                 ),
                                 html.P(
                                     "- Cause produit : l’erreur trouve sa source, tout ou partie, dans la conception "
-                                    "du médicament et de l’information qui lui est relative (dénomination, conditionnement"
-                                    ", étiquetage, notice d’information, etc.).",
-                                    className="regular-text",
+                                    "du médicament et de l’information qui lui est relative (dénomination, "
+                                    "conditionnement, étiquetage, notice d’information, etc.).",
+                                    className="regular-text text-justify",
                                 ),
                                 html.P(
-                                    "- Cause humaine : l’erreur peut trouver sa source dans l’organisation du processus "
-                                    "de prise en charge thérapeutique du patient (organisation du circuit du médicament, "
-                                    "facteurs humains, facteurs environnementaux, pratiques professionnelles, etc.).",
-                                    className="regular-text",
+                                    "- Cause humaine : l’erreur peut trouver sa source dans l’organisation du "
+                                    "processus de prise en charge thérapeutique du patient (organisation du circuit "
+                                    "du médicament, facteurs humains, facteurs environnementaux, pratiques "
+                                    "professionnelles, etc.).",
+                                    className="regular-text text-justify",
                                 ),
                                 html.P(
                                     "- Cause technique : par exemple un logiciel d'aide à la dispensation "
                                     "ou prescription peut être la source de l'erreur médicamenteuse",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
+                                ),
+                                html.P(
+                                    "Afin de prévenir les erreurs médicamenteuses, le champ "
+                                    "d'action de l'ANSM cible les produits de santé.",
+                                    className="regular-text text-justify",
                                 ),
                             ],
                         ),
@@ -536,12 +593,7 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Nature des erreurs médicamenteuses",
-                            [
-                                StackBarGraph(
-                                    df_nat,
-                                    "nature_erreur",
-                                )
-                            ],
+                            [EMRepartitionNatureBox(df_nat)],
                             tooltip=[
                                 html.H4("Nature des erreurs médicamenteuses"),
                                 html.P(
@@ -557,16 +609,10 @@ def ErreursMedicamenteuses(
                 ),
             ]
         )
-    return TopicSection(
-        children,
-        id="erreurs-medicamenteuses",
-    )
+    return TopicSection(children, id="erreurs-medicamenteuses",)
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
-    # Hack to display as a grid (last row items do not resize), add empty elems
-    NB_ELEM_PER_ROW = 3
-    nb_empty_div = NB_ELEM_PER_ROW - (df_sub.size % NB_ELEM_PER_ROW)
     return TopicSection(
         [
             SectionRow(
@@ -575,69 +621,40 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                     className="SectionTitle",
                 )
             ),
-            SectionRow(
-                Box(
-                    Accordion(
+            html.Div(
+                [
+                    html.Div(
                         [
-                            html.P(
-                                [
-                                    "Les données concernent des effets indésirables ",
-                                    html.B("suspectés"),
-                                    " suite à la prise d'un médicament, mais qui ne sont pas ",
-                                    html.B("obligatoirement liés ou dus"),
-                                    " au médicament. Les déclarations d'effets indésirables ne doivent pas être "
-                                    "interprétées comme signifiant que le médicament provoque l'effet observé "
-                                    "ou que son utilisation présente un risque. Seule une analyse détaillée et "
-                                    "une évaluation scientifique de toutes les données disponibles permettent de "
-                                    "tirer des conclusions robustes sur les bénéfices et les risques d'un médicament.",
-                                ],
-                                className="normal-text justify-text",
+                            html.Img(
+                                src=app.get_asset_url("/substance_icon.svg"),
+                                className="EffetIndesirableSelectLabelImg",
+                            ),
+                            html.Span(
+                                "Effets indésirables de la substance active",
+                                className="normal-text EffetIndesirableSelectLabelSpan",
                             ),
                         ],
-                        labelClass="InternalLink normal-text",
-                        label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
-                        isOpenOnFirstRender=True,
-                    )
-                )
-            ),
-            SectionRow(
-                [
-                    Box(
-                        html.Div(
-                            [
-                                html.H4(
-                                    sub.nom.capitalize(),
-                                    className="EffetIndesirableBoxTitle",
-                                ),
-                                html.Div(
-                                    html.Img(
-                                        src=app.get_asset_url("substance_icon.svg")
-                                    )
-                                ),
-                                html.A(
-                                    "Voir les effets indésirables",
-                                    href="/apps/substance?search={}".format(code),
-                                    className="Link EffetIndesirableBoxLink",
-                                ),
-                            ],
-                            className="Stack Stack-isCentered",
-                        ),
-                        className="EffetIndesirableBox",
-                    )
-                    for code, sub in df_sub.iterrows()
-                ]
-                + [
-                    html.Div(className="EmptyEffetIndesirableBox")
-                    for n in range(nb_empty_div)
+                        className="EffetIndesirableSelectLabel",
+                    ),
+                    EffetsIndesirablesSelect(df_sub),
                 ],
-                withGutter=True,
+                className="EffetIndesirableSelect",
+            ),
+            html.Div(
+                EffetsIndesirablesContent(),
+                id="effets-indesirables-content",
+                className="EffetsIndesirablesContent",
             ),
         ],
-        id="",
+        id="effets-indesirables",
     )
 
 
 mapCircuitColRupture = {
+    "commun": {
+        "start": "debut_ville",
+        "availability_date": "prevision_remise_dispo_ville",
+    },
     "ville": {
         "start": "debut_ville",
         "availability_date": "prevision_remise_dispo_ville",
@@ -702,7 +719,9 @@ def RuptureCell(series_rup):
 
     infos = {
         "Présentation de médicament": series_rup.nom.capitalize(),
-        "Statut": series_rup.classification.capitalize(),
+        "Statut": series_rup.classification.capitalize()
+        if series_rup.classification
+        else "Pas de données",
         "Circuit": circuit.capitalize() if circuit else "Pas de données",
         "Cause": series_rup.cause.capitalize()
         if series_rup.cause
@@ -734,6 +753,7 @@ def RuptureDeStock(df_rup: pd.DataFrame):
             SectionRow(
                 html.Div("Historique des ruptures de stock", className="SectionTitle")
             ),
+            HistoriqueRupturesTooltip(),
             SectionRow(
                 Box(
                     [
@@ -759,7 +779,7 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                                     ),
                                 ],
                                 isBordered=False,
-                                className="CardBoxImage RupturesBox",
+                                className="CardBoxImage CardBoxImage-isCentered RupturesBoxImage",
                             ),
                             Box(
                                 [
@@ -792,3 +812,61 @@ def RuptureDeStock(df_rup: pd.DataFrame):
         ],
         id="rupture-de-stock",
     )
+
+
+@app.callback(
+    Output(component_id="effets-indesirables-content", component_property="children"),
+    Input(
+        component_id={"type": "effets-indesirables-select", "index": dd.ALL},
+        component_property="value",
+    ),
+)
+def update_effets_indesirables_content(input_value):
+    # Bewre ! with Input id as object input_value is a list !!
+    value = input_value[0]
+    return EffetsIndesirablesContent(value)
+
+
+@app.callback(
+    [
+        dd.Output("update-on-click-data", "is_open"),
+        dd.Output("body-modal", "children"),
+        dd.Output("header-modal", "children"),
+    ],
+    [
+        dd.Input({"type": "close-backdrop-specialite", "index": dd.ALL}, "n_clicks"),
+        dd.Input({"type": "soc-treemap-specialite", "index": dd.ALL}, "clickData"),
+    ],
+    [dd.State({"type": "effets-indesirables-select", "index": dd.ALL}, "value")],
+)
+def open_ei_modal_on_specialite_page(clicks_close, click_data, sub_code):
+    # beware! with Input id as object click_data is a list !!
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
+
+    # User has not clicked on modal yet
+    if not click_data or not trim_list(click_data):
+        raise PreventUpdate()
+    # Modal has been closed by user
+    if "close-backdrop" in changed_id:
+        return False, "", ""
+    current_entry = click_data[0]["points"][0]["entry"]
+    # User is going up in treemap
+    if current_entry != "":
+        return False, "", ""
+
+    selected_soc = click_data[0]["points"][0]["label"]
+
+    # When called on specialite page sub_code state has been previously defined
+    if sub_code:
+        df_hlt = substance.get_hlt_df(sub_code)
+        df_hlt = df_hlt[df_hlt.soc_long == selected_soc].sort_values(
+            by="pourcentage_cas", ascending=False
+        )
+        return (
+            True,
+            EIRepartitionHLTBox(df_hlt),
+            selected_soc,
+        )
+
+    else:
+        return False, "", ""

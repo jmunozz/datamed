@@ -103,7 +103,7 @@ def round_small_values(conso_value: int) -> Optional[int]:
         return round(conso_value, -int(math.log10(conso_value)))
 
 
-def create_spe_conso_ordei_table(_settings: Dict):
+def create_spe_exposition_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df = df.groupby("cis").agg(n_conso_an=("n_conso_an", "sum"), conso=("conso", "sum"))
     df["exposition"] = df["n_conso_an"].apply(
@@ -142,7 +142,7 @@ def create_spe_patients_age_table(_settings: Dict):
     db.create_table_from_df(final_df, _settings[2]["to_sql"])
 
 
-def create_substance_ordei_table(_settings: Dict):
+def create_substance_exposition_table(_settings: Dict):
     df = helpers.load_csv_to_df(_settings[0])
     df_by_years = df.groupby(["code", "annee"]).agg(
         conso_annee=("conso", "sum"), cas_annee=("cas", "sum")
@@ -166,7 +166,7 @@ def create_substance_ordei_table(_settings: Dict):
 
     final_df.drop(["conso"], inplace=True, axis=1)
     final_df.reset_index(inplace=True, level=["annee"])
-    db.create_table_from_df(final_df, _settings[0]["to_sql"])
+    db.create_table_from_df(final_df[final_df.cas.notnull()], _settings[0]["to_sql"])
 
 
 def create_substance_patients_sexe_table(_settings: Dict):
@@ -231,7 +231,9 @@ def create_substance_cas_sexe_table(_settings: Dict):
     )
     final_df.drop(["cas"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["sexe"])
-    db.create_table_from_df(final_df[final_df.pourcentage_cas.notnull()], _settings[3]["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings[3]["to_sql"]
+    )
 
 
 def create_substance_cas_age_table(_settings: Dict):
@@ -252,7 +254,9 @@ def create_substance_cas_age_table(_settings: Dict):
     )
     final_df.drop(["cas"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["age"])
-    db.create_table_from_df(final_df, _settings[4]["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings[4]["to_sql"]
+    )
 
 
 def create_notificateurs_table(_settings: Dict):
@@ -269,7 +273,9 @@ def create_notificateurs_table(_settings: Dict):
     )
     final_df.drop(["n_decla"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["notificateur"])
-    db.create_table_from_df(final_df, _settings["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_notif.notnull()], _settings["to_sql"]
+    )
 
 
 def create_substance_soclong_table(_settings: Dict):
@@ -289,7 +295,9 @@ def create_substance_soclong_table(_settings: Dict):
         result_type="expand",
     )
     final_df.drop(["n_cas", "n_decla_eff"], inplace=True, axis=1)
-    db.create_table_from_df(final_df, _settings["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings["to_sql"]
+    )
 
 
 def create_hlt_table(_settings_soclong: Dict, _settings: Dict):
@@ -320,7 +328,9 @@ def create_hlt_table(_settings_soclong: Dict, _settings: Dict):
     final_df.drop(
         ["n_decla_eff_soclong", "n_decla_eff_hlt", "n_decla_eff"], inplace=True, axis=1
     )
-    db.create_table_from_df(final_df, _settings["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings["to_sql"]
+    )
 
 
 def check_threshold(df: pd.DataFrame, x: pd.Series):
@@ -345,7 +355,7 @@ def create_cas_grave_table(_settings: Dict):
     df = df.where(pd.notnull(df), None)
     df = df.sort_index()
 
-    db.create_table_from_df(df, _settings["to_sql"])
+    db.create_table_from_df(df[df.cas.notnull()], _settings["to_sql"])
 
 
 def create_table_emed(_settings: Dict):
@@ -370,13 +380,11 @@ def create_table_emed(_settings: Dict):
 
 
 def get_circuit(row: pd.Series) -> Optional[str]:
-    if row.Circuit_Touche_Ville == "NR" and row.Circuit_Touche_Hopital == "NR":
-        return None
-    elif row.Circuit_Touche_Ville == "VILLE":
+    if row.Circuit_Touche_Ville and not row.Circuit_Touche_Hopital:
         return "ville"
-    elif row.Circuit_Touche_Hopital == "HOPITAL":
+    elif row.Circuit_Touche_Hopital and not row.Circuit_Touche_Ville:
         return "hôpital"
-    elif row.Circuit_Touche_Ville == "HOPITAL/VILLE":
+    elif row.Circuit_Touche_Ville and row.Circuit_Touche_Hopital:
         return "ville et hôpital"
 
 
@@ -385,8 +393,7 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     Table ruptures
     """
     df = pd.read_excel(
-        "data/Annexe 1_ListeDesRuptures.xlsx",
-        sheet_name="BDD Ruptures",
+        "data/ListeDesRuptures_2021_6_1510_02_58.xlsx",
         header=0,
         parse_dates=[
             "DatePrevi_Ville",
@@ -406,7 +413,7 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
             "Circuit_Touche_Hopital",
             "DatePrevi_Ville",
             "DatePrevi_Hôpital",
-            "Cause propre",
+            "Origine_Cause_RS",
         ],
     )
 
@@ -423,10 +430,11 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
             "Indications": "indications",
             "DatePrevi_Ville": "prevision_remise_dispo_ville",
             "DatePrevi_Hôpital": "prevision_remise_dispo_hopital",
-            "Cause propre": "cause",
+            "Origine_Cause_RS": "cause",
         }
     )
 
+    df = df[df.date >= "01-01-2014"]
     df["circuit"] = df.apply(get_circuit, axis=1)
 
     # If "ville et hôpital", insert two rows: one "ville" and one "hôpital"
@@ -459,7 +467,8 @@ def get_acronyme_mesure(identifiant: str) -> str:
 
 
 def create_table_mesures(_settings: Dict):
-    df = helpers.load_csv_to_df(_settings)
+    df = helpers.load_excel_to_df(_settings)
+    df = df[~df["Numéro Rupture"].str.startswith("DRAFT")]
     df = df.rename(
         columns={
             "Etat": "etat_mesure",
@@ -477,16 +486,16 @@ def create_table_mesures(_settings: Dict):
     df = df.where(pd.notnull(df), None)
 
     df.date_demande = df.date_demande.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.date_mise_en_place = df.date_mise_en_place.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.date_previ_fin = df.date_previ_fin.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.date_cloture = df.date_cloture.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
 
     df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
@@ -500,7 +509,8 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df_spe = pd.read_sql("specialite", engine).reset_index()
     df_old = get_old_ruptures_df(df_spe)
 
-    df = helpers.load_csv_to_df(_settings_ruptures).reset_index()
+    df = helpers.load_excel_to_df(_settings_ruptures).reset_index()
+    df = df[df.etat != "Brouillon"]
     df = df.where(pd.notnull(df), None)
     df["cause"] = None
     helpers.serie_to_lowercase(
@@ -509,21 +519,21 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df.laboratoire = df.laboratoire.str.capitalize()
     df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
 
-    df.date = df.date.apply(lambda x: dt.strptime(x, "%d/%m/%Y") if x else None)
+    df.date = df.date.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
     df.debut_ville = df.debut_ville.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.prevision_remise_dispo_ville = df.prevision_remise_dispo_ville.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.debut_hopital = df.debut_hopital.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
     df.prevision_remise_dispo_hopital = df.prevision_remise_dispo_hopital.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x else None
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
-
-    df.cip13 = df.cip13.astype(str)
 
     df_pres = pd.read_sql("presentation", engine)
     df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
@@ -605,10 +615,10 @@ create_table_atc(settings.files["atc"])
 create_table_cis_atc(settings.files["cis_atc"])
 
 # Ordei
-create_spe_conso_ordei_table(settings.files["ordei_specialite"])
+create_spe_exposition_table(settings.files["ordei_specialite"])
 create_spe_patients_sexe_table(settings.files["ordei_specialite"])
 create_spe_patients_age_table(settings.files["ordei_specialite"])
-create_substance_ordei_table(settings.files["ordei_substance"])
+create_substance_exposition_table(settings.files["ordei_substance"])
 create_substance_patients_sexe_table(settings.files["ordei_substance"])
 create_substance_patients_age_table(settings.files["ordei_substance"])
 create_substance_cas_sexe_table(settings.files["ordei_substance"])

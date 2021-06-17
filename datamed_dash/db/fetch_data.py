@@ -23,7 +23,7 @@ def get_one_value(df, index, column):
 
 def return_sub_df_or_none(df, key):
     # use of [[]] always return a df otherwise, could be a series
-    if isinstance(key, str):
+    if isinstance(key, str) or isinstance(key, int):
         key = [key]
     try:
         df = df.loc[df.index.intersection(key)]
