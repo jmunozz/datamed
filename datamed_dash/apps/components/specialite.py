@@ -827,7 +827,6 @@ def update_effets_indesirables_content(input_value):
     [dd.State("effets-indesirables-select", "value"),],
 )
 def open_ei_modal_on_specialite_page(clicks_close, click_data, sub_code):
-
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet

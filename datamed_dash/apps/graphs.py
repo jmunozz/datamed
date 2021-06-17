@@ -79,7 +79,7 @@ def EICasDeclareFigure(df_decla: pd.DataFrame) -> Component:
 # Représentation du taux de déclaration d'effets indésirables pour 100 000 patients (Nombre)
 def EITauxDeclarationGraph(df_decla: pd.DataFrame) -> Component:
     series_decla = fetch_data.as_series(df_decla)
-    taux_str = "{:,}".format(int(series_decla.taux_cas)).replace(",", " ")
+    taux_str = "{:,}".format(int(round(series_decla.taux_cas))).replace(",", " ")
     return FigureGraph(
         [
             {
