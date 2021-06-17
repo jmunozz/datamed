@@ -10,12 +10,6 @@ import db.substance as substance
 import numpy as np
 import pandas as pd
 from app import app
-from apps.components.specialite import NoData
-from dash.development.base_component import Component
-from dash.exceptions import PreventUpdate
-from datamed_custom_components.Accordion import Accordion
-from sm import SideMenu
-
 from apps.components.commons import (
     EIRepartitionGraviteGraphBox,
     PatientsTraites,
@@ -92,8 +86,14 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                     id="side-menu",
                     items=[
                         {"id": "patients-traites", "label": "Patients traités"},
-                        {"id": "effets-indesirables", "label": "Effets indésirables",},
-                        {"id": "liste-specialites", "label": "Liste des spécialités",},
+                        {
+                            "id": "effets-indesirables",
+                            "label": "Effets indésirables",
+                        },
+                        {
+                            "id": "liste-specialites",
+                            "label": "Liste des spécialités",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -109,7 +109,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                             EffetsIndesirables(
                                 df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite
                             ),
-                            SystemesOrganes(df_soc, code),
+                            SystemesOrganes(df_soc),
                             ListeSpecialites(df_sub, df_sub_spe),
                         ],
                         className="ContentWrapper",
@@ -139,7 +139,10 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 page_size=10,
                 style_as_list_view=True,
                 style_table={"overflowX": "auto"},
-                style_cell={"height": "50px", "backgroundColor": "#FFF",},
+                style_cell={
+                    "height": "50px",
+                    "backgroundColor": "#FFF",
+                },
                 style_data={
                     "fontSize": "14px",
                     "fontWeight": "400",
@@ -166,7 +169,9 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                     series_sub.nom.capitalize()
                 )
             ),
-            Box(box_children,),
+            Box(
+                box_children,
+            ),
         ],
         id="liste-specialites",
     )
@@ -181,7 +186,7 @@ def EffetsIndesirables(
 ) -> Component:
     children = [SectionRow(html.H1("Effets indésirables"))]
     dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
-    if all(df is None for df in dataframes):
+    if all(df is None for df in dataframes) or np.isnan(df_decla.cas.unique()):
         children.append(NoData())
     else:
         children.extend(
@@ -200,10 +205,13 @@ def EffetsIndesirables(
                 SectionRow([EIRepartitionNotificateursFigureBox(df_notif)]),
             ]
         )
-    return TopicSection(children, id="effets-indesirables",)
+    return TopicSection(
+        children,
+        id="effets-indesirables",
+    )
 
 
-def SystemesOrganes(df_soc: pd.DataFrame, code: str) -> Component:
+def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
     children = [
         SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
     ]
@@ -216,7 +224,10 @@ def SystemesOrganes(df_soc: pd.DataFrame, code: str) -> Component:
                 SectionRow(EIRepartitionSystemeOrganesBox(df_soc, "substance")),
             ]
         )
-    return TopicSection(children, id="population-concernee",)
+    return TopicSection(
+        children,
+        id="population-concernee",
+    )
 
 
 @app.callback(
@@ -248,7 +259,6 @@ def getActiveCell(active_cell, page_current, page_size, data):
     ],
 )
 def open_ei_modal_on_substance_page(clicks_close, href, click_data):
-
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet

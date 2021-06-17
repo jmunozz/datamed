@@ -482,26 +482,26 @@ def ErreursMedicamenteuses(
                             tooltip=[
                                 html.H4("Répartition des âges"),
                                 html.P(
-                                    [html.B("Nouveau-né: "), "0 à 28 jours"],
+                                    [html.B("Nouveau-né : "), "0 à 28 jours"],
                                     className="regular-text",
                                 ),
                                 html.P(
                                     [
-                                        html.B("Nourrisson: "),
-                                        "> à 28 jours et < à 2 ans",
+                                        html.B("Nourrisson : "),
+                                        "> 28 jours et < 2 ans",
                                     ],
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [html.B("Enfant: "), "⩾ à 2 ans et < 18 ans"],
+                                    [html.B("Enfant : "), "⩾ 2 ans et < 18 ans"],
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [html.B("Adulte: "), "⩾ à 18 ans et < à 60 ans"],
+                                    [html.B("Adulte : "), "⩾ 18 ans et < 60 ans"],
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [html.B("Personne âgée: "), "⩾ à 60 ans"],
+                                    [html.B("Personne âgée : "), "⩾ 60 ans"],
                                     className="regular-text",
                                 ),
                             ],
@@ -522,7 +522,7 @@ def ErreursMedicamenteuses(
                                     "ou entraînant une invalidité ou une incapacité importante ou durable, "
                                     "ou provoquant ou prolongeant une hospitalisation, ou se manifestant par "
                                     "une anomalie ou une malformation congénitale.",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
                                 ),
                             ],
                         ),
@@ -545,7 +545,7 @@ def ErreursMedicamenteuses(
                                     "de dispenciation, l'erreur de préparation, l'erreur de suivi thérapeutique, et "
                                     "enfin l'erreur d'administration par le patient lui-même, un aidant "
                                     "ou un professionnel de santé.",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
                                 ),
                             ],
                         ),
@@ -561,30 +561,30 @@ def ErreursMedicamenteuses(
                                 html.P(
                                     "C'est l'origine de l'erreur, qui peut être d'origine produit, d'origine "
                                     "humaine ou d'origine technique.",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
                                 ),
                                 html.P(
                                     "- Cause produit : l’erreur trouve sa source, tout ou partie, dans la conception "
                                     "du médicament et de l’information qui lui est relative (dénomination, "
                                     "conditionnement, étiquetage, notice d’information, etc.).",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
                                 ),
                                 html.P(
                                     "- Cause humaine : l’erreur peut trouver sa source dans l’organisation du "
                                     "processus de prise en charge thérapeutique du patient (organisation du circuit "
                                     "du médicament, facteurs humains, facteurs environnementaux, pratiques "
                                     "professionnelles, etc.).",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
                                 ),
                                 html.P(
                                     "- Cause technique : par exemple un logiciel d'aide à la dispensation "
                                     "ou prescription peut être la source de l'erreur médicamenteuse",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
                                 ),
                                 html.P(
                                     "Afin de prévenir les erreurs médicamenteuses, le champ "
                                     "d'action de l'ANSM cible les produits de santé.",
-                                    className="regular-text",
+                                    className="regular-text text-justify",
                                 ),
                             ],
                         ),
@@ -832,7 +832,6 @@ def update_effets_indesirables_content(input_value):
     [dd.State("effets-indesirables-select", "value"),],
 )
 def open_ei_modal_on_specialite_page(clicks_close, click_data, sub_code):
-
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     # User has not clicked on modal yet
