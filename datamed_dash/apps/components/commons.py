@@ -138,7 +138,9 @@ def EIRepartitionNotificateursFigureBox(df_notif: pd.DataFrame) -> Component:
 
 
 # Return NoData if df is empty
-def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame, pie_colors: dict) -> Component:
+def EIRepartitionGraviteGraphBox(
+    df_gravite: pd.DataFrame, pie_colors: dict
+) -> Component:
     placeholder = NoData(class_name="BoxContent-isHalf")
     if df_gravite is None:
         content = placeholder
@@ -165,6 +167,8 @@ def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame, pie_colors: dict) -> 
 
 
 def EIRepartitionSystemeOrganesBox(df_soclong: pd.DataFrame, type: str):
+    if df_soclong is None:
+        return NoData()
     return [
         EIRepartitionSystemeOrganes(df_soclong, type),
         HltModal(type),
