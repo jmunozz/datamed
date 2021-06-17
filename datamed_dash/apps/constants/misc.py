@@ -47,3 +47,10 @@ SEXE_IMG_URL = {
     1: app.get_asset_url("man_bw_150.svg"),
     2: app.get_asset_url("woman_bw_150.svg"),
 }
+
+
+PUBLICATIONS_IMG = {
+    "Autre": app.get_asset_url("autre_120.svg"),
+    "Point d'information": app.get_asset_url("pointinfo_120.svg"),
+    "Communiqué": app.get_asset_url("communique_120.svg"),
+}
