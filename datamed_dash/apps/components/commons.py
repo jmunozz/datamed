@@ -1,4 +1,5 @@
 from typing import List, Optional
+import math
 
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
@@ -26,6 +27,7 @@ from apps.graphs import (
     EIRepartitionGraviteGraph,
     EIRepartitionSystemeOrganes,
     EIRepartitionHLT,
+    FigureGraph,
 )
 from dash.development.base_component import Component
 from dash_bootstrap_components import (
@@ -63,48 +65,87 @@ def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
 
 # Return NoData if df is empty
 def EICasDeclareFigureBox(df_decla: pd.DataFrame):
-    content = NoData(class_name="BoxContent-isHalf")
-    if df_decla is not None:
+    placeholder = FigureGraph(
+        [
+            {
+                "figure": "Pas de données",
+                "caption": "Nombre de déclarations sur la période 2014-2018",
+            }
+        ]
+    )
+    if df_decla is None:
+        content = placeholder
+    # Check that cas is not NaN
+    elif math.isnan(fetch_data.as_series(df_decla).cas):
+        content = placeholder
+    else:
         content = EICasDeclareFigure(df_decla)
     return GraphBox("", content)
 
 
 # Return NoData if df is empty
 def EITauxDeclarationBox(df_decla: pd.DataFrame):
-    content = NoData(class_name="BoxContent-isHalf")
-    if df_decla is not None:
+    placeholder = FigureGraph(
+        [
+            {
+                "figure": "Pas de données",
+                "caption": "Taux de déclaration pour 100 000 patients "
+                "traités par an sur la période 2014-2018",
+            }
+        ]
+    )
+    if df_decla is None:
+        content = placeholder
+    elif math.isnan(fetch_data.as_series(df_decla).taux_cas):
+        content = placeholder
+    else:
         content = EITauxDeclarationGraph(df_decla)
     return GraphBox("", content)
 
 
 # Return NoData if df is empty
 def EIRepartitionSexeFigureBox(df_cas_sexe: pd.DataFrame):
-    content = NoData(class_name="BoxContent-isHalf")
-    if df_cas_sexe is not None:
+    placeholder = NoData(class_name="BoxContent-isHalf")
+    if df_cas_sexe is None:
+        content = placeholder
+    else:
         content = EIRepartitionSexeFigure(df_cas_sexe)
     return GraphBox("Répartition par sexe des cas déclarés", content)
 
 
 # Return NoData if df is empty or any age category is missing
 def EIRepartitionAgeGraphBox(df_cas_age: pd.DataFrame) -> Component:
-    content = NoData(class_name="BoxContent-isHalf")
-    if df_cas_age is not None:
+    if df_cas_age is None:
+        content = NoData(class_name="BoxContent-isHalf")
+    # Check that none of age category is NaN
+    elif df_cas_age.pourcentage_cas.isnull().any():
+        content = NoData(class_name="BoxContent-isHalf")
+    else:
         content = EIRepartitionAgeGraph(df_cas_age)
     return GraphBox("Répartition par âge des cas déclarés", content)
 
 
 # Return NoData if df is empty
 def EIRepartitionNotificateursFigureBox(df_notif: pd.DataFrame) -> Component:
-    content = NoData(class_name="BoxContent-isHalf")
-    if df_notif is not None:
+    placeholder = NoData(class_name="BoxContent-isHalf")
+    if df_notif is None:
+        content = placeholder
+    elif df_notif.dropna().empty:
+        content = placeholder
+    else:
         content = EIRepartitionNotificateursFigure(df_notif)
     return GraphBox("Répartition par déclarant", content)
 
 
 # Return NoData if df is empty
 def EIRepartitionGraviteGraphBox(df_gravite: pd.DataFrame) -> Component:
-    content = NoData(class_name="BoxContent-isHalf")
-    if df_gravite is not None:
+    placeholder = NoData(class_name="BoxContent-isHalf")
+    if df_gravite is None:
+        content = placeholder
+    # Check that both gravite category are not NaN
+    elif df_gravite.cas.isnull().any():
+        content = placeholder
+    else:
         content = EIRepartitionGraviteGraph(df_gravite)
     return GraphBox(
         "Gravité des déclarations",
