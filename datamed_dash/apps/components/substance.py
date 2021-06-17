@@ -185,9 +185,8 @@ def EffetsIndesirables(
     df_gravite: pd.DataFrame,
 ) -> Component:
     children = [SectionRow(html.H1("Effets indésirables"))]
-    df_decla = df_decla.where(pd.notnull(df_decla), None)
     dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
-    if all(df is None for df in dataframes) or not df_decla.cas.unique():
+    if all(df is None for df in dataframes) or np.isnan(df_decla.cas.unique()):
         children.append(NoData())
     else:
         children.extend(

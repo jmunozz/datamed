@@ -166,7 +166,7 @@ def create_substance_ordei_table(_settings: Dict):
 
     final_df.drop(["conso"], inplace=True, axis=1)
     final_df.reset_index(inplace=True, level=["annee"])
-    db.create_table_from_df(final_df, _settings[0]["to_sql"])
+    db.create_table_from_df(final_df[final_df.cas.notnull()], _settings[0]["to_sql"])
 
 
 def create_substance_patients_sexe_table(_settings: Dict):
@@ -254,7 +254,9 @@ def create_substance_cas_age_table(_settings: Dict):
     )
     final_df.drop(["cas"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["age"])
-    db.create_table_from_df(final_df, _settings[4]["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings[4]["to_sql"]
+    )
 
 
 def create_notificateurs_table(_settings: Dict):
@@ -271,7 +273,9 @@ def create_notificateurs_table(_settings: Dict):
     )
     final_df.drop(["n_decla"], axis=1, inplace=True)
     final_df.reset_index(inplace=True, level=["notificateur"])
-    db.create_table_from_df(final_df, _settings["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_notif.notnull()], _settings["to_sql"]
+    )
 
 
 def create_substance_soclong_table(_settings: Dict):
@@ -291,7 +295,9 @@ def create_substance_soclong_table(_settings: Dict):
         result_type="expand",
     )
     final_df.drop(["n_cas", "n_decla_eff"], inplace=True, axis=1)
-    db.create_table_from_df(final_df, _settings["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings["to_sql"]
+    )
 
 
 def create_hlt_table(_settings_soclong: Dict, _settings: Dict):
@@ -322,7 +328,9 @@ def create_hlt_table(_settings_soclong: Dict, _settings: Dict):
     final_df.drop(
         ["n_decla_eff_soclong", "n_decla_eff_hlt", "n_decla_eff"], inplace=True, axis=1
     )
-    db.create_table_from_df(final_df, _settings["to_sql"])
+    db.create_table_from_df(
+        final_df[final_df.pourcentage_cas.notnull()], _settings["to_sql"]
+    )
 
 
 def check_threshold(df: pd.DataFrame, x: pd.Series):
@@ -347,7 +355,7 @@ def create_cas_grave_table(_settings: Dict):
     df = df.where(pd.notnull(df), None)
     df = df.sort_index()
 
-    db.create_table_from_df(df, _settings["to_sql"])
+    db.create_table_from_df(df[df.cas.notnull()], _settings["to_sql"])
 
 
 def create_table_emed(_settings: Dict):
@@ -511,7 +519,9 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df.laboratoire = df.laboratoire.str.capitalize()
     df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
 
-    df.date = df.date.apply(lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x)
+    df.date = df.date.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
     df.debut_ville = df.debut_ville.apply(
         lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
     )
