@@ -8,6 +8,7 @@ window.addEventListener("load", (event) => {
   }
 });
 
+
 // On callback scroll to the top of the window
 window.dash_clientside = Object.assign({}, window.dash_clientside, {
     content_updated: {
@@ -16,3 +17,5 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       }
   }
 })
+
+
