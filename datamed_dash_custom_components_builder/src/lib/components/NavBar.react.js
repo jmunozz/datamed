@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import "./navbar.scss"
-
+import logoANSM from "./logo.svg"
 
 
 const BREAKPOINT_TABLET = 600;
@@ -28,7 +28,7 @@ function BurgerNavigation({ open, children }) {
 
   return (<div class={`${currentClass} b-nav`}>
           {React.Children.map(children, (child) => {
-           return <li>{child}</li>
+           return <li className="b-link">{child}</li>
           })}
         </div>)
 }
@@ -50,12 +50,16 @@ function Burger({ children }) {
 }
 
 function ClassicNavigation({ children }) {
-  return <ul>
+  return <ul className="NavbarNavigation">
     {React.Children.map(children, (child) => {
       return <li>{child}</li>
     })}
   </ul>
 }
+
+function Logo() {
+  return <img className="CustomNavbarLogo" src={logoANSM}></img>
+} 
 
 /**
  * ExampleComponent is an example component.
@@ -79,9 +83,9 @@ export default function NavBar({ id, setProps }) {
 
   const [mode, setMode] = useState(getModeFromWindowDimensions())
 
-  const menuItems = [          <a class="b-link" href="https://github.com/mblode/burger" target="_blank">Analyses thématiques</a>,
-          <a class="b-link" href="https://github.com/mblode" target="_blank">Explorer</a>,
-          <a class="b-link" href="https://codepen.io/mblode/" target="_blank">À propos</a>]
+  const menuItems = [          <a href="https://github.com/mblode/burger" target="_blank">Analyses thématiques</a>,
+          <a href="https://github.com/mblode" target="_blank">Explorer</a>,
+          <a href="https://codepen.io/mblode/" target="_blank">À propos</a>]
 
 
       
@@ -102,10 +106,14 @@ export default function NavBar({ id, setProps }) {
   })
 
   const menu = mode === "NORMAL" ? <ClassicNavigation>{menuItems}</ClassicNavigation> : <Burger>{menuItems}</Burger>
+  const elems = [<Logo />, menu]
+  if (mode !== "NORMAL") {
+    elems.reverse()
+  }
 
   return (
     <div className="CustomNavbar">
-      {menu}
+    {elems}
     </div>
 
   );

@@ -11,6 +11,23 @@
     flex-direction: row;
     align-items: center;
     padding: 0.5rem 1.5rem;
+
+    .CustomNavbarLogo {
+        margin-right: 1.5rem;
+    }
+}
+
+.NavbarNavigation {
+    padding: 0;
+    list-style-type: none;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 0;
+
+    a {
+        text-decoration: none;
+        margin-right: 1.5rem;
+    }
 }
 
 $color-stack: (
