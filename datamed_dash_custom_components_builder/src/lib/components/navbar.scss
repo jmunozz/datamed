@@ -1,35 +1,5 @@
 @use 'sass:math';
 
-.CustomNavbar {
-    position: fixed;
-    background-color: white;
-    box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
-    height: 88px;
-    top: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0.5rem 1.5rem;
-
-    .CustomNavbarLogo {
-        margin-right: 1.5rem;
-    }
-}
-
-.NavbarNavigation {
-    padding: 0;
-    list-style-type: none;
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 0;
-
-    a {
-        text-decoration: none;
-        margin-right: 1.5rem;
-    }
-}
-
 $color-stack: (
         group: primary,
         shade: normal,
@@ -82,6 +52,65 @@ $b-pad-left: (
 $b-pad-top: (
     $b-height / 2 - $b-bun-width-half
 ); //Vertically centers bun in menu
+
+.Overlay {
+    position: fixed; /* Sit on top of the page content */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+}
+
+.CustomNavbar {
+    z-index: 3;
+    position: fixed;
+    background-color: white;
+    box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
+    height: 88px;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.5rem 1.5rem;
+
+    .CustomNavbarLogo {
+        margin-right: 1.5rem;
+    }
+
+    .CustomNavbarSearchBarContainer {
+        margin-left: auto;
+        flex-grow: 2;
+        max-width: 500px;
+    }
+
+    .CustomNavbarSearchBarContainer-isMobile {
+        width: 100%;
+        position: absolute;
+        top: $navbar-height + 5px;
+        left: 0;
+        padding: 0 0.75rem;
+        z-index: 3;
+    }
+}
+
+.NavbarNavigation {
+    padding: 0;
+    list-style-type: none;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 0;
+
+    a {
+        text-decoration: none;
+        margin-right: 1.5rem;
+    }
+}
 
 @keyframes slideInLeft {
     0% {
@@ -184,9 +213,9 @@ $b-pad-top: (
     width: $b-height;
     z-index: 12;
 
-    &:hover {
-        border: color(complement) solid $b-border-width;
-    }
+    // &:hover {
+    //     border: color(complement) solid $b-border-width;
+    // }
 }
 
 .b-bun {

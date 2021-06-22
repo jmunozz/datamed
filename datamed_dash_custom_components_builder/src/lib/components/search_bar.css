@@ -21,7 +21,7 @@
 }
 
 .search-bar-wrapper {
-    width: 400px;
+    width: 100%; /* search bar always take 100% of parent component width */
     position: relative;
 }
 

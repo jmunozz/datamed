@@ -1,23 +1,33 @@
 import React, { useRef, useEffect, useState } from 'react';
+import ReactDOM from "react-dom"
 import PropTypes from 'prop-types';
 
+import SearchBar from "./SearchBar.react"
 import "./navbar.scss"
 import logoANSM from "./logo.svg"
+import searchIcon from "./search_icon.svg"
 
 
-const BREAKPOINT_TABLET = 600;
+const BREAKPOINT_TABLET = 840;
 const BREAKPOINT_MOBILE = 320;
+
+
+function Overlay({ onClick }) {
+  const root = document.getElementById("react-entry-point")
+  const el = <div onClick={onClick} className="Overlay"></div>
+  return ReactDOM.createPortal(el, root)
+}
 
 
 function BurgerIcon({ open, onClick }) {
   
   const currentClass = open ? "open" : "";
 
-  return <div class={`${currentClass} b-container`}>
-            <div class="b-menu"onClick={onClick}>
-              <div class="b-bun b-bun--top"></div>
-              <div class="b-bun b-bun--mid"></div>
-              <div class="b-bun b-bun--bottom"></div>
+  return <div className={`${currentClass} b-container`}>
+            <div className="b-menu"onClick={onClick}>
+              <div className="b-bun b-bun--top"></div>
+              <div className="b-bun b-bun--mid"></div>
+              <div className="b-bun b-bun--bottom"></div>
             </div>
         </div>
 } 
@@ -26,7 +36,7 @@ function BurgerNavigation({ open, children }) {
 
   const currentClass = open ? "open" : "";
 
-  return (<div class={`${currentClass} b-nav`}>
+  return (<div className={`${currentClass} b-nav`}>
           {React.Children.map(children, (child) => {
            return <li className="b-link">{child}</li>
           })}
@@ -41,7 +51,7 @@ function Burger({ children }) {
   }
 
   return <React.Fragment>
-            <BurgerIcon open={isOpen} onClick={handleBurgerClick} />,
+            <BurgerIcon open={isOpen} onClick={handleBurgerClick} />
             <BurgerNavigation open={isOpen}>
               {children}
             </BurgerNavigation>
@@ -60,6 +70,27 @@ function ClassicNavigation({ children }) {
 function Logo() {
   return <img className="CustomNavbarLogo" src={logoANSM}></img>
 } 
+
+function SearchBarContainer({ opts }) {
+  return <div className="CustomNavbarSearchBarContainer">
+    <SearchBar opts={opts} />
+  </div>
+}
+
+function SearchIcon() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleClick = () => {
+    setIsOpen(!isOpen)
+  }
+  return <React.Fragment>
+      <img src={searchIcon} onClick={handleClick}/>
+      {isOpen && <div className="CustomNavbarSearchBarContainer-isMobile"> 
+        <SearchBar opts={[]}></SearchBar>
+        <Overlay onClick={handleClick} />
+      </div>}
+    </React.Fragment>
+}
 
 /**
  * ExampleComponent is an example component.
@@ -87,7 +118,7 @@ export default function NavBar({ id, setProps }) {
           <a href="https://github.com/mblode" target="_blank">Explorer</a>,
           <a href="https://codepen.io/mblode/" target="_blank">À propos</a>]
 
-
+  const opts = [];
       
 
   const windowHasResized = () => {
@@ -98,6 +129,33 @@ export default function NavBar({ id, setProps }) {
     }
   }
 
+  const getMenu = (mode) => {
+    if (mode === "NORMAL") {
+      return <ClassicNavigation>{menuItems}</ClassicNavigation>;
+    } else {
+      return <Burger>{menuItems}</Burger>;
+    }
+  }
+
+  const getSearchBar = (mode) => {
+    if (mode === "NORMAL" || mode === "TABLET") {
+      return <SearchBarContainer opts={opts}></SearchBarContainer>
+    } else {
+      return <SearchIcon />
+    }
+  }
+
+  const getNavBarElems = (mode) => {
+    if (mode === "NORMAL") {
+      return [<Logo />, getMenu(mode), getSearchBar(mode)];
+    } else if (mode === "TABLET") {
+      return [getMenu(mode), <Logo />, getSearchBar(mode)];
+    }
+    else{
+      return [getMenu(mode), <Logo />, getSearchBar(mode)];
+    }
+  }
+
   React.useEffect(() => {
     window.addEventListener("resize", windowHasResized)
     return () => {
@@ -105,15 +163,9 @@ export default function NavBar({ id, setProps }) {
     }
   })
 
-  const menu = mode === "NORMAL" ? <ClassicNavigation>{menuItems}</ClassicNavigation> : <Burger>{menuItems}</Burger>
-  const elems = [<Logo />, menu]
-  if (mode !== "NORMAL") {
-    elems.reverse()
-  }
-
   return (
     <div className="CustomNavbar">
-    {elems}
+    {getNavBarElems(mode)}
     </div>
 
   );
