@@ -4,7 +4,10 @@ import pandas as pd
 
 BAR_LAYOUT = {
     "xaxis": dict(
-        showgrid=False, showline=False, showticklabels=False, zeroline=False,
+        showgrid=False,
+        showline=False,
+        showticklabels=False,
+        zeroline=False,
     ),
     "yaxis": dict(
         showgrid=False,
@@ -95,7 +98,9 @@ TREEMAP_LAYOUT_OVERRIDE_SPECIALITE = {
 }
 
 RUPTURES_BAR_LAYOUT = {
-    "xaxis": dict(showgrid=False, showline=False, showticklabels=True, zeroline=False,),
+    "xaxis": dict(
+        showgrid=False, showline=False, showticklabels=False, zeroline=False
+    ),
     "yaxis": dict(
         showgrid=False,
         showline=False,
