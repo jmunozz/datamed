@@ -107,7 +107,7 @@ def Description() -> Component:
                             "Trouvez des informations complémentaires sur le site de l'ANSM.",
                             href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
                             className="ExternalLink d-block",
-                            target="_blank"
+                            target="_blank",
                         ),
                     ]
                 ),
@@ -133,20 +133,31 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
 
 
 def SignalementsTotal(df: pd.DataFrame) -> Component:
-    df_annee = df.reset_index().groupby("annee").numero.count().reset_index()
-    df_annee = df_annee.rename(columns={"numero": "nb_signalements"})
+    df = df.reset_index()
+    df = df.drop_duplicates(subset=["numero", "cis"], keep="first")
+    df.date = df.date.apply(lambda x: dt(x.year, x.month, 1))
+    df_mois = df.groupby("date").numero.count().reset_index()
+    df_mois = df_mois.rename(columns={"numero": "nb_signalements"})
 
     fig = go.Figure(
         SingleCurve(
-            df_annee.annee,
-            df_annee.nb_signalements,
+            df_mois.date,
+            df_mois.nb_signalements,
             "Signalements",
             "#00B3CC",
         )
     )
 
+    for annee in df.annee.unique():
+        fig.add_vline(
+            x=dt(int(annee), 1, 1),
+            line_width=3,
+            line_dash="dash",
+            line_color="pink",
+        )
+
     fig.update_layout(CURVE_LAYOUT)
-    fig.update_xaxes(title_text="Année")
+    fig.update_xaxes(title_text="Date")
     fig.update_yaxes(title_text="Nombre de signalements")
 
     return Graph(figure=fig, responsive=True, style={"height": 450})
@@ -167,14 +178,14 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
     df_circuit = df_circuit.rename(columns={"numero": "nombre"})
 
     fig = make_subplots()
-    for idx, e in enumerate(["ouvert", "clôturé"]):
+    for idx, e in enumerate(["ouvert", "fermé"]):
         df_etat = df_circuit[df_circuit.etat == e]
         fig.add_trace(
             go.Bar(
                 x=df_etat.date,
                 y=df_etat.nombre,
                 marker=dict(color=colors[idx]),
-                name=e.capitalize()
+                name=e.capitalize(),
             )
         )
 
@@ -223,9 +234,8 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     # add first bar trace at row = 1, col = 1
     fig.add_trace(
         go.Bar(
-            x=df_sig.loc[annee].head(10).label,
-            y=df_sig.loc[annee].head(10).nb_signalements,
-            # orientation="h",
+            x=df_sig.loc[annee].label,
+            y=df_sig.loc[annee].nb_signalements,
             marker=dict(color=BAR_CHART_COLORS),
             name="Nombre de signalements",
         ),
@@ -235,8 +245,8 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     # add first scatter trace at row = 1, col = 1
     fig.add_trace(
         go.Scatter(
-            x=df_sig.loc[annee].head(10).label,
-            y=df_sig.loc[annee].head(10).nb_presentations,
+            x=df_sig.loc[annee].label,
+            y=df_sig.loc[annee].nb_presentations,
             line={
                 "shape": "spline",
                 "smoothing": 1,
@@ -250,7 +260,11 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
     )
 
     fig.update_layout(RUPTURES_BAR_LAYOUT)
-    fig.update_xaxes(title_text="Classe thérapeutique")
+    fig.update_xaxes(
+        title_text="Classe thérapeutique",
+        tickangle=90,
+        tickfont=dict(family="Roboto", size=6),
+    )
     fig.update_yaxes(autorange="reversed")
     fig.update_yaxes(
         title_text="Nombre de signalements",
@@ -324,10 +338,10 @@ def Signalements() -> Component:
             SectionRow(
                 [
                     GraphBox(
-                        "Nombre de signalements par an",
+                        "Nombre de signalements au cours du temps",
                         [SignalementsTotal(df_ruptures)],
                         tooltip=[
-                            H4("Nombre de signalements par an"),
+                            H4("Nombre de signalements au cours du temps"),
                             P(
                                 "Les industriels qui produisent des Médicaments d’Intérêt Thérapeutique Majeur (MITM) "
                                 "sont tenus de signaler à l’ANSM toute rupture de stock ou risque de rupture de stock "
@@ -335,8 +349,11 @@ def Signalements() -> Component:
                                 className="regular-text",
                             ),
                             P(
-                                "Attention, l'année 2021 n'est pas terminée ! "
-                                "Le nombre de signalements peut être amené à augmenter.",
+                                "Depuis 2019, dans le cadre la feuille de route ministérielle et de la loi de "
+                                "financement de la sécurité sociale qui renforce ses pouvoirs, l'ANSM demande aux "
+                                "industriels de déclarer le plus en amont possible tout risque de rupture. "
+                                "Cette politique d'anticipation maximale a pour conséquence une augmentation "
+                                "du nombre de signalements reçus.",
                                 className="regular-text",
                             ),
                         ],
@@ -506,9 +523,7 @@ def Signalements() -> Component:
                                         [
                                             H4("Causes des signalements"),
                                             P(
-                                                "Lorsqu'un signalement arrive à l'ANSM, il est mis en place une"
-                                                " évaluation afin de déterminer les mesures les plus adaptées pour "
-                                                "pallier à l'insuffisance de stock.",
+                                                "mp/ac : matière première / article conditionnement",
                                                 className="regular-text",
                                             ),
                                         ],
@@ -555,8 +570,30 @@ def GestionRuptures() -> Component:
                             Div(
                                 [
                                     H4(
-                                        "Mesures prises pour pallier aux ruptures",
-                                        className="GraphTitle d-inline-block",
+                                        [
+                                            "Mesures prises pour pallier aux ruptures",
+                                            InformationIcon(),
+                                        ],
+                                        id=generate_title_id(
+                                            "Mesures prises pour pallier aux ruptures"
+                                        ),
+                                        className="GraphBoxTitle d-inline-block",
+                                    ),
+                                    Tooltip(
+                                        [
+                                            H4(
+                                                "Mesures prises pour pallier aux ruptures"
+                                            ),
+                                            P(
+                                                "Lorsqu'un signalement arrive à l'ANSM, est mise en place une "
+                                                "évaluation afin de déterminer les mesures les plus adaptées pour "
+                                                "pallier à l'insuffisance de stock.",
+                                                className="regular-text",
+                                            ),
+                                        ],
+                                        target=generate_title_id(
+                                            "Mesures prises pour pallier aux ruptures"
+                                        ),
                                     ),
                                     dbc.Select(
                                         id="annee-mesures-dropdown",

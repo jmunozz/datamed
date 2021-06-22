@@ -511,6 +511,8 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
 
     df = helpers.load_excel_to_df(_settings_ruptures).reset_index()
     df = df[df.etat != "Brouillon"]
+    df.etat = df.etat.apply(lambda x: "fermé" if x == "clôturé" else x)
+
     df = df.where(pd.notnull(df), None)
     df["cause"] = None
     helpers.serie_to_lowercase(
@@ -539,6 +541,7 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
 
     df_tot = pd.concat([df, df_old], axis=0, ignore_index=True)
+    df_tot["atc1"] = df_tot.atc.apply(lambda x: x[:1] if x else None)
     df_tot["atc2"] = df_tot.atc.apply(lambda x: x[:3] if x else None)
     df_tot["annee"] = df_tot.date.dt.year
 
@@ -552,13 +555,13 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
 
 def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings: Dict):
     df_atc = pd.read_sql("classes_atc", engine)
-    df = df.merge(df_atc, left_on="atc2", right_on="code", how="left")
+    df = df.merge(df_atc, left_on="atc1", right_on="code", how="left")
 
     df_spe = pd.read_sql("specialite_atc", engine)
-    df_spe["atc2"] = df_spe.atc.apply(lambda x: x[:3])
-    df_spe = df_spe.merge(df_atc, left_on="atc2", right_on="code", how="left")
+    df_spe["atc1"] = df_spe.atc.apply(lambda x: x[:1])
+    df_spe = df_spe.merge(df_atc, left_on="atc1", right_on="code", how="left")
 
-    df_pres = df_pres.merge(df_spe[["cis", "atc2", "label"]], on="cis", how="left")
+    df_pres = df_pres.merge(df_spe[["cis", "atc1", "label"]], on="cis", how="left")
 
     df_pres_atc = df_pres.groupby("label").cip13.count().reset_index()
     df_pres_atc = df_pres_atc.rename(columns={"cip13": "nb_presentations"})
