@@ -7,7 +7,11 @@ from .components.footer import Footer
 from .components.navbar import Navbar
 from .components.plateforme import Plateforme
 from .components.frontpage import FrontPage
+from apps.components.commons import SideEffects
+
 
 layout = Div(
-    [Navbar(), *FrontPage(), Footer(),], className="layout", id="layout_landing_page",
+    [Navbar(), *FrontPage(), Footer(), SideEffects()],
+    className="layout",
+    id="layout_landing_page",
 )

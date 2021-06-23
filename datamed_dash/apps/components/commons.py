@@ -60,6 +60,10 @@ def get_opts_search_bar():
     return opts
 
 
+# this invisible component is used to perform side effects
+def SideEffects():
+    return html.Div(id="dash-side-effect-hidden-div")
+
 def SearchBar(id: str, fireOnSelect=True):
     opts = get_opts_search_bar()
     return _SearchBar(id, opts=opts, fireOnSelect=fireOnSelect)

@@ -133,7 +133,8 @@ export default function NavBar({ id, setProps, fireOnSelect, opts }) {
 
   const [mode, setMode] = useState(getModeFromWindowDimensions())
 
-  const items = [{label: "Analyses thématiques", href: "#"}, { label: "Explorer", href: "/apps/explorer"}, { label: "À propos", href: "/apps/a_propos" }]
+  // Here add your menu items
+  const items = [{ label: "Explorer", href: "/apps/explorer"}, { label: "À propos", href: "/apps/a_propos" }]
   const menuItems = items.map(i => {
     return <a href={i.href} onClick={handleClick} style={{color: "inherit"}}>{i.label}</a>
   })
