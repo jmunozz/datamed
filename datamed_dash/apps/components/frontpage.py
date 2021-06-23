@@ -3,7 +3,12 @@ from typing import Tuple
 import dash_html_components as html
 from app import app
 
-from .commons import FrontPageSection, FrontPageSectionPart, FrontPageSectionFull
+from .commons import (
+    FrontPageSection,
+    FrontPageSectionPart,
+    FrontPageSectionFull,
+    SearchBar,
+)
 
 
 def FrontPage() -> Tuple[html.Div, html.Div]:
@@ -13,6 +18,13 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
             [
                 FrontPageSection(
                     [
+                        FrontPageSectionFull(
+                            [
+                                html.H3("Trouvez des données autour du médicament"),
+                                SearchBar("frontpage-search-bar"),
+                            ],
+                            class_name="Stack Stack-isCentered Stack-isVerticalCentered",
+                        ),
                         FrontPageSectionPart(
                             [
                                 html.H1(

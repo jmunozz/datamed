@@ -20,7 +20,6 @@ MESURES = {
     "CTQL": "Contingentement qualitatif",
     "CTQT": "Contingentement quantitatif",
     "RSTR": "Restriction du circuit de distribution",
-    "IMP": "Importation",
     "AUT": "Importation",
     "STCK": "Mise en place d'un stock de dépannage",
     "FLEX": "Dérogation réglementaire",
@@ -466,7 +465,82 @@ def get_acronyme_mesure(identifiant: str) -> str:
     return MESURES.get(code, code)
 
 
+def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict):
+    df_spe = pd.read_sql("specialite", engine).reset_index()
+    df_old = get_old_ruptures_df(df_spe)
+
+    df = helpers.load_excel_to_df(_settings_ruptures).reset_index()
+    df = df[df.etat != "Brouillon"]
+    df.etat = df.etat.apply(lambda x: "fermé" if x == "clôturé" else x)
+
+    df = df.where(pd.notnull(df), None)
+    df["cause"] = None
+    helpers.serie_to_lowercase(
+        df, ["etat", "classification", "nom", "nom_atc", "circuit", "laboratoire"]
+    )
+    df.laboratoire = df.laboratoire.str.capitalize()
+    df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
+
+    df.date = df.date.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+    df.debut_ville = df.debut_ville.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+    df.prevision_remise_dispo_ville = df.prevision_remise_dispo_ville.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+    df.debut_hopital = df.debut_hopital.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+    df.prevision_remise_dispo_hopital = df.prevision_remise_dispo_hopital.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+
+    df_pres = pd.read_sql("presentation", engine)
+    df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
+
+    df_tot = pd.concat([df, df_old], axis=0, ignore_index=True)
+    df_tot["atc1"] = df_tot.atc.apply(lambda x: x[:1] if x else None)
+    df_tot["atc2"] = df_tot.atc.apply(lambda x: x[:3] if x else None)
+    df_tot["annee"] = df_tot.date.dt.year
+
+    df_tot = df_tot.where(pd.notnull(df_tot), None)
+
+    create_table_signalements(df_tot, df_pres, _settings_signalements)
+
+    df_tot = df_tot.set_index("numero")
+    db.create_table_from_df(df_tot, _settings_ruptures["to_sql"])
+
+
+def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings: Dict):
+    df_atc = pd.read_sql("classes_atc", engine)
+    df = df.merge(df_atc, left_on="atc1", right_on="code", how="left")
+
+    df_spe = pd.read_sql("specialite_atc", engine)
+    df_spe["atc1"] = df_spe.atc.apply(lambda x: x[:1])
+    df_spe = df_spe.merge(df_atc, left_on="atc1", right_on="code", how="left")
+
+    df_pres = df_pres.merge(df_spe[["cis", "atc1", "label"]], on="cis", how="left")
+
+    df_pres_atc = df_pres.groupby("label").cip13.count().reset_index()
+    df_pres_atc = df_pres_atc.rename(columns={"cip13": "nb_presentations"})
+
+    df_sig = df.groupby(["annee", "label"]).numero.count().reset_index()
+    df_sig = df_sig.rename(columns={"numero": "nb_signalements"}).sort_values(
+        by="nb_signalements", ascending=False
+    )
+    df_sig = df_sig.merge(df_pres_atc, on="label", how="left").sort_values(
+        by=["annee", "nb_signalements"], ascending=False
+    )
+    df_sig = df_sig.set_index("annee")
+
+    db.create_table_from_df(df_sig, _settings["to_sql"])
+
+
 def create_table_mesures(_settings: Dict):
+    dfr = pd.read_sql("ruptures", engine)
+
     df = helpers.load_excel_to_df(_settings)
     df = df[~df["Numéro Rupture"].str.startswith("DRAFT")]
     df = df.rename(
@@ -499,80 +573,34 @@ def create_table_mesures(_settings: Dict):
     )
 
     df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
-    df = df[~df.mesure.isin(["REAP", "QST"])]
+    df = df[~df.mesure.isin(["REAP", "QST", "IMP"])]
     df["annee"] = df.numero.apply(lambda x: 2000 + int(x[:2]))
     helpers.serie_to_lowercase(df, ["etat_mesure", "nom"])
+    df["avec_mesure"] = "Avec mesure"
+
+    numero_not_in_mesures = [
+        num for num in dfr.numero.unique() if num not in df.numero.unique()
+    ]
+    for num in numero_not_in_mesures:
+        df = df.append(
+            {
+                "etat_mesure": "pas de mesure",
+                "numero": num,
+                "identifiant": num+"-NOTHING",
+                "description": None,
+                "nom": None,
+                "date_demande": None,
+                "date_mise_en_place": None,
+                "date_previ_fin": None,
+                "date_cloture": None,
+                "justification": None,
+                "mesure": "Pas de mesure",
+                "annee": int("20" + num[:2]),
+                "avec_mesure": "Sans mesure"
+            },
+            ignore_index=True,
+        )
     db.create_table_from_df(df, _settings["to_sql"])
-
-
-def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict):
-    df_spe = pd.read_sql("specialite", engine).reset_index()
-    df_old = get_old_ruptures_df(df_spe)
-
-    df = helpers.load_excel_to_df(_settings_ruptures).reset_index()
-    df = df[df.etat != "Brouillon"]
-    df = df.where(pd.notnull(df), None)
-    df["cause"] = None
-    helpers.serie_to_lowercase(
-        df, ["etat", "classification", "nom", "nom_atc", "circuit", "laboratoire"]
-    )
-    df.laboratoire = df.laboratoire.str.capitalize()
-    df.indications = df.indications.apply(lambda x: x.replace("  T", ", T"))
-
-    df.date = df.date.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-    df.debut_ville = df.debut_ville.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-    df.prevision_remise_dispo_ville = df.prevision_remise_dispo_ville.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-    df.debut_hopital = df.debut_hopital.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-    df.prevision_remise_dispo_hopital = df.prevision_remise_dispo_hopital.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-
-    df_pres = pd.read_sql("presentation", engine)
-    df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
-
-    df_tot = pd.concat([df, df_old], axis=0, ignore_index=True)
-    df_tot["atc2"] = df_tot.atc.apply(lambda x: x[:3] if x else None)
-    df_tot["annee"] = df_tot.date.dt.year
-
-    df_tot = df_tot.where(pd.notnull(df_tot), None)
-
-    create_table_signalements(df_tot, df_pres, _settings_signalements)
-
-    df_tot = df_tot.set_index("numero")
-    db.create_table_from_df(df_tot, _settings_ruptures["to_sql"])
-
-
-def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings: Dict):
-    df_atc = pd.read_sql("classes_atc", engine)
-    df = df.merge(df_atc, left_on="atc2", right_on="code", how="left")
-
-    df_spe = pd.read_sql("specialite_atc", engine)
-    df_spe["atc2"] = df_spe.atc.apply(lambda x: x[:3])
-    df_spe = df_spe.merge(df_atc, left_on="atc2", right_on="code", how="left")
-
-    df_pres = df_pres.merge(df_spe[["cis", "atc2", "label"]], on="cis", how="left")
-
-    df_pres_atc = df_pres.groupby("label").cip13.count().reset_index()
-    df_pres_atc = df_pres_atc.rename(columns={"cip13": "nb_presentations"})
-
-    df_sig = df.groupby(["annee", "label"]).numero.count().reset_index()
-    df_sig = df_sig.rename(columns={"numero": "nb_signalements"}).sort_values(
-        by="nb_signalements", ascending=False
-    )
-    df_sig = df_sig.merge(df_pres_atc, on="label", how="left").sort_values(
-        by=["annee", "nb_signalements"], ascending=False
-    )
-    df_sig = df_sig.set_index("annee")
-
-    db.create_table_from_df(df_sig, _settings["to_sql"])
 
 
 def create_table_icones(_settings: Dict):

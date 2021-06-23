@@ -138,7 +138,7 @@ export default class SearchBar extends Component {
                         type="text"
                         ref={this.inputRef}
                         onChange={this.handleInput}
-                        placeholder="specialité, substance"
+                        placeholder="Tapez le nom d'un médicament"
                         value={inputValue}
                         onKeyPress={this.handleSubmit}
                     />

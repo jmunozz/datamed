@@ -4,7 +4,10 @@ import pandas as pd
 
 BAR_LAYOUT = {
     "xaxis": dict(
-        showgrid=False, showline=False, showticklabels=False, zeroline=False,
+        showgrid=False,
+        showline=False,
+        showticklabels=False,
+        zeroline=False,
     ),
     "yaxis": dict(
         showgrid=False,
@@ -39,8 +42,7 @@ PIE_LAYOUT = {
     "autosize": False,
     "height": 400,
     "width": 400,
-    "plot_bgcolor": "#FFFFFF",
-    "paper_bgcolor": "#FFFFFF",
+    "plot_bgcolor": "#FFF",
     "margin": dict(t=1, b=1, l=0, r=0),
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     "hoverlabel": dict(
@@ -95,7 +97,9 @@ TREEMAP_LAYOUT_OVERRIDE_SPECIALITE = {
 }
 
 RUPTURES_BAR_LAYOUT = {
-    "xaxis": dict(showgrid=False, showline=False, showticklabels=True, zeroline=False,),
+    "xaxis": dict(
+        showgrid=False, showline=False, showticklabels=False, zeroline=False
+    ),
     "yaxis": dict(
         showgrid=False,
         showline=False,

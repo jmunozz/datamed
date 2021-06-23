@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 import math
 
 import dash.dependencies as dd
@@ -38,8 +38,26 @@ from dash_bootstrap_components import (
     ModalFooter,
 )
 from dash_html_components import Div, H1
-from datamed_custom_components import Accordion
-from db import fetch_data, specialite
+from datamed_custom_components import Accordion, SearchBar as _SearchBar
+from db import fetch_data, specialite, substance
+from apps.components.utils import truncate_str
+
+
+def to_search_bar_options(df: pd.DataFrame, type: str) -> List[Dict]:
+    return [
+        {"label": truncate_str(val), "value": index, "type": type,}
+        for index, val in df.nom.items()
+    ]
+
+
+def SearchBar(id: str, fireOnSelect = True):
+    df_spe = specialite.list_specialite()
+    df_sub = substance.list_substance()
+    opts_spe = to_search_bar_options(df_spe, "specialite")
+    opts_sub = to_search_bar_options(df_sub, "substance")
+    opts = opts_spe + opts_sub
+    opts = sorted(opts, key=lambda d: len(d["label"]))
+    return _SearchBar(id, opts=opts, fireOnSelect=fireOnSelect)
 
 
 # Return NoData if df empty or figure missing for man or woman
