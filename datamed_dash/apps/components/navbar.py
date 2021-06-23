@@ -9,7 +9,9 @@ from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from db import specialite, substance
-from apps.components.commons import SearchBar
+
+from apps.components.commons import get_opts_search_bar
+from datamed_custom_components import NavBar
 
 
 def LogoAnsm() -> Component:
@@ -26,28 +28,23 @@ def MenuItem(title: str, href: str) -> Component:
 
 
 def Navbar() -> Component:
-    return html.Div(
-        [
-            LogoAnsm(),
-            # MenuItem("Analyses thématiques", "/apps/construction"),
-            MenuItem("Explorer", "/apps/explorer"),
-            MenuItem("À propos", "/apps/a_propos"),
-            SearchBar(id="search-bar"),
-            html.Div(id="dash-side-effect-hidden-div"),
-        ],
-        className="Navbar",
-    )
+    opts = get_opts_search_bar()
+    return NavBar(id="navbar", opts=opts, fireOnSelect=True)
 
 
 @app.callback(
-    dd.Output("url", "href"), dd.Input("search-bar", "value"),
+    dd.Output("url", "href"), dd.Input("navbar", "url"), dd.Input("navbar", "value"),
 )
-def update_path(value):
+def update_path(url, value):
+    print(url, value)
     ctx = dash.callback_context
-    if not ctx.triggered or not value:
+    if not ctx.triggered:
         raise PreventUpdate()
-
-    type = value["type"]
-    index = value["value"]
-
-    return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
+    if value:
+        type = value["type"]
+        index = value["value"]
+        return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
+    elif url:
+        return url
+    else:
+        raise PreventUpdate()

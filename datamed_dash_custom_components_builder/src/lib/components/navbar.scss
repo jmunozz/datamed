@@ -8,7 +8,22 @@ $color-stack: (
     (
         group: complement,
         shade: normal,
-        color: #444,
+        color: #9e9e9e,
+    ),
+    (
+        group: text,
+        shade: normal,
+        color: #000000,
+    ),
+    (
+        group: selected,
+        shade: background,
+        color: #dbeefd,
+    ),
+    (
+        group: selected,
+        shade: normal,
+        color: #2196f3,
     );
 
 @function color($group, $shade: normal, $transparency: 1) {
@@ -25,7 +40,7 @@ $color-stack: (
 }
 
 $navbar-height: 88px; // Height of navbar that contains burger menu
-$b-height: 60px; //Height (and width) of the burger menu
+$b-height: 40px; //Height (and width) of the burger menu
 $b-margin-top: 30px; //Burger menu margin (distance from top)
 $b-margin-left: 30px; //Burger menu margin (distance from left)
 $b-border-width: 2px; //Width of the borders and 'buns'
@@ -36,9 +51,9 @@ $b-border-radius: 50%; //Change the border radius of the menu
 $b-trans-speed: 0.4s; //Transition speed settings
 $b-transition: all $b-trans-speed ease; //Transitions
 
-$b-font-size: 24px; //Font size of brand and links
-$b-font-family: Helvetica-Neue, Helvetica, Arial, sans-serif; //Font family of the brand and links
-$b-font-weight: 300; //Font weight of brand and links
+$b-font-size: 14px; //Font size of brand and links
+$b-font-family: Roboto, Helvetica, Arial, sans-serif; //Font family of the brand and links
+$b-font-weight: 400; //Font weight of brand and links
 $b-txt-pad: 30px; //Left padding on both brand and links
 
 $b-line-height: (
@@ -52,6 +67,14 @@ $b-pad-left: (
 $b-pad-top: (
     $b-height / 2 - $b-bun-width-half
 ); //Vertically centers bun in menu
+
+.regular-text {
+    font-size: 0.875rem;
+    font-weight: 400;
+    opacity: 0.8;
+    line-height: 1.125rem;
+    letter-spacing: 0.25px;
+}
 
 .Overlay {
     position: fixed; /* Sit on top of the page content */
@@ -78,6 +101,25 @@ $b-pad-top: (
     flex-direction: row;
     align-items: center;
     padding: 0.5rem 1.5rem;
+
+    .SearchIcon {
+        width: 24px;
+        min-width: 24px;
+        cursor: pointer;
+        transition: $b-transition;
+
+        img {
+            width: 100%;
+        }
+
+        &:hover {
+            opacity: 0.5;
+        }
+    }
+
+    &.CustomNavbar-isMobile {
+        justify-content: space-between;
+    }
 
     .CustomNavbarLogo {
         margin-right: 1.5rem;
@@ -108,7 +150,33 @@ $b-pad-top: (
 
     a {
         text-decoration: none;
-        margin-right: 1.5rem;
+    }
+
+    .NavbarNavigationItem {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 400;
+        opacity: 0.8;
+        line-height: 1.125rem;
+        letter-spacing: 0.25px;
+        color: black;
+
+        &:hover {
+            background-color: #f5f5f5;
+        }
+
+        &:last-of-type {
+            margin-right: 1.5rem;
+        }
+
+        a {
+            color: inherit;
+        }
+    }
+
+    .NavbarNavigationItem-isCurrent {
+        background-color: color(selected, background);
+        color: color(selected);
     }
 }
 
@@ -151,7 +219,7 @@ $b-pad-top: (
     }
 
     li {
-        color: color(complement);
+        color: color(text);
         list-style-type: none;
         padding: 10px;
         text-align: left;
@@ -213,9 +281,9 @@ $b-pad-top: (
     width: $b-height;
     z-index: 12;
 
-    // &:hover {
-    //     border: color(complement) solid $b-border-width;
-    // }
+    &:hover {
+        opacity: 0.5;
+    }
 }
 
 .b-bun {

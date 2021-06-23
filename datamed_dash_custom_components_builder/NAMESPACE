@@ -1,8 +1,10 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 export(Accordion)
+export(NavBar)
 export(SearchBar)
 export(Treemap)
 export(treemap)
 export(accordion)
 export(searchBar)
+export(navBar)
