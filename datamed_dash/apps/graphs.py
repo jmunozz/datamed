@@ -99,7 +99,10 @@ def EIRepartitionSexeFigure(df_cas_sexe: pd.DataFrame) -> Component:
 # Représentation de la répartition des effets indésirables par âge (Camembert)
 def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame, pie_colors: dict) -> Component:
     fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, pie_colors)
-    return Graph(figure=fig_age, responsive=False,)
+    return Graph(
+        figure=fig_age,
+        responsive=False,
+    )
 
 
 # Représentation des notificateurs d'effets indésirable par type (Nombre)
@@ -136,7 +139,10 @@ def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame, type: str) -> Component:
 
 def EIRepartitionHLT(df_hlt: pd.DataFrame) -> Component:
     fig = Treemap(df_hlt, "effet_hlt", "pourcentage_cas")
-    return Graph(figure=fig, responsive=True,)
+    return Graph(
+        figure=fig,
+        responsive=True,
+    )
 
 
 #
@@ -205,7 +211,9 @@ def RupturesSignalementsFigure(df: pd.DataFrame):
         FigureGraph(
             [
                 {
-                    "figure": "{} signalements".format(nb_signalements,),
+                    "figure": "{} signalements".format(
+                        nb_signalements,
+                    ),
                     "caption": "Nombre de signalements en {}".format(dt.now().year - 1),
                 }
             ]
@@ -237,9 +245,21 @@ def RupturesMesuresFigure(df_mesures: pd.DataFrame):
 
 # Répartition des mesures pour une année donnée (Camembert)
 def getRupturesMesuresRepartitionGraph(df_mesures: pd.DataFrame, annee: str):
-    df = df_mesures.groupby(["annee", "mesure"]).numero.count().reset_index()
-    df = df.rename(columns={"numero": "nombre"}).set_index("annee")
-    return makePie(df.loc[annee].mesure, df.loc[annee].nombre, TREE_COLORS)
+    df_mesures = df_mesures[df_mesures.etat_mesure.isin(["accord", "pas de mesure"])]
+    df = (
+        df_mesures.groupby(["annee", "avec_mesure", "mesure"])
+        .identifiant.count()
+        .reset_index()
+    )
+    df = df.rename(columns={"identifiant": "nombre"}).set_index("annee")
+    # return makePie(df.loc[annee].mesure, df.loc[annee].nombre, TREE_COLORS)
+    return (
+        go.Figure(
+            px.sunburst(df.loc[annee], path=["avec_mesure", "mesure"], values="nombre")
+        )
+        .update_layout(PIE_LAYOUT)
+        .update_traces(PIE_TRACES)
+    )
 
 
 def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
@@ -303,11 +323,16 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
         df,
         x="pourcentage",
         color=field,
-        labels={"pourcentage": "Proportion", field: field.split("_")[0].capitalize(),},
+        labels={
+            "pourcentage": "Proportion",
+            field: field.split("_")[0].capitalize(),
+        },
         color_discrete_sequence=PIE_COLORS_SPECIALITE,
         orientation="h",
         hover_name=field,
-        hover_data={field: False,},
+        hover_data={
+            field: False,
+        },
     )
 
     fig.update_layout(STACKED_BAR_CHART_LAYOUT)

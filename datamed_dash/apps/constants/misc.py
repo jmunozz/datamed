@@ -1,5 +1,7 @@
 from app import app
 
+SEARCH_ITEM_MAX_LENGTH = 100
+
 NOTIF_IMAGE_URL = {
     "Autre professionnel de santé": app.get_asset_url("./otherdoctor_male_80.svg"),
     "Dentiste": app.get_asset_url("./dentist_male_80.svg"),

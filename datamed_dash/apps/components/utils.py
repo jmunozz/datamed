@@ -8,6 +8,7 @@ import unidecode
 from dash.development.base_component import Component
 from dash_html_components import Div, A, Img, H5, H1, H4, Label, Section
 from app import app
+from apps.constants.misc import SEARCH_ITEM_MAX_LENGTH
 
 
 def SectionRow(children, withGutter=False):
@@ -170,3 +171,12 @@ def Grid(children, nb_elems_per_row: int):
 
 def trim_list(list: List[any]):
     return [i for i in list if i]
+
+
+# truncate text if length > SEARCH_ITEM_MAX_LENGTH
+def truncate_str(text: str) -> str:
+    return (
+        f"{text[:SEARCH_ITEM_MAX_LENGTH]}..."
+        if len(text) >= SEARCH_ITEM_MAX_LENGTH
+        else text
+    )
