@@ -54,6 +54,20 @@ PIE_LAYOUT = {
 
 PIE_TRACES = {"marker": dict(line=dict(color="#000000", width=1))}
 
+SUNBURST_LAYOUT = {
+    "autosize": False,
+    "height": 400,
+    "width": 400,
+    "plot_bgcolor": "#FFF",
+    "margin": dict(t=1, b=1, l=0, r=0),
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+}
+
+SUNBURST_TRACES = {
+    "marker": dict(line=dict(color="#000000", width=1)),
+    "hovertemplate": "<b>%{label}</b> <br> <br>Total : <b>%{value:f}</b> <extra></extra>",
+}
+
 STACKED_BAR_CHART_LAYOUT = {
     "xaxis": dict(showgrid=False, showline=False, zeroline=False, tickformat="%"),
     "yaxis": dict(
@@ -97,9 +111,7 @@ TREEMAP_LAYOUT_OVERRIDE_SPECIALITE = {
 }
 
 RUPTURES_BAR_LAYOUT = {
-    "xaxis": dict(
-        showgrid=False, showline=False, showticklabels=False, zeroline=False
-    ),
+    "xaxis": dict(showgrid=False, showline=False, showticklabels=False, zeroline=False),
     "yaxis": dict(
         showgrid=False,
         showline=False,
