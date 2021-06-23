@@ -538,10 +538,10 @@ def ErreursMedicamenteuses(
                                     "Étape de survenue des erreurs médicamenteuses"
                                 ),
                                 html.P(
-                                    "L'erreur médicamenteuse peut survenir aux différentes étapes du processus "
+                                    "Une erreur peut survenir aux différentes étapes du processus "
                                     "d'utilisation : l'erreur de prescription par le médecin ou un autre professionnel "
                                     "de santé, ou par le patient lui-même dans le cas d'une auto-prescription, l'erreur "
-                                    "de dispenciation, l'erreur de préparation, l'erreur de suivi thérapeutique, et "
+                                    "de dispenciation, l'erreur de préparation, l'erreur de suivi thérapeutique et "
                                     "enfin l'erreur d'administration par le patient lui-même, un aidant "
                                     "ou un professionnel de santé.",
                                     className="regular-text text-justify",
@@ -597,10 +597,10 @@ def ErreursMedicamenteuses(
                             tooltip=[
                                 html.H4("Nature des erreurs médicamenteuses"),
                                 html.P(
-                                    "Identifie le type d'erreur : par exemple une confusion entre deux médicaments. "
-                                    "Il peut s'agir du bon médicament mais d'une erreur sur la dose, sur la durée de "
-                                    "traitement ou sur la voie d'administration. Dans certains cas, le patient peut "
-                                    "ne pas être la bonne personne.",
+                                    "Identifie le type d'erreur : par exemple une erreur de médicament ou "
+                                    "une erreur de patient. Il peut s'agir du bon médicament mais avec erreur sur "
+                                    "la dose, sur la durée de traitement ou sur la voie d'administration. "
+                                    "Dans certains cas, le patient peut ne pas être la bonne personne.",
                                     className="regular-text",
                                 ),
                             ],

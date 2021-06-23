@@ -44,6 +44,7 @@ INITIAL_YEAR = str(dt.now().year)
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
 df_mesures = fetch_data.fetch_table("mesures", "index")
+df_mesures = df_mesures[df_mesures.annee.apply(lambda x: int(x) >= 2021)]
 
 
 def Description() -> Component:
@@ -346,7 +347,7 @@ def Signalements() -> Component:
                                 "Les industriels qui produisent des Médicaments d’Intérêt Thérapeutique Majeur (MITM) "
                                 "sont tenus de signaler à l’ANSM toute rupture de stock ou risque de rupture de stock "
                                 "les concernant (CSP Art. R. 5124-49-1).",
-                                className="regular-text",
+                                className="regular-text text-justify",
                             ),
                             P(
                                 "Depuis 2019, dans le cadre la feuille de route ministérielle et de la loi de "
@@ -354,7 +355,7 @@ def Signalements() -> Component:
                                 "industriels de déclarer le plus en amont possible tout risque de rupture. "
                                 "Cette politique d'anticipation maximale a pour conséquence une augmentation "
                                 "du nombre de signalements reçus.",
-                                className="regular-text",
+                                className="regular-text text-justify",
                             ),
                         ],
                     ),
@@ -390,7 +391,7 @@ def Signalements() -> Component:
                                                 "Les médicaments sont divisés en groupes selon l'organe ou le "
                                                 "système sur lequel ils agissent ou leurs caractéristiques "
                                                 "thérapeutiques et chimiques.",
-                                                className="regular-text",
+                                                className="regular-text text-justify",
                                             ),
                                             P(
                                                 "Ce graphique représente le nombre de signalements reçus par classe "
@@ -401,7 +402,7 @@ def Signalements() -> Component:
                                                 "présentations différentes). Dans sa globalité, ce graphique permet "
                                                 "d'apprécier le nombre de signalements reçu spar rapport au nombre de "
                                                 "médicaments disponibles.",
-                                                className="regular-text",
+                                                className="regular-text text-justify",
                                             ),
                                         ],
                                         target=generate_title_id(
@@ -453,14 +454,14 @@ def Signalements() -> Component:
                                             P(
                                                 "Les données antérieures à Mai 2021 ne pas sont dans un format "
                                                 "compatible à leur exploitation.",
-                                                className="regular-text",
+                                                className="regular-text text-justify",
                                             ),
                                             P(
                                                 "Chaque signalement amène à l'ouverture d'un dossier impactant le "
                                                 "circuit ville ou le circuit hôpital, ou les deux. La clôture d'un "
                                                 "dossier ne peut être faite qu'à la remise à disposition effective "
                                                 "du produit sur le marché.",
-                                                className="regular-text",
+                                                className="regular-text text-justify",
                                             ),
                                         ],
                                         target=generate_title_id(
@@ -484,7 +485,7 @@ def Signalements() -> Component:
                                 className="mb-5",
                             ),
                             H4(
-                                "Nombre d'ouvertures et de clôtures de dossier",
+                                "Nombre d'ouvertures et de fermetures de dossier par mois",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(
@@ -494,16 +495,17 @@ def Signalements() -> Component:
                                 className="mb-5",
                                 style={"height": 300},
                             ),
-                            H4(
-                                "Évolution du nombre de ruptures",
-                                className="GraphTitle mb-3",
-                            ),
-                            Graph(
-                                figure=get_ruptures_circuit(),
-                                responsive=True,
-                                id="ruptures-circuit",
-                                style={"height": 300},
-                            ),
+                            # On cache ce graphique pour le moment
+                            # H4(
+                            #     "Évolution du nombre de ruptures",
+                            #     className="GraphTitle mb-3",
+                            # ),
+                            # Graph(
+                            #     figure=get_ruptures_circuit(),
+                            #     responsive=True,
+                            #     id="ruptures-circuit",
+                            #     style={"height": 300},
+                            # ),
                         ],
                     )
                 ),
@@ -588,7 +590,7 @@ def GestionRuptures() -> Component:
                                                 "Lorsqu'un signalement arrive à l'ANSM, est mise en place une "
                                                 "évaluation afin de déterminer les mesures les plus adaptées pour "
                                                 "pallier à l'insuffisance de stock.",
-                                                className="regular-text",
+                                                className="regular-text text-justify",
                                             ),
                                         ],
                                         target=generate_title_id(
@@ -669,14 +671,14 @@ def update_figure(value: str):
 @app.callback(
     [
         dd.Output("signalements-circuit", "figure"),
-        dd.Output("ruptures-circuit", "figure"),
+        # dd.Output("ruptures-circuit", "figure"),
     ],
     dd.Input("circuit-dropdown", "value"),
 )
 def update_figure(value: str):
     if not value:
         raise PreventUpdate
-    return get_signalements_circuit(value), get_ruptures_circuit(value)
+    return get_signalements_circuit(value)  # , get_ruptures_circuit(value)
 
 
 @app.callback(

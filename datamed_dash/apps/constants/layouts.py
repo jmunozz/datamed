@@ -42,8 +42,7 @@ PIE_LAYOUT = {
     "autosize": False,
     "height": 400,
     "width": 400,
-    "plot_bgcolor": "#FFFFFF",
-    "paper_bgcolor": "#FFFFFF",
+    "plot_bgcolor": "#FFF",
     "margin": dict(t=1, b=1, l=0, r=0),
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     "hoverlabel": dict(
