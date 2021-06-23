@@ -44,6 +44,7 @@ INITIAL_YEAR = str(dt.now().year)
 df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
 df_mesures = fetch_data.fetch_table("mesures", "index")
+df_mesures = df_mesures[df_mesures.annee.apply(lambda x: int(x) >= 2021)]
 
 
 def Description() -> Component:
@@ -677,7 +678,7 @@ def update_figure(value: str):
 def update_figure(value: str):
     if not value:
         raise PreventUpdate
-    return get_signalements_circuit(value)  #, get_ruptures_circuit(value)
+    return get_signalements_circuit(value)  # , get_ruptures_circuit(value)
 
 
 @app.callback(
