@@ -485,7 +485,7 @@ def Signalements() -> Component:
                                 className="mb-5",
                             ),
                             H4(
-                                "Nombre d'ouvertures et de clôtures de dossier",
+                                "Nombre d'ouvertures et de fermetures de dossier par mois",
                                 className="GraphTitle mb-3",
                             ),
                             Graph(
