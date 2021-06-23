@@ -9,7 +9,7 @@ from apps.components.commons import SideEffects
 
 def Layout() -> Component:
     return Div(
-        [Navbar(), *Ruptures(), Footer(), SideEffects],
+        [Navbar(), *Ruptures(), Footer(), SideEffects()],
         className="layout",
         id="layout_ruptures",
     )
