@@ -1,9 +1,14 @@
 from typing import List, Optional, Dict
+from typing import List, Dict
+from urllib.parse import urlencode, quote_plus
+
 import math
+import dash
 
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+from dash.exceptions import PreventUpdate
 import numpy as np
 import pandas as pd
 from app import app
@@ -64,9 +69,10 @@ def get_opts_search_bar():
 def SideEffects():
     return html.Div(id="dash-side-effect-hidden-div")
 
-def SearchBar(id: str, fireOnSelect=True):
+
+def SearchBar():
     opts = get_opts_search_bar()
-    return _SearchBar(id, opts=opts, fireOnSelect=fireOnSelect)
+    return _SearchBar("search-bar", opts=opts, fireOnSelect=True)
 
 
 # Return NoData if df empty or figure missing for man or woman
@@ -661,3 +667,18 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+
+@app.callback(
+    dd.Output("url", "href"), dd.Input("search-bar", "value"),
+)
+def update_path(value):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate()
+    if value:
+        type = value["type"]
+        index = value["value"]
+        return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
+    else:
+        raise PreventUpdate()

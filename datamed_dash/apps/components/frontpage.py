@@ -21,7 +21,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                         FrontPageSectionFull(
                             [
                                 html.H3("Trouvez des données autour du médicament"),
-                                SearchBar("frontpage-search-bar"),
+                                SearchBar(),
                             ],
                             class_name="Stack Stack-isCentered Stack-isVerticalCentered",
                         ),
@@ -181,3 +181,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
             className="container-fluid p-0",
         ),
     )
+
+
+
+
