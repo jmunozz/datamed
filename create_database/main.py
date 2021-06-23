@@ -20,7 +20,6 @@ MESURES = {
     "CTQL": "Contingentement qualitatif",
     "CTQT": "Contingentement quantitatif",
     "RSTR": "Restriction du circuit de distribution",
-    "IMP": "Importation",
     "AUT": "Importation",
     "STCK": "Mise en place d'un stock de dépannage",
     "FLEX": "Dérogation réglementaire",
@@ -466,45 +465,6 @@ def get_acronyme_mesure(identifiant: str) -> str:
     return MESURES.get(code, code)
 
 
-def create_table_mesures(_settings: Dict):
-    df = helpers.load_excel_to_df(_settings)
-    df = df[~df["Numéro Rupture"].str.startswith("DRAFT")]
-    df = df.rename(
-        columns={
-            "Etat": "etat_mesure",
-            "Numéro Rupture": "numero",
-            "Identifiant": "identifiant",
-            "Description": "description",
-            "Nom Produit": "nom",
-            "Demande de mise en place": "date_demande",
-            "Date mise en place": "date_mise_en_place",
-            "Date de fin prévisionnelle": "date_previ_fin",
-            "Date de clotûre": "date_cloture",
-            "Justification": "justification",
-        }
-    )
-    df = df.where(pd.notnull(df), None)
-
-    df.date_demande = df.date_demande.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-    df.date_mise_en_place = df.date_mise_en_place.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-    df.date_previ_fin = df.date_previ_fin.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-    df.date_cloture = df.date_cloture.apply(
-        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
-    )
-
-    df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
-    df = df[~df.mesure.isin(["REAP", "QST"])]
-    df["annee"] = df.numero.apply(lambda x: 2000 + int(x[:2]))
-    helpers.serie_to_lowercase(df, ["etat_mesure", "nom"])
-    db.create_table_from_df(df, _settings["to_sql"])
-
-
 def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict):
     df_spe = pd.read_sql("specialite", engine).reset_index()
     df_old = get_old_ruptures_df(df_spe)
@@ -576,6 +536,71 @@ def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings
     df_sig = df_sig.set_index("annee")
 
     db.create_table_from_df(df_sig, _settings["to_sql"])
+
+
+def create_table_mesures(_settings: Dict):
+    dfr = pd.read_sql("ruptures", engine)
+
+    df = helpers.load_excel_to_df(_settings)
+    df = df[~df["Numéro Rupture"].str.startswith("DRAFT")]
+    df = df.rename(
+        columns={
+            "Etat": "etat_mesure",
+            "Numéro Rupture": "numero",
+            "Identifiant": "identifiant",
+            "Description": "description",
+            "Nom Produit": "nom",
+            "Demande de mise en place": "date_demande",
+            "Date mise en place": "date_mise_en_place",
+            "Date de fin prévisionnelle": "date_previ_fin",
+            "Date de clotûre": "date_cloture",
+            "Justification": "justification",
+        }
+    )
+    df = df.where(pd.notnull(df), None)
+
+    df.date_demande = df.date_demande.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+    df.date_mise_en_place = df.date_mise_en_place.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+    df.date_previ_fin = df.date_previ_fin.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+    df.date_cloture = df.date_cloture.apply(
+        lambda x: dt.strptime(x, "%d/%m/%Y") if x and not isinstance(x, dt) else x
+    )
+
+    df["mesure"] = df.identifiant.apply(get_acronyme_mesure)
+    df = df[~df.mesure.isin(["REAP", "QST", "IMP"])]
+    df["annee"] = df.numero.apply(lambda x: 2000 + int(x[:2]))
+    helpers.serie_to_lowercase(df, ["etat_mesure", "nom"])
+    df["avec_mesure"] = "Avec mesure"
+
+    numero_not_in_mesures = [
+        num for num in dfr.numero.unique() if num not in df.numero.unique()
+    ]
+    for num in numero_not_in_mesures:
+        df = df.append(
+            {
+                "etat_mesure": "pas de mesure",
+                "numero": num,
+                "identifiant": num+"-NOTHING",
+                "description": None,
+                "nom": None,
+                "date_demande": None,
+                "date_mise_en_place": None,
+                "date_previ_fin": None,
+                "date_cloture": None,
+                "justification": None,
+                "mesure": "Pas de mesure",
+                "annee": int("20" + num[:2]),
+                "avec_mesure": "Sans mesure"
+            },
+            ignore_index=True,
+        )
+    db.create_table_from_df(df, _settings["to_sql"])
 
 
 def create_table_icones(_settings: Dict):
