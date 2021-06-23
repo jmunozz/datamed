@@ -50,13 +50,22 @@ def to_search_bar_options(df: pd.DataFrame, type: str) -> List[Dict]:
     ]
 
 
-def SearchBar(id: str, fireOnSelect = True):
+def get_opts_search_bar():
     df_spe = specialite.list_specialite()
     df_sub = substance.list_substance()
     opts_spe = to_search_bar_options(df_spe, "specialite")
     opts_sub = to_search_bar_options(df_sub, "substance")
     opts = opts_spe + opts_sub
     opts = sorted(opts, key=lambda d: len(d["label"]))
+    return opts
+
+
+# this invisible component is used to perform side effects
+def SideEffects():
+    return html.Div(id="dash-side-effect-hidden-div")
+
+def SearchBar(id: str, fireOnSelect=True):
+    opts = get_opts_search_bar()
     return _SearchBar(id, opts=opts, fireOnSelect=fireOnSelect)
 
 

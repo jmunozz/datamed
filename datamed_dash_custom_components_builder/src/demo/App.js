@@ -9,6 +9,12 @@ import {NavBar} from "../lib"
 
 const opts = new Array(100000).fill({label: "jordan", value: 1, type: "spécialité" })
 
+
+const setProps = (props) => {
+    console.log(props)
+}
+
+
 class App extends Component {
     constructor() {
         super();
@@ -35,7 +41,7 @@ class App extends Component {
                     <p>This is a text</p>
                 </Accordion> */}
                 {/* <Treemap data={data} height={400} width={600}></Treemap> */}
-                <NavBar />
+                <NavBar setProps={setProps} opts={opts} fireOnSelect={true}/>
                 <article style={{"paddingTop": "88px"}}>
                     <h1>Ceci est un titre</h1>
                     <p>Lorem ipsum</p>

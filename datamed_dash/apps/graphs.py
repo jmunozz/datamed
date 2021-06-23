@@ -9,17 +9,18 @@ import plotly.express as px
 import plotly.graph_objects as go
 from app import app
 from apps.constants.colors import (
-    PIE_COLORS_SUBSTANCE,
     TREE_COLORS,
     PIE_COLORS_SPECIALITE,
 )
 from apps.constants.layouts import (
     TREEMAP_LAYOUT_OVERRIDE_SPECIALITE,
     TREEMAP_LAYOUT,
+    SUNBURST_LAYOUT,
     PIE_LAYOUT,
     PIE_TRACES,
     STACKED_BAR_CHART_LAYOUT,
     STACKED_BAR_CHART_TRACES,
+    SUNBURST_TRACES,
 )
 from apps.constants.misc import NOTIF_IMAGE_URL, NOTIF_NOM, SEXE, SEXE_IMG_URL
 from dash.development.base_component import Component
@@ -97,7 +98,7 @@ def EIRepartitionSexeFigure(df_cas_sexe: pd.DataFrame) -> Component:
 
 
 # Représentation de la répartition des effets indésirables par âge (Camembert)
-def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame, pie_colors: dict) -> Component:
+def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame, pie_colors: Dict) -> Component:
     fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, pie_colors)
     return Graph(
         figure=fig_age,
@@ -251,14 +252,21 @@ def getRupturesMesuresRepartitionGraph(df_mesures: pd.DataFrame, annee: str):
         .identifiant.count()
         .reset_index()
     )
-    df = df.rename(columns={"identifiant": "nombre"}).set_index("annee")
+    df = df.rename(columns={"identifiant": "Total"}).set_index("annee")
+    df.mesure = df.mesure.apply(lambda x: None if x == "Pas de mesure" else x)
     # return makePie(df.loc[annee].mesure, df.loc[annee].nombre, TREE_COLORS)
     return (
         go.Figure(
-            px.sunburst(df.loc[annee], path=["avec_mesure", "mesure"], values="nombre")
+            px.sunburst(
+                df.loc[annee],
+                path=["avec_mesure", "mesure"],
+                values="Total",
+                color="Total",
+                color_continuous_scale=["#7E5598", "#DFD4E5"],
+            )
         )
-        .update_layout(PIE_LAYOUT)
-        .update_traces(PIE_TRACES)
+        .update_layout(SUNBURST_LAYOUT)
+        .update_traces(SUNBURST_TRACES)
     )
 
 
