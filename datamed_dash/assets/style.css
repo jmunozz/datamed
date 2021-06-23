@@ -792,6 +792,7 @@ a.btn-lg {
 .Line {
   display: flex;
   justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .Line-isCentered {
@@ -1040,4 +1041,8 @@ a.btn-lg {
 
 #dash-side-effect-hidden-div {
   display: none;
+}
+
+.ErrMedStackBar {
+  width: 100%;
 }
