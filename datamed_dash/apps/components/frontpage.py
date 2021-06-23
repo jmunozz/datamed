@@ -66,7 +66,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                     "à propos",
                                     className="Btn Btn-isPrimary",
                                     role="button",
-                                    href="#",
+                                    href="/apps/a_propos",
                                 ),
                             ],
                             class_name="Stack Stack-isVerticalCentered",
