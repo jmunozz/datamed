@@ -1046,3 +1046,8 @@ a.btn-lg {
 .ErrMedStackBar {
   height: 225px;
 }
+
+.FrontPageSearchBarImg {
+  height: 150px;
+  max-width: 100%;
+}

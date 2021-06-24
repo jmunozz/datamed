@@ -20,6 +20,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                     [
                         FrontPageSectionFull(
                             [
+                                html.Img(src=app.get_asset_url("illu_searchbar.svg"), className="FrontPageSearchBarImg"),
                                 html.H3("Trouvez des données autour du médicament"),
                                 SearchBar(),
                             ],
@@ -181,7 +182,4 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
             className="container-fluid p-0",
         ),
     )
-
-
-
 
