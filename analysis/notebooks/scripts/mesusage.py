@@ -449,9 +449,6 @@ fig.update_layout(CURVE_LAYOUT)
 fig.show()
 
 
-# In[26]:
-
-
 pv_dict = [
     {"annee": 2014, "cas": 42444},
     {"annee": 2015, "cas": 42396},
@@ -465,9 +462,6 @@ pv_dict = [
 
 df_pv = pd.DataFrame(pv_dict)
 df_pv.head()
-
-
-# In[27]:
 
 
 fig = make_subplots(specs=[[{"secondary_y": True}]])

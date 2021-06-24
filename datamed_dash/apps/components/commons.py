@@ -1,16 +1,15 @@
-from typing import List, Optional, Dict
 from typing import List, Dict
+from typing import Optional
 from urllib.parse import urlencode, quote_plus
 
-import math
 import dash
-
+import math
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-from dash.exceptions import PreventUpdate
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 from app import app
 from apps.components.utils import (
     Box,
@@ -20,6 +19,7 @@ from apps.components.utils import (
     normalize_string,
     Grid,
     Tooltip as HoverTooltip,
+    truncate_str,
 )
 from apps.constants.misc import (
     UTILISATION,
@@ -41,6 +41,7 @@ from apps.graphs import (
     FigureGraph,
 )
 from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
 from dash_bootstrap_components import (
     Button,
     Modal,
@@ -51,7 +52,6 @@ from dash_bootstrap_components import (
 from dash_html_components import Div, H1
 from datamed_custom_components import Accordion, SearchBar as _SearchBar
 from db import fetch_data, specialite, substance
-from apps.components.utils import truncate_str
 
 
 def to_search_bar_options(df: pd.DataFrame, type: str) -> List[Dict]:
@@ -125,6 +125,16 @@ def SideEffects():
 def SearchBar():
     opts = get_opts_search_bar()
     return _SearchBar("search-bar", opts=opts, fireOnSelect=True)
+
+
+def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter:
+    return go.Scatter(
+        x=x,
+        y=y,
+        mode="lines",
+        name=name,
+        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
+    )
 
 
 # Return NoData if df empty or figure missing for man or woman
@@ -594,6 +604,22 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         ]
     elif type == "rupture":
         title = "Données ruptures de stock"
+        css_class = "Header-isRupture"
+        icon_url = app.get_asset_url("rupturedestock-120.svg")
+        type_label = "Base de données"
+        help_link = html.A(
+            "Qu'est-ce qu'une base de données ?",
+            id="definition-open",
+            className="Link Link",
+        )
+        modal_body = [
+            html.Div(
+                "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
+                "à ces données."
+            )
+        ]
+    elif type == "mesusage":
+        title = "Bon usage du médicament"
         css_class = "Header-isRupture"
         icon_url = app.get_asset_url("rupturedestock-120.svg")
         type_label = "Base de données"
