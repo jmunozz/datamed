@@ -390,6 +390,28 @@ a.btn-lg {
   background-color: inherit;
   box-shadow: var(--box-shadow-appendice);
   transform: rotate(45deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes bounce-appendice {
+  0% {
+    transform: rotate(-45deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-45deg) translateY(-12px);
+  }
+  100% {
+    transform: rotate(-45deg) translateY(0);
+  }
+}
+
+.FrontPageSectionAppendiceImg {
+  /* transform: rotate(-45deg); */
+  animation-name: bounce-appendice;
+  animation-iteration-count: infinite;
+  animation-duration: 3s;
 }
 
 .FrontPageSection-isColor3 {

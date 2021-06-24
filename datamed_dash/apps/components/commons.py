@@ -328,7 +328,17 @@ def FrontPageSectionPart(children, class_name=""):
 def FrontPageSection(children, class_name="", has_appendice=False):
     layout = [html.Div(children, className="FrontPageSectionContainer")]
     if has_appendice:
-        layout = layout + [Div(className="FrontPageSectionAppendice")]
+        layout = layout + [
+            Div(
+                [
+                    html.Img(
+                        src=app.get_asset_url("/mouse_scroll.svg"),
+                        className="FrontPageSectionAppendiceImg",
+                    )
+                ],
+                className="FrontPageSectionAppendice",
+            )
+        ]
     class_name = " ".join(["FrontPageSection"] + class_name.split(" "))
     return html.Div(layout, className=class_name)
 
