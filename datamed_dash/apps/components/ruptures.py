@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
-from apps.components.commons import Header
+from apps.components.commons import Header, SingleCurve
 from apps.components.utils import (
     Box,
     GraphBox,
@@ -115,21 +115,6 @@ def Description() -> Component:
             ],
         ),
         id="description",
-    )
-
-
-def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter:
-    return go.Scatter(
-        x=x,
-        y=y,
-        mode="lines",
-        name=name,
-        line={
-            "shape": "spline",
-            "smoothing": 1,
-            "width": 4,
-            "color": color,
-        },
     )
 
 

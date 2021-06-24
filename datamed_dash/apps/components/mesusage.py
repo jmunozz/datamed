@@ -1,17 +1,27 @@
 from typing import Tuple
 
+import plotly.graph_objects as go
 from apps.components.commons import Header
 from apps.components.utils import (
     Box,
+    GraphBox,
     TopicSection,
     ArticleTitle,
     BoxArticle,
+    SectionRow,
+)
+from apps.constants.layouts import (
+    CURVE_LAYOUT,
 )
 from dash.development.base_component import Component
-from dash_html_components import Div, P, A, Span
+from dash_core_components import Graph
+from dash_html_components import Div, P, H1, A, Span
 from db import fetch_data
+from plotly.subplots import make_subplots
 from sm import SideMenu
 
+df_pv = fetch_data.fetch_table("cas_pv", "index")
+df_annee = fetch_data.fetch_table("mesusage_global_annee", "index")
 df_sexe = fetch_data.fetch_table("mesusage_global_sexe", "index")
 df_age = fetch_data.fetch_table("mesusage_global_age", "index")
 df_decla = fetch_data.fetch_table("mesusage_global_declarant", "index")
@@ -87,6 +97,62 @@ def Description() -> Component:
     )
 
 
+def DeclarationsCurves():
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    fig.add_trace(
+        go.Scatter(
+            x=df_annee.annee,
+            y=df_annee.cas,
+            mode="lines",
+            name="Déclarations d'effets indésirables liés au mésusage",
+            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#F599B5"},
+        ),
+        secondary_y=False,
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=df_pv.annee,
+            y=df_pv.cas,
+            mode="lines",
+            name="Cas de pharmacovigilance",
+            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
+            hoverlabel={"namelength": -1},
+            hovertemplate="%{y:int}",
+        ),
+        secondary_y=True,
+    )
+
+    fig.update_yaxes(
+        title_text="Déclarations d'effets indésirables liés au mésusage",
+        color="#F599B5",
+        secondary_y=False,
+    )
+    fig.update_yaxes(
+        title_text="Cas de pharmacovigilance", color="#EA336B", secondary_y=True
+    )
+    fig.update_xaxes(title_text="Années")
+    fig.update_layout(CURVE_LAYOUT)
+    return TopicSection(
+        [
+            SectionRow(
+                H1("Nombre de déclarations de mésusage", className="SectionTitle")
+            ),
+            SectionRow(
+                [
+                    GraphBox(
+                        "Nombre de signalements au cours du temps",
+                        [Graph(figure=fig, responsive=True, style={"height": 450})],
+                        tooltip=[],
+                    ),
+                ]
+            ),
+        ],
+        id="declarations-mesusage",
+    )
+
+
 def Mesusage() -> Tuple[Component, Div]:
     return (
         Header(None, type="mesusage"),
@@ -96,12 +162,13 @@ def Mesusage() -> Tuple[Component, Div]:
                     id="side-menu",
                     items=[
                         {"id": "description", "label": "Description"},
+                        {"id": "declarations-mesusage", "label": "Déclarations"},
                     ],
                     className="SideMenu",
                 ),
                 Div(
                     Div(
-                        [Description()],
+                        [Description(), DeclarationsCurves()],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
                     className="ContentLayoutWrapper",
