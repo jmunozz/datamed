@@ -3,15 +3,19 @@ from typing import Tuple
 from apps.components.commons import Header
 from apps.components.utils import (
     Box,
-    GraphBox,
     TopicSection,
     ArticleTitle,
     BoxArticle,
-    Tooltip,
 )
 from dash.development.base_component import Component
 from dash_html_components import Div, P, A, Span
+from db import fetch_data
 from sm import SideMenu
+
+df_sexe = fetch_data.fetch_table("mesusage_global_sexe", "index")
+df_age = fetch_data.fetch_table("mesusage_global_age", "index")
+df_decla = fetch_data.fetch_table("mesusage_global_declarant", "index")
+df_gravite = fetch_data.fetch_table("mesusage_global_gravite", "index")
 
 
 def Description() -> Component:

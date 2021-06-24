@@ -683,6 +683,7 @@ files = {
             "mesusage_global_age": "age",
             "mesusage_global_gravite": "grave",
             "mesusage_global_declarant": "type_notif",
+            "mesusage_global_annee": "annee",
             "mesusage_specialite_sexe": ["cis", "sexe"],
             "mesusage_specialite_age": ["cis", "age"],
             "mesusage_specialite_soc": ["cis", "soc_long"],
@@ -691,6 +692,13 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {"cis": String(16)},
+        },
+    },
+    "cas_pv": {
+        "to_sql": {
+            "name": "cas_pv",
+            "if_exists": "replace",
+            "index": True,
         },
     },
 }
