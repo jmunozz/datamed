@@ -1,12 +1,14 @@
 from typing import Tuple
 
-import dash_bootstrap_components as dbc
 import dash_html_components as html
-from dash_html_components.Div import Div
 from app import app
 
-
-from .commons import FrontPageSection, FrontPageSectionPart, FrontPageSectionFull
+from .commons import (
+    FrontPageSection,
+    FrontPageSectionPart,
+    FrontPageSectionFull,
+    SearchBar,
+)
 
 
 def FrontPage() -> Tuple[html.Div, html.Div]:
@@ -16,6 +18,14 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
             [
                 FrontPageSection(
                     [
+                        FrontPageSectionFull(
+                            [
+                                html.Img(src=app.get_asset_url("illu_searchbar.svg"), className="FrontPageSearchBarImg"),
+                                html.H3("Trouvez des données autour du médicament"),
+                                SearchBar(),
+                            ],
+                            class_name="Stack Stack-isCentered Stack-isVerticalCentered",
+                        ),
                         FrontPageSectionPart(
                             [
                                 html.H1(
@@ -24,7 +34,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                 html.P(
                                     "L’Agence Nationale de Sécurité du Médicament et des Produits de Santé (ANSM) "
                                     "ouvre ses données de manière pédagogique pour permettre au plus grand nombre "
-                                    "de réaliser des choix éclairés",
+                                    "de réaliser des choix éclairés.",
                                     className="medium-text justify-text",
                                 ),
                             ],
@@ -35,7 +45,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                         ),
                     ],
                     has_appendice=True,
-                    class_name="FrontPageSection-isColorWhite FrontPageSection-isBottomBoxShadowed  FrontPageSection-hasAppendice",
+                    class_name="FrontPageSection-isColorWhite FrontPageSection-isBottomBoxShadowed FrontPageSection-hasAppendice",
                 ),
                 FrontPageSection(
                     [
@@ -48,16 +58,16 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                     "Une plateforme unique pour réunir les données essentielles de l’ANSM"
                                 ),
                                 html.P(
-                                    "L’ANSM ouvrira dans un premier temps ses données autour des médicaments et "
-                                    "suivront celles des ruptures de stocks, du bon usage des médicaments, des "
-                                    "essais cliniques et bien d’autres !",
+                                    "L’ANSM ouvre dans un premier temps ses données autour des effets indésirables "
+                                    "des médicaments, des erreurs médicamenteuses et des ruptures de stocks. "
+                                    "S'en suivront celles du bon usage du médicament et bien d’autres !",
                                     className="medium-text justify-text",
                                 ),
                                 html.A(
                                     "à propos",
                                     className="Btn Btn-isPrimary",
                                     role="button",
-                                    href="#",
+                                    href="/apps/a_propos",
                                 ),
                             ],
                             class_name="Stack Stack-isVerticalCentered",
@@ -84,7 +94,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     className="center-text",
                                                 ),
                                                 html.P(
-                                                    "Citoyen, patient, aidant, associations de patients",
+                                                    "Citoyens, patients, aidants, associations de patients",
                                                     className="medium-text center-text",
                                                 ),
                                             ],
@@ -99,12 +109,12 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     style={"height": "250px"},
                                                 ),
                                                 html.H2(
-                                                    "Professionnel de santé",
+                                                    "Professionnels de santé",
                                                     className="center-text",
                                                 ),
                                                 html.P(
-                                                    "Médecin, pharmacien, sage-femme, infirmier, "
-                                                    "intervenant du paramédical",
+                                                    "Médecins, pharmaciens, sages-femmes, infirmiers, "
+                                                    "intervenants du paramédical",
                                                     className="medium-text center-text",
                                                 ),
                                             ],
@@ -119,11 +129,11 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                     style={"height": "250px"},
                                                 ),
                                                 html.H2(
-                                                    "Expert en données",
+                                                    "Experts en données",
                                                     className="center-text",
                                                 ),
                                                 html.P(
-                                                    "Journaliste, data analyst, chercheur, éditeur de logiciel",
+                                                    "Journalistes, data analysts, chercheurs, éditeurs de logiciel",
                                                     className="medium-text center-text",
                                                 ),
                                             ],
@@ -143,14 +153,15 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             [
                                 html.H1("Origine et nature des données"),
                                 html.P(
-                                    "Les données de la plateforme proviennent de bases de données gerées en "
-                                    "majorité par l’ANSM, et d’autres proviennent de bases open source gerées par "
-                                    "d’autres institutions de santé (CNAM, HAS).",
+                                    "La majorité des données de la plateforme data.ansm proviennent de bases "
+                                    "de données gerées par l’ANSM. Certaines données proviennent de bases Open Source "
+                                    "gerées par d’autres institutions de santé (CNAM, HAS).",
                                     className="medium-text justify-text",
                                 ),
                                 html.P(
-                                    "Elles sont alimentées par les parties prenantes (agents de l’ANSM, "
-                                    "institutions, grand public, professionnels de santé, industriels).",
+                                    "Ces bases de données sont alimentées par différentes parties prenantes "
+                                    "(agents de l’ANSM, institutions, grand public, professionnels de santé, "
+                                    "industriels).",
                                     className="medium-text justify-text",
                                 ),
                                 html.A(
@@ -171,3 +182,4 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
             className="container-fluid p-0",
         ),
     )
+

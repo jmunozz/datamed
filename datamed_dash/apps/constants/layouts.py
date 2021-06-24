@@ -1,5 +1,7 @@
 from typing import Dict
 
+import pandas as pd
+
 BAR_LAYOUT = {
     "xaxis": dict(
         showgrid=False, showline=False, showticklabels=False, zeroline=False,
@@ -37,8 +39,7 @@ PIE_LAYOUT = {
     "autosize": False,
     "height": 400,
     "width": 400,
-    "plot_bgcolor": "#FFFFFF",
-    "paper_bgcolor": "#FFFFFF",
+    "plot_bgcolor": "#FFF",
     "margin": dict(t=1, b=1, l=0, r=0),
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     "hoverlabel": dict(
@@ -49,6 +50,20 @@ PIE_LAYOUT = {
 }
 
 PIE_TRACES = {"marker": dict(line=dict(color="#000000", width=1))}
+
+SUNBURST_LAYOUT = {
+    "autosize": False,
+    "height": 400,
+    "width": 400,
+    "plot_bgcolor": "#FFF",
+    "margin": dict(t=1, b=1, l=0, r=0),
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+}
+
+SUNBURST_TRACES = {
+    "marker": dict(line=dict(color="#000000", width=1)),
+    "hovertemplate": "<b>%{label}</b> <br> <br>Total : <b>%{value:f}</b> <extra></extra>",
+}
 
 STACKED_BAR_CHART_LAYOUT = {
     "xaxis": dict(showgrid=False, showline=False, zeroline=False, tickformat="%"),
@@ -87,8 +102,13 @@ TREEMAP_LAYOUT = {
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
 }
 
+
+TREEMAP_LAYOUT_OVERRIDE_SPECIALITE = {
+    "paper_bgcolor": "#f5f5f5",
+}
+
 RUPTURES_BAR_LAYOUT = {
-    "xaxis": dict(showgrid=False, showline=False, showticklabels=True, zeroline=False,),
+    "xaxis": dict(showgrid=False, showline=False, showticklabels=False, zeroline=False),
     "yaxis": dict(
         showgrid=False,
         showline=False,
@@ -111,9 +131,9 @@ RUPTURES_BAR_LAYOUT = {
 }
 
 
-def get_ruptures_curve_layout(tick0) -> Dict:
+def get_ruptures_curve_layout(tickvals: pd.Series) -> Dict:
     return {
-        "xaxis": {"tickmode": "linear", "tick0": tick0, "dtick": 1,},
+        "xaxis": {"tickmode": "array", "tickvals": tickvals},
         "xaxis_showgrid": False,
         "yaxis_showgrid": False,
         "hovermode": "x unified",
@@ -123,4 +143,5 @@ def get_ruptures_curve_layout(tick0) -> Dict:
         "font": {"size": 12, "color": "black"},
         "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         "hoverlabel": {"namelength": -1},
+        "showlegend": True,
     }

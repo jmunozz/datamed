@@ -449,9 +449,6 @@ fig.update_layout(CURVE_LAYOUT)
 fig.show()
 
 
-# In[33]:
-
-
 pv_dict = [
     {"annee": 2014, "cas": 42444},
     {"annee": 2015, "cas": 42396},
@@ -465,9 +462,6 @@ pv_dict = [
 
 df_pv = pd.DataFrame(pv_dict)
 df_pv.head()
-
-
-# In[40]:
 
 
 fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -508,19 +502,19 @@ fig.show()
 
 # # Par spécialité
 
-# In[26]:
+# In[28]:
 
 
 cis = "60234100"
 
 
-# In[27]:
+# In[29]:
 
 
 df[df.cis == cis].head(2)
 
 
-# In[28]:
+# In[30]:
 
 
 df_cis = df[df.cis == cis]
@@ -528,7 +522,7 @@ df_cis = df[df.cis == cis]
 
 # ## SOC
 
-# In[29]:
+# In[31]:
 
 
 df_soc = df_cis[["soc_long", "cas_crpv"]].groupby("soc_long").cas_crpv.count().reset_index()
@@ -537,7 +531,7 @@ df_soc = df_soc[df_soc.cas_crpv >= 10]
 df_soc
 
 
-# In[30]:
+# In[32]:
 
 
 TREE_COLORS = ["#5E2A7E", "#7E5598", "#9E7FB2", "#BFAACB", "#DFD4E5",
@@ -576,7 +570,7 @@ fig.show()
 
 # ## Sexe
 
-# In[31]:
+# In[33]:
 
 
 df_sexe = df_cis[["sexe", "cas_crpv"]].groupby("sexe").cas_crpv.count().reset_index()
@@ -584,7 +578,7 @@ df_sexe = df_cis[["sexe", "cas_crpv"]].groupby("sexe").cas_crpv.count().reset_in
 df_sexe
 
 
-# In[32]:
+# In[34]:
 
 
 PIE_COLORS = ["#F599B5", "#FACCDA", "#EF6690"]

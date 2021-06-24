@@ -1,19 +1,39 @@
 import os
 from urllib.parse import urlparse, unquote_plus
 
+import dash.exceptions as de
 import dash_auth
 import dash_core_components as dcc
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, ClientsideFunction
 from dash_html_components import Div
 
 from app import app, server
-from apps import app1, app2, app3, app4, app5, app6
+from apps import app1, app2, app3, app4, app5, app6, mentions_legales, a_propos, app_mesusage
 
 app.layout = Div([dcc.Location(id="url", refresh=False), Div(id="page-content")])
 
 USERNAME = os.environ["USERNAME"]
 PASSWORD = os.environ["PASSWORD"]
 dash_auth.BasicAuth(app, {USERNAME: PASSWORD})
+
+
+def noop():
+    raise de.PreventUpdate("no operation")
+
+
+app.clientside_callback(
+    ClientsideFunction(namespace="content_updated", function_name="scrollTop"),
+    Output("dash-side-effect-hidden-div", "aria-noop"),
+    Input("dash-side-effect-hidden-div", "children"),
+)
+
+
+@app.callback(
+    Output("dash-side-effect-hidden-div", "children"),
+    Input("page-content", "children"),
+)
+def updated(children):
+    de.PreventUpdate()
 
 
 @app.callback(Output("page-content", "children"), Input("url", "href"))
@@ -31,8 +51,14 @@ def display_page(href):
         return app3.Layout()
     elif pathname == "/apps/ruptures":
         return app4.Layout()
+    elif pathname == "/apps/mesusage":
+        return app_mesusage.Layout()
     elif pathname == "/apps/construction":
         return app6.Layout()
+    elif pathname == "/apps/mentions_legales":
+        return mentions_legales.Layout()
+    elif pathname == "/apps/a_propos":
+        return a_propos.Layout()
     else:
         return app1.layout
 

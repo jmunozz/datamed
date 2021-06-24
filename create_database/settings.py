@@ -17,7 +17,7 @@ DBHOSTNAME = config("DBHOSTNAME")
 DBUSERNAME = config("DBUSERNAME")
 DBPWD = config("DBPWD")
 DBNAME = config("DBNAME")
-DBURL = config("DB_URL")
+DBURL = config("DBURL")
 FILTER_THREESHOLD = config("FILTER_THREESHOLD", default=10, cast=int)
 
 EXPOSITION = {
@@ -94,10 +94,7 @@ files = {
                 "name": "substance",
                 "if_exists": "replace",
                 "index": True,
-                "dtype": {
-                    "code": String(16),
-                    "nom": Text,
-                },
+                "dtype": {"code": String(16), "nom": Text,},
             },
         },
         {
@@ -145,6 +142,14 @@ files = {
     "description": {
         "to_sql": {
             "name": "description",
+            "if_exists": "replace",
+            "index": True,
+            "dtype": {"cis": String(16)},
+        },
+    },
+    "publications": {
+        "to_sql": {
+            "name": "publications",
             "if_exists": "replace",
             "index": True,
             "dtype": {"cis": String(16)},
@@ -319,11 +324,7 @@ files = {
                 "name": "substance_cas_age_ordei",
                 "if_exists": "replace",
                 "index": True,
-                "dtype": {
-                    "code": String(16),
-                    "age": Text,
-                    "pourcentage_cas": Float,
-                },
+                "dtype": {"code": String(16), "age": Text, "pourcentage_cas": Float,},
             }
         },
     ],
@@ -447,18 +448,9 @@ files = {
             "encoding": "ISO-8859-1",
             "sep": ";",
             "dtype": {"code": str},
-            "usecols": [
-                "grave",
-                "code",
-                "cas",
-            ],
+            "usecols": ["grave", "code", "cas",],
             "header": 0,
-            "names": [
-                "grave",
-                "subtance_active",
-                "code",
-                "cas",
-            ],
+            "names": ["grave", "subtance_active", "code", "cas",],
         },
         "to_sql": {
             "name": "substance_cas_grave_ordei",
@@ -534,10 +526,8 @@ files = {
         },
     },
     "mesures": {
-        "source": {"pattern": "Mesure_040621.csv"},
-        "read_csv": {
-            "encoding": "utf-8",
-            "sep": ";",
+        "source": {"pattern": "Mesure_150621.xlsx"},
+        "read_excel": {
             "header": 0,
             "usecols": [
                 "Etat",
@@ -557,6 +547,7 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {
+                "annee": String,
                 "date_demande": Date,
                 "date_mise_en_place": Date,
                 "date_previ_fin": Date,
@@ -565,10 +556,8 @@ files = {
         },
     },
     "ruptures": {
-        "source": {"pattern": "Dossier_de_rupture_040621.csv"},
-        "read_csv": {
-            "encoding": "utf-8",
-            "sep": ";",
+        "source": {"pattern": "Dossier_de_rupture_150621.xlsx"},
+        "read_excel": {
             "header": 0,
             "index_col": "numero",
             "usecols": [
@@ -617,13 +606,14 @@ files = {
                 "generique_ville",
                 "generique_hopital",
             ],
-            "dtype": {"numero": str, "cip13": int},
+            "dtype": {"numero": str, "cip13": str},
         },
         "to_sql": {
             "name": "ruptures",
             "if_exists": "replace",
             "index": True,
             "dtype": {
+                "annee": String,
                 "cip13": String(16),
                 "date": Date,
                 "debut_ville": Date,
@@ -639,7 +629,7 @@ files = {
             "if_exists": "replace",
             "index": True,
             "dtype": {
-                "annee": Integer,
+                "annee": String,
                 "nb_signalements": Integer,
                 "nb_presentations": Integer,
             },
@@ -650,11 +640,7 @@ files = {
             "name": "icones",
             "if_exists": "replace",
             "index": True,
-            "dtype": {
-                "cis": String(16),
-                "forme_pharma": Text,
-                "icone": Text,
-            },
+            "dtype": {"cis": String(16), "forme_pharma": Text, "icone": Text,},
         }
     },
     "mesusage": {
@@ -691,10 +677,7 @@ files = {
             "Infirmière": "Infirmier",
             "Consommateur/autre non professionnel de santé": "Patient",
         },
-        "sexes": {
-            "M": "Hommes",
-            "F": "Femmes",
-        },
+        "sexes": {"M": "Hommes", "F": "Femmes",},
         "tables": {
             "mesusage_global_sexe": "sexe",
             "mesusage_global_age": "age",

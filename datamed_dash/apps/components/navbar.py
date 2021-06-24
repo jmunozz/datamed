@@ -8,24 +8,10 @@ import dash_html_components as html
 from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
-from datamed_custom_components import SearchBar
 from db import specialite, substance
-from pandas.core.frame import DataFrame
 
-search_item_max_len = 100
-
-
-def truncate_str(text: str) -> str:
-    return (
-        f"{text[:search_item_max_len]}..." if len(text) >= search_item_max_len else text
-    )
-
-
-def to_search_bar_options(df: DataFrame, type: str) -> List[Dict]:
-    return [
-        {"label": truncate_str(val), "value": index, "type": type,}
-        for index, val in df.nom.items()
-    ]
+from apps.components.commons import get_opts_search_bar
+from datamed_custom_components import NavBar
 
 
 def LogoAnsm() -> Component:
@@ -42,34 +28,23 @@ def MenuItem(title: str, href: str) -> Component:
 
 
 def Navbar() -> Component:
-    df_spe = specialite.list_specialite()
-    df_sub = substance.list_substance()
-    opts_spe = to_search_bar_options(df_spe, "specialite")
-    opts_sub = to_search_bar_options(df_sub, "substance")
-    opts = opts_spe + opts_sub
-    opts = sorted(opts, key=lambda d: len(d["label"]))
-
-    return html.Div(
-        [
-            LogoAnsm(),
-            MenuItem("Analyses thématiques", "/apps/construction"),
-            MenuItem("Explorer", "/apps/explorer"),
-            MenuItem("À propos", "/apps/construction"),
-            SearchBar(id="search-bar", opts=opts, fireOnSelect=True),
-        ],
-        className="Navbar",
-    )
+    opts = get_opts_search_bar()
+    return NavBar(id="navbar", opts=opts, fireOnSelect=True)
 
 
 @app.callback(
-    dd.Output("url", "href"), dd.Input("search-bar", "value"),
+    dd.Output("url", "href"), dd.Input("navbar", "url"), dd.Input("navbar", "value"),
 )
-def update_path(value):
+def update_path(url, value):
+    print(url, value)
     ctx = dash.callback_context
-    if not ctx.triggered or not value:
+    if not ctx.triggered:
         raise PreventUpdate()
-
-    type = value["type"]
-    index = value["value"]
-
-    return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
+    if value:
+        type = value["type"]
+        index = value["value"]
+        return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
+    elif url:
+        return url
+    else:
+        raise PreventUpdate()

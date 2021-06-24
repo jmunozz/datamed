@@ -7,6 +7,7 @@ from dash_html_components import Div
 from .components.footer import Footer
 from .components.navbar import Navbar
 from .components.substance import Substance
+from apps.components.commons import SideEffects
 
 
 def Layout(parsed_url: Union[ParseResultBytes, ParseResult]) -> Component:
@@ -14,7 +15,7 @@ def Layout(parsed_url: Union[ParseResultBytes, ParseResult]) -> Component:
     code_substance = query["search"][0]
 
     return Div(
-        [Navbar(), *Substance(code_substance), Footer(),],
+        [Navbar(), *Substance(code_substance), Footer(), SideEffects()],
         className="layout",
         id="layout_specialite",
     )

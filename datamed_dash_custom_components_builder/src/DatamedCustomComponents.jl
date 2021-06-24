@@ -6,6 +6,7 @@ const resources_path = realpath(joinpath( @__DIR__, "..", "deps"))
 const version = "0.0.1"
 
 include("accordion.jl")
+include("navbar.jl")
 include("searchbar.jl")
 include("treemap.jl")
 

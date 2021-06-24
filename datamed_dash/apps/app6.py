@@ -4,9 +4,12 @@ from dash_html_components import Div
 from .components.construction import Construction
 from .components.footer import Footer
 from .components.navbar import Navbar
+from apps.components.commons import SideEffects
 
 
 def Layout() -> Component:
     return Div(
-        [Navbar(), Construction(), Footer(),], className="layout", id="layout_construction",
+        [Navbar(), Construction(), Footer(), SideEffects()],
+        className="layout",
+        id="layout_construction",
     )

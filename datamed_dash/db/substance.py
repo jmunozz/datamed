@@ -39,7 +39,7 @@ def get_exposition_df(code):
 
 
 def get_decla_df(code):
-    return return_sub_df_or_none(fetch_table("substance_ordei", "code"), code)
+    return return_sub_df_or_none(fetch_table("substance_exposition", "code"), code)
 
 
 def get_notif_df(code):
@@ -48,6 +48,14 @@ def get_notif_df(code):
 
 def get_soc_df(code):
     return return_sub_df_or_none(fetch_table("substance_soclong_ordei", "code"), code)
+
+
+def get_hlt_df(code):
+    return return_sub_df_or_none(fetch_table("substance_hlt_ordei", "code"), code)
+
+
+def get_gravite(code):
+    return return_sub_df_or_none(fetch_table("substance_cas_grave_ordei", "code"), code)
 
 
 def get_substance_specialite(code):

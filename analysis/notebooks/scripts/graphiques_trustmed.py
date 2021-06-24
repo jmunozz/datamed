@@ -13,6 +13,9 @@ from plotly.subplots import make_subplots
 from datetime import datetime as dt
 import unidecode
 
+# import locale
+# locale.setlocale(locale.LC_TIME, 'fr_FR') # this sets the date time formats to fr_FR
+
 sys.path.append('/Users/linerahal/Documents/GitHub/datamed/datamed_dash/')
 from db import fetch_data
 
@@ -173,8 +176,8 @@ CURVE_LAYOUT = {
     "xaxis_showgrid": False,
     "yaxis_showgrid": False,
     "hovermode": "x unified",
-    "plot_bgcolor": "#FAFAFA",
-    "paper_bgcolor": "#FAFAFA",
+    "plot_bgcolor": "#FFF",
+    "paper_bgcolor": "#FFF",
     "margin": dict(t=0, b=0, l=0, r=0),
     "font": {"size": 12, "color": "black"},
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -228,12 +231,30 @@ COLORS = ["#5E2A7E", "#009640"]
 # In[16]:
 
 
-df_circuit = df[df.circuit == circuit].groupby(["annee", "etat"]).numero.count().reset_index()
-df_circuit = df_circuit.rename(columns={'numero': 'nombre'})
-df_circuit.head(2)
+import locale
+locale.setlocale(locale.LC_ALL, 'fr_FR')
+
+import calendar
+calendar.month_name[df.iloc[0].date.month].capitalize()
 
 
 # In[17]:
+
+
+df_circuit = df[(df.circuit == circuit) & (df.date >= '2021-05-04')]
+df_circuit.date = df_circuit.date.apply(lambda x: dt(x.year, x.month, 1))
+df_circuit = df_circuit.groupby(["date", "etat"]).numero.count().reset_index()
+df_circuit = df_circuit.rename(columns={'numero': 'nombre'})
+df_circuit.head()
+
+
+# In[18]:
+
+
+type(df_circuit.date)
+
+
+# In[19]:
 
 
 fig = make_subplots()
@@ -241,17 +262,29 @@ fig = make_subplots()
 for idx, e in enumerate(["ouvert", "clôturé"]):
     df_etat = df_circuit[df_circuit.etat == e]
     fig.add_trace(
-        SingleCurve(df_etat.annee, df_etat.nombre, e, COLORS[idx])
+        SingleCurve(df_etat.date, df_etat.nombre, e, COLORS[idx])
     )
 
-fig.update_layout(CURVE_LAYOUT)
+fig.update_layout({
+        "xaxis": {"tickmode": "array", "tickvals": df_circuit.date},
+        "xaxis_showgrid": False,
+        "yaxis_showgrid": False,
+        "hovermode": "x unified",
+        "plot_bgcolor": "#FFF",
+        "paper_bgcolor": "#FFF",
+        "margin": dict(t=0, b=0, l=0, r=0),
+        "font": {"size": 12, "color": "black"},
+        "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        "hoverlabel": {"namelength": -1},
+    })
+fig.update_layout(showlegend=True)
 
 fig.show()
 
 
 # # Évolution des ruptures circuit ville / hôpital
 
-# In[18]:
+# In[20]:
 
 
 df_rupture_circuit = df[
@@ -261,7 +294,7 @@ df_rupture_circuit = df_rupture_circuit.rename(columns={'numero': 'nombre_ruptur
 df_rupture_circuit.head(2)
 
 
-# In[19]:
+# In[21]:
 
 
 fig = go.Figure(
@@ -275,27 +308,23 @@ fig.show()
 
 # # Motifs de rupture
 
-# In[20]:
+# In[61]:
 
 
-df_cause = df.groupby(["annee", "cause"]).numero.count().reset_index()
-df_cause.numero = df_cause.apply(lambda x: x.numero / len(df_cause[df_cause.annee == x.annee]), axis=1)
-df_cause = df_cause.rename(columns={"numero": "nombre_signalements"}).set_index("annee")
-
-
-# In[21]:
-
-
+df = fetch_data.fetch_table("ruptures", "numero")
+df_cause = df.groupby(["annee", "cause"]).etat.count().reset_index()
+df_cause.etat = df_cause.apply(lambda x: x.etat / len(df_cause[df_cause.annee == x.annee]), axis=1)
+df_cause = df_cause.rename(columns={"etat": "nombre_signalements"}).set_index("annee")
 df_cause.head()
 
 
-# In[22]:
+# In[62]:
 
 
 df_cause.loc[2019].sort_values(by="nombre_signalements", ascending=False).head(10)
 
 
-# In[23]:
+# In[63]:
 
 
 fig = px.treemap(
@@ -332,38 +361,38 @@ fig.show()
 
 # # Test recherche spécialité
 
-# In[24]:
+# In[26]:
 
 
 cis = "69766923"
 
 
-# In[25]:
+# In[27]:
 
 
 df_spe = fetch_data.fetch_table("specialite", "cis")
 
 
-# In[26]:
+# In[28]:
 
 
 specialite = df_spe.loc[cis].nom
 
 
-# In[27]:
+# In[29]:
 
 
 produit = specialite.split()[0]
 forme = specialite.split()[-1]
 
 
-# In[28]:
+# In[30]:
 
 
 df_spe.head(1)
 
 
-# In[29]:
+# In[31]:
 
 
 df = df.merge(df_spe.reset_index()[["cis", "nom"]], on="nom", how="left")
@@ -371,42 +400,66 @@ df = df.merge(df_spe.reset_index()[["cis", "nom"]], on="nom", how="left")
 
 # ### Présentation
 
-# In[30]:
+# In[32]:
 
 
 df_pres = fetch_data.fetch_table("presentation", "cip13").reset_index()
 
 
-# In[31]:
+# In[33]:
 
 
 df_pres.head(1)
 
 
-# In[32]:
+# In[34]:
 
 
 df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
 
 
-# ### Récupérer ruptures liées à la spécialité
-
-# In[33]:
-
-
-specialite
-
-
-# In[34]:
-
-
-df[(df.cis == cis) | df.nom.apply(lambda x: x.split()[0] == produit)]
-
+# # Mesures
 
 # In[35]:
 
 
-df[df.cis_x.notnull()]
+dfm = fetch_data.fetch_table("mesures", "index")
+dfm.head(2)
+
+
+# In[36]:
+
+
+df_mesure = dfm.groupby(["annee", "mesure"]).numero.count().reset_index()
+df_mesure = df_mesure.rename(columns={"numero": "nombre"}).set_index("annee")
+df_mesure.head()
+
+
+# In[37]:
+
+
+PIE_COLORS = ["#DFD4E5", "#BFAACB", "#5E2A7E"]
+
+PIE_LAYOUT = {
+    "plot_bgcolor": "#FFF",
+    #"hovermode": False,
+    "margin": dict(t=0, b=0, l=0, r=0),
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+}
+
+
+# In[38]:
+
+
+fig = go.Figure(
+    go.Pie(
+        labels=df_mesure.loc[2021].mesure,
+        values=df_mesure.loc[2021].nombre,
+        marker_colors=PIE_COLORS,    #px.colors.qualitative.Set3,
+    )
+).update_layout(PIE_LAYOUT)
+
+fig.show()
 
 
 # In[ ]:
