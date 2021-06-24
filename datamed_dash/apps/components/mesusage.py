@@ -142,7 +142,60 @@ def DeclarationsCurves():
             SectionRow(
                 [
                     GraphBox(
-                        "Nombre de signalements au cours du temps",
+                        "Évolution des déclarations de mésusage au cours du temps",
+                        [Graph(figure=fig, responsive=True, style={"height": 450})],
+                        tooltip=[],
+                    ),
+                ]
+            ),
+        ],
+        id="declarations-mesusage",
+    )
+
+
+def DeclarationsCurvesBis():
+    COLORS = ["#009640", "#00B3CC"]
+
+    fig = go.Figure()
+    for df, name, color in zip(
+        [df_annee, df_pv],
+        ["Cas déclarés de mésusage", "Cas déclarés de pharmacovigilance"],
+        COLORS,
+    ):
+        fig.add_trace(
+            go.Bar(
+                x=df.annee,
+                y=df.cas,
+                name=name,
+                marker=dict(color=color),
+            )
+        )
+
+    fig.update_layout(
+        {
+            "xaxis_showgrid": False,
+            "yaxis_showgrid": False,
+            "hovermode": "x unified",
+            "plot_bgcolor": "#FFF",
+            "paper_bgcolor": "#FFF",
+            "margin": dict(t=0, b=0, l=0, r=0),
+            "font": {"size": 12, "color": "black"},
+            "legend": dict(
+                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
+            ),
+            "hoverlabel": {"namelength": -1},
+        }
+    )
+    fig.update_layout(showlegend=True)
+    return TopicSection(
+        [
+            SectionRow(
+                H1("Nombre de déclarations de mésusage", className="SectionTitle")
+            ),
+            SectionRow(
+                [
+                    GraphBox(
+                        "Évolution des déclarations de mésusage au cours du temps",
                         [Graph(figure=fig, responsive=True, style={"height": 450})],
                         tooltip=[],
                     ),
@@ -168,7 +221,7 @@ def Mesusage() -> Tuple[Component, Div]:
                 ),
                 Div(
                     Div(
-                        [Description(), DeclarationsCurves()],
+                        [Description(), DeclarationsCurves(), DeclarationsCurvesBis()],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
                     className="ContentLayoutWrapper",
