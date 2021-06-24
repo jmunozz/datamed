@@ -125,7 +125,7 @@ def Explorer() -> Component:
                                 "mésusage et les conséquences possibles sur votre santé."
                             ),
                             "Base Nationale de PharmacoVigilance",
-                            "/apps/construction",
+                            "/apps/mesusage",
                         ),
                     ]
                 )

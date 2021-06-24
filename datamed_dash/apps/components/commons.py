@@ -606,6 +606,22 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                 "à ces données."
             )
         ]
+    elif type == "mesusage":
+        title = "Bon usage du médicament"
+        css_class = "Header-isRupture"
+        icon_url = app.get_asset_url("rupturedestock-120.svg")
+        type_label = "Base de données"
+        help_link = html.A(
+            "Qu'est-ce qu'une base de données ?",
+            id="definition-open",
+            className="Link Link",
+        )
+        modal_body = [
+            html.Div(
+                "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
+                "à ces données."
+            )
+        ]
 
     return html.Div(
         html.Div(
