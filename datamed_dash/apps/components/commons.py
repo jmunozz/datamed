@@ -19,8 +19,14 @@ from apps.components.utils import (
     SectionRow,
     normalize_string,
     Grid,
+    Tooltip as HoverTooltip,
 )
-from apps.constants.misc import UTILISATION, UTILISATION_IMG_URL
+from apps.constants.misc import (
+    UTILISATION,
+    UTILISATION_IMG_URL,
+    UTILISATION_NB_PATIENTS_SPECIALITE,
+    UTILISATION_NB_PATIENTS_SUBSTANCE,
+)
 from apps.graphs import (
     ReparitionSexeFigure,
     RepartitionAgeGraph,
@@ -63,6 +69,52 @@ def get_opts_search_bar():
     opts = opts_spe + opts_sub
     opts = sorted(opts, key=lambda d: len(d["label"]))
     return opts
+
+
+# This component is used to display usage as an indicator (for specialite and substance)
+def Usage(type: str, level: int):
+
+    nb_patients = (
+        {
+            "substance": UTILISATION_NB_PATIENTS_SUBSTANCE,
+            "specialite": UTILISATION_NB_PATIENTS_SPECIALITE,
+        }
+    )[type]
+    bar_height = [16, 24, 32, 48, 56]
+
+    bars = [
+        html.Div(
+            HoverTooltip(
+                [
+                    html.P([html.B("Utilisation: "), UTILISATION[i]]),
+                    html.P([html.B("Nombre de patients: "), nb_patients[i],]),
+                ],
+                target=f"UsageBarLevel{i}",
+            ),
+            id=f"UsageBarLevel{i}",
+            className="UsageBar",
+            style={"height": h},
+        )
+        for i, h in enumerate(bar_height)
+    ]
+
+    if math.isnan(level) or level < 0 or level > 4:
+        return html.Div([*bars,], className="UsageContainer",)
+
+    pill_position_x = level * 24 + level * 8
+    pill_position_y = bar_height[level] + 4
+
+    return html.Div(
+        [
+            *bars,
+            html.Div(
+                html.Img(src=app.get_asset_url("/icons/gelule_24.svg")),
+                className=f"UsagePill UsagePillLevel{level}",
+                style={"left": pill_position_x, "bottom": pill_position_y},
+            ),
+        ],
+        className="UsageContainer",
+    )
 
 
 # this invisible component is used to perform side effects
@@ -408,7 +460,7 @@ def HistoriqueRupturesTooltip():
     )
 
 
-def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
+def Utilisation(_type: str, df_expo: Optional[pd.DataFrame]) -> Component:
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         if not np.isnan(series_exposition.exposition):
@@ -429,83 +481,32 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
         exposition = "-"
         patients = "Données insuffisantes"
 
-    df = pd.DataFrame(
-        {
-            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
-            "Nombre de patients (niveau spécialité)": [
-                "< 1 000",
-                "1 000 - 5 000",
-                "5 000 - 15 000",
-                "15 000 - 50 000",
-                "> 50 000",
-            ],
-            "Nombre de patients (niveau substance active)": [
-                "< 5 000",
-                "5 000 - 25 000",
-                "25 000 - 100 000",
-                "100 000 - 500 000",
-                "> 500 000",
-            ],
-        }
-    )
     return SectionRow(
         [
-            Box(
-                Div(
-                    [
-                        Box(
-                            [
-                                html.P(
-                                    UTILISATION[exposition],
-                                    className="normal-text-bold text-center align-middle",
-                                ),
-                                html.Img(src=UTILISATION_IMG_URL[exposition]),
-                            ],
-                            isBordered=False,
-                            className="CardBoxImage UsageBoxRate",
-                        ),
-                        Box(
-                            [
-                                html.H2(patients, className="color-secondary"),
-                                html.P(
-                                    "Approximation du nombre de patients traités sur la période 2014-2018",
-                                    className="normal-text",
-                                ),
-                                html.A(
-                                    "En savoir plus sur le niveau d'utilisation",
-                                    className="normal-text color-secondary",
-                                    id="open",
-                                ),
-                                dbc.Modal(
-                                    [
-                                        dbc.ModalHeader("Niveaux d'utilisation"),
-                                        dbc.ModalBody(
-                                            dbc.Table.from_dataframe(
-                                                df,
-                                                striped=True,
-                                                bordered=True,
-                                                hover=True,
-                                            )
-                                        ),
-                                        dbc.ModalFooter(
-                                            dbc.Button(
-                                                "Fermer",
-                                                id="close",
-                                                className="ml-auto",
-                                                style={"background-color": "#a03189"},
-                                            )
-                                        ),
-                                    ],
-                                    id="utilisation-modal",
-                                ),
-                            ],
-                            isBordered=False,
-                            className="CardBoxText",
-                        ),
-                    ],
-                    className="CardBox",
-                ),
-                hasNoPadding=True,
+            Div(
+                [
+                    Div(
+                        [
+                            Div(
+                                html.P(UTILISATION[exposition - 1]),
+                                className="UsageBoxImgTitle normal-text-bold",
+                            ),
+                            Usage(_type, exposition - 1),
+                        ],
+                        className="UsageBoxImg",
+                    ),
+                    Div(
+                        [
+                            html.H2(patients, className="UsageBoxTextTitle"),
+                            html.P(
+                                "Approximation du nombre de patients traités sur la période 2014-2018",
+                                className="normal-text",
+                            ),
+                        ],
+                        className="UsageBoxText",
+                    ),
+                ],
+                className="UsageBox",
             )
         ],
     )
@@ -515,6 +516,7 @@ def PatientsTraites(
     df_age: pd.DataFrame,
     df_sexe: pd.DataFrame,
     df_expo: pd.DataFrame,
+    type: str,
     pie_colors: List,
 ) -> Component:
     children = [
@@ -527,7 +529,7 @@ def PatientsTraites(
         children.extend(
             [
                 Tooltip(),
-                Utilisation(df_expo),
+                Utilisation(type, df_expo),
                 Grid(
                     [
                         GraphBox(

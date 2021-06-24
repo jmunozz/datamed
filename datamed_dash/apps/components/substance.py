@@ -98,6 +98,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                                 df_age=df_age,
                                 df_sexe=df_sexe,
                                 df_expo=df_expo,
+                                type="substance",
                                 pie_colors=PIE_COLORS_SUBSTANCE,
                             ),
                             EffetsIndesirables(
