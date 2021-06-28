@@ -36,7 +36,6 @@ def Navbar() -> Component:
     dd.Output("url", "href"), dd.Input("navbar", "url"), dd.Input("navbar", "value"),
 )
 def update_path(url, value):
-    print(url, value)
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate()

@@ -4,10 +4,7 @@ import pandas as pd
 
 BAR_LAYOUT = {
     "xaxis": dict(
-        showgrid=False,
-        showline=False,
-        showticklabels=False,
-        zeroline=False,
+        showgrid=False, showline=False, showticklabels=False, zeroline=False,
     ),
     "yaxis": dict(
         showgrid=False,

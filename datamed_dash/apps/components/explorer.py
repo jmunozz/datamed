@@ -118,12 +118,14 @@ def Explorer() -> Component:
                         ),
                         BddCard(
                             "icons/pres_autre.svg",
-                            "Cartographie des sites de fabrication",
+                            "Bon usage du médicament",
                             "Non",
-                            "Découvrez les indicateurs utilisés par les agents de l’ANSM pour anticiper "
-                            "les ruptures de stock et les actions mises en place pour y pallier.",
-                            "État des lieux des laboratoires pharmaceutiques (ANSM)",
-                            "/apps/construction",
+                            Div(
+                                "Découvrez les médicaments les plus à risque de "
+                                "mésusage et les conséquences possibles sur votre santé."
+                            ),
+                            "Base Nationale de PharmacoVigilance",
+                            "/apps/mesusage",
                         ),
                     ]
                 )

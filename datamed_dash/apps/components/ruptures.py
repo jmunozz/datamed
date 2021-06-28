@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from app import app
-from apps.components.commons import Header
+from apps.components.commons import Header, SingleCurve
 from apps.components.utils import (
     Box,
     GraphBox,
@@ -115,21 +115,6 @@ def Description() -> Component:
             ],
         ),
         id="description",
-    )
-
-
-def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter:
-    return go.Scatter(
-        x=x,
-        y=y,
-        mode="lines",
-        name=name,
-        line={
-            "shape": "spline",
-            "smoothing": 1,
-            "width": 4,
-            "color": color,
-        },
     )
 
 
@@ -350,7 +335,7 @@ def Signalements() -> Component:
                                 className="regular-text text-justify",
                             ),
                             P(
-                                "Depuis 2019, dans le cadre la feuille de route ministérielle et de la loi de "
+                                "Depuis 2019, dans le cadre de la feuille de route ministérielle et de la loi de "
                                 "financement de la sécurité sociale qui renforce ses pouvoirs, l'ANSM demande aux "
                                 "industriels de déclarer le plus en amont possible tout risque de rupture. "
                                 "Cette politique d'anticipation maximale a pour conséquence une augmentation "
@@ -387,7 +372,7 @@ def Signalements() -> Component:
                                                 "(en anglais : Anatomical Therapeutic Chemical (ATC) Classification "
                                                 "System) est utilisé pour classer les médicaments. C'est le "
                                                 "Collaborating Centre for Drug Statistics Methodology de "
-                                                "l'Organisation mondiale de la santé (OMS) qui le contrôle. "
+                                                "l'Organisation Mondiale de la Santé (OMS) qui le contrôle. "
                                                 "Les médicaments sont divisés en groupes selon l'organe ou le "
                                                 "système sur lequel ils agissent ou leurs caractéristiques "
                                                 "thérapeutiques et chimiques.",
@@ -399,9 +384,9 @@ def Signalements() -> Component:
                                                 "le nombre de présentations de médicaments (une présentation correspond"
                                                 " à un conditionnement précis d'un médicament, par exemple une boîte de"
                                                 " 30 gélules et une boîte de 90 gélules d'un même médicament sont deux "
-                                                "présentations différentes). Dans sa globalité, ce graphique permet "
-                                                "d'apprécier le nombre de signalements reçu spar rapport au nombre de "
-                                                "médicaments disponibles.",
+                                                "présentations différentes) que contient la classe. Dans sa globalité, "
+                                                "ce graphique permet d'apprécier le nombre de signalements reçus par "
+                                                "rapport au nombre de médicaments disponibles.",
                                                 className="regular-text text-justify",
                                             ),
                                         ],
@@ -524,6 +509,11 @@ def Signalements() -> Component:
                                     Tooltip(
                                         [
                                             H4("Causes des signalements"),
+                                            P(
+                                                "Les causes des ruptures reportées dans ces graphiques correspondent "
+                                                "aux causes déclarées par les industriels au moment de la déclaration.",
+                                                className="regular-text text-justify",
+                                            ),
                                             P(
                                                 "mp/ac : matière première / article conditionnement",
                                                 className="regular-text",

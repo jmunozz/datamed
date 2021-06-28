@@ -390,6 +390,28 @@ a.btn-lg {
   background-color: inherit;
   box-shadow: var(--box-shadow-appendice);
   transform: rotate(45deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes bounce-appendice {
+  0% {
+    transform: rotate(-45deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-45deg) translateY(-12px);
+  }
+  100% {
+    transform: rotate(-45deg) translateY(0);
+  }
+}
+
+.FrontPageSectionAppendiceImg {
+  /* transform: rotate(-45deg); */
+  animation-name: bounce-appendice;
+  animation-iteration-count: infinite;
+  animation-duration: 3s;
 }
 
 .FrontPageSection-isColor3 {
@@ -792,6 +814,7 @@ a.btn-lg {
 .Line {
   display: flex;
   justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .Line-isCentered {
@@ -977,7 +1000,7 @@ a.btn-lg {
 }
 
 .GridElem-1 {
-  flex: 1 0 100%;
+  flex: 1 0 90%;
 }
 
 .GridElem-2 {
@@ -1040,4 +1063,94 @@ a.btn-lg {
 
 #dash-side-effect-hidden-div {
   display: none;
+}
+
+.ErrMedStackBar {
+  height: 225px;
+}
+
+.FrontPageSearchBarImg {
+  height: 150px;
+  max-width: 100%;
+}
+
+/*
+** Usage Component of specialite and substance pages
+*/
+
+.UsageBox {
+  display: flex;
+  border: var(--border);
+  border-radius: var(--border-radius);
+  align-items: stretch;
+  background-color: var(--color-blue);
+  flex: 1; /* take all width of sectionRow */
+}
+
+.UsageBoxImg {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.UsageBoxImgTitle {
+  margin-bottom: 1rem;
+  color: var(--color-white);
+}
+
+.UsageBoxText {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--color-white);
+  flex: 3;
+}
+
+.UsageBoxTextTitle {
+  color: var(--color-blue);
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.UsageBar {
+  width: 24px;
+  border: solid black 1px;
+  background-color: var(--color-white);
+  transition: all 0.5s;
+}
+
+.UsageBar:hover {
+  transform: scale(1.1);
+}
+
+.UsageContainer {
+  width: 152px;
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--color-blue);
+  position: relative;
+  align-items: flex-end;
+}
+
+.UsagePill {
+  position: absolute;
+  height: 24px;
+  animation-name: bounce;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+.UsagePill img {
+  height: 100%;
 }

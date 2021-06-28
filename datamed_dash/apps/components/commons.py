@@ -1,11 +1,15 @@
-from typing import List, Optional, Dict
-import math
+from typing import List, Dict
+from typing import Optional
+from urllib.parse import urlencode, quote_plus
 
+import dash
+import math
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 from app import app
 from apps.components.utils import (
     Box,
@@ -14,8 +18,15 @@ from apps.components.utils import (
     SectionRow,
     normalize_string,
     Grid,
+    Tooltip as HoverTooltip,
+    truncate_str,
 )
-from apps.constants.misc import UTILISATION, UTILISATION_IMG_URL
+from apps.constants.misc import (
+    UTILISATION,
+    UTILISATION_IMG_URL,
+    UTILISATION_NB_PATIENTS_SPECIALITE,
+    UTILISATION_NB_PATIENTS_SUBSTANCE,
+)
 from apps.graphs import (
     ReparitionSexeFigure,
     RepartitionAgeGraph,
@@ -30,6 +41,7 @@ from apps.graphs import (
     FigureGraph,
 )
 from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
 from dash_bootstrap_components import (
     Button,
     Modal,
@@ -40,7 +52,6 @@ from dash_bootstrap_components import (
 from dash_html_components import Div, H1
 from datamed_custom_components import Accordion, SearchBar as _SearchBar
 from db import fetch_data, specialite, substance
-from apps.components.utils import truncate_str
 
 
 def to_search_bar_options(df: pd.DataFrame, type: str) -> List[Dict]:
@@ -60,13 +71,70 @@ def get_opts_search_bar():
     return opts
 
 
+# This component is used to display usage as an indicator (for specialite and substance)
+def Usage(type: str, level: int):
+
+    nb_patients = (
+        {
+            "substance": UTILISATION_NB_PATIENTS_SUBSTANCE,
+            "specialite": UTILISATION_NB_PATIENTS_SPECIALITE,
+        }
+    )[type]
+    bar_height = [16, 24, 32, 48, 56]
+
+    bars = [
+        html.Div(
+            HoverTooltip(
+                [
+                    html.P([html.B("Utilisation: "), UTILISATION[i]]),
+                    html.P([html.B("Nombre de patients: "), nb_patients[i],]),
+                ],
+                target=f"UsageBarLevel{i}",
+            ),
+            id=f"UsageBarLevel{i}",
+            className="UsageBar",
+            style={"height": h},
+        )
+        for i, h in enumerate(bar_height)
+    ]
+
+    if math.isnan(level) or level < 0 or level > 4:
+        return html.Div([*bars,], className="UsageContainer",)
+
+    pill_position_x = level * 24 + level * 8
+    pill_position_y = bar_height[level] + 4
+
+    return html.Div(
+        [
+            *bars,
+            html.Div(
+                html.Img(src=app.get_asset_url("/icons/gelule_24.svg")),
+                className=f"UsagePill UsagePillLevel{level}",
+                style={"left": pill_position_x, "bottom": pill_position_y},
+            ),
+        ],
+        className="UsageContainer",
+    )
+
+
 # this invisible component is used to perform side effects
 def SideEffects():
     return html.Div(id="dash-side-effect-hidden-div")
 
-def SearchBar(id: str, fireOnSelect=True):
+
+def SearchBar():
     opts = get_opts_search_bar()
-    return _SearchBar(id, opts=opts, fireOnSelect=fireOnSelect)
+    return _SearchBar("search-bar", opts=opts, fireOnSelect=True)
+
+
+def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter:
+    return go.Scatter(
+        x=x,
+        y=y,
+        mode="lines",
+        name=name,
+        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
+    )
 
 
 # Return NoData if df empty or figure missing for man or woman
@@ -260,7 +328,17 @@ def FrontPageSectionPart(children, class_name=""):
 def FrontPageSection(children, class_name="", has_appendice=False):
     layout = [html.Div(children, className="FrontPageSectionContainer")]
     if has_appendice:
-        layout = layout + [Div(className="FrontPageSectionAppendice")]
+        layout = layout + [
+            Div(
+                [
+                    html.Img(
+                        src=app.get_asset_url("/mouse_scroll.svg"),
+                        className="FrontPageSectionAppendiceImg",
+                    )
+                ],
+                className="FrontPageSectionAppendice",
+            )
+        ]
     class_name = " ".join(["FrontPageSection"] + class_name.split(" "))
     return html.Div(layout, className=class_name)
 
@@ -402,7 +480,7 @@ def HistoriqueRupturesTooltip():
     )
 
 
-def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
+def Utilisation(_type: str, df_expo: Optional[pd.DataFrame]) -> Component:
     if df_expo is not None:
         series_exposition = fetch_data.as_series(df_expo)
         if not np.isnan(series_exposition.exposition):
@@ -423,83 +501,32 @@ def Utilisation(df_expo: Optional[pd.DataFrame]) -> Component:
         exposition = "-"
         patients = "Données insuffisantes"
 
-    df = pd.DataFrame(
-        {
-            "Utilisation": ["Très faible", "Faible", "Modéré", "Élevé", "Très élevé",],
-            "Nombre de patients (niveau spécialité)": [
-                "< 1 000",
-                "1 000 - 5 000",
-                "5 000 - 15 000",
-                "15 000 - 50 000",
-                "> 50 000",
-            ],
-            "Nombre de patients (niveau substance active)": [
-                "< 5 000",
-                "5 000 - 25 000",
-                "25 000 - 100 000",
-                "100 000 - 500 000",
-                "> 500 000",
-            ],
-        }
-    )
     return SectionRow(
         [
-            Box(
-                Div(
-                    [
-                        Box(
-                            [
-                                html.P(
-                                    UTILISATION[exposition],
-                                    className="normal-text-bold text-center align-middle",
-                                ),
-                                html.Img(src=UTILISATION_IMG_URL[exposition]),
-                            ],
-                            isBordered=False,
-                            className="CardBoxImage UsageBoxRate",
-                        ),
-                        Box(
-                            [
-                                html.H2(patients, className="color-secondary"),
-                                html.P(
-                                    "Approximation du nombre de patients traités sur la période 2014-2018",
-                                    className="normal-text",
-                                ),
-                                html.A(
-                                    "En savoir plus sur le niveau d'utilisation",
-                                    className="normal-text color-secondary",
-                                    id="open",
-                                ),
-                                dbc.Modal(
-                                    [
-                                        dbc.ModalHeader("Niveaux d'utilisation"),
-                                        dbc.ModalBody(
-                                            dbc.Table.from_dataframe(
-                                                df,
-                                                striped=True,
-                                                bordered=True,
-                                                hover=True,
-                                            )
-                                        ),
-                                        dbc.ModalFooter(
-                                            dbc.Button(
-                                                "Fermer",
-                                                id="close",
-                                                className="ml-auto",
-                                                style={"background-color": "#a03189"},
-                                            )
-                                        ),
-                                    ],
-                                    id="utilisation-modal",
-                                ),
-                            ],
-                            isBordered=False,
-                            className="CardBoxText",
-                        ),
-                    ],
-                    className="CardBox",
-                ),
-                hasNoPadding=True,
+            Div(
+                [
+                    Div(
+                        [
+                            Div(
+                                html.P(UTILISATION[exposition - 1]),
+                                className="UsageBoxImgTitle normal-text-bold",
+                            ),
+                            Usage(_type, exposition - 1),
+                        ],
+                        className="UsageBoxImg",
+                    ),
+                    Div(
+                        [
+                            html.H2(patients, className="UsageBoxTextTitle"),
+                            html.P(
+                                "Approximation du nombre de patients traités sur la période 2014-2018",
+                                className="normal-text",
+                            ),
+                        ],
+                        className="UsageBoxText",
+                    ),
+                ],
+                className="UsageBox",
             )
         ],
     )
@@ -509,6 +536,7 @@ def PatientsTraites(
     df_age: pd.DataFrame,
     df_sexe: pd.DataFrame,
     df_expo: pd.DataFrame,
+    type: str,
     pie_colors: List,
 ) -> Component:
     children = [
@@ -521,7 +549,7 @@ def PatientsTraites(
         children.extend(
             [
                 Tooltip(),
-                Utilisation(df_expo),
+                Utilisation(type, df_expo),
                 Grid(
                     [
                         GraphBox(
@@ -600,6 +628,22 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
                 "à ces données."
             )
         ]
+    elif type == "mesusage":
+        title = "Bon usage du médicament"
+        css_class = "Header-isRupture"
+        icon_url = app.get_asset_url("rupturedestock-120.svg")
+        type_label = "Base de données"
+        help_link = html.A(
+            "Qu'est-ce qu'une base de données ?",
+            id="definition-open",
+            className="Link Link",
+        )
+        modal_body = [
+            html.Div(
+                "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
+                "à ces données."
+            )
+        ]
 
     return html.Div(
         html.Div(
@@ -661,3 +705,18 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+
+@app.callback(
+    dd.Output("url", "href"), dd.Input("search-bar", "value"),
+)
+def update_path(value):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate()
+    if value:
+        type = value["type"]
+        index = value["value"]
+        return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
+    else:
+        raise PreventUpdate()

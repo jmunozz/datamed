@@ -24,15 +24,30 @@ NOTIF_NOM = {
     "Médecin spécialiste": "Médecin spécialiste",
 }
 
+UTILISATION_NB_PATIENTS_SUBSTANCE = [
+    "< 5 000",
+    "5 000 - 25 000",
+    "25 000 - 100 000",
+    "100 000 - 500 000",
+    "> 500 000",
+]
 
-UTILISATION = {
-    1: "Utilisation très faible",
-    2: "Utilisation faible",
-    3: "Utilisation modérée",
-    4: "Utilisation élevée",
-    5: "Utilisation très élevée",
-    "-": "Utilisation inconnue",
-}
+UTILISATION_NB_PATIENTS_SPECIALITE = [
+    "< 1 000",
+    "1 000 - 5 000",
+    "5 000 - 15 000",
+    "15 000 - 50 000",
+    "> 50 000",
+]
+
+UTILISATION = [
+    "Utilisation très faible",
+    "Utilisation faible",
+    "Utilisation modérée",
+    "Utilisation élevée",
+    "Utilisation très élevée",
+    "Utilisation inconnue",
+]
 
 UTILISATION_IMG_URL = {
     "-": app.get_asset_url("indice-nodata.svg"),

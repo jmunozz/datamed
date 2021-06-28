@@ -586,7 +586,7 @@ def create_table_mesures(_settings: Dict):
             {
                 "etat_mesure": "pas de mesure",
                 "numero": num,
-                "identifiant": num+"-NOTHING",
+                "identifiant": num + "-NOTHING",
                 "description": None,
                 "nom": None,
                 "date_demande": None,
@@ -596,7 +596,7 @@ def create_table_mesures(_settings: Dict):
                 "justification": None,
                 "mesure": "Pas de mesure",
                 "annee": int("20" + num[:2]),
-                "avec_mesure": "Sans mesure"
+                "avec_mesure": "Sans mesure",
             },
             ignore_index=True,
         )
@@ -618,6 +618,8 @@ def create_table_mesusage(_settings: Dict):
     df_spe = pd.read_sql("specialite", engine)
     df = df.merge(df_spe[["cis", "nom"]], on="nom", how="left")
 
+    df["annee"] = df.date_notif.apply(lambda x: x.year)
+
     for table_name, table_columns in _settings["tables"].items():
         if table_name.startswith("mesusage_global"):
             df_agg = mesusage.get_proporition_df(df, table_columns)
@@ -634,6 +636,24 @@ def create_table_mesusage(_settings: Dict):
                 **_settings["to_sql"],
             }
             db.create_table_from_df(df_agg, args)
+
+
+def create_table_pv(_settings: Dict):
+    """ "
+    Nombre de cas déclarés dans la BNPV chaque année
+    """
+    pv_dict = [
+        {"annee": 2014, "cas": 42444},
+        {"annee": 2015, "cas": 42396},
+        {"annee": 2016, "cas": 45515},
+        {"annee": 2017, "cas": 72687},
+        {"annee": 2018, "cas": 58425},
+        {"annee": 2019, "cas": 48147},
+        {"annee": 2020, "cas": 45015},
+        {"annee": 2021, "cas": 55774},
+    ]
+    df = pd.DataFrame(pv_dict)
+    db.create_table_from_df(df, _settings["to_sql"])
 
 
 create_table_bdpm_cis(settings.files["bdpm_cis"])
@@ -668,3 +688,4 @@ create_table_icones(settings.files["icones"])
 
 # Mésusage
 create_table_mesusage(settings.files["mesusage"])
+create_table_pv(settings.files["cas_pv"])

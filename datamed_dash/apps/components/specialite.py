@@ -231,6 +231,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 df_age=df_age,
                                 df_sexe=df_sexe,
                                 df_expo=df_expo,
+                                type="specialite",
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(

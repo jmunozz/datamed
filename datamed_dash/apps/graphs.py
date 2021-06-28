@@ -100,10 +100,7 @@ def EIRepartitionSexeFigure(df_cas_sexe: pd.DataFrame) -> Component:
 # Représentation de la répartition des effets indésirables par âge (Camembert)
 def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame, pie_colors: Dict) -> Component:
     fig_age = makePie(df_cas_age.age, df_cas_age.pourcentage_cas, pie_colors)
-    return Graph(
-        figure=fig_age,
-        responsive=False,
-    )
+    return Graph(figure=fig_age, responsive=False,)
 
 
 # Représentation des notificateurs d'effets indésirable par type (Nombre)
@@ -140,10 +137,7 @@ def EIRepartitionSystemeOrganes(df_soc: pd.DataFrame, type: str) -> Component:
 
 def EIRepartitionHLT(df_hlt: pd.DataFrame) -> Component:
     fig = Treemap(df_hlt, "effet_hlt", "pourcentage_cas")
-    return Graph(
-        figure=fig,
-        responsive=True,
-    )
+    return Graph(figure=fig, responsive=True,)
 
 
 #
@@ -212,9 +206,7 @@ def RupturesSignalementsFigure(df: pd.DataFrame):
         FigureGraph(
             [
                 {
-                    "figure": "{} signalements".format(
-                        nb_signalements,
-                    ),
+                    "figure": "{} signalements".format(nb_signalements,),
                     "caption": "Nombre de signalements en {}".format(dt.now().year - 1),
                 }
             ]
@@ -331,23 +323,18 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
         df,
         x="pourcentage",
         color=field,
-        labels={
-            "pourcentage": "Proportion",
-            field: field.split("_")[0].capitalize(),
-        },
+        labels={"pourcentage": "Proportion", field: field.split("_")[0].capitalize(),},
         color_discrete_sequence=PIE_COLORS_SPECIALITE,
         orientation="h",
         hover_name=field,
-        hover_data={
-            field: False,
-        },
+        hover_data={field: False,},
     )
 
     fig.update_layout(STACKED_BAR_CHART_LAYOUT)
     fig.update_traces(STACKED_BAR_CHART_TRACES)
 
     return html.Div(
-        Graph(figure=fig, id="stack-bar", responsive=True, style={"height": 225}),
+        Graph(figure=fig, id="stack-bar", responsive=True, style={"height": "inherit"}),
         className="ErrMedStackBar",
     )
 
