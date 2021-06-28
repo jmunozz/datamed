@@ -9,6 +9,7 @@ NOTIF_IMAGE_URL = {
     "Médecin généraliste": app.get_asset_url("./doctor_male_80.svg"),
     "Pharmacien": app.get_asset_url("./pharmacist_male_80.svg"),
     "Inconnu": app.get_asset_url("./man_80.svg"),
+    "Patient": app.get_asset_url("./patient_80.svg"),
     "Non professionnel de santé": app.get_asset_url("./patient_80.svg"),
     "Médecin spécialiste": app.get_asset_url("./specialist_80.svg"),
 }
@@ -20,6 +21,7 @@ NOTIF_NOM = {
     "Médecin généraliste": "Médecin généraliste",
     "Pharmacien": "Pharmacien",
     "Inconnu": "Inconnu",
+    "Patient": "Patient",
     "Non professionnel de santé": "Patient",
     "Médecin spécialiste": "Médecin spécialiste",
 }
@@ -63,6 +65,8 @@ SEXE = {1: "Hommes", 2: "Femmes"}
 SEXE_IMG_URL = {
     1: app.get_asset_url("man_bw_150.svg"),
     2: app.get_asset_url("woman_bw_150.svg"),
+    "Hommes": app.get_asset_url("man_bw_150.svg"),
+    "Femmes": app.get_asset_url("woman_bw_150.svg"),
 }
 
 
