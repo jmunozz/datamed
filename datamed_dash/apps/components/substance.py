@@ -18,7 +18,7 @@ from apps.components.commons import (
     EITauxDeclarationBox,
     EIRepartitionAgeGraphBox,
     EIRepartitionSexeFigureBox,
-    EIRepartitionNotificateursFigureBox,
+    RepartitionNotificateursFigureBox,
     EISystemesOrganesTooltip,
     EIRepartitionSystemeOrganesBox,
     EIRepartitionHLTBox,
@@ -192,7 +192,7 @@ def EffetsIndesirables(
                     ],
                     2,
                 ),
-                SectionRow([EIRepartitionNotificateursFigureBox(df_notif)]),
+                SectionRow([RepartitionNotificateursFigureBox(df_notif)]),
             ]
         )
     return TopicSection(children, id="effets-indesirables",)

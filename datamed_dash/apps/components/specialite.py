@@ -19,10 +19,11 @@ from apps.components.commons import (
     EIRepartitionAgeGraphBox,
     EIRepartitionSexeFigureBox,
     EIRepartitionGraviteGraphBox,
-    EIRepartitionNotificateursFigureBox,
+    RepartitionNotificateursFigureBox,
     EISystemesOrganesTooltip,
     EIRepartitionSystemeOrganesBox,
     EIRepartitionHLTBox,
+    RepartitionGraviteGraphBox,
 )
 from apps.components.utils import (
     Box,
@@ -41,9 +42,7 @@ from apps.components.utils import (
 )
 from apps.constants.colors import PIE_COLORS_SPECIALITE, PIE_COLORS_SUBSTANCE
 from apps.constants.misc import PUBLICATIONS_IMG
-
 from apps.graphs import (
-    EMRepartitionGraviteGraph,
     EMRepartitionPopulationConcernee,
     EMRepartitionEffetsIndesirablesFigure,
     EMRepartitionNatureGraph,
@@ -101,7 +100,7 @@ def EffetsIndesirablesContent(sub_code: str = "") -> Component:
                     ],
                     2,
                 ),
-                SectionRow(EIRepartitionNotificateursFigureBox(df_notif)),
+                SectionRow(RepartitionNotificateursFigureBox(df_notif)),
                 SectionRow(html.H3("Effets indésirables par système d'organe")),
                 SectionRow(EISystemesOrganesTooltip()),
                 SectionRow(EIRepartitionSystemeOrganesBox(df_soclong, "specialite")),
@@ -154,7 +153,14 @@ def get_has_link(series_spe: pd.Series) -> str:
 
 
 def Publications(df_pub: pd.DataFrame) -> str:
-    children = [SectionRow(html.H1("Publications", className="SectionTitle",))]
+    children = [
+        SectionRow(
+            html.H1(
+                "Publications",
+                className="SectionTitle",
+            )
+        )
+    ]
     if df_pub is None:
         children.append(NoData())
     else:
@@ -179,7 +185,10 @@ def Publications(df_pub: pd.DataFrame) -> str:
                 )
             )
         children.append(Grid(children_grid, 1))
-    return TopicSection(children, id="publications",)
+    return TopicSection(
+        children,
+        id="publications",
+    )
 
 
 def Specialite(cis: str) -> Tuple[Component, html.Div]:
@@ -214,12 +223,18 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                             "id": "erreurs-medicamenteuses",
                             "label": "Erreurs médicamenteuses",
                         },
-                        {"id": "effets-indesirables", "label": "Effets indésirables",},
+                        {
+                            "id": "effets-indesirables",
+                            "label": "Effets indésirables",
+                        },
                         {
                             "id": "rupture-de-stock",
                             "label": "Historique des ruptures de stock",
                         },
-                        {"id": "publications", "label": "Publications",},
+                        {
+                            "id": "publications",
+                            "label": "Publications",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -235,7 +250,12 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_init, df_ei, df_pop, df_cause, df_nat, df_gravite,
+                                df_init,
+                                df_ei,
+                                df_pop,
+                                df_cause,
+                                df_nat,
+                                df_gravite,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -294,7 +314,8 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(), series_atc.atc,
+                                    series_atc.label.capitalize(),
+                                    series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -313,7 +334,8 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Span(
-                                series_spe.titulaires.title(), className="normal-text",
+                                series_spe.titulaires.title(),
+                                className="normal-text",
                             ),
                         ],
                     ),
@@ -372,12 +394,6 @@ def EMRepartitionEffetsIndesirablesFigureBox(df: pd.DataFrame) -> Component:
     return EMRepartitionEffetsIndesirablesFigure(df)
 
 
-def EMRepartitionGraviteGraphBox(df: pd.DataFrame) -> Component:
-    if df is None:
-        return NoData("BoxContent-isHalf")
-    return EMRepartitionGraviteGraph(df)
-
-
 def EMRepartitionPopulationConcerneeBox(df: pd.DataFrame) -> Component:
     if df is None:
         return NoData("BoxContent-isHalf")
@@ -413,7 +429,10 @@ def BoxListDenomination(df: pd.DataFrame):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={"height": "50px", "backgroundColor": "#FFF",},
+        style_cell={
+            "height": "50px",
+            "backgroundColor": "#FFF",
+        },
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -489,7 +508,10 @@ def ErreursMedicamenteuses(
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [html.B("Nourrisson : "), "> 28 jours et < 2 ans",],
+                                    [
+                                        html.B("Nourrisson : "),
+                                        "> 28 jours et < 2 ans",
+                                    ],
                                     className="regular-text",
                                 ),
                                 html.P(
@@ -513,7 +535,11 @@ def ErreursMedicamenteuses(
                     [
                         GraphBox(
                             "Gravité des erreurs médicamenteuses",
-                            [EMRepartitionGraviteGraphBox(df_gravite)],
+                            [
+                                RepartitionGraviteGraphBox(
+                                    df_gravite, "pourcentage", PIE_COLORS_SPECIALITE
+                                )
+                            ],
                             className="Box-isHalf",
                             tooltip=[
                                 html.H4("Cas grave"),
@@ -610,7 +636,10 @@ def ErreursMedicamenteuses(
                 ),
             ]
         )
-    return TopicSection(children, id="erreurs-medicamenteuses",)
+    return TopicSection(
+        children,
+        id="erreurs-medicamenteuses",
+    )
 
 
 def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:

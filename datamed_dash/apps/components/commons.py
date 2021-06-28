@@ -27,13 +27,14 @@ from apps.constants.misc import (
     UTILISATION_NB_PATIENTS_SUBSTANCE,
 )
 from apps.graphs import (
+    RepartitionGraviteGraph,
     ReparitionSexeFigure,
     RepartitionAgeGraph,
     EICasDeclareFigure,
     EITauxDeclarationGraph,
     EIRepartitionSexeFigure,
     EIRepartitionAgeGraph,
-    EIRepartitionNotificateursFigure,
+    RepartitionNotificateursFigure,
     EIRepartitionGraviteGraph,
     EIRepartitionSystemeOrganes,
     EIRepartitionHLT,
@@ -233,15 +234,21 @@ def EIRepartitionAgeGraphBox(df_cas_age: pd.DataFrame, pie_colors: dict) -> Comp
 
 
 # Return NoData if df is empty
-def EIRepartitionNotificateursFigureBox(df_notif: pd.DataFrame) -> Component:
+def RepartitionNotificateursFigureBox(df: pd.DataFrame) -> Component:
     placeholder = NoData(class_name="BoxContent-isHalf")
-    if df_notif is None:
+    if df is None:
         content = placeholder
-    elif df_notif.dropna().empty:
+    elif df.dropna().empty:
         content = placeholder
     else:
-        content = EIRepartitionNotificateursFigure(df_notif)
+        content = RepartitionNotificateursFigure(df)
     return GraphBox("Répartition par déclarant", content)
+
+
+def RepartitionGraviteGraphBox(df: pd.DataFrame, column: str, pie_colors: Dict) -> Component:
+    if df is None:
+        return NoData("BoxContent-isHalf")
+    return RepartitionGraviteGraph(df, column, pie_colors)
 
 
 # Return NoData if df is empty

@@ -1,7 +1,14 @@
+from datetime import datetime as dt
 from typing import Tuple
 
 import plotly.graph_objects as go
-from apps.components.commons import Header, RepartitionSexeBox, RepartitionAgeBox
+from apps.components.commons import (
+    Header,
+    RepartitionSexeBox,
+    RepartitionAgeBox,
+    RepartitionGraviteGraphBox,
+    RepartitionNotificateursFigureBox,
+)
 from apps.components.utils import (
     Box,
     Grid,
@@ -26,6 +33,8 @@ df_sexe = fetch_data.fetch_table("mesusage_global_sexe", "index")
 df_age = fetch_data.fetch_table("mesusage_global_age", "index")
 df_decla = fetch_data.fetch_table("mesusage_global_declarant", "index")
 df_gravite = fetch_data.fetch_table("mesusage_global_gravite", "index")
+
+MESUSAGE_YEAR_INIT = 2015
 
 
 def Description() -> Component:
@@ -151,7 +160,7 @@ def DeclarationsBar():
     ):
         fig.add_trace(
             go.Bar(
-                x=df.annee,
+                x=df[df.annee.isin(range(MESUSAGE_YEAR_INIT, dt.now().year))].annee,
                 y=df.cas,
                 name=name,
                 marker=dict(color=color),
@@ -159,6 +168,10 @@ def DeclarationsBar():
         )
 
     fig.update_layout(MESUSAGE_STACKED_BAR_CHART_LAYOUT)
+
+    df_decla["pourcentage_notif"] = df_decla.cas.apply(
+        lambda x: x / df_decla.cas.sum() * 100
+    )
     return TopicSection(
         [
             SectionRow(H1("Cas déclarés de mésusage", className="SectionTitle")),
@@ -186,6 +199,31 @@ def DeclarationsBar():
                     ),
                 ]
             ),
+            SectionRow(
+                [
+                    GraphBox(
+                        "Gravité des erreurs médicamenteuses",
+                        [
+                            RepartitionGraviteGraphBox(
+                                df_gravite, "cas", PIE_COLORS_MESUSAGE
+                            )
+                        ],
+                        className="Box-isHalf",
+                        tooltip=[
+                            H4("Cas grave"),
+                            P(
+                                "Effet indésirable létal, ou susceptible de mettre la vie en danger, "
+                                "ou entraînant une invalidité ou une incapacité importante ou durable, "
+                                "ou provoquant ou prolongeant une hospitalisation, ou se manifestant par "
+                                "une anomalie ou une malformation congénitale.",
+                                className="regular-text text-justify",
+                            ),
+                        ],
+                    ),
+                ],
+                withGutter=True,
+            ),
+            SectionRow([RepartitionNotificateursFigureBox(df_decla)]),
         ],
         id="declarations-mesusage",
     )

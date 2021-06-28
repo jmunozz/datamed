@@ -104,10 +104,10 @@ def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame, pie_colors: Dict) -> Compone
 
 
 # Représentation des notificateurs d'effets indésirable par type (Nombre)
-def EIRepartitionNotificateursFigure(df_notif: pd.DataFrame) -> Component:
-    df_notif = df_notif.sort_values(by="pourcentage_notif", ascending=False)
+def RepartitionNotificateursFigure(df: pd.DataFrame) -> Component:
+    df = df.sort_values(by="pourcentage_notif", ascending=False)
     return FigureGraph(
-        get_notif_figures_from_df(df_notif),
+        get_notif_figures_from_df(df),
         height="100px",
         class_name="justify-content-between",
     )
@@ -145,8 +145,8 @@ def EIRepartitionHLT(df_hlt: pd.DataFrame) -> Component:
 #
 
 # Représentation de la répartition par gravité des erreurs médicamenteuses (Camembert)
-def EMRepartitionGraviteGraph(df: pd.DataFrame):
-    fig = makePie(df.gravite, df.pourcentage, PIE_COLORS_SPECIALITE)
+def RepartitionGraviteGraph(df: pd.DataFrame, column: str, pie_colors: List):
+    fig = makePie(df.gravite, df[column], pie_colors)
     return Graph(figure=fig, responsive=False)
 
 
