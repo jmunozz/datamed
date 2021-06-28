@@ -65,6 +65,16 @@ SUNBURST_TRACES = {
     "hovertemplate": "<b>%{label}</b> <br> <br>Total : <b>%{value:f}</b> <extra></extra>",
 }
 
+MESUSAGE_STACKED_BAR_CHART_LAYOUT = {
+    "plot_bgcolor": "#FFF",
+    "margin": dict(l=0, r=0, t=0, b=0),
+    "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    "font": {"color": "black"},
+    "hovermode": "x unified",
+    "hoverlabel": {"namelength": -1},
+    "barmode": "stack",
+}
+
 STACKED_BAR_CHART_LAYOUT = {
     "xaxis": dict(showgrid=False, showline=False, zeroline=False, tickformat="%"),
     "yaxis": dict(

@@ -10,14 +10,17 @@ from apps.components.utils import (
     BoxArticle,
     SectionRow,
 )
+from apps.constants.colors import (
+    MESUSAGE_STACKED_BAR_COLORS
+)
 from apps.constants.layouts import (
-    CURVE_LAYOUT,
+    MESUSAGE_STACKED_BAR_CHART_LAYOUT
 )
 from dash.development.base_component import Component
 from dash_core_components import Graph
 from dash_html_components import Div, P, H1, A, Span
+from datamed_custom_components import Accordion
 from db import fetch_data
-from plotly.subplots import make_subplots
 from sm import SideMenu
 
 df_pv = fetch_data.fetch_table("cas_pv", "index")
@@ -51,7 +54,7 @@ def Description() -> Component:
                             className="normal-text justify-text",
                         ),
                         P(
-                            "Ce mésusage est à l’origine de 10 000 morts par an et de nombreuses hospitalisations.",
+                            "Ce mésusage est à l’origine de 10 000 morts par an et de 130 000 hospitalisations.",
                             className="normal-text justify-text",
                         ),
                         P(
@@ -97,70 +100,12 @@ def Description() -> Component:
     )
 
 
-def DeclarationsCurves():
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-
-    fig.add_trace(
-        go.Scatter(
-            x=df_annee.annee,
-            y=df_annee.cas,
-            mode="lines",
-            name="Déclarations d'effets indésirables liés au mésusage",
-            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#F599B5"},
-        ),
-        secondary_y=False,
-    )
-
-    fig.add_trace(
-        go.Scatter(
-            x=df_pv.annee,
-            y=df_pv.cas,
-            mode="lines",
-            name="Cas de pharmacovigilance",
-            line={"shape": "spline", "smoothing": 1, "width": 4, "color": "#EA336B"},
-            hoverlabel={"namelength": -1},
-            hovertemplate="%{y:int}",
-        ),
-        secondary_y=True,
-    )
-
-    fig.update_yaxes(
-        title_text="Déclarations d'effets indésirables liés au mésusage",
-        color="#F599B5",
-        secondary_y=False,
-    )
-    fig.update_yaxes(
-        title_text="Cas de pharmacovigilance", color="#EA336B", secondary_y=True
-    )
-    fig.update_xaxes(title_text="Années")
-    fig.update_layout(CURVE_LAYOUT)
-    return TopicSection(
-        [
-            SectionRow(
-                H1("Nombre de déclarations de mésusage", className="SectionTitle")
-            ),
-            SectionRow(
-                [
-                    GraphBox(
-                        "Évolution des déclarations de mésusage au cours du temps",
-                        [Graph(figure=fig, responsive=True, style={"height": 450})],
-                        tooltip=[],
-                    ),
-                ]
-            ),
-        ],
-        id="declarations-mesusage",
-    )
-
-
-def DeclarationsCurvesBis():
-    COLORS = ["#009640", "#00B3CC"]
-
+def DeclarationsBar():
     fig = go.Figure()
     for df, name, color in zip(
         [df_annee, df_pv],
         ["Cas déclarés de mésusage", "Cas déclarés de pharmacovigilance"],
-        COLORS,
+        MESUSAGE_STACKED_BAR_COLORS,
     ):
         fig.add_trace(
             go.Bar(
@@ -171,31 +116,32 @@ def DeclarationsCurvesBis():
             )
         )
 
-    fig.update_layout(
-        {
-            "xaxis_showgrid": False,
-            "yaxis_showgrid": False,
-            "hovermode": "x unified",
-            "plot_bgcolor": "#FFF",
-            "paper_bgcolor": "#FFF",
-            "margin": dict(t=0, b=0, l=0, r=0),
-            "font": {"size": 12, "color": "black"},
-            "legend": dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-            ),
-            "hoverlabel": {"namelength": -1},
-        }
-    )
-    fig.update_layout(showlegend=True)
+    fig.update_layout(MESUSAGE_STACKED_BAR_CHART_LAYOUT)
     return TopicSection(
         [
             SectionRow(
-                H1("Nombre de déclarations de mésusage", className="SectionTitle")
+                H1("Cas déclarés de mésusage", className="SectionTitle")
+            ),
+            SectionRow(
+                Box(
+                    Accordion(
+                        [
+                            P(
+                                "Tous les patients peuvent être concernés par le mésusage. Les chiffres ci-dessous "
+                                "ne concernent que les cas rapportés de mésusage ayant entrainé un effet indésirable.",
+                                className="normal-text text-justify",
+                            ),
+                        ],
+                        isOpenOnFirstRender=True,
+                        labelClass="InternalLink normal-text",
+                        label="Tout le monde peut être concerné",
+                    )
+                )
             ),
             SectionRow(
                 [
                     GraphBox(
-                        "Évolution des déclarations de mésusage au cours du temps",
+                        "Part annuelle des cas de mésusage parmi les cas de pharmacovigilance",
                         [Graph(figure=fig, responsive=True, style={"height": 450})],
                         tooltip=[],
                     ),
@@ -221,7 +167,7 @@ def Mesusage() -> Tuple[Component, Div]:
                 ),
                 Div(
                     Div(
-                        [Description(), DeclarationsCurves(), DeclarationsCurvesBis()],
+                        [Description(), DeclarationsBar()],
                         className="ContentWrapper ContentWrapper-hasHeader",
                     ),
                     className="ContentLayoutWrapper",

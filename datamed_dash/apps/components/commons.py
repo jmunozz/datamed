@@ -629,7 +629,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
             )
         ]
     elif type == "mesusage":
-        title = "Bon usage du médicament"
+        title = "Mésusage du médicament"
         css_class = "Header-isRupture"
         icon_url = app.get_asset_url("rupturedestock-120.svg")
         type_label = "Base de données"
