@@ -63,6 +63,8 @@ SEXE = {1: "Hommes", 2: "Femmes"}
 SEXE_IMG_URL = {
     1: app.get_asset_url("man_bw_150.svg"),
     2: app.get_asset_url("woman_bw_150.svg"),
+    "Hommes": app.get_asset_url("man_bw_150.svg"),
+    "Femmes": app.get_asset_url("woman_bw_150.svg"),
 }
 
 

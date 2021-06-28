@@ -1,9 +1,9 @@
+import math
 from typing import List, Dict
 from typing import Optional
 from urllib.parse import urlencode, quote_plus
 
 import dash
-import math
 import dash.dependencies as dd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
@@ -23,7 +23,6 @@ from apps.components.utils import (
 )
 from apps.constants.misc import (
     UTILISATION,
-    UTILISATION_IMG_URL,
     UTILISATION_NB_PATIENTS_SPECIALITE,
     UTILISATION_NB_PATIENTS_SUBSTANCE,
 )
@@ -56,7 +55,11 @@ from db import fetch_data, specialite, substance
 
 def to_search_bar_options(df: pd.DataFrame, type: str) -> List[Dict]:
     return [
-        {"label": truncate_str(val), "value": index, "type": type,}
+        {
+            "label": truncate_str(val),
+            "value": index,
+            "type": type,
+        }
         for index, val in df.nom.items()
     ]
 
@@ -87,7 +90,12 @@ def Usage(type: str, level: int):
             HoverTooltip(
                 [
                     html.P([html.B("Utilisation: "), UTILISATION[i]]),
-                    html.P([html.B("Nombre de patients: "), nb_patients[i],]),
+                    html.P(
+                        [
+                            html.B("Nombre de patients: "),
+                            nb_patients[i],
+                        ]
+                    ),
                 ],
                 target=f"UsageBarLevel{i}",
             ),
@@ -99,7 +107,12 @@ def Usage(type: str, level: int):
     ]
 
     if math.isnan(level) or level < 0 or level > 4:
-        return html.Div([*bars,], className="UsageContainer",)
+        return html.Div(
+            [
+                *bars,
+            ],
+            className="UsageContainer",
+        )
 
     pill_position_x = level * 24 + level * 8
     pill_position_y = bar_height[level] + 4
@@ -133,7 +146,12 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
         y=y,
         mode="lines",
         name=name,
-        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
+        line={
+            "shape": "spline",
+            "smoothing": 1,
+            "width": 4,
+            "color": color,
+        },
     )
 
 
@@ -147,14 +165,14 @@ def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
     for d in sexe_percentage_data:
         if d.pourcentage_patients is None:
             return no_data
-    return ReparitionSexeFigure(df_sexe)
+    return ReparitionSexeFigure(df_sexe, "pourcentage_patients")
 
 
 # Return NoData if df empty or one age category is missing
-def RepartitionAgeBox(df_age: pd.DataFrame, pie_colors: List) -> Component:
-    if df_age is None or np.isnan(df_age.pourcentage_patients.unique()).all():
+def RepartitionAgeBox(df_age: pd.DataFrame, column: str, pie_colors: List) -> Component:
+    if df_age is None or np.isnan(df_age[column].unique()).all():
         return NoData(class_name="BoxContent-isHalf")
-    return RepartitionAgeGraph(df_age, pie_colors)
+    return RepartitionAgeGraph(df_age, column, pie_colors)
 
 
 # Return NoData if df is empty
@@ -317,7 +335,10 @@ def EISystemesOrganesTooltip():
 
 def SingleSection(title: str, children_list: List) -> Component:
     children = [Div(title, className="h3 mb-3")] + children_list
-    return Div(children, className="normal-text mb-5 text-justify",)
+    return Div(
+        children,
+        className="normal-text mb-5 text-justify",
+    )
 
 
 def FrontPageSectionPart(children, class_name=""):
@@ -361,7 +382,9 @@ def NoData(class_name="") -> html.Div:
                 className="img-fluid",
                 alt="Responsive image",
             ),
-            html.Div("Données insuffisantes pour affichage",),
+            html.Div(
+                "Données insuffisantes pour affichage",
+            ),
         ],
         className=class_name,
     )
@@ -381,9 +404,19 @@ def Tooltip() -> Component:
                                         "médicament, délivré en ",
                                         className="normal-text",
                                     ),
-                                    html.B(html.Span("pharmacie de ville",)),
-                                    html.Span(" entre 2014 et 2018 et remboursé par ",),
-                                    html.B(html.Span("l’Assurance Maladie.",)),
+                                    html.B(
+                                        html.Span(
+                                            "pharmacie de ville",
+                                        )
+                                    ),
+                                    html.Span(
+                                        " entre 2014 et 2018 et remboursé par ",
+                                    ),
+                                    html.B(
+                                        html.Span(
+                                            "l’Assurance Maladie.",
+                                        )
+                                    ),
                                     html.Span(
                                         " Pour plus d’informations, consultez : ",
                                     ),
@@ -420,8 +453,14 @@ def Tooltip() -> Component:
                             ),
                         ],
                     ),
-                    html.Div([], className="text-justify mb-3",),
-                    html.Div([], className="mb-3",),
+                    html.Div(
+                        [],
+                        className="text-justify mb-3",
+                    ),
+                    html.Div(
+                        [],
+                        className="mb-3",
+                    ),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -469,8 +508,14 @@ def HistoriqueRupturesTooltip():
                             ),
                         ],
                     ),
-                    html.Div([], className="text-justify mb-3",),
-                    html.Div([], className="mb-3",),
+                    html.Div(
+                        [],
+                        className="text-justify mb-3",
+                    ),
+                    html.Div(
+                        [],
+                        className="mb-3",
+                    ),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -558,14 +603,21 @@ def PatientsTraites(
                         ),
                         GraphBox(
                             "Répartition par âge des patients traités",
-                            [RepartitionAgeBox(df_age, pie_colors)],
+                            [
+                                RepartitionAgeBox(
+                                    df_age, "pourcentage_patients", pie_colors
+                                )
+                            ],
                         ),
                     ],
                     2,
                 ),
             ]
         )
-    return TopicSection(children, id="patients-traites",)
+    return TopicSection(
+        children,
+        id="patients-traites",
+    )
 
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
@@ -649,7 +701,10 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         html.Div(
             html.Div(
                 [
-                    html.Div(html.Img(src=icon_url), className="HeaderImg",),
+                    html.Div(
+                        html.Img(src=icon_url),
+                        className="HeaderImg",
+                    ),
                     html.Div(
                         [
                             H1(title),
@@ -708,7 +763,8 @@ def toggle_modal(n1, n2, is_open):
 
 
 @app.callback(
-    dd.Output("url", "href"), dd.Input("search-bar", "value"),
+    dd.Output("url", "href"),
+    dd.Input("search-bar", "value"),
 )
 def update_path(value):
     ctx = dash.callback_context
