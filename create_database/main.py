@@ -614,6 +614,10 @@ def create_table_mesusage(_settings: Dict):
     df = helpers.load_excel_to_df(_settings)
     df = mesusage.clean_df(df, _settings)
     df = mesusage.reformat_dataframe(df)
+    df = df.rename(columns={"grave": "gravite"})
+    df = df.rename(columns={"type_notif": "notificateur"})
+    gravite_dict = {"O": "Grave", "N": "Non grave"}
+    df.gravite = df.gravite.apply(lambda x: gravite_dict.get(x, x))
 
     df_spe = pd.read_sql("specialite", engine)
     df = df.merge(df_spe[["cis", "nom"]], on="nom", how="left")

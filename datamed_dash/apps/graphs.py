@@ -44,17 +44,17 @@ def get_notif_figures_from_df(df: pd.DataFrame) -> List[Dict]:
 #
 
 # Représentation des patients traités par sexe (Nombre)
-def ReparitionSexeFigure(df_sexe: pd.DataFrame) -> Component:
+def ReparitionSexeFigure(df_sexe: pd.DataFrame, column: str) -> Component:
     return FigureGraph(
-        get_sexe_figures_from_df(df_sexe, "pourcentage_patients"),
+        get_sexe_figures_from_df(df_sexe, column),
         class_name="BoxContent-isHalf",
     )
 
 
 # Représentation des patients par âge (Camembert)
-def RepartitionAgeGraph(df_age: pd.DataFrame, pie_colors: List) -> Component:
+def RepartitionAgeGraph(df_age: pd.DataFrame, column: str, pie_colors: List) -> Component:
     return Graph(
-        figure=makePie(df_age.age, df_age.pourcentage_patients, pie_colors),
+        figure=makePie(df_age.age, df_age[column], pie_colors),
         responsive=False,
     )
 
@@ -104,10 +104,10 @@ def EIRepartitionAgeGraph(df_cas_age: pd.DataFrame, pie_colors: Dict) -> Compone
 
 
 # Représentation des notificateurs d'effets indésirable par type (Nombre)
-def EIRepartitionNotificateursFigure(df_notif: pd.DataFrame) -> Component:
-    df_notif = df_notif.sort_values(by="pourcentage_notif", ascending=False)
+def RepartitionNotificateursFigure(df: pd.DataFrame) -> Component:
+    df = df.sort_values(by="pourcentage_notif", ascending=False)
     return FigureGraph(
-        get_notif_figures_from_df(df_notif),
+        get_notif_figures_from_df(df),
         height="100px",
         class_name="justify-content-between",
     )
@@ -145,8 +145,8 @@ def EIRepartitionHLT(df_hlt: pd.DataFrame) -> Component:
 #
 
 # Représentation de la répartition par gravité des erreurs médicamenteuses (Camembert)
-def EMRepartitionGraviteGraph(df: pd.DataFrame):
-    fig = makePie(df.gravite, df.pourcentage, PIE_COLORS_SPECIALITE)
+def RepartitionGraviteGraph(df: pd.DataFrame, column: str, pie_colors: List):
+    fig = makePie(df.gravite, df[column], pie_colors)
     return Graph(figure=fig, responsive=False)
 
 
@@ -268,7 +268,7 @@ def get_sexe_figures_from_df(df: pd.DataFrame, column: str) -> List[Dict]:
     return [
         {
             "figure": "{}%".format(round(x[column])),
-            "caption": SEXE[x["sexe"]],
+            "caption": SEXE.get(x["sexe"], x["sexe"]),
             "img": SEXE_IMG_URL[x["sexe"]],
         }
         for x in sexe_percentage_data

@@ -681,8 +681,8 @@ files = {
         "tables": {
             "mesusage_global_sexe": "sexe",
             "mesusage_global_age": "age",
-            "mesusage_global_gravite": "grave",
-            "mesusage_global_declarant": "type_notif",
+            "mesusage_global_gravite": "gravite",
+            "mesusage_global_declarant": "notificateur",
             "mesusage_global_annee": "annee",
             "mesusage_specialite_sexe": ["cis", "sexe"],
             "mesusage_specialite_age": ["cis", "age"],

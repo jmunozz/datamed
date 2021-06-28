@@ -118,7 +118,7 @@ def Explorer() -> Component:
                         ),
                         BddCard(
                             "icons/pres_autre.svg",
-                            "Bon usage du médicament",
+                            "Mésusage du médicament",
                             "Non",
                             Div(
                                 "Découvrez les médicaments les plus à risque de "
