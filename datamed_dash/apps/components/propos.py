@@ -30,7 +30,7 @@ def APropos() -> Component:
                         [
                             Div(
                                 "data.ansm est un outil à destination du grand public et des professionnels de santé "
-                                "qui permet d’agréger en un seul endroit plusieurs types de données sur les médicaments, "
+                                "qui permet de réunir en un seul endroit plusieurs types de données sur les médicaments, "
                                 "dont des données exclusives à l’ANSM comme les effets indésirables et les ruptures "
                                 "de stock.",
                                 className="mb-3",
@@ -51,9 +51,10 @@ def APropos() -> Component:
                                         className="d-inline",
                                     ),
                                     A(
-                                        "DataMed",
+                                        "DataMed.",
                                         href="https://entrepreneur-interet-general.etalab.gouv.fr/defis/2020/datamed.html",
                                         className="ExternalLink d-inline",
+                                        target="_blank"
                                     ),
                                 ],
                                 className="mb-3",
@@ -63,7 +64,7 @@ def APropos() -> Component:
                                 "ensemble des personnes extérieures à l'administration, aux compétences numériques "
                                 "pointues, et des agents publics engagés dans une démarche d'innovation. Les "
                                 "entrepreneurs d'intérêt général sont répartis en binômes ou trinômes "
-                                "pluridisciplinaires. Avec leurs mentors, ils ont 10 mois pour relever un défi "
+                                "pluridisciplinaires. Avec leurs mentors, ils ont eu 10 mois pour relever un défi "
                                 "d'amélioration du service public à l'aide du numérique et des données.",
                             ),
                         ],
@@ -107,12 +108,12 @@ def APropos() -> Component:
                             ),
                             Div(
                                 "- les données de la Direction de la Surveillance (sur les effets indésirables des "
-                                "médicaments, les erreurs médicamenteuses et le bon usage du médicament).",
+                                "médicaments, les erreurs médicamenteuses et le bon usage du médicament)",
                                 className="mb-3",
                             ),
                             Div(
                                 "Ces dernières ont fait l’objet d’un nettoyage, d’une analyse et d’une "
-                                "agrégation rigoureuse afin d'assurer la confidentialité des données.",
+                                "agrégation rigoureus afin d'assurer la confidentialité des données.",
                             ),
                         ],
                     ),

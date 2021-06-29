@@ -44,18 +44,13 @@ def Website():
                 className="normal-text Link Link-isOnDarkBackground",
             ),
             A(
-                "Plan du site",
-                href="/apps/construction",
-                className="normal-text Link Link-isOnDarkBackground",
-            ),
-            A(
                 "Mentions légales",
                 href="/apps/mentions_legales",
                 className="normal-text Link Link-isOnDarkBackground",
             ),
             A(
                 "Contact",
-                href="/apps/construction",
+                href="/apps/contact",
                 className="normal-text Link Link-isOnDarkBackground",
             ),
         ],

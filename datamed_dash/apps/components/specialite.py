@@ -59,9 +59,9 @@ from db import specialite, fetch_data, substance
 from sm import SideMenu
 
 
-def EffetsIndesirablesSelect(df_sub: pd.DataFrame):
+def EffetsIndesirablesSelect(df: pd.DataFrame):
     _options = [
-        dict(label=sub.nom.capitalize(), value=code) for code, sub in df_sub.iterrows()
+        dict(label=sub.nom.capitalize(), value=code) for code, sub in df.iterrows()
     ]
     return Dropdown(
         id={"type": "effets-indesirables-select", "index": 1},
@@ -152,7 +152,7 @@ def get_has_link(series_spe: pd.Series) -> str:
     )
 
 
-def Publications(df_pub: pd.DataFrame) -> str:
+def Publications(df: pd.DataFrame) -> str:
     children = [
         SectionRow(
             html.H1(
@@ -161,11 +161,11 @@ def Publications(df_pub: pd.DataFrame) -> str:
             )
         )
     ]
-    if df_pub is None:
+    if df is None:
         children.append(NoData())
     else:
         children_grid = []
-        for i, x in df_pub.iterrows():
+        for i, x in df.iterrows():
             children_grid.append(
                 CardBox(
                     html.Div(
@@ -642,7 +642,7 @@ def ErreursMedicamenteuses(
     )
 
 
-def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
+def EffetsIndesirables(df: pd.DataFrame) -> Component:
     return TopicSection(
         [
             SectionRow(
@@ -666,7 +666,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                         ],
                         className="EffetIndesirableSelectLabel",
                     ),
-                    EffetsIndesirablesSelect(df_sub),
+                    EffetsIndesirablesSelect(df),
                 ],
                 className="EffetIndesirableSelect",
             ),
@@ -767,16 +767,16 @@ def RuptureCell(series_rup):
     )
 
 
-def RuptureDeStockTable(df_rup: pd.DataFrame):
-    rows = [RuptureCell(row) for label, row in df_rup.iterrows()]
+def RuptureDeStockTable(df: pd.DataFrame):
+    rows = [RuptureCell(row) for label, row in df.iterrows()]
     return html.Div(rows, className="Rupture")
 
 
-def RuptureDeStock(df_rup: pd.DataFrame):
-    if df_rup is None:
-        df_rup = pd.DataFrame()
+def RuptureDeStock(df: pd.DataFrame):
+    if df is None:
+        df = pd.DataFrame()
     else:
-        df_rup = df_rup.sort_values(by=["date"], ascending=False)
+        df = df.sort_values(by=["date"], ascending=False)
 
     return TopicSection(
         [
@@ -788,11 +788,11 @@ def RuptureDeStock(df_rup: pd.DataFrame):
                 Box(
                     [
                         html.Div(
-                            "{} signalement(s)".format(fetch_data.get_df_len(df_rup)),
+                            "{} signalement(s)".format(fetch_data.get_df_len(df)),
                             className="normal-text",
                             style={"color": "#33C2D6"},
                         ),
-                        RuptureDeStockTable(df_rup),
+                        RuptureDeStockTable(df),
                     ],
                 ),
             ),
