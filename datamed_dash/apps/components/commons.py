@@ -177,7 +177,7 @@ def RepartitionAgeBox(df_age: pd.DataFrame, column: str, pie_colors: List) -> Co
 
 
 # Return NoData if df is empty
-def EICasDeclareFigureBox(df_decla: pd.DataFrame):
+def EICasDeclareFigureBox(df_expo: pd.DataFrame, df_decla: pd.DataFrame):
     placeholder = FigureGraph(
         [
             {
@@ -189,7 +189,7 @@ def EICasDeclareFigureBox(df_decla: pd.DataFrame):
     if df_decla is None:
         content = placeholder
     else:
-        content = EICasDeclareFigure(df_decla)
+        content = EICasDeclareFigure(df_expo, df_decla)
     return GraphBox("", content)
 
 
