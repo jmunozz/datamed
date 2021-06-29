@@ -1,12 +1,11 @@
-import json
-from typing import List, Dict, Tuple
 import functools
+import json
+from multiprocessing import Pool
+from typing import List, Dict, Tuple
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from tqdm import tqdm
-from multiprocessing import Pool
 
 import db
 import settings
@@ -26,7 +25,7 @@ def check_publication_type(_type: str):
 
 
 @functools.lru_cache(maxsize=None)
-def scrap_bdpm(cis: str) -> Dict:
+def scrap_bdpm(cis: str) -> Tuple[Dict, List]:
     print(f"scrap_bdpm for cis: ${cis}")
     page = requests.get(
         "http://base-donnees-publique.medicaments.gouv.fr/extrait.php?specid={}".format(
@@ -66,7 +65,7 @@ def scrap_bdpm(cis: str) -> Dict:
                 title = "-".join(text.split("-")[:-1])
             publications.append(dict(link=p["href"], type=type, title=title, cis=cis))
 
-    return (description, publications)
+    return description, publications
 
 
 def create_description_table():
@@ -100,4 +99,3 @@ def create_publications_table():
 if __name__ == "__main__":
     create_description_table()
     create_publications_table()
-
