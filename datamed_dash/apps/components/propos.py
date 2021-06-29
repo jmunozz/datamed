@@ -30,7 +30,7 @@ def APropos() -> Component:
                         [
                             Div(
                                 "data.ansm est un outil à destination du grand public et des professionnels de santé "
-                                "qui permet d’agréger en un seul endroit plusieurs types de données sur les médicaments, "
+                                "qui permet de réunir en un seul endroit plusieurs types de données sur les médicaments, "
                                 "dont des données exclusives à l’ANSM comme les effets indésirables et les ruptures "
                                 "de stock.",
                                 className="mb-3",
@@ -63,7 +63,7 @@ def APropos() -> Component:
                                 "ensemble des personnes extérieures à l'administration, aux compétences numériques "
                                 "pointues, et des agents publics engagés dans une démarche d'innovation. Les "
                                 "entrepreneurs d'intérêt général sont répartis en binômes ou trinômes "
-                                "pluridisciplinaires. Avec leurs mentors, ils ont 10 mois pour relever un défi "
+                                "pluridisciplinaires. Avec leurs mentors, ils ont eu 10 mois pour relever un défi "
                                 "d'amélioration du service public à l'aide du numérique et des données.",
                             ),
                         ],
