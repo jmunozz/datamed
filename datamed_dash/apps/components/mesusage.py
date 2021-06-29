@@ -19,7 +19,7 @@ from apps.components.utils import (
     SectionRow,
 )
 from apps.constants.colors import MESUSAGE_STACKED_BAR_COLORS, PIE_COLORS_MESUSAGE
-from apps.constants.layouts import MESUSAGE_STACKED_BAR_CHART_LAYOUT
+from apps.constants.layouts import MESUSAGE_STACKED_BAR_CHART_LAYOUT, PIE_TRACES
 from dash.development.base_component import Component
 from dash_core_components import Graph
 from dash_html_components import Div, P, H1, H4, A, Span
@@ -56,7 +56,7 @@ def Description() -> Component:
                         ArticleTitle("Description"),
                         P(
                             "Le mésusage est une utilisation volontaire d’un médicament dans un usage "
-                            "qui n’est pas attendu, et sans justifications (bibliographie, essais cliniques…).",
+                            "qui n’est pas attendu, et sans justification (bibliographie, essai clinique, etc.).",
                             className="normal-text justify-text",
                         ),
                         P(
@@ -72,7 +72,8 @@ def Description() -> Component:
                             [
                                 Span(
                                     "Pour toutes les dernières informations à destination des patients et "
-                                    "professionnels de santé sur le bon usage du médicament, consultez : ",
+                                    "professionnels de santé sur le bon usage du médicament, rendez-vous "
+                                    "sur le site de l'ANSM : ",
                                     className="normal-text justify-text",
                                 ),
                                 A(
@@ -82,21 +83,6 @@ def Description() -> Component:
                                     target="_blank",
                                 ),
                             ],
-                        ),
-                    ]
-                ),
-                BoxArticle(
-                    [
-                        ArticleTitle("Avertissement"),
-                        P(
-                            "",
-                            className="normal-text text-justify",
-                        ),
-                        A(
-                            "Trouvez des informations complémentaires sur le site de l'ANSM.",
-                            href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
-                            className="ExternalLink d-block",
-                            target="_blank",
                         ),
                     ]
                 ),
@@ -168,6 +154,7 @@ def DeclarationsBar():
         )
 
     fig.update_layout(MESUSAGE_STACKED_BAR_CHART_LAYOUT)
+    fig.update_traces(PIE_TRACES)
 
     df_decla["pourcentage_notif"] = df_decla.cas.apply(
         lambda x: x / df_decla.cas.sum() * 100
@@ -202,7 +189,7 @@ def DeclarationsBar():
             SectionRow(
                 [
                     GraphBox(
-                        "Gravité des erreurs médicamenteuses",
+                        "Gravité des effets indésirables liés aux cas de mésusage",
                         [
                             RepartitionGraviteGraphBox(
                                 df_gravite, "cas", PIE_COLORS_MESUSAGE
