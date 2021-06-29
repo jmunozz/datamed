@@ -667,36 +667,36 @@ def create_table_pv(_settings: Dict):
     db.create_table_from_df(df, _settings["to_sql"])
 
 
-# create_table_bdpm_cis(settings.files["bdpm_cis"])
-# create_tables_rsp_compo(settings.files["rsp_compo"])
-# create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
-# create_table_atc(settings.files["atc"])
-# create_table_cis_atc(settings.files["cis_atc"])
-#
-# # Ordei
-# create_spe_exposition_table(settings.files["ordei_specialite"])
-# create_spe_patients_sexe_table(settings.files["ordei_specialite"])
-# create_spe_patients_age_table(settings.files["ordei_specialite"])
-# create_substance_exposition_table(settings.files["ordei_substance"])
-# create_substance_patients_sexe_table(settings.files["ordei_substance"])
-# create_substance_patients_age_table(settings.files["ordei_substance"])
-# create_substance_cas_sexe_table(settings.files["ordei_substance"])
-# create_substance_cas_age_table(settings.files["ordei_substance"])
-# create_notificateurs_table(settings.files["ordei_notificateurs"])
-# create_substance_soclong_table(settings.files["ordei_soclong"])
-# create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
-# create_cas_grave_table(settings.files["ordei_cas_grave"])
-#
-# # Erreurs médicamenteuses
-# create_table_emed(settings.files["erreurs_med"])
-#
-# # TrustMed
-# create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
-# create_table_mesures(settings.files["mesures"])
-#
-# # Logos
-# create_table_icones(settings.files["icones"])
-#
-# # Mésusage
-# create_table_mesusage(settings.files["mesusage"])
-# create_table_pv(settings.files["cas_pv"])
+create_table_bdpm_cis(settings.files["bdpm_cis"])
+create_tables_rsp_compo(settings.files["rsp_compo"])
+create_table_cis_cip_bdpm(settings.files["cis_cip_bdpm"])
+create_table_atc(settings.files["atc"])
+create_table_cis_atc(settings.files["cis_atc"])
+
+# Ordei
+create_spe_exposition_table(settings.files["ordei_specialite"])
+create_spe_patients_sexe_table(settings.files["ordei_specialite"])
+create_spe_patients_age_table(settings.files["ordei_specialite"])
+create_substance_exposition_table(settings.files["ordei_substance"])
+create_substance_patients_sexe_table(settings.files["ordei_substance"])
+create_substance_patients_age_table(settings.files["ordei_substance"])
+create_substance_cas_sexe_table(settings.files["ordei_substance"])
+create_substance_cas_age_table(settings.files["ordei_substance"])
+create_notificateurs_table(settings.files["ordei_notificateurs"])
+create_substance_soclong_table(settings.files["ordei_soclong"])
+create_hlt_table(settings.files["ordei_soclong"], settings.files["ordei_soclong_hlt"])
+create_cas_grave_table(settings.files["ordei_cas_grave"])
+
+# Erreurs médicamenteuses
+create_table_emed(settings.files["erreurs_med"])
+
+# TrustMed
+create_table_ruptures(settings.files["ruptures"], settings.files["signalements"])
+create_table_mesures(settings.files["mesures"])
+
+# Logos
+create_table_icones(settings.files["icones"])
+
+# Mésusage
+create_table_mesusage(settings.files["mesusage"])
+create_table_pv(settings.files["cas_pv"])
