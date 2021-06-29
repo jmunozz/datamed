@@ -143,9 +143,9 @@ def Explorer() -> Component:
                                 ),
                                 ModaliteItem(
                                     "Qui peut l'utiliser ?",
-                                    "Toute personne souhaitant alimenter sa connaissance personnelle, destiné néanmoins à "
-                                    "des usagers qui ont de la connaissance dans le domaine médical et/ou dans l’exploitation "
-                                    "de la donnée.",
+                                    "Toute personne souhaitant alimenter sa connaissance personnelle, "
+                                    "la plateforme étant néanmoins destinée à des usagers qui ont de la "
+                                    "connaissance dans le domaine médical et/ou dans l’exploitation de la donnée.",
                                 ),
                                 ModaliteItem(
                                     "Y'a-t-il des données sensibles ?",

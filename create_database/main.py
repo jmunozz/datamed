@@ -450,6 +450,7 @@ def get_old_ruptures_df(df_spe: pd.DataFrame) -> pd.DataFrame:
     df.nom = df.nom.str.lower()
     df.classification = df.classification.str.lower()
     df.etat = df.etat.str.lower()
+    df.etat = df.etat.apply(lambda x: "fermé" if x == "clôturé" else x)
     df = df.where(pd.notnull(df), None)
     df = df.drop_duplicates()
 
@@ -469,7 +470,7 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df_spe = pd.read_sql("specialite", engine).reset_index()
     df_old = get_old_ruptures_df(df_spe)
 
-    df = helpers.load_excel_to_df(_settings_ruptures).reset_index()
+    df = helpers.load_csv_to_df(_settings_ruptures).reset_index()
     df = df[df.etat != "Brouillon"]
     df.etat = df.etat.apply(lambda x: "fermé" if x == "clôturé" else x)
 
@@ -501,9 +502,14 @@ def create_table_ruptures(_settings_ruptures: Dict, _settings_signalements: Dict
     df = df.merge(df_pres[["cip13", "cis"]], on="cip13", how="left")
 
     df_tot = pd.concat([df, df_old], axis=0, ignore_index=True)
-    df_tot["atc1"] = df_tot.atc.apply(lambda x: x[:1] if x else None)
-    df_tot["atc2"] = df_tot.atc.apply(lambda x: x[:3] if x else None)
+    df_tot["atc1"] = df_tot.atc.apply(lambda x: x[:1].upper() if x else None)
+    df_tot["atc2"] = df_tot.atc.apply(lambda x: x[:3].upper() if x else None)
     df_tot["annee"] = df_tot.date.dt.year
+
+    df_tot.loc[df_tot.circuit == "ville", "ville"] = True
+    df_tot.loc[df_tot.circuit == "hôpital", "hôpital"] = True
+    df_tot.loc[df_tot.circuit == "commun", "ville"] = True
+    df_tot.loc[df_tot.circuit == "commun", "hôpital"] = True
 
     df_tot = df_tot.where(pd.notnull(df_tot), None)
 
@@ -526,6 +532,7 @@ def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings
     df_pres_atc = df_pres.groupby("label").cip13.count().reset_index()
     df_pres_atc = df_pres_atc.rename(columns={"cip13": "nb_presentations"})
 
+    df = df.drop_duplicates(subset=["numero", "cis"], keep="first")
     df_sig = df.groupby(["annee", "label"]).numero.count().reset_index()
     df_sig = df_sig.rename(columns={"numero": "nb_signalements"}).sort_values(
         by="nb_signalements", ascending=False
@@ -541,7 +548,7 @@ def create_table_signalements(df: pd.DataFrame, df_pres: pd.DataFrame, _settings
 def create_table_mesures(_settings: Dict):
     dfr = pd.read_sql("ruptures", engine)
 
-    df = helpers.load_excel_to_df(_settings)
+    df = helpers.load_csv_to_df(_settings)
     df = df[~df["Numéro Rupture"].str.startswith("DRAFT")]
     df = df.rename(
         columns={
