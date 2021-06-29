@@ -595,6 +595,7 @@ def PatientsTraites(
 ) -> Component:
     children = [
         SectionRow(html.H1("Patients traités", className="SectionTitle")),
+        Tooltip(),
     ]
     dataframes = [df_age, df_sexe, df_expo]
     if all(df is None for df in dataframes):
@@ -602,7 +603,6 @@ def PatientsTraites(
     else:
         children.extend(
             [
-                Tooltip(),
                 Utilisation(type, df_expo),
                 Grid(
                     [
