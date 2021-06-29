@@ -51,9 +51,10 @@ def APropos() -> Component:
                                         className="d-inline",
                                     ),
                                     A(
-                                        "DataMed",
+                                        "DataMed.",
                                         href="https://entrepreneur-interet-general.etalab.gouv.fr/defis/2020/datamed.html",
                                         className="ExternalLink d-inline",
+                                        target="_blank"
                                     ),
                                 ],
                                 className="mb-3",
@@ -107,12 +108,12 @@ def APropos() -> Component:
                             ),
                             Div(
                                 "- les données de la Direction de la Surveillance (sur les effets indésirables des "
-                                "médicaments, les erreurs médicamenteuses et le bon usage du médicament).",
+                                "médicaments, les erreurs médicamenteuses et le bon usage du médicament)",
                                 className="mb-3",
                             ),
                             Div(
                                 "Ces dernières ont fait l’objet d’un nettoyage, d’une analyse et d’une "
-                                "agrégation rigoureuse afin d'assurer la confidentialité des données.",
+                                "agrégation rigoureus afin d'assurer la confidentialité des données.",
                             ),
                         ],
                     ),
