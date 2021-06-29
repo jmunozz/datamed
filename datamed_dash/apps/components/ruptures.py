@@ -71,25 +71,10 @@ def Description() -> Component:
                             "de rupture de stock de ces médicaments qui peuvent entraîner un risque de santé publique.",
                             className="normal-text justify-text",
                         ),
-                        P(
+                        Div(
                             "Retrouvez différentes statistiques sur les signalements reçus par "
                             "l’Agence et les actions mises en place pour y remédier.",
                             className="normal-text justify-text",
-                        ),
-                        Div(
-                            [
-                                Span(
-                                    "Pour toutes les dernières informations à destination des patients et "
-                                    "professionnels de santé sur les ruptures de stock en cours, consultez : ",
-                                    className="normal-text justify-text",
-                                ),
-                                A(
-                                    "ansm.sante.fr.",
-                                    href="https://ansm.sante.fr/",
-                                    className="normal-text Link",
-                                    target="_blank",
-                                ),
-                            ],
                         ),
                     ]
                 ),
@@ -99,9 +84,9 @@ def Description() -> Component:
                         P(
                             "Les chiffres présentés ici ont pour but d’ouvrir les données au grand public afin de "
                             "communiquer sur les actions de l’Agence. Leur périmètre se limite aux ruptures de stock "
-                            "au niveau des laboratoires exploitants et ne prennent pas en compte notamment les "
-                            "ruptures qui peuvent être causées par le circuit de distribution. Les données antérieures "
-                            "à Mai 2021 sont susceptibles de faire l'objet d'erreur de saisie.",
+                            "au niveau des laboratoires exploitants et ne prennent pas en compte les "
+                            "ruptures qui peuvent être causées par le circuit de distribution notamment. "
+                            "Les données antérieures à Mai 2021 sont susceptibles de faire l'objet d'erreurs de saisie.",
                             className="normal-text text-justify",
                         ),
                         A(
