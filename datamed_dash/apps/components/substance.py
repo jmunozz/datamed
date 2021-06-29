@@ -108,7 +108,6 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SUBSTANCE,
                             ),
                             EffetsIndesirables(
-                                df_expo,
                                 df_decla,
                                 df_notif,
                                 df_cas_age,
@@ -184,7 +183,6 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
 
 
 def EffetsIndesirables(
-    df_expo: pd.DataFrame,
     df_decla: pd.DataFrame,
     df_notif: pd.DataFrame,
     df_cas_age: pd.DataFrame,
@@ -201,7 +199,7 @@ def EffetsIndesirables(
                 EffetsIndesirablesTooltip(),
                 Grid(
                     [
-                        EICasDeclareFigureBox(df_expo, df_decla),
+                        EICasDeclareFigureBox(df_decla),
                         EITauxDeclarationBox(df_decla),
                         EIRepartitionSexeFigureBox(df_cas_sexe),
                         EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),

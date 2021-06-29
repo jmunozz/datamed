@@ -67,19 +67,15 @@ def RepartitionAgeGraph(
 #
 
 # Représentation du nombre de cas déclarés d'effets indésirables (Nombre)
-def EICasDeclareFigure(df_expo: pd.DataFrame, df_decla: pd.DataFrame) -> Component:
+def EICasDeclareFigure(df_decla: pd.DataFrame) -> Component:
     series_decla = fetch_data.as_series(df_decla)
     cas_str = "{:,}".format(int(series_decla.cas)).replace(",", " ")
     caption = "Nombre de déclarations sur la période 2014-2018"
-    if df_expo is not None:
-        conso_total = df_expo.conso_annee.sum()
-        percent = round((series_decla.cas / conso_total * 100), 2)
-        caption += " ({}% du total des patients traités)".format(percent)
     return FigureGraph(
         [
             {
                 "figure": cas_str,
-                "caption": caption,
+                "caption": "Nombre de déclarations sur la période 2014-2018",
             }
         ]
     )
