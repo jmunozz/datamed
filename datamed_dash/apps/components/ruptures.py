@@ -153,19 +153,20 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
     colors = ["#5E2A7E", "#009640"]
     df = df_ruptures.reset_index()
 
-    df_circuit = df[(df.circuit == circuit) & (df.date >= "2021-05-04")]
+    df_circuit = df[(df[circuit]) & (df.date >= "2021-05-04")]
     df_circuit.date = df_circuit.date.apply(lambda x: dt(x.year, x.month, 1))
-    df_circuit = (
-        df_circuit[df_circuit.circuit == circuit]
+
+    df_circuit_by_etat = (
+        df_circuit[df[circuit] == True]
         .groupby(["date", "etat"])
         .numero.count()
         .reset_index()
     )
-    df_circuit = df_circuit.rename(columns={"numero": "nombre"})
+    df_circuit_by_etat = df_circuit_by_etat.rename(columns={"numero": "nombre"})
 
     fig = make_subplots()
     for idx, e in enumerate(["ouvert", "fermé"]):
-        df_etat = df_circuit[df_circuit.etat == e]
+        df_etat = df_circuit_by_etat[df_circuit_by_etat.etat == e]
         fig.add_trace(
             go.Bar(
                 x=df_etat.date,
@@ -175,7 +176,7 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
             )
         )
 
-    fig.update_layout(get_ruptures_curve_layout(df_circuit.date))
+    fig.update_layout(get_ruptures_curve_layout(df_circuit_by_etat.date))
     fig.update_xaxes(title_text="Date")
     fig.update_yaxes(title_text="Nombre de signalements")
 
@@ -185,7 +186,7 @@ def get_signalements_circuit(circuit: str = "ville") -> Dict:
 def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
     df = df_ruptures.reset_index()
     df_rupture_circuit = (
-        df[(df.circuit == circuit) & (df.classification == "rupture")]
+        df[(df[circuit]) & (df.classification == "rupture")]
         .groupby("annee")
         .numero.count()
         .reset_index()
@@ -193,7 +194,6 @@ def get_ruptures_circuit(circuit: str = "ville") -> go.Figure:
     df_rupture_circuit = df_rupture_circuit.rename(
         columns={"numero": "nombre_ruptures"}
     )
-    df_rupture_circuit.head(2)
 
     fig = go.Figure(
         SingleCurve(
@@ -300,8 +300,8 @@ def getRupturesMesuresRepartitionGraphBox(annee: str = INITIAL_YEAR) -> Componen
     return getRupturesMesuresRepartitionGraph(df_mesures, annee)
 
 
-def RupturesSignalementsFigureBox(df_sig: pd.DataFrame) -> Component:
-    return RupturesSignalementsFigure(df_sig)
+def RupturesSignalementsFigureBox(df: pd.DataFrame) -> Component:
+    return RupturesSignalementsFigure(df)
 
 
 def RupturesMesuresFigureBox(df: pd.DataFrame) -> Component:

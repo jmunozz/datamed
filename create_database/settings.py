@@ -526,9 +526,10 @@ files = {
         },
     },
     "mesures": {
-        "source": {"pattern": "Mesure_150621.xlsx"},
-        "read_excel": {
+        "source": {"pattern": "Mesure_290621.csv"},
+        "read_csv": {
             "header": 0,
+            "sep": ";",
             "usecols": [
                 "Etat",
                 "Numéro Rupture",
@@ -556,9 +557,10 @@ files = {
         },
     },
     "ruptures": {
-        "source": {"pattern": "Dossier_de_rupture_150621.xlsx"},
-        "read_excel": {
+        "source": {"pattern": "Dossier_de_rupture_290621.csv"},
+        "read_csv": {
             "header": 0,
+            "sep": ";",
             "index_col": "numero",
             "usecols": [
                 0,
