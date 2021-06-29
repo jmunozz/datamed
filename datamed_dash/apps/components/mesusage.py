@@ -55,12 +55,14 @@ def Description() -> Component:
                     [
                         ArticleTitle("Description"),
                         P(
-                            "Le mésusage est une utilisation volontaire d’un médicament dans un usage "
-                            "qui n’est pas attendu, et sans justification (bibliographie, essai clinique, etc.).",
+                            "Le mésusage est une utilisation volontaire d’un médicament à visée thérapeutique "
+                            "dans un usage qui n’est pas attendu, approprié  et sans justification "
+                            "(bibliographie, essai clinique, etc.).",
                             className="normal-text justify-text",
                         ),
                         P(
-                            "Ce mésusage est à l’origine de 10 000 morts par an et de 130 000 hospitalisations.",
+                            "Ce mésusage est à l’origine de 10 000 morts par an "
+                            "et de 130 000 hospitalisations, en France.",
                             className="normal-text justify-text",
                         ),
                         P(
@@ -71,9 +73,9 @@ def Description() -> Component:
                         Div(
                             [
                                 Span(
-                                    "Pour toutes les dernières informations à destination des patients et "
-                                    "professionnels de santé sur le bon usage du médicament, rendez-vous "
-                                    "sur le site de l'ANSM : ",
+                                    "Pour toutes les dernières informations à destination des patients "
+                                    "et professionnels de santé sur le bon usage/mésusage du médicament, "
+                                    "rendez-vous sur le site de l'ANSM : ",
                                     className="normal-text justify-text",
                                 ),
                                 A(
@@ -120,11 +122,11 @@ def PatientsConcernes():
                     Grid(
                         [
                             GraphBox(
-                                "Répartition par sexe des patients traités",
+                                "Répartition par sexe des cas de mésusage notifiés",
                                 [RepartitionSexeBox(df_sexe)],
                             ),
                             GraphBox(
-                                "Répartition par âge des patients traités",
+                                "Répartition par âge des cas de mésusage notifiés",
                                 [RepartitionAgeBox(df_age, "cas", PIE_COLORS_MESUSAGE)],
                             ),
                         ],
@@ -177,9 +179,10 @@ def DeclarationsBar():
                             ),
                             H4("Cas de mésusage"),
                             P(
-                                "Sont notifiés les effets indésirables liés à l'utilisation "
-                                "volontaire d’un médicament dans un usage qui n’est pas attendu, et sans "
-                                "justification (bibliographie, essai clinique, etc.).",
+                                "Sont notifiés les effets indésirables que le patient ou son entourage suspecte "
+                                "d'être liés à l'utilisation volontaire d’un médicament à visée thérapeutique dans un "
+                                "usage qui n’est pas attendu, approprié et sans justification (bibliographie, "
+                                "essai clinique, etc.).",
                                 className="regular-text text-justify",
                             ),
                         ],
