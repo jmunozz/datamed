@@ -90,10 +90,10 @@ def Usage(type: str, level: int):
         html.Div(
             HoverTooltip(
                 [
-                    html.P([html.B("Utilisation: "), UTILISATION[i]]),
+                    html.P([html.B("Utilisation : "), UTILISATION[i]]),
                     html.P(
                         [
-                            html.B("Nombre de patients: "),
+                            html.B("Nombre de patients : "),
                             nb_patients[i],
                         ]
                     ),
@@ -157,23 +157,23 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
 
 
 # Return NoData if df empty or figure missing for man or woman
-def RepartitionSexeBox(df_sexe: pd.DataFrame) -> Component:
+def RepartitionSexeBox(df: pd.DataFrame) -> Component:
     no_data = NoData(class_name="BoxContent-isHalf")
-    if df_sexe is None:
+    if df is None:
         return no_data
-    df_sexe = df_sexe.where(pd.notnull(df_sexe), None)
-    sexe_percentage_data = fetch_data.transform_df_to_series_list(df_sexe)
+    df = df.where(pd.notnull(df), None)
+    sexe_percentage_data = fetch_data.transform_df_to_series_list(df)
     for d in sexe_percentage_data:
         if d.pourcentage_patients is None:
             return no_data
-    return ReparitionSexeFigure(df_sexe, "pourcentage_patients")
+    return ReparitionSexeFigure(df, "pourcentage_patients")
 
 
 # Return NoData if df empty or one age category is missing
-def RepartitionAgeBox(df_age: pd.DataFrame, column: str, pie_colors: List) -> Component:
-    if df_age is None or np.isnan(df_age[column].unique()).all():
+def RepartitionAgeBox(df: pd.DataFrame, column: str, pie_colors: List) -> Component:
+    if df is None or np.isnan(df[column].unique()).all():
         return NoData(class_name="BoxContent-isHalf")
-    return RepartitionAgeGraph(df_age, column, pie_colors)
+    return RepartitionAgeGraph(df, column, pie_colors)
 
 
 # Return NoData if df is empty
@@ -194,7 +194,7 @@ def EICasDeclareFigureBox(df_decla: pd.DataFrame):
 
 
 # Return NoData if df is empty
-def EITauxDeclarationBox(df_decla: pd.DataFrame):
+def EITauxDeclarationBox(df: pd.DataFrame):
     placeholder = FigureGraph(
         [
             {
@@ -204,10 +204,10 @@ def EITauxDeclarationBox(df_decla: pd.DataFrame):
             }
         ]
     )
-    if df_decla is None:
+    if df is None:
         content = placeholder
     else:
-        content = EITauxDeclarationGraph(df_decla)
+        content = EITauxDeclarationGraph(df)
     return GraphBox("", content)
 
 
@@ -245,7 +245,9 @@ def RepartitionNotificateursFigureBox(df: pd.DataFrame) -> Component:
     return GraphBox("Répartition par déclarant", content)
 
 
-def RepartitionGraviteGraphBox(df: pd.DataFrame, column: str, pie_colors: Dict) -> Component:
+def RepartitionGraviteGraphBox(
+    df: pd.DataFrame, column: str, pie_colors: Dict
+) -> Component:
     if df is None:
         return NoData("BoxContent-isHalf")
     return RepartitionGraviteGraph(df, column, pie_colors)

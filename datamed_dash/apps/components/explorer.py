@@ -16,8 +16,8 @@ def ExplorerHeader() -> Component:
                 H1("Explorez notre sélection de données publiques"),
                 P(
                     "L’Agence Nationale de Sécurité du Médicament et des "
-                    "Produits de Santé met à votre disposition une sélection de ses "
-                    "bases de données. Laissez-vous guider par ses modalités d’utilisation",
+                    "produits de santé met à votre disposition une sélection de ses "
+                    "bases de données. Laissez-vous guider par ses modalités d’utilisation.",
                     className="medium-text",
                 ),
                 Img(
@@ -153,7 +153,7 @@ def Explorer() -> Component:
                                         "L’ensemble des données affichées ont été approuvées par la CNIL et correspondent aux "
                                         "standards d’anonymisation. Si toutefois vous rencontrez des anomalies, n’hésitez pas "
                                         "à nous le ",
-                                        A("signaler", href="", className="Link"),
+                                        A("signaler", href="/apps/contact", className="Link"),
                                         ".",
                                     ],
                                 ),

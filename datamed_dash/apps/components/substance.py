@@ -30,7 +30,7 @@ from datamed_custom_components.Accordion import Accordion
 from sm import SideMenu
 
 from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid, trim_list
-from ..constants.colors import PIE_COLORS_SPECIALITE, PIE_COLORS_SUBSTANCE
+from ..constants.colors import PIE_COLORS_SUBSTANCE
 
 
 def EffetsIndesirablesTooltip() -> Component:
@@ -86,8 +86,14 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                     id="side-menu",
                     items=[
                         {"id": "patients-traites", "label": "Patients traités"},
-                        {"id": "effets-indesirables", "label": "Effets indésirables",},
-                        {"id": "liste-specialites", "label": "Liste des spécialités",},
+                        {
+                            "id": "effets-indesirables",
+                            "label": "Effets indésirables",
+                        },
+                        {
+                            "id": "liste-specialites",
+                            "label": "Liste des spécialités",
+                        },
                     ],
                     className="SideMenu",
                 ),
@@ -102,7 +108,11 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SUBSTANCE,
                             ),
                             EffetsIndesirables(
-                                df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite
+                                df_decla,
+                                df_notif,
+                                df_cas_age,
+                                df_cas_sexe,
+                                df_gravite,
                             ),
                             SystemesOrganes(df_soc),
                             ListeSpecialites(df_sub, df_sub_spe),
@@ -134,7 +144,10 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                 page_size=10,
                 style_as_list_view=True,
                 style_table={"overflowX": "auto"},
-                style_cell={"height": "50px", "backgroundColor": "#FFF",},
+                style_cell={
+                    "height": "50px",
+                    "backgroundColor": "#FFF",
+                },
                 style_data={
                     "fontSize": "14px",
                     "fontWeight": "400",
@@ -161,7 +174,9 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
                     series_sub.nom.capitalize()
                 )
             ),
-            Box(box_children,),
+            Box(
+                box_children,
+            ),
         ],
         id="liste-specialites",
     )
@@ -195,7 +210,10 @@ def EffetsIndesirables(
                 SectionRow([RepartitionNotificateursFigureBox(df_notif)]),
             ]
         )
-    return TopicSection(children, id="effets-indesirables",)
+    return TopicSection(
+        children,
+        id="effets-indesirables",
+    )
 
 
 def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
@@ -211,7 +229,10 @@ def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
                 SectionRow(EIRepartitionSystemeOrganesBox(df_soc, "substance")),
             ]
         )
-    return TopicSection(children, id="population-concernee",)
+    return TopicSection(
+        children,
+        id="population-concernee",
+    )
 
 
 @app.callback(

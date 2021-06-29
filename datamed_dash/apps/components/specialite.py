@@ -642,7 +642,7 @@ def ErreursMedicamenteuses(
     )
 
 
-def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
+def EffetsIndesirables(df: pd.DataFrame) -> Component:
     return TopicSection(
         [
             SectionRow(
@@ -666,7 +666,7 @@ def EffetsIndesirables(df_sub: pd.DataFrame) -> Component:
                         ],
                         className="EffetIndesirableSelectLabel",
                     ),
-                    EffetsIndesirablesSelect(df_sub),
+                    EffetsIndesirablesSelect(df),
                 ],
                 className="EffetIndesirableSelect",
             ),
