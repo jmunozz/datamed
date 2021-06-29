@@ -34,7 +34,7 @@ from apps.graphs import (
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Graph
-from dash_html_components import Div, P, H1, H4, A, Span
+from dash_html_components import Div, P, H1, H4, A
 from db import fetch_data
 from plotly.subplots import make_subplots
 from sm import SideMenu
@@ -65,7 +65,7 @@ def Description() -> Component:
                     [
                         ArticleTitle("Description"),
                         P(
-                            " Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute rupture "
+                            "Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute rupture "
                             "ou risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
                             "l'ANSM. L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques "
                             "de rupture de stock de ces médicaments qui peuvent entraîner un risque de santé publique.",

@@ -1,7 +1,6 @@
+from app import app
 from dash.development.base_component import Component
 from dash_html_components import Div, B, Img, A
-
-from app import app
 
 from .commons import SingleSection
 
@@ -68,7 +67,7 @@ def Contact() -> Component:
                         className="Btn Btn-isPrimary",
                         role="button",
                         href="https://ansm.sante.fr/contact",
-                        target='_blank'
+                        target="_blank",
                     ),
                 ],
                 className="mentions",
