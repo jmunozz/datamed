@@ -52,7 +52,7 @@ def EffetsIndesirablesTooltip() -> Component:
                     html.A(
                         "signalement.social-sante.gouv.fr",
                         href="https://signalement.social-sante.gouv.fr",
-                        className="normal-text link",
+                        className="Link",
                         target="_blank",
                     ),
                 ],
@@ -189,14 +189,16 @@ def EffetsIndesirables(
     df_cas_sexe: pd.DataFrame,
     df_gravite: pd.DataFrame,
 ) -> Component:
-    children = [SectionRow(html.H1("Effets indésirables"))]
+    children = [
+        SectionRow(html.H1("Effets indésirables")),
+        EffetsIndesirablesTooltip(),
+    ]
     dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
     if all(df is None for df in dataframes):
         children.append(NoData())
     else:
         children.extend(
             [
-                EffetsIndesirablesTooltip(),
                 Grid(
                     [
                         EICasDeclareFigureBox(df_decla),
@@ -216,19 +218,15 @@ def EffetsIndesirables(
     )
 
 
-def SystemesOrganes(df_soc: pd.DataFrame) -> Component:
+def SystemesOrganes(df: pd.DataFrame) -> Component:
     children = [
-        SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe"))
+        SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe")),
+        EISystemesOrganesTooltip(),
     ]
-    if df_soc is None or np.isnan(df_soc.pourcentage_cas.unique()).all():
+    if df is None or np.isnan(df.pourcentage_cas.unique()).all():
         children.append(NoData())
     else:
-        children.extend(
-            [
-                EISystemesOrganesTooltip(),
-                SectionRow(EIRepartitionSystemeOrganesBox(df_soc, "substance")),
-            ]
-        )
+        children.append(SectionRow(EIRepartitionSystemeOrganesBox(df, "substance")))
     return TopicSection(
         children,
         id="population-concernee",
