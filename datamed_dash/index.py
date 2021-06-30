@@ -8,7 +8,18 @@ from dash.dependencies import Output, Input, ClientsideFunction
 from dash_html_components import Div
 
 from app import app, server
-from apps import app1, app2, app3, app4, app5, app6, mentions_legales, a_propos, app_mesusage, app_contact
+from apps import (
+    app_frontpage,
+    app_specialite,
+    app_explorer,
+    app_ruptures,
+    app_substance,
+    app_construction,
+    mentions_legales,
+    a_propos,
+    app_mesusage,
+    app_contact,
+)
 
 app.layout = Div([dcc.Location(id="url", refresh=False), Div(id="page-content")])
 
@@ -42,19 +53,19 @@ def display_page(href):
     pathname = parsed_url.path
 
     if pathname == "/apps/accueil":
-        return app1.layout
+        return app_frontpage.layout
     elif pathname == "/apps/specialite":
-        return app2.Layout(parsed_url)
+        return app_specialite.Layout(parsed_url)
     elif pathname == "/apps/substance":
-        return app5.Layout(parsed_url)
+        return app_substance.Layout(parsed_url)
     elif pathname == "/apps/explorer":
-        return app3.Layout()
+        return app_explorer.Layout()
     elif pathname == "/apps/ruptures":
-        return app4.Layout()
+        return app_ruptures.Layout()
     elif pathname == "/apps/mesusage":
         return app_mesusage.Layout()
     elif pathname == "/apps/construction":
-        return app6.Layout()
+        return app_construction.Layout()
     elif pathname == "/apps/mentions_legales":
         return mentions_legales.Layout()
     elif pathname == "/apps/a_propos":
@@ -62,7 +73,7 @@ def display_page(href):
     elif pathname == "/apps/contact":
         return app_contact.Layout()
     else:
-        return app1.layout
+        return app_frontpage.layout
 
 
 if __name__ == "__main__":

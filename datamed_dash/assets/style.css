@@ -899,10 +899,6 @@ a.btn-lg {
 **/
 
 .Footer {
-  /* background-image: url("./BG_Footer.svg"); */
-  /* background-position: center;
-  background-repeat: no-repeat; */
-  /* background-size: cover; */
   background-color: black;
   color: var(--color-white);
 }

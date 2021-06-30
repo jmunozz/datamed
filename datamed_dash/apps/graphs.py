@@ -4,7 +4,6 @@ from typing import List, Dict
 
 import dash_html_components as html
 import db.fetch_data as fetch_data
-import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
