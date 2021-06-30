@@ -24,6 +24,7 @@ from apps.components.commons import (
     EIRepartitionSystemeOrganesBox,
     EIRepartitionHLTBox,
     RepartitionGraviteGraphBox,
+    EMTooltip,
 )
 from apps.components.utils import (
     Box,
@@ -54,7 +55,6 @@ from dash.dependencies import Input, Output
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Dropdown
-from datamed_custom_components import Accordion
 from db import specialite, fetch_data, substance
 from sm import SideMenu
 
@@ -453,45 +453,15 @@ def ErreursMedicamenteuses(
     df_gravite: pd.DataFrame,
 ) -> Component:
     children = [
-        SectionRow(html.H1("Erreurs médicamenteuses", className="SectionTitle")),
-        SectionRow(
-            Box(
-                Accordion(
-                    [
-                        html.P(
-                            [
-                                html.Span(
-                                    "Les données sur les erreurs médicamenteuses proviennent des déclarations de risque d’erreur "
-                                    "ou d’erreurs médicamenteuses avec ou sans évènements indésirables, gérées par l’ANSM. Elles "
-                                    "sont déclarées par les patients ou les professionnels de santé, notamment via le ",
-                                ),
-                                html.A(
-                                    "portail des signalements",
-                                    href="https://signalement.social-sante.gouv.fr",
-                                    className="Link",
-                                    target="_blank",
-                                ),
-                            ],
-                            className="justify-text normal-text",
-                        ),
-                        html.P(
-                            "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
-                            "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur.",
-                            className="justify-text normal-text",
-                        ),
-                    ],
-                    labelClass="InternalLink normal-text",
-                    label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
-                )
-            )
-        ),
+        SectionRow(html.H1("Erreurs médicamenteuses", className="SectionTitle"))
     ]
     dataframes = [df_ei, df_pop, df_init, df_cause, df_nat, df_gravite]
     if all(df is None for df in dataframes):
-        children.append(NoData())
+        children.extend([EMTooltip(tooltip_open=True), NoData()])
     else:
         children.extend(
             [
+                EMTooltip(),
                 SectionRow(
                     [
                         GraphBox(

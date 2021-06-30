@@ -33,7 +33,7 @@ from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid, trim_list
 from ..constants.colors import PIE_COLORS_SUBSTANCE
 
 
-def EffetsIndesirablesTooltip() -> Component:
+def EffetsIndesirablesTooltip(tooltip_open=False) -> Component:
     return SectionRow(
         Box(
             Accordion(
@@ -44,7 +44,7 @@ def EffetsIndesirablesTooltip() -> Component:
                         className="normal-text",
                     ),
                     html.Span(
-                        "La BNPV est alimentée par les centres régionaux de pharmacovigilance qui sont "
+                        "La BNPV est alimentée par les Centres Régionaux de Pharmacovigilance (CRPV) qui sont "
                         "notifiés par les professionnels de santé ou par les patients et association "
                         "agréées via un portail dédié : ",
                         className="normal-text",
@@ -56,6 +56,7 @@ def EffetsIndesirablesTooltip() -> Component:
                         target="_blank",
                     ),
                 ],
+                isOpenOnFirstRender=tooltip_open,
                 labelClass="InternalLink normal-text",
                 label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
             )
@@ -64,7 +65,9 @@ def EffetsIndesirablesTooltip() -> Component:
 
 
 def Substance(code: str) -> Tuple[Component, html.Div]:
-
+    """
+    @param code: substance code
+    """
     df_sub = substance.get_substance_df(code)
     series_sub = fetch_data.as_series(df_sub)
     df_sub_spe = substance.list_specialite(code)
@@ -191,14 +194,14 @@ def EffetsIndesirables(
 ) -> Component:
     children = [
         SectionRow(html.H1("Effets indésirables")),
-        EffetsIndesirablesTooltip(),
     ]
     dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
     if all(df is None for df in dataframes):
-        children.append(NoData())
+        children.extend([EffetsIndesirablesTooltip(tooltip_open=True), NoData()])
     else:
         children.extend(
             [
+                EffetsIndesirablesTooltip(),
                 Grid(
                     [
                         EICasDeclareFigureBox(df_decla),
@@ -221,12 +224,11 @@ def EffetsIndesirables(
 def SystemesOrganes(df: pd.DataFrame) -> Component:
     children = [
         SectionRow(html.H1("Déclarations d'effets indésirables par système d'organe")),
-        EISystemesOrganesTooltip(),
     ]
     if df is None or np.isnan(df.pourcentage_cas.unique()).all():
-        children.append(NoData())
+        children.extend([EISystemesOrganesTooltip(tooltip_open=True), NoData()])
     else:
-        children.append(SectionRow(EIRepartitionSystemeOrganesBox(df, "substance")))
+        children.extend([EISystemesOrganesTooltip(), SectionRow(EIRepartitionSystemeOrganesBox(df, "substance"))])
     return TopicSection(
         children,
         id="population-concernee",
