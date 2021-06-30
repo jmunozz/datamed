@@ -1,4 +1,3 @@
-from typing import List, Dict
 from urllib.parse import urlencode, quote_plus
 
 import dash
@@ -8,7 +7,6 @@ import dash_html_components as html
 from app import app
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
-from db import specialite, substance
 
 from apps.components.commons import get_opts_search_bar
 from datamed_custom_components import NavBar

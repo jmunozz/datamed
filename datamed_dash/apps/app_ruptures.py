@@ -4,10 +4,10 @@ from dash_html_components import Div
 
 from .components.footer import Footer
 from .components.navbar import Navbar
-from .components.propos import APropos
+from .components.ruptures import Ruptures
 
 
 def Layout() -> Component:
     return Div(
-        [Navbar(), APropos(), Footer(), SideEffects()],
+        [Navbar(), *Ruptures(), Footer(), SideEffects()],
     )

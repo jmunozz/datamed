@@ -9,6 +9,4 @@ from .components.navbar import Navbar
 def Layout() -> Component:
     return Div(
         [Navbar(), Contact(), Footer()],
-        className="layout",
-        id="layout_contact",
     )

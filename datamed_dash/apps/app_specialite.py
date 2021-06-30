@@ -6,16 +6,14 @@ from dash_html_components import Div
 
 from .components.footer import Footer
 from .components.navbar import Navbar
-from .components.substance import Substance
+from .components.specialite import Specialite
 from apps.components.commons import SideEffects
 
 
 def Layout(parsed_url: Union[ParseResultBytes, ParseResult]) -> Component:
     query = parse_qs(parsed_url.query)
-    code_substance = query["search"][0]
+    selected_med = query["search"][0]
 
     return Div(
-        [Navbar(), *Substance(code_substance), Footer(), SideEffects()],
-        className="layout",
-        id="layout_specialite",
+        [Navbar(), *Specialite(selected_med), Footer(), SideEffects()],
     )

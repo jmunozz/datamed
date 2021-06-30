@@ -7,6 +7,4 @@ from .components.navbar import Navbar
 
 layout = Div(
     [Navbar(), *FrontPage(), Footer(), SideEffects()],
-    className="layout",
-    id="layout_landing_page",
 )
