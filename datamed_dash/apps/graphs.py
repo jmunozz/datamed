@@ -4,7 +4,6 @@ from typing import List, Dict
 
 import dash_html_components as html
 import db.fetch_data as fetch_data
-import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -331,6 +330,9 @@ def Treemap(
 
 def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
     df.pourcentage = df.pourcentage / 100
+    hover_data = {field: False}
+    # if "explication" in df:
+    #     hover_data["explication"] = True
     fig = px.bar(
         df,
         x="pourcentage",
@@ -342,9 +344,7 @@ def StackBarGraph(df: pd.DataFrame, field: str) -> Graph:
         color_discrete_sequence=PIE_COLORS_SPECIALITE,
         orientation="h",
         hover_name=field,
-        hover_data={
-            field: False,
-        },
+        hover_data=hover_data,
     )
 
     fig.update_layout(STACKED_BAR_CHART_LAYOUT)

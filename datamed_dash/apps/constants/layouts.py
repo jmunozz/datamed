@@ -4,7 +4,10 @@ import pandas as pd
 
 BAR_LAYOUT = {
     "xaxis": dict(
-        showgrid=False, showline=False, showticklabels=False, zeroline=False,
+        showgrid=False,
+        showline=False,
+        showticklabels=False,
+        zeroline=False,
     ),
     "yaxis": dict(
         showgrid=False,
@@ -91,11 +94,10 @@ STACKED_BAR_CHART_LAYOUT = {
     "margin": dict(l=0, r=0, t=0, b=0),
     "legend": dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     "barmode": "stack",
-    "hovermode": "closest",
     "hoverlabel": dict(
         bgcolor="white",
         bordercolor="white",
-        font=dict(color="black", size=14, family="Roboto"),
+        font=dict(color="black", size=12, family="Roboto"),
     ),
 }
 

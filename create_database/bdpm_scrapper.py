@@ -37,16 +37,20 @@ def scrap_bdpm(cis: str) -> Tuple[Dict, List]:
     # print(soup.prettify())
     # Find description elements
     description_content = ""
-    description_elements = soup.find_all("p", {"class": "AmmCorpsTexte"})
+    description_elements = soup.find_all(
+        "p", {"class": ["AmmCorpsTexte", "AmmListePuces1"]}
+    )
     if description_elements:
         for ele in description_elements:
             if (
                 ele.text.replace("\n", " ")
+                .replace("·", "")
                 .strip()
                 .startswith("Classe pharmacothérapeutique")
                 or "ATC" in ele.text.replace("\n", " ").strip()
             ):
                 continue
+            # elif ele.attrs["class"] == ['AmmListePuces1']:
             else:
                 description_content += (
                     ele.text.replace("\n", " ").strip().lower().capitalize() + " "
