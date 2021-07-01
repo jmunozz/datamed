@@ -225,7 +225,7 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
                 "color": "#00B3CC",
             },
             mode="lines",
-            name="Nombre de présentations",
+            name="Nombre de médicaments",
         ),
         secondary_y=True,
     )
@@ -243,7 +243,7 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         secondary_y=False,
     )
     fig.update_yaxes(
-        title_text="Nombre de présentations", color="#00B3CC", secondary_y=True
+        title_text="Nombre de médicaments", color="#00B3CC", secondary_y=True
     )
 
     return fig

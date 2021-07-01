@@ -317,7 +317,7 @@ def HltModal(type: str) -> Modal:
     )
 
 
-def EISystemesOrganesTooltip():
+def EISystemesOrganesTooltip(tooltip_open=False):
     return SectionRow(
         Box(
             Accordion(
@@ -335,6 +335,43 @@ def EISystemesOrganesTooltip():
                         className="normal-text text-justify",
                     ),
                 ],
+                isOpenOnFirstRender=tooltip_open,
+                labelClass="InternalLink normal-text",
+                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+            )
+        )
+    )
+
+
+def EMTooltip(tooltip_open=False):
+    return SectionRow(
+        Box(
+            Accordion(
+                [
+                    html.P(
+                        [
+                            html.Span(
+                                "Les données sur les erreurs médicamenteuses proviennent des déclarations de "
+                                "risque d’erreur ou d’erreurs médicamenteuses avec ou sans évènements indésirables, "
+                                "gérées par l’ANSM. Elles sont déclarées par les patients ou les professionnels "
+                                "de santé, notamment via le ",
+                            ),
+                            html.A(
+                                "portail des signalements",
+                                href="https://signalement.social-sante.gouv.fr",
+                                className="Link",
+                                target="_blank",
+                            ),
+                        ],
+                        className="justify-text normal-text",
+                    ),
+                    html.P(
+                        "Les erreurs médicamenteuses se classifient en fonction du stade (erreur de prescription, "
+                        "erreur de délivrance, erreur d’administration), de la nature et de la cause de l'erreur.",
+                        className="justify-text normal-text",
+                    ),
+                ],
+                isOpenOnFirstRender=tooltip_open,
                 labelClass="InternalLink normal-text",
                 label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
             )
@@ -595,6 +632,7 @@ def PatientsTraites(
 ) -> Component:
     children = [
         SectionRow(html.H1("Patients traités", className="SectionTitle")),
+        Tooltip(),
     ]
     dataframes = [df_age, df_sexe, df_expo]
     if all(df is None for df in dataframes):
@@ -602,7 +640,6 @@ def PatientsTraites(
     else:
         children.extend(
             [
-                Tooltip(),
                 Utilisation(type, df_expo),
                 Grid(
                     [
