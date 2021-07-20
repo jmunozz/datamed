@@ -47,7 +47,7 @@ def Contact() -> Component:
                             ),
                             Div(
                                 "Si votre question concerne les effets indésirables, les ruptures de stock ou "
-                                "toutd autre demande concernant data.ansm, nous vous invitons à remplir un "
+                                "tout autre demande concernant data.ansm, nous vous invitons à remplir un "
                                 "formulaire de contact. Il sera directement adressé à notre cellule Accueil "
                                 "des usagers qui le traitera dans les meilleurs délais.",
                                 className="mb-3",

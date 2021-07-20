@@ -67,8 +67,9 @@ def Description() -> Component:
                         P(
                             "Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute rupture "
                             "ou risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
-                            "l'ANSM. L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques "
-                            "de rupture de stock de ces médicaments qui peuvent entraîner un risque de santé publique.",
+                            "l'ANSM. Toute déclaration entraîne la création d'un signalement pour l'ANSM. L’action "
+                            "de l’ANSM est centrée sur la gestion des ruptures de stock et risques de rupture de "
+                            "stock des médicaments pouvant entraîner un risque de santé publique.",
                             className="normal-text justify-text",
                         ),
                         Div(
@@ -428,9 +429,9 @@ def Signalements() -> Component:
                                             ),
                                             P(
                                                 "Chaque signalement amène à l'ouverture d'un dossier impactant le "
-                                                "circuit ville ou le circuit hôpital, ou les deux. La clôture d'un "
-                                                "dossier ne peut être faite qu'à la remise à disposition effective "
-                                                "du produit sur le marché.",
+                                                "soit le circuit ville, soit le circuit hôpital, soit les deux à la "
+                                                "fois. La clôture d'un dossier ne peut être faite qu'à la remise à "
+                                                "disposition effective du produit sur le marché.",
                                                 className="regular-text text-justify",
                                             ),
                                         ],

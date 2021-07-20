@@ -38,22 +38,37 @@ def EffetsIndesirablesTooltip(tooltip_open=False) -> Component:
         Box(
             Accordion(
                 [
-                    html.Div(
-                        "Nombre de cas notifiés d’effets indésirables en France estimé à partir des "
-                        "données de la Base Nationale de Pharmacovigilance (BNPV).",
+                    html.P(
+                        "Ces indicateurs représentent le nombre de cas notifiés d’effets indésirables en France "
+                        "estimé à partir des données de la Base Nationale de Pharmacovigilance (BNPV). Pour éviter "
+                        "tout risque de réidentification des patients, les déclarations d'effets indésirables "
+                        "apparaissant pour moins de 10 patients ne sont pas affichées.",
                         className="normal-text",
                     ),
-                    html.Span(
-                        "La BNPV est alimentée par les Centres Régionaux de Pharmacovigilance (CRPV) qui sont "
-                        "notifiés par les professionnels de santé ou par les patients et association "
-                        "agréées via un portail dédié : ",
-                        className="normal-text",
+                    html.P(
+                        [
+                            html.Span(
+                                "La BNPV est alimentée par les Centres Régionaux de Pharmacovigilance (CRPV) qui "
+                                "sont notifiés par les professionnels de santé ou par les patients et association "
+                                "agréées via un portail dédié : ",
+                                className="normal-text",
+                            ),
+                            html.A(
+                                "signalement.social-sante.gouv.fr",
+                                href="https://signalement.social-sante.gouv.fr",
+                                className="Link",
+                                target="_blank",
+                            ),
+                        ]
                     ),
-                    html.A(
-                        "signalement.social-sante.gouv.fr",
-                        href="https://signalement.social-sante.gouv.fr",
-                        className="Link",
-                        target="_blank",
+                    html.P(
+                        [
+                            html.B("Attention :"),
+                            " il s'agit uniquement des déclarations qui ont été faites sur la base du "
+                            "volontariat. Ces données ne représentent pas l'exhaustivité des effets indésirables "
+                            "comme observés lors des essais cliniques",
+                        ],
+                        className="normal-text",
                     ),
                 ],
                 isOpenOnFirstRender=tooltip_open,
@@ -228,7 +243,12 @@ def SystemesOrganes(df: pd.DataFrame) -> Component:
     if df is None or np.isnan(df.pourcentage_cas.unique()).all():
         children.extend([EISystemesOrganesTooltip(tooltip_open=True), NoData()])
     else:
-        children.extend([EISystemesOrganesTooltip(), SectionRow(EIRepartitionSystemeOrganesBox(df, "substance"))])
+        children.extend(
+            [
+                EISystemesOrganesTooltip(),
+                SectionRow(EIRepartitionSystemeOrganesBox(df, "substance")),
+            ]
+        )
     return TopicSection(
         children,
         id="population-concernee",

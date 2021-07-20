@@ -107,11 +107,11 @@ def Explorer() -> Component:
                     [
                         BddCard(
                             "rupturedestock-160.svg",
-                            "Données ruptures de stock",
+                            "Ruptures de stock de médicaments",
                             "Non",
                             Div(
                                 "Renseignez-vous sur l'historique des ruptures de stock "
-                                "des médicaments d'intéret thérapeutique majeur."
+                                "des médicaments d'intérêt thérapeutique majeur."
                             ),
                             "TrustMed (ANSM)",
                             "/apps/ruptures",
@@ -150,18 +150,19 @@ def Explorer() -> Component:
                                 ModaliteItem(
                                     "Y'a-t-il des données sensibles ?",
                                     [
-                                        "L’ensemble des données affichées ont été approuvées par la CNIL et correspondent aux "
-                                        "standards d’anonymisation. Si toutefois vous rencontrez des anomalies, n’hésitez pas "
-                                        "à nous le ",
+                                        "L’ensemble des données affichées ont été approuvées par la Comission "
+                                        "Nationale de l'Informatique et des Libertés (CNIL) et correspondent aux "
+                                        "standards d’anonymisation. Si toutefois vous rencontrez des anomalies, "
+                                        "n’hésitez pas à nous le ",
                                         A("signaler", href="/apps/contact", className="Link"),
                                         ".",
                                     ],
                                 ),
                                 ModaliteItem(
                                     "Dans quel cadre utiliser ces données ?",
-                                    "L’utilisation de ces données est réservé à un usage personnel et de recherche. Les analyses "
-                                    "effectuées sont à la charge de la personne publiant les résultats. L’ANSM ne se tient pas "
-                                    "responsable des erreurs d’interprétation.",
+                                    "L’utilisation de ces données est réservé à un usage personnel et de recherche. "
+                                    "Les analyses effectuées sont à la charge de la personne publiant les résultats. "
+                                    "L’ANSM ne se tient pas responsable des erreurs d’interprétation.",
                                 ),
                             ]
                         ),

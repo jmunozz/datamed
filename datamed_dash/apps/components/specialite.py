@@ -26,6 +26,7 @@ from apps.components.commons import (
     RepartitionGraviteGraphBox,
     EMTooltip,
 )
+from apps.components.substance import EffetsIndesirablesTooltip
 from apps.components.utils import (
     Box,
     GraphBox,
@@ -159,10 +160,22 @@ def Publications(df: pd.DataFrame) -> str:
                 "Publications",
                 className="SectionTitle",
             )
-        )
+        ),
     ]
     if df is None:
-        children.append(NoData())
+        children.append(
+            SectionRow(
+                Box(
+                    [
+                        html.Div(
+                            "Aucune publication à ce jour",
+                            className="normal-text",
+                            style={"color": "#33C2D6"},
+                        ),
+                    ],
+                ),
+            ),
+        )
     else:
         children_grid = []
         for i, x in df.iterrows():
@@ -621,6 +634,7 @@ def EffetsIndesirables(df: pd.DataFrame) -> Component:
                     className="SectionTitle",
                 )
             ),
+            EffetsIndesirablesTooltip(),
             html.Div(
                 [
                     html.Div(
@@ -785,7 +799,9 @@ def RuptureDeStock(df: pd.DataFrame):
                                 [
                                     BoxArticle(
                                         [
-                                            html.H3("Données de rupture de stock"),
+                                            html.H3(
+                                                "Données sur les ruptures de stock de médicaments"
+                                            ),
                                             html.P(
                                                 "Accédez aux données globales de l’état des ruptures de stock en "
                                                 "France, ainsi qu’aux mesures prises par l’Agence pour prévenir "
