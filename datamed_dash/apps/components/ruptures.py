@@ -302,7 +302,7 @@ def SearchBar(search_bar_class_names: str, search_bar_id: str) -> Component:
         Dropdown(
             id=search_bar_id,
             placeholder="Tapez un nom de médicament pour retrouver sa classe ATC",
-            className="normal-text main-dropdown w-50 float-right",
+            className="normal-text main-dropdown w-50 float-left",
         ),
         autoComplete="off",
         className=search_bar_class_names,
