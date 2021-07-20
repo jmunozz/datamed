@@ -1,12 +1,10 @@
-from apps.components.utils import Box
-from dash_html_components.H1 import H1
 from app import app
+from apps.components.utils import Box
 from dash.development.base_component import Component
-from dash_bootstrap_components import Card, CardImg, CardBody, CardLink
-from dash_bootstrap_components import Row
-from dash_html_components import Div, B, I, Img, A, H3, H1, P, Span, H2
+from dash_bootstrap_components import Card
+from dash_html_components import Div, B, I, Img, A, H3, H1, P
 
-from .commons import FrontPageSection, FrontPageSectionFull, FrontPageSectionPart
+from .commons import FrontPageSection, FrontPageSectionFull
 
 
 def ExplorerHeader() -> Component:
@@ -154,7 +152,11 @@ def Explorer() -> Component:
                                         "Nationale de l'Informatique et des Libertés (CNIL) et correspondent aux "
                                         "standards d’anonymisation. Si toutefois vous rencontrez des anomalies, "
                                         "n’hésitez pas à nous le ",
-                                        A("signaler", href="/apps/contact", className="Link"),
+                                        A(
+                                            "signaler",
+                                            href="/apps/contact",
+                                            className="Link",
+                                        ),
                                         ".",
                                     ],
                                 ),

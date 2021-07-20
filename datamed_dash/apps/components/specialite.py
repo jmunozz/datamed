@@ -366,6 +366,8 @@ def Description(
                             BoxArticle(
                                 [
                                     ArticleTitle("Recommandations de la HAS"),
+                                    html.I(className="bi bi-journal-text Icon"),
+                                    html.Span(" "),
                                     ExternalLink(
                                         "Afficher les recommandations",
                                         get_has_link(series_spe),
@@ -378,6 +380,8 @@ def Description(
                                     ArticleTitle(
                                         "Infos pour les professionnels de santé"
                                     ),
+                                    html.I(className="bi bi-journal-text Icon"),
+                                    html.Span(" "),
                                     ExternalLink("Afficher le RCP", get_rcp_link(cis)),
                                 ],
                                 in_row=True,
@@ -385,6 +389,8 @@ def Description(
                             BoxArticle(
                                 [
                                     ArticleTitle("Infos pour les patients"),
+                                    html.I(className="bi bi-journal-text Icon"),
+                                    html.Span(" "),
                                     ExternalLink(
                                         "Afficher la notice", get_notice_link(cis)
                                     ),
