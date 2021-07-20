@@ -5,8 +5,7 @@ import dash
 import dash.dependencies as dd
 import dash_html_components as html
 import dash_table
-import db.fetch_data as fetch_data
-import db.substance as substance
+from db import substance, fetch_data
 import numpy as np
 import pandas as pd
 from app import app

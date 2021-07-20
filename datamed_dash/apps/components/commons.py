@@ -637,7 +637,7 @@ def PatientsTraites(
     pie_colors: List,
 ) -> Component:
     children = [
-        SectionRow(html.H1("Patients traités", className="SectionTitle")),
+        SectionRow(html.H1("Patients traités en ville", className="SectionTitle")),
         Tooltip(),
     ]
     dataframes = [df_age, df_sexe, df_expo]
@@ -728,7 +728,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         )
         modal_body = [
             html.Div(
-                "À la base, une base de données est simplement un moyen de stocker et d'organiser des informations. "
+                "À l'origine, une base de données est simplement un moyen de stocker et d'organiser des informations. "
                 "Idéalement, elle est organisée de manière à ce que l'on puisse y accéder, la gérer et la mettre à "
                 "jour facilement."
             )

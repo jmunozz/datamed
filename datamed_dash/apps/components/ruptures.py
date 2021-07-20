@@ -306,6 +306,7 @@ def SearchBar(search_bar_class_names: str, search_bar_id: str) -> Component:
         ),
         autoComplete="off",
         className=search_bar_class_names,
+        style={"min-width": "200px"}
     )
 
 

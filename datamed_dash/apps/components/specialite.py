@@ -157,7 +157,7 @@ def Publications(df: pd.DataFrame) -> str:
     children = [
         SectionRow(
             html.H1(
-                "Publications",
+                "Publications de l'ANSM",
                 className="SectionTitle",
             )
         ),
@@ -219,6 +219,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_nat = specialite.get_erreur_med_nature(cis)
     df_pop = specialite.get_erreur_med_population(cis)
     df_rup = specialite.get_ruptures(cis, df_spe)
+    df_rup = df_rup[df_rup.date >= "03-05-2021"]
     df_init = specialite.get_erreur_med_init(cis)
     df_gravite = specialite.get_erreur_med_gravite(cis)
     df_pub = specialite.get_publications(cis)
