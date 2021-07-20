@@ -1,12 +1,10 @@
-from apps.components.utils import Box
-from dash_html_components.H1 import H1
 from app import app
+from apps.components.utils import Box
 from dash.development.base_component import Component
-from dash_bootstrap_components import Card, CardImg, CardBody, CardLink
-from dash_bootstrap_components import Row
-from dash_html_components import Div, B, I, Img, A, H3, H1, P, Span, H2
+from dash_bootstrap_components import Card
+from dash_html_components import Div, B, I, Img, A, H3, H1, P
 
-from .commons import FrontPageSection, FrontPageSectionFull, FrontPageSectionPart
+from .commons import FrontPageSection, FrontPageSectionFull
 
 
 def ExplorerHeader() -> Component:
@@ -107,26 +105,26 @@ def Explorer() -> Component:
                     [
                         BddCard(
                             "rupturedestock-160.svg",
-                            "Données ruptures de stock",
+                            "Ruptures de stock de médicaments",
                             "Non",
                             Div(
                                 "Renseignez-vous sur l'historique des ruptures de stock "
-                                "des médicaments d'intéret thérapeutique majeur."
+                                "des médicaments d'intérêt thérapeutique majeur."
                             ),
                             "TrustMed (ANSM)",
                             "/apps/ruptures",
                         ),
-                        BddCard(
-                            "icons/pres_autre.svg",
-                            "Mésusage du médicament",
-                            "Non",
-                            Div(
-                                "Découvrez les médicaments les plus à risque de "
-                                "mésusage et les conséquences possibles sur votre santé."
-                            ),
-                            "Base Nationale de PharmacoVigilance",
-                            "/apps/mesusage",
-                        ),
+                        # BddCard(
+                        #     "icons/pres_autre.svg",
+                        #     "Mésusage du médicament",
+                        #     "Non",
+                        #     Div(
+                        #         "Découvrez les médicaments les plus à risque de "
+                        #         "mésusage et les conséquences possibles sur votre santé."
+                        #     ),
+                        #     "Base Nationale de PharmacoVigilance",
+                        #     "/apps/mesusage",
+                        # ),
                     ]
                 )
             ),
@@ -150,18 +148,23 @@ def Explorer() -> Component:
                                 ModaliteItem(
                                     "Y'a-t-il des données sensibles ?",
                                     [
-                                        "L’ensemble des données affichées ont été approuvées par la CNIL et correspondent aux "
-                                        "standards d’anonymisation. Si toutefois vous rencontrez des anomalies, n’hésitez pas "
-                                        "à nous le ",
-                                        A("signaler", href="/apps/contact", className="Link"),
+                                        "L’ensemble des données affichées ont été approuvées par la Comission "
+                                        "Nationale de l'Informatique et des Libertés (CNIL) et correspondent aux "
+                                        "standards d’anonymisation. Si toutefois vous rencontrez des anomalies, "
+                                        "n’hésitez pas à nous le ",
+                                        A(
+                                            "signaler",
+                                            href="/apps/contact",
+                                            className="Link",
+                                        ),
                                         ".",
                                     ],
                                 ),
                                 ModaliteItem(
                                     "Dans quel cadre utiliser ces données ?",
-                                    "L’utilisation de ces données est réservé à un usage personnel et de recherche. Les analyses "
-                                    "effectuées sont à la charge de la personne publiant les résultats. L’ANSM ne se tient pas "
-                                    "responsable des erreurs d’interprétation.",
+                                    "L’utilisation de ces données est réservé à un usage personnel et de recherche. "
+                                    "Les analyses effectuées sont à la charge de la personne publiant les résultats. "
+                                    "L’ANSM ne se tient pas responsable des erreurs d’interprétation.",
                                 ),
                             ]
                         ),

@@ -349,6 +349,12 @@ def EMTooltip(tooltip_open=False):
             Accordion(
                 [
                     html.P(
+                        "Dans le domaine de la santé, l’erreur médicamenteuse est l'omission ou la réalisation non "
+                        "intentionnelle d'un acte survenu au cours du processus de soins impliquant un médicament, "
+                        "qui peut être à l’origine d’un risque ou d’un événement indésirable pour le patient.",
+                        className="justify-text normal-text",
+                    ),
+                    html.P(
                         [
                             html.Span(
                                 "Les données sur les erreurs médicamenteuses proviennent des déclarations de "
@@ -373,7 +379,7 @@ def EMTooltip(tooltip_open=False):
                 ],
                 isOpenOnFirstRender=tooltip_open,
                 labelClass="InternalLink normal-text",
-                label="Comment sont calculés ces indicateurs ? D'où viennent ces données ?",
+                label="Qu'est-ce qu'une erreur médicamenteuse ? D'où viennent ces données ?",
             )
         )
     )
@@ -631,7 +637,7 @@ def PatientsTraites(
     pie_colors: List,
 ) -> Component:
     children = [
-        SectionRow(html.H1("Patients traités", className="SectionTitle")),
+        SectionRow(html.H1("Patients traités en ville", className="SectionTitle")),
         Tooltip(),
     ]
     dataframes = [df_age, df_sexe, df_expo]
@@ -711,7 +717,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
             ),
         ]
     elif type == "rupture":
-        title = "Données ruptures de stock"
+        title = "Ruptures de stock de médicaments"
         css_class = "Header-isRupture"
         icon_url = app.get_asset_url("rupturedestock-120.svg")
         type_label = "Base de données"
@@ -722,8 +728,9 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         )
         modal_body = [
             html.Div(
-                "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
-                "à ces données."
+                "À l'origine, une base de données est simplement un moyen de stocker et d'organiser des informations. "
+                "Idéalement, elle est organisée de manière à ce que l'on puisse y accéder, la gérer et la mettre à "
+                "jour facilement."
             )
         ]
     elif type == "mesusage":
@@ -738,8 +745,9 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         )
         modal_body = [
             html.Div(
-                "Il s'agit d'un système structuré dans lequel vous placez vos données et qui impose des règles "
-                "à ces données."
+                "À la base, une base de données est simplement un moyen de stocker et d'organiser des informations. "
+                "Idéalement, elle est organisée de manière à ce que l'on puisse y accéder, la gérer et la mettre à "
+                "jour facilement."
             )
         ]
 

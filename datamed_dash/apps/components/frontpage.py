@@ -114,7 +114,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                                 ),
                                                 html.P(
                                                     "Médecins, pharmaciens, sages-femmes, infirmiers, "
-                                                    "intervenants du paramédical",
+                                                    "autres intervenants du paramédical",
                                                     className="medium-text center-text",
                                                 ),
                                             ],
@@ -154,8 +154,9 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                                 html.H1("Origine et nature des données"),
                                 html.P(
                                     "La majorité des données de la plateforme data.ansm proviennent de bases "
-                                    "de données gerées par l’ANSM. Certaines données proviennent de bases Open Source "
-                                    "gerées par d’autres institutions de santé (CNAM, HAS).",
+                                    "de données gérées par l’ANSM. Certaines données proviennent de bases Open Source "
+                                    "gerées par d’autres institutions de santé (Caisse Nationale d'Assurance Maladie, "
+                                    "Haute Autorité de Santé).",
                                     className="medium-text justify-text",
                                 ),
                                 html.P(

@@ -26,6 +26,7 @@ from apps.components.commons import (
     RepartitionGraviteGraphBox,
     EMTooltip,
 )
+from apps.components.substance import EffetsIndesirablesTooltip
 from apps.components.utils import (
     Box,
     GraphBox,
@@ -156,13 +157,25 @@ def Publications(df: pd.DataFrame) -> str:
     children = [
         SectionRow(
             html.H1(
-                "Publications",
+                "Publications de l'ANSM",
                 className="SectionTitle",
             )
-        )
+        ),
     ]
     if df is None:
-        children.append(NoData())
+        children.append(
+            SectionRow(
+                Box(
+                    [
+                        html.Div(
+                            "Aucune publication à ce jour",
+                            className="normal-text",
+                            style={"color": "#33C2D6"},
+                        ),
+                    ],
+                ),
+            ),
+        )
     else:
         children_grid = []
         for i, x in df.iterrows():
@@ -206,6 +219,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
     df_nat = specialite.get_erreur_med_nature(cis)
     df_pop = specialite.get_erreur_med_population(cis)
     df_rup = specialite.get_ruptures(cis, df_spe)
+    df_rup = df_rup[df_rup.date >= "03-05-2021"]
     df_init = specialite.get_erreur_med_init(cis)
     df_gravite = specialite.get_erreur_med_gravite(cis)
     df_pub = specialite.get_publications(cis)
@@ -353,6 +367,8 @@ def Description(
                             BoxArticle(
                                 [
                                     ArticleTitle("Recommandations de la HAS"),
+                                    html.I(className="bi bi-journal-text Icon"),
+                                    html.Span(" "),
                                     ExternalLink(
                                         "Afficher les recommandations",
                                         get_has_link(series_spe),
@@ -365,6 +381,8 @@ def Description(
                                     ArticleTitle(
                                         "Infos pour les professionnels de santé"
                                     ),
+                                    html.I(className="bi bi-journal-text Icon"),
+                                    html.Span(" "),
                                     ExternalLink("Afficher le RCP", get_rcp_link(cis)),
                                 ],
                                 in_row=True,
@@ -372,6 +390,8 @@ def Description(
                             BoxArticle(
                                 [
                                     ArticleTitle("Infos pour les patients"),
+                                    html.I(className="bi bi-journal-text Icon"),
+                                    html.Span(" "),
                                     ExternalLink(
                                         "Afficher la notice", get_notice_link(cis)
                                     ),
@@ -621,6 +641,7 @@ def EffetsIndesirables(df: pd.DataFrame) -> Component:
                     className="SectionTitle",
                 )
             ),
+            EffetsIndesirablesTooltip(),
             html.Div(
                 [
                     html.Div(
@@ -766,48 +787,26 @@ def RuptureDeStock(df: pd.DataFrame):
                     ],
                 ),
             ),
-            SectionRow(
-                Box(
-                    html.Div(
-                        [
-                            Box(
-                                [
-                                    html.Img(
-                                        src=app.get_asset_url(
-                                            "icons/pres_autre_120.svg"
-                                        ),
-                                    ),
-                                ],
-                                isBordered=False,
-                                className="CardBoxImage CardBoxImage-isCentered RupturesBoxImage",
-                            ),
-                            Box(
-                                [
-                                    BoxArticle(
-                                        [
-                                            html.H3("Données de rupture de stock"),
-                                            html.P(
-                                                "Accédez aux données globales de l’état des ruptures de stock en "
-                                                "France, ainsi qu’aux mesures prises par l’Agence pour prévenir "
-                                                "la pénurie de médicaments."
-                                            ),
-                                            html.A(
-                                                "visualiser les données",
-                                                className="Btn Btn-isPrimary",
-                                                role="button",
-                                                href="/apps/ruptures",
-                                            ),
-                                        ]
-                                    )
-                                ],
-                                isBordered=False,
-                                className="CardBoxText",
-                            ),
-                        ],
-                        className="CardBox",
-                    ),
-                    hasNoPadding=True,
+            CardBox(
+                html.Div(
+                    [
+                        html.H3("Données sur les ruptures de stock de médicaments"),
+                        html.P(
+                            "Accédez aux données globales de l’état des ruptures de stock en "
+                            "France, ainsi qu’aux mesures prises par l’Agence pour prévenir "
+                            "la pénurie de médicaments."
+                        ),
+                        html.A(
+                            "visualiser les données",
+                            className="Btn Btn-isPrimary",
+                            role="button",
+                            href="/apps/ruptures",
+                        ),
+                    ]
                 ),
+                img_url=app.get_asset_url("rupturedestock-120.svg"),
+                img_classname="CardBoxImage-isCentered RupturesBoxImage",
+                classname="GridElem-1",
             ),
         ],
         id="rupture-de-stock",
