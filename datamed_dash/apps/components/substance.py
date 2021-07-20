@@ -5,8 +5,6 @@ import dash
 import dash.dependencies as dd
 import dash_html_components as html
 import dash_table
-import db.fetch_data as fetch_data
-import db.substance as substance
 import numpy as np
 import pandas as pd
 from app import app
@@ -27,6 +25,7 @@ from apps.components.specialite import NoData
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from datamed_custom_components.Accordion import Accordion
+from db import substance, fetch_data
 from sm import SideMenu
 
 from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid, trim_list
@@ -38,22 +37,37 @@ def EffetsIndesirablesTooltip(tooltip_open=False) -> Component:
         Box(
             Accordion(
                 [
-                    html.Div(
-                        "Nombre de cas notifiés d’effets indésirables en France estimé à partir des "
-                        "données de la Base Nationale de Pharmacovigilance (BNPV).",
+                    html.P(
+                        "Ces indicateurs représentent le nombre de cas notifiés d’effets indésirables en France "
+                        "estimé à partir des données de la Base Nationale de Pharmacovigilance (BNPV). Pour éviter "
+                        "tout risque de réidentification des patients, les déclarations d'effets indésirables "
+                        "apparaissant pour moins de 10 patients ne sont pas affichées.",
                         className="normal-text",
                     ),
-                    html.Span(
-                        "La BNPV est alimentée par les Centres Régionaux de Pharmacovigilance (CRPV) qui sont "
-                        "notifiés par les professionnels de santé ou par les patients et association "
-                        "agréées via un portail dédié : ",
-                        className="normal-text",
+                    html.P(
+                        [
+                            html.Span(
+                                "La BNPV est alimentée par les Centres Régionaux de Pharmacovigilance (CRPV) qui "
+                                "sont notifiés par les professionnels de santé ou par les patients et association "
+                                "agréées via un portail dédié : ",
+                                className="normal-text",
+                            ),
+                            html.A(
+                                "signalement.social-sante.gouv.fr",
+                                href="https://signalement.social-sante.gouv.fr",
+                                className="Link",
+                                target="_blank",
+                            ),
+                        ]
                     ),
-                    html.A(
-                        "signalement.social-sante.gouv.fr",
-                        href="https://signalement.social-sante.gouv.fr",
-                        className="Link",
-                        target="_blank",
+                    html.P(
+                        [
+                            html.B("Attention :"),
+                            " il s'agit uniquement des déclarations qui ont été faites sur la base du "
+                            "volontariat. Ces données ne représentent pas l'exhaustivité des effets indésirables "
+                            "comme observés lors des essais cliniques",
+                        ],
+                        className="normal-text",
                     ),
                 ],
                 isOpenOnFirstRender=tooltip_open,
@@ -228,7 +242,12 @@ def SystemesOrganes(df: pd.DataFrame) -> Component:
     if df is None or np.isnan(df.pourcentage_cas.unique()).all():
         children.extend([EISystemesOrganesTooltip(tooltip_open=True), NoData()])
     else:
-        children.extend([EISystemesOrganesTooltip(), SectionRow(EIRepartitionSystemeOrganesBox(df, "substance"))])
+        children.extend(
+            [
+                EISystemesOrganesTooltip(),
+                SectionRow(EIRepartitionSystemeOrganesBox(df, "substance")),
+            ]
+        )
     return TopicSection(
         children,
         id="population-concernee",

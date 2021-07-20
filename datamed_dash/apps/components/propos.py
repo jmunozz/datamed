@@ -36,7 +36,8 @@ def APropos() -> Component:
                                 className="mb-3",
                             ),
                             Div(
-                                "L’accès aux informations autour des médicaments se veut rapide, intuitive et accompagnée.",
+                                "L’accès aux informations autour des "
+                                "médicaments se veut rapide, intuitif et accompagné.",
                             ),
                         ],
                     ),
@@ -88,7 +89,7 @@ def APropos() -> Component:
                             Div(
                                 "C’est pourquoi, depuis 2019, l’ANSM a mis en place une stratégie d’ouverture de "
                                 "ses données pour communiquer sur ses actions et valoriser son expertise. Cependant, "
-                                "ces données (rapports d’évaluation, vigilance sur les médicaments et les dispositifs "
+                                "ces données (vigilance sur les médicaments et les dispositifs "
                                 "médicaux, ruptures de stock de médicament) sont complexes et sensibles.",
                             ),
                         ],
@@ -102,8 +103,8 @@ def APropos() -> Component:
                                 className="mb-3",
                             ),
                             Div(
-                                "- les données de la Direction de l’Inspection (sur les ruptures de stock de "
-                                "médicaments et sur la production de médicaments en France et à l'étranger)",
+                                "- les données de la Direction de l’Inspection "
+                                "(sur les ruptures de stock de médicaments)",
                                 className="mb-3",
                             ),
                             Div(
@@ -113,7 +114,7 @@ def APropos() -> Component:
                             ),
                             Div(
                                 "Ces dernières ont fait l’objet d’un nettoyage, d’une analyse et d’une "
-                                "agrégation rigoureus afin d'assurer la confidentialité des données.",
+                                "agrégation rigoureuse afin d'assurer la confidentialité des données.",
                             ),
                         ],
                     ),

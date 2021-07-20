@@ -566,7 +566,7 @@ a.btn-lg {
 }
 
 /*
-** Side Menu cusotm component
+** Side Menu custom component
 */
 
 .SideMenu {
@@ -752,19 +752,12 @@ a.btn-lg {
 .NavbarItem {
   margin-right: 1.5rem;
   white-space: nowrap;
-  font-weight: 400px;
+  font-weight: 400;
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0.25px;
   text-decoration: none;
   color: #000;
-}
-
-#search-bar {
-  margin-left: auto;
-}
-
-.Rupture {
 }
 
 .RuptureCell {
@@ -1149,4 +1142,19 @@ a.btn-lg {
 
 .UsagePill img {
   height: 100%;
+}
+
+.main-dropdown {
+    text-align: left;
+}
+
+.main-dropdown .Select-placeholder{
+    color: black;
+}
+
+.main-dropdown .Select-control{
+    width: auto;
+    border: var(--border);
+    border-radius: var(--border-radius);
+    display: list-item;
 }
