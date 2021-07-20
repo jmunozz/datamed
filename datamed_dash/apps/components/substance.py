@@ -5,7 +5,6 @@ import dash
 import dash.dependencies as dd
 import dash_html_components as html
 import dash_table
-from db import substance, fetch_data
 import numpy as np
 import pandas as pd
 from app import app
@@ -26,6 +25,7 @@ from apps.components.specialite import NoData
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from datamed_custom_components.Accordion import Accordion
+from db import substance, fetch_data
 from sm import SideMenu
 
 from .utils import Box, TopicSection, SectionTitle, SectionRow, Grid, trim_list
