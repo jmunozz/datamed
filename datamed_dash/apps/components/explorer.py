@@ -114,17 +114,17 @@ def Explorer() -> Component:
                             "TrustMed (ANSM)",
                             "/apps/ruptures",
                         ),
-                        BddCard(
-                            "icons/pres_autre.svg",
-                            "Mésusage du médicament",
-                            "Non",
-                            Div(
-                                "Découvrez les médicaments les plus à risque de "
-                                "mésusage et les conséquences possibles sur votre santé."
-                            ),
-                            "Base Nationale de PharmacoVigilance",
-                            "/apps/mesusage",
-                        ),
+                        # BddCard(
+                        #     "icons/pres_autre.svg",
+                        #     "Mésusage du médicament",
+                        #     "Non",
+                        #     Div(
+                        #         "Découvrez les médicaments les plus à risque de "
+                        #         "mésusage et les conséquences possibles sur votre santé."
+                        #     ),
+                        #     "Base Nationale de PharmacoVigilance",
+                        #     "/apps/mesusage",
+                        # ),
                     ]
                 )
             ),
