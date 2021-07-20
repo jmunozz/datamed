@@ -33,9 +33,9 @@ from apps.graphs import (
 )
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
-from dash_core_components import Graph
-from dash_html_components import Div, P, H1, H4, A
-from db import fetch_data
+from dash_core_components import Dropdown, Graph
+from dash_html_components import Div, P, H1, H4, A, Form
+from db import fetch_data, specialite, atc
 from plotly.subplots import make_subplots
 from sm import SideMenu
 
@@ -45,6 +45,9 @@ df_ruptures = fetch_data.fetch_table("ruptures", "numero")
 df_sig = fetch_data.fetch_table("signalements", "annee")
 df_mesures = fetch_data.fetch_table("mesures", "index")
 df_mesures = df_mesures[df_mesures.annee.apply(lambda x: int(x) >= 2021)]
+classes_atc = fetch_data.fetch_table("classes_atc", "code")
+df_spe = specialite.list_specialite()
+SPE_DICT = {v["nom"]: k for k, v in df_spe.to_dict("index").items()}
 
 
 def Description() -> Component:
@@ -294,6 +297,18 @@ def RupturesMesuresFigureBox(df: pd.DataFrame) -> Component:
     return RupturesMesuresFigure(df)
 
 
+def SearchBar(search_bar_class_names: str, search_bar_id: str) -> Component:
+    return Form(
+        Dropdown(
+            id=search_bar_id,
+            placeholder="Tapez un nom de médicament pour retrouver sa classe ATC",
+            className="normal-text main-dropdown w-50 float-right",
+        ),
+        autoComplete="off",
+        className=search_bar_class_names,
+    )
+
+
 def Signalements() -> Component:
     return TopicSection(
         [
@@ -387,8 +402,19 @@ def Signalements() -> Component:
                                             {"label": y, "value": y}
                                             for y in sorted(df_ruptures.annee.unique())
                                         ],
-                                        className="GraphSelect d-inline-block",
-                                        style={"float": "right"},
+                                        className="GraphSelect d-inline-block float-right",
+                                    ),
+                                    SearchBar(
+                                        "align-items-center",
+                                        "atc-search-bar",
+                                    ),
+                                    dbc.Toast(
+                                        [],
+                                        id="auto-toast",
+                                        header="",
+                                        # icon="primary",
+                                        is_open=False,
+                                        duration=40000,
                                     ),
                                 ],
                                 className="mb-3",
@@ -675,3 +701,43 @@ def update_figure(value: str):
     if not value:
         raise PreventUpdate
     return getRupturesMesuresRepartitionGraphBox(value)
+
+
+@app.callback(
+    dd.Output("atc-search-bar", "options"),
+    dd.Input("atc-search-bar", "search_value"),
+)
+def update_search_bar_options(search_value):
+    if not search_value:
+        raise PreventUpdate
+    search_value = search_value.lower()
+
+    values_list = [
+        v.capitalize() for v in df_spe.nom.unique() if v.startswith(search_value)
+    ]
+    if len(values_list) < 10:
+        values_list = (
+            values_list
+            + [v for v in df_spe.nom.unique() if search_value in v][
+                : (10 - len(values_list))
+            ]
+        )
+        values_list.sort()
+        values_list = sorted(values_list, key=len)
+
+    return [
+        {"label": v[:65] + "..." if len(v) > 65 else v, "value": v} for v in values_list
+    ]
+
+
+@app.callback(
+    [dd.Output("auto-toast", "is_open"), dd.Output("auto-toast", "header"), dd.Output("auto-toast", "children")],
+    dd.Input("atc-search-bar", "value"),
+)
+def get_atc(value):
+    if not value:
+        raise PreventUpdate
+    cis = SPE_DICT[value.lower()]
+    corresp_atc = atc.list_atc(cis).loc[cis].atc[0]
+    corresp_nom_atc = classes_atc.loc[corresp_atc].label
+    return True, "Classe ATC {}".format(corresp_atc), [P(corresp_nom_atc, className="mb-0 normal-text")]
