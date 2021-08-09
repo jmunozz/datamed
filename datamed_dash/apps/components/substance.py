@@ -21,8 +21,8 @@ from apps.components.commons import (
     EIRepartitionSystemeOrganesBox,
     EIRepartitionHLTBox,
 )
-from apps.components.utils import Box, GraphBox
 from apps.components.specialite import NoData
+from apps.components.utils import Box
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from datamed_custom_components.Accordion import Accordion
