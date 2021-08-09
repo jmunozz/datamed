@@ -38,10 +38,6 @@ def get_exposition_df(code):
     return return_sub_df_or_none(fetch_table("substance_exposition", "code"), code)
 
 
-def get_decla_df(code):
-    return return_sub_df_or_none(fetch_table("substance_exposition", "code"), code)
-
-
 def get_notif_df(code):
     return return_sub_df_or_none(fetch_table("substance_notif_ordei", "code"), code)
 

@@ -89,7 +89,6 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
     df_age = substance.get_age_df(code)
     df_sexe = substance.get_sexe_df(code)
     df_expo = substance.get_exposition_df(code)
-    df_decla = substance.get_decla_df(code)
     df_notif = substance.get_notif_df(code)
     df_cas_age = substance.get_age_cas_df(code)
     df_cas_sexe = substance.get_sexe_cas_df(code)
@@ -126,7 +125,7 @@ def Substance(code: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SUBSTANCE,
                             ),
                             EffetsIndesirables(
-                                df_decla,
+                                df_expo,
                                 df_notif,
                                 df_cas_age,
                                 df_cas_sexe,
@@ -201,7 +200,7 @@ def ListeSpecialites(df_sub: pd.DataFrame, df_sub_spe: pd.DataFrame) -> Componen
 
 
 def EffetsIndesirables(
-    df_decla: pd.DataFrame,
+    df_expo: pd.DataFrame,
     df_notif: pd.DataFrame,
     df_cas_age: pd.DataFrame,
     df_cas_sexe: pd.DataFrame,
@@ -210,7 +209,7 @@ def EffetsIndesirables(
     children = [
         SectionRow(html.H1("Effets indésirables")),
     ]
-    dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
+    dataframes = [df_expo, df_notif, df_cas_age, df_cas_sexe, df_gravite]
     if all(df is None for df in dataframes):
         children.extend([EffetsIndesirablesTooltip(tooltip_open=True), NoData()])
     else:
@@ -219,8 +218,8 @@ def EffetsIndesirables(
                 EffetsIndesirablesTooltip(),
                 Grid(
                     [
-                        EICasDeclareFigureBox(df_decla),
-                        EITauxDeclarationBox(df_decla),
+                        EICasDeclareFigureBox(df_expo),
+                        EITauxDeclarationBox(df_expo),
                         EIRepartitionSexeFigureBox(df_cas_sexe),
                         EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
                         EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
