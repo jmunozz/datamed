@@ -241,8 +241,9 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         title_text="Classe thérapeutique",
         tickangle=90,
         tickfont=dict(family="Roboto", size=6),
+        fixedrange=True,
     )
-    fig.update_yaxes(autorange="reversed")
+    fig.update_yaxes(autorange="reversed", fixedrange=True)
     fig.update_yaxes(
         title_text="Nombre de signalements",
         color="#009640",
