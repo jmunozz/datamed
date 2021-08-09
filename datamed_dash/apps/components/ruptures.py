@@ -362,18 +362,18 @@ def Signalements() -> Component:
                                 [
                                     H4(
                                         [
-                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique",
+                                            "Nombre de signalements de ruptures de stock par classe thérapeutique",
                                             InformationIcon(),
                                         ],
                                         id=generate_title_id(
-                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique"
+                                            "Nombre de signalements de ruptures de stock par classe thérapeutique"
                                         ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
                                             H4(
-                                                "Nombre de signalements de ruptures de stocks par classe thérapeutique"
+                                                "Nombre de signalements de ruptures de stock par classe thérapeutique"
                                             ),
                                             P(
                                                 "Le Système de classification anatomique, thérapeutique et chimique "
@@ -399,7 +399,7 @@ def Signalements() -> Component:
                                             ),
                                         ],
                                         target=generate_title_id(
-                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique"
+                                            "Nombre de signalements de ruptures de stock par classe thérapeutique"
                                         ),
                                     ),
                                     dbc.Select(
@@ -522,18 +522,18 @@ def Signalements() -> Component:
                                 [
                                     H4(
                                         [
-                                            "Causes des signalements de ruptures de stocks",
+                                            "Causes des signalements de ruptures de stock",
                                             InformationIcon(),
                                         ],
                                         id=generate_title_id(
-                                            "Causes des signalements de ruptures de stocks"
+                                            "Causes des signalements de ruptures de stock"
                                         ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
                                             H4(
-                                                "Causes des signalements de ruptures de stocks"
+                                                "Causes des signalements de ruptures de stock"
                                             ),
                                             P(
                                                 "Les causes des ruptures reportées dans ces graphiques correspondent "
@@ -546,7 +546,7 @@ def Signalements() -> Component:
                                             ),
                                         ],
                                         target=generate_title_id(
-                                            "Causes des signalements de ruptures de stocks"
+                                            "Causes des signalements de ruptures de stock"
                                         ),
                                     ),
                                     dbc.Select(
