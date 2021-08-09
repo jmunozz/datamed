@@ -21,6 +21,7 @@ from apps.components.commons import (
     EIRepartitionSystemeOrganesBox,
     EIRepartitionHLTBox,
 )
+from apps.components.utils import Box, GraphBox
 from apps.components.specialite import NoData
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
@@ -223,6 +224,28 @@ def EffetsIndesirables(
                         EIRepartitionSexeFigureBox(df_cas_sexe),
                         EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
                         EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
+                        Box(
+                            [
+                                html.H4("Précision sur les déclarations d'effets indésirables"),
+                                html.Div(
+                                    [
+                                        html.Img(
+                                            src=app.get_asset_url("communique_120.svg"),
+                                        ),
+                                        html.P(
+                                            "Les données affichées sur les effets indésirables sont basées sur "
+                                            "le déclaratif. L’ANSM se sert des déclarations que font les patients "
+                                            "ou les professionnels de santé pour détecter des signaux en "
+                                            "pharmacovigilance. Ce relevé des déclarations ne permet en aucun "
+                                            "cas de connaître la fréquence exacte de survenue des effets "
+                                            "indésirables liés à la consommation d'un médicament.",
+                                            className="d-flex d-inline justify-content-center text-justify mt-5",
+                                        ),
+                                    ]
+                                ),
+                            ],
+                            className="Box-isHalf",
+                        ),
                     ],
                     2,
                 ),
