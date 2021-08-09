@@ -59,8 +59,7 @@ def Description() -> Component:
                         ArticleTitle("Bases de données exploitées"),
                         Div(
                             "TrustMed",
-                            className="normal-text-cap d-block",
-                            style={"color": "#A03189"},
+                            className="normal-text d-block",
                         ),
                     ]
                 ),
@@ -94,7 +93,7 @@ def Description() -> Component:
                             className="normal-text text-justify",
                         ),
                         A(
-                            "Trouvez des informations complémentaires sur le site de l'ANSM.",
+                            "Trouvez la liste des MITM en cours de rupture de stock.",
                             href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
                             className="ExternalLink d-block",
                             target="_blank",
@@ -314,7 +313,7 @@ def Signalements() -> Component:
     return TopicSection(
         [
             SectionRow(
-                H1("Nombre et nature des signalements", className="SectionTitle")
+                H1("Nombre et nature des signalements de rupture de stock", className="SectionTitle")
             ),
             SectionRow(
                 [
@@ -356,18 +355,18 @@ def Signalements() -> Component:
                                 [
                                     H4(
                                         [
-                                            "Nombre de signalements par classe thérapeutique",
+                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique",
                                             InformationIcon(),
                                         ],
                                         id=generate_title_id(
-                                            "Nombre de signalements par classe thérapeutique"
+                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique"
                                         ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
                                             H4(
-                                                "Nombre de signalements par classe thérapeutique"
+                                                "Nombre de signalements de ruptures de stocks par classe thérapeutique"
                                             ),
                                             P(
                                                 "Le Système de classification anatomique, thérapeutique et chimique "
@@ -382,7 +381,7 @@ def Signalements() -> Component:
                                             ),
                                             P(
                                                 "Ce graphique représente le nombre de signalements reçus par classe "
-                                                "pharmacothérapeutique (classification ATC). La courbe bleue indique "
+                                                "thérapeutique (classification ATC). La courbe bleue indique "
                                                 "le nombre de présentations de médicaments (une présentation correspond"
                                                 " à un conditionnement précis d'un médicament, par exemple une boîte de"
                                                 " 30 gélules et une boîte de 90 gélules d'un même médicament sont deux "
@@ -393,7 +392,7 @@ def Signalements() -> Component:
                                             ),
                                         ],
                                         target=generate_title_id(
-                                            "Nombre de signalements par classe thérapeutique"
+                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique"
                                         ),
                                     ),
                                     dbc.Select(
@@ -515,13 +514,13 @@ def Signalements() -> Component:
                             Div(
                                 [
                                     H4(
-                                        ["Causes des signalements", InformationIcon()],
-                                        id=generate_title_id("Causes des signalements"),
+                                        ["Causes des signalements de ruptures de stocks", InformationIcon()],
+                                        id=generate_title_id("Causes des signalements de ruptures de stocks"),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
-                                            H4("Causes des signalements"),
+                                            H4("Causes des signalements de ruptures de stocks"),
                                             P(
                                                 "Les causes des ruptures reportées dans ces graphiques correspondent "
                                                 "aux causes déclarées par les industriels au moment de la déclaration.",
@@ -533,7 +532,7 @@ def Signalements() -> Component:
                                             ),
                                         ],
                                         target=generate_title_id(
-                                            "Causes des signalements"
+                                            "Causes des signalements de ruptures de stocks"
                                         ),
                                     ),
                                     dbc.Select(
@@ -567,7 +566,7 @@ def Signalements() -> Component:
 def GestionRuptures() -> Component:
     return TopicSection(
         [
-            SectionRow(H1("Gestion des ruptures", className="SectionTitle")),
+            SectionRow(H1("Gestion des ruptures de stock", className="SectionTitle")),
             SectionRow(
                 Box(
                     Div(
@@ -576,18 +575,18 @@ def GestionRuptures() -> Component:
                                 [
                                     H4(
                                         [
-                                            "Mesures prises pour pallier aux ruptures",
+                                            "Mesures prises pour pallier aux ruptures de stock",
                                             InformationIcon(),
                                         ],
                                         id=generate_title_id(
-                                            "Mesures prises pour pallier aux ruptures"
+                                            "Mesures prises pour pallier aux ruptures de stock"
                                         ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
                                             H4(
-                                                "Mesures prises pour pallier aux ruptures"
+                                                "Mesures prises pour pallier aux ruptures de stock"
                                             ),
                                             P(
                                                 "Lorsqu'un signalement arrive à l'ANSM, est mise en place une "
@@ -597,7 +596,7 @@ def GestionRuptures() -> Component:
                                             ),
                                         ],
                                         target=generate_title_id(
-                                            "Mesures prises pour pallier aux ruptures"
+                                            "Mesures prises pour pallier aux ruptures de stock"
                                         ),
                                     ),
                                     dbc.Select(
