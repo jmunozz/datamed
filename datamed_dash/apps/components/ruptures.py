@@ -34,7 +34,7 @@ from apps.graphs import (
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Dropdown, Graph
-from dash_html_components import Div, P, H1, H4, A, Form
+from dash_html_components import Div, P, H1, H4, A, Form, B
 from db import fetch_data, specialite, atc
 from plotly.subplots import make_subplots
 from sm import SideMenu
@@ -67,11 +67,14 @@ def Description() -> Component:
                     [
                         ArticleTitle("Description"),
                         P(
-                            "Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute rupture "
-                            "ou risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
-                            "l'ANSM. Toute déclaration entraîne la création d'un signalement pour l'ANSM. L’action "
-                            "de l’ANSM est centrée sur la gestion des ruptures de stock et risques de rupture de "
-                            "stock des médicaments pouvant entraîner un risque de santé publique.",
+                            [
+                                "Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute "
+                                "rupture ou risque de rupture concernant des ",
+                                B("Médicaments d'Intérêt Thérapeutique Majeur (MITM) "),
+                                "à l'ANSM. Toute déclaration entraîne la création d'un signalement pour l'ANSM. "
+                                "L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques de "
+                                "rupture de stock des médicaments pouvant entraîner un risque de santé publique.",
+                            ],
                             className="normal-text justify-text",
                         ),
                         Div(
@@ -305,7 +308,7 @@ def SearchBar(search_bar_class_names: str, search_bar_id: str) -> Component:
         ),
         autoComplete="off",
         className=search_bar_class_names,
-        style={"min-width": "200px"}
+        style={"min-width": "200px"},
     )
 
 
@@ -313,7 +316,10 @@ def Signalements() -> Component:
     return TopicSection(
         [
             SectionRow(
-                H1("Nombre et nature des signalements de rupture de stock", className="SectionTitle")
+                H1(
+                    "Nombre et nature des signalements de rupture de stock",
+                    className="SectionTitle",
+                )
             ),
             SectionRow(
                 [
@@ -514,13 +520,20 @@ def Signalements() -> Component:
                             Div(
                                 [
                                     H4(
-                                        ["Causes des signalements de ruptures de stocks", InformationIcon()],
-                                        id=generate_title_id("Causes des signalements de ruptures de stocks"),
+                                        [
+                                            "Causes des signalements de ruptures de stocks",
+                                            InformationIcon(),
+                                        ],
+                                        id=generate_title_id(
+                                            "Causes des signalements de ruptures de stocks"
+                                        ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
-                                            H4("Causes des signalements de ruptures de stocks"),
+                                            H4(
+                                                "Causes des signalements de ruptures de stocks"
+                                            ),
                                             P(
                                                 "Les causes des ruptures reportées dans ces graphiques correspondent "
                                                 "aux causes déclarées par les industriels au moment de la déclaration.",
@@ -731,7 +744,11 @@ def update_search_bar_options(search_value):
 
 
 @app.callback(
-    [dd.Output("auto-toast", "is_open"), dd.Output("auto-toast", "header"), dd.Output("auto-toast", "children")],
+    [
+        dd.Output("auto-toast", "is_open"),
+        dd.Output("auto-toast", "header"),
+        dd.Output("auto-toast", "children"),
+    ],
     dd.Input("atc-search-bar", "value"),
 )
 def get_atc(value):
@@ -740,4 +757,8 @@ def get_atc(value):
     cis = SPE_DICT[value.lower()]
     corresp_atc = atc.list_atc(cis).loc[cis].atc[0]
     corresp_nom_atc = classes_atc.loc[corresp_atc].label
-    return True, "Classe ATC {}".format(corresp_atc), [P(corresp_nom_atc, className="mb-0 normal-text")]
+    return (
+        True,
+        "Classe ATC {}".format(corresp_atc),
+        [P(corresp_nom_atc, className="mb-0 normal-text")],
+    )
