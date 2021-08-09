@@ -181,7 +181,7 @@ def EICasDeclareFigureBox(df_decla: pd.DataFrame):
     placeholder = FigureGraph(
         [
             {
-                "figure": "Pas de données",
+                "figure": "Données insuffisantes",
                 "caption": "Nombre de déclarations sur la période 2014-2018",
             }
         ]
@@ -198,13 +198,13 @@ def EITauxDeclarationBox(df: pd.DataFrame):
     placeholder = FigureGraph(
         [
             {
-                "figure": "Pas de données",
+                "figure": "Données insuffisantes",
                 "caption": "Taux de déclaration pour 100 000 patients "
                 "traités par an sur la période 2014-2018",
             }
         ]
     )
-    if df is None:
+    if df is None or math.isnan(df.taux_cas.unique()):
         content = placeholder
     else:
         content = EITauxDeclarationGraph(df)

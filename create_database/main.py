@@ -157,7 +157,7 @@ def create_substance_exposition_table(_settings: Dict):
     final_df = df_by_years.join(df_by_code, on="code")
     final_df = helpers.filter_df_on_low_values(final_df, ["cas", "cas_annee"])
     final_df["taux_cas"] = final_df.apply(
-        axis=1, func=lambda x: x.cas * 100000 / x.conso if x.cas >= 10 else None
+        axis=1, func=lambda x: x.cas * 100000 / x.conso if 10 <= x.cas <= x.conso else None
     )
     final_df["conso_an_trunc"] = final_df.conso.apply(
         lambda x: round_small_values(x / 5)
