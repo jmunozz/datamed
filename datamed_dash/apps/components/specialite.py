@@ -79,13 +79,13 @@ def EffetsIndesirablesContent(sub_code: str = "") -> Component:
     if sub_code == "":
         return html.Div("Pas de sélection pour l'instant")
     # Fetch substances dataframes
-    df_decla = substance.get_decla_df(sub_code)
+    df_expo = substance.get_exposition_df(sub_code)
     df_cas_sexe = substance.get_sexe_cas_df(sub_code)
     df_cas_age = substance.get_age_cas_df(sub_code)
     df_gravite = substance.get_gravite(sub_code)
     df_notif = substance.get_notif_df(sub_code)
     df_soclong = substance.get_soc_df(sub_code)
-    dataframes = [df_decla, df_notif, df_cas_age, df_cas_sexe, df_gravite]
+    dataframes = [df_expo, df_notif, df_cas_age, df_cas_sexe, df_gravite]
     if all(df is None for df in dataframes):
         return NoData()
     else:
@@ -93,11 +93,33 @@ def EffetsIndesirablesContent(sub_code: str = "") -> Component:
             [
                 Grid(
                     [
-                        EICasDeclareFigureBox(df_decla),
-                        EITauxDeclarationBox(df_decla),
+                        EICasDeclareFigureBox(df_expo),
+                        EITauxDeclarationBox(df_expo),
                         EIRepartitionSexeFigureBox(df_cas_sexe),
                         EIRepartitionAgeGraphBox(df_cas_age, PIE_COLORS_SUBSTANCE),
                         EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
+                        Box(
+                            [
+                                html.H4("Précision sur les déclarations d'effets indésirables"),
+                                html.Div(
+                                    [
+                                        html.Img(
+                                            src=app.get_asset_url("communique_120.svg"),
+                                        ),
+                                        html.P(
+                                            "Les données affichées sur les effets indésirables sont basées sur "
+                                            "le déclaratif. L’ANSM se sert des déclarations que font les patients "
+                                            "ou les professionnels de santé pour détecter des signaux en "
+                                            "pharmacovigilance. Ce relevé des déclarations ne permet en aucun "
+                                            "cas de connaître la fréquence exacte de survenue des effets "
+                                            "indésirables liés à la consommation d'un médicament.",
+                                            className="d-flex d-inline justify-content-center text-justify mt-5",
+                                        ),
+                                    ]
+                                ),
+                            ],
+                            className="Box-isHalf",
+                        ),
                     ],
                     2,
                 ),

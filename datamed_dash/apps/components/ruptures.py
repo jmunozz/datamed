@@ -34,7 +34,7 @@ from apps.graphs import (
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from dash_core_components import Dropdown, Graph
-from dash_html_components import Div, P, H1, H4, A, Form
+from dash_html_components import Div, P, H1, H4, A, Form, B
 from db import fetch_data, specialite, atc
 from plotly.subplots import make_subplots
 from sm import SideMenu
@@ -59,8 +59,7 @@ def Description() -> Component:
                         ArticleTitle("Bases de données exploitées"),
                         Div(
                             "TrustMed",
-                            className="normal-text-cap d-block",
-                            style={"color": "#A03189"},
+                            className="normal-text d-block",
                         ),
                     ]
                 ),
@@ -68,11 +67,14 @@ def Description() -> Component:
                     [
                         ArticleTitle("Description"),
                         P(
-                            "Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute rupture "
-                            "ou risque de rupture concernant des médicaments d'intérêt thérapeutique majeur à "
-                            "l'ANSM. Toute déclaration entraîne la création d'un signalement pour l'ANSM. L’action "
-                            "de l’ANSM est centrée sur la gestion des ruptures de stock et risques de rupture de "
-                            "stock des médicaments pouvant entraîner un risque de santé publique.",
+                            [
+                                "Les laboratoires pharmaceutiques exploitants ont l'obligation de déclarer toute "
+                                "rupture ou risque de rupture concernant des ",
+                                B("Médicaments d'Intérêt Thérapeutique Majeur (MITM) "),
+                                "à l'ANSM. Toute déclaration entraîne la création d'un signalement pour l'ANSM. "
+                                "L’action de l’ANSM est centrée sur la gestion des ruptures de stock et risques de "
+                                "rupture de stock des médicaments pouvant entraîner un risque de santé publique.",
+                            ],
                             className="normal-text justify-text",
                         ),
                         Div(
@@ -94,7 +96,7 @@ def Description() -> Component:
                             className="normal-text text-justify",
                         ),
                         A(
-                            "Trouvez des informations complémentaires sur le site de l'ANSM.",
+                            "Trouvez la liste des MITM en cours de rupture de stock.",
                             href="https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments",
                             className="ExternalLink d-block",
                             target="_blank",
@@ -239,8 +241,9 @@ def get_signalement_atc_curve(annee=INITIAL_YEAR):
         title_text="Classe thérapeutique",
         tickangle=90,
         tickfont=dict(family="Roboto", size=6),
+        fixedrange=True,
     )
-    fig.update_yaxes(autorange="reversed")
+    fig.update_yaxes(autorange="reversed", fixedrange=True)
     fig.update_yaxes(
         title_text="Nombre de signalements",
         color="#009640",
@@ -306,7 +309,7 @@ def SearchBar(search_bar_class_names: str, search_bar_id: str) -> Component:
         ),
         autoComplete="off",
         className=search_bar_class_names,
-        style={"min-width": "200px"}
+        style={"min-width": "200px"},
     )
 
 
@@ -314,7 +317,10 @@ def Signalements() -> Component:
     return TopicSection(
         [
             SectionRow(
-                H1("Nombre et nature des signalements", className="SectionTitle")
+                H1(
+                    "Nombre et nature des signalements de rupture de stock",
+                    className="SectionTitle",
+                )
             ),
             SectionRow(
                 [
@@ -356,18 +362,18 @@ def Signalements() -> Component:
                                 [
                                     H4(
                                         [
-                                            "Nombre de signalements par classe thérapeutique",
+                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique",
                                             InformationIcon(),
                                         ],
                                         id=generate_title_id(
-                                            "Nombre de signalements par classe thérapeutique"
+                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique"
                                         ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
                                             H4(
-                                                "Nombre de signalements par classe thérapeutique"
+                                                "Nombre de signalements de ruptures de stocks par classe thérapeutique"
                                             ),
                                             P(
                                                 "Le Système de classification anatomique, thérapeutique et chimique "
@@ -382,7 +388,7 @@ def Signalements() -> Component:
                                             ),
                                             P(
                                                 "Ce graphique représente le nombre de signalements reçus par classe "
-                                                "pharmacothérapeutique (classification ATC). La courbe bleue indique "
+                                                "thérapeutique (classification ATC). La courbe bleue indique "
                                                 "le nombre de présentations de médicaments (une présentation correspond"
                                                 " à un conditionnement précis d'un médicament, par exemple une boîte de"
                                                 " 30 gélules et une boîte de 90 gélules d'un même médicament sont deux "
@@ -393,7 +399,7 @@ def Signalements() -> Component:
                                             ),
                                         ],
                                         target=generate_title_id(
-                                            "Nombre de signalements par classe thérapeutique"
+                                            "Nombre de signalements de ruptures de stocks par classe thérapeutique"
                                         ),
                                     ),
                                     dbc.Select(
@@ -515,13 +521,20 @@ def Signalements() -> Component:
                             Div(
                                 [
                                     H4(
-                                        ["Causes des signalements", InformationIcon()],
-                                        id=generate_title_id("Causes des signalements"),
+                                        [
+                                            "Causes des signalements de ruptures de stocks",
+                                            InformationIcon(),
+                                        ],
+                                        id=generate_title_id(
+                                            "Causes des signalements de ruptures de stocks"
+                                        ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
-                                            H4("Causes des signalements"),
+                                            H4(
+                                                "Causes des signalements de ruptures de stocks"
+                                            ),
                                             P(
                                                 "Les causes des ruptures reportées dans ces graphiques correspondent "
                                                 "aux causes déclarées par les industriels au moment de la déclaration.",
@@ -533,7 +546,7 @@ def Signalements() -> Component:
                                             ),
                                         ],
                                         target=generate_title_id(
-                                            "Causes des signalements"
+                                            "Causes des signalements de ruptures de stocks"
                                         ),
                                     ),
                                     dbc.Select(
@@ -567,7 +580,7 @@ def Signalements() -> Component:
 def GestionRuptures() -> Component:
     return TopicSection(
         [
-            SectionRow(H1("Gestion des ruptures", className="SectionTitle")),
+            SectionRow(H1("Gestion des ruptures de stock", className="SectionTitle")),
             SectionRow(
                 Box(
                     Div(
@@ -576,18 +589,18 @@ def GestionRuptures() -> Component:
                                 [
                                     H4(
                                         [
-                                            "Mesures prises pour pallier aux ruptures",
+                                            "Mesures prises pour pallier aux ruptures de stock",
                                             InformationIcon(),
                                         ],
                                         id=generate_title_id(
-                                            "Mesures prises pour pallier aux ruptures"
+                                            "Mesures prises pour pallier aux ruptures de stock"
                                         ),
                                         className="GraphBoxTitle d-inline-block",
                                     ),
                                     Tooltip(
                                         [
                                             H4(
-                                                "Mesures prises pour pallier aux ruptures"
+                                                "Mesures prises pour pallier aux ruptures de stock"
                                             ),
                                             P(
                                                 "Lorsqu'un signalement arrive à l'ANSM, est mise en place une "
@@ -597,7 +610,7 @@ def GestionRuptures() -> Component:
                                             ),
                                         ],
                                         target=generate_title_id(
-                                            "Mesures prises pour pallier aux ruptures"
+                                            "Mesures prises pour pallier aux ruptures de stock"
                                         ),
                                     ),
                                     dbc.Select(
@@ -732,7 +745,11 @@ def update_search_bar_options(search_value):
 
 
 @app.callback(
-    [dd.Output("auto-toast", "is_open"), dd.Output("auto-toast", "header"), dd.Output("auto-toast", "children")],
+    [
+        dd.Output("auto-toast", "is_open"),
+        dd.Output("auto-toast", "header"),
+        dd.Output("auto-toast", "children"),
+    ],
     dd.Input("atc-search-bar", "value"),
 )
 def get_atc(value):
@@ -741,4 +758,8 @@ def get_atc(value):
     cis = SPE_DICT[value.lower()]
     corresp_atc = atc.list_atc(cis).loc[cis].atc[0]
     corresp_nom_atc = classes_atc.loc[corresp_atc].label
-    return True, "Classe ATC {}".format(corresp_atc), [P(corresp_nom_atc, className="mb-0 normal-text")]
+    return (
+        True,
+        "Classe ATC {}".format(corresp_atc),
+        [P(corresp_nom_atc, className="mb-0 normal-text")],
+    )

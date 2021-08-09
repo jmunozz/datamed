@@ -204,7 +204,7 @@ def EITauxDeclarationBox(df: pd.DataFrame):
             }
         ]
     )
-    if df is None:
+    if df is None or math.isnan(df.taux_cas.unique()):
         content = placeholder
     else:
         content = EITauxDeclarationGraph(df)
