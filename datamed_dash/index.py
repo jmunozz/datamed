@@ -33,22 +33,15 @@ def noop():
 
 
 app.clientside_callback(
-    ClientsideFunction(namespace="content_updated", function_name="scrollTop"),
+    ClientsideFunction(namespace="search_updated", function_name="scrollTop"),
     Output("dash-side-effect-hidden-div", "aria-noop"),
     Input("dash-side-effect-hidden-div", "children"),
 )
 
 
-@app.callback(
-    Output("dash-side-effect-hidden-div", "children"),
-    Input("page-content", "children"),
-)
-def updated(children):
-    de.PreventUpdate()
-
-
 @app.callback(Output("page-content", "children"), Input("url", "href"))
 def display_page(href):
+
     parsed_url = urlparse(unquote_plus(href))
     pathname = parsed_url.path
 

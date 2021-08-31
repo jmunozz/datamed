@@ -818,6 +818,7 @@ def toggle_modal(n1, n2, is_open):
 
 @app.callback(
     dd.Output("url", "href"),
+    dd.Output("dash-side-effect-hidden-div", "children"),
     dd.Input("search-bar", "value"),
 )
 def update_path(value):
@@ -827,6 +828,6 @@ def update_path(value):
     if value:
         type = value["type"]
         index = value["value"]
-        return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
+        return f"/apps/{type}?" + urlencode({"search": quote_plus(index)}), None
     else:
         raise PreventUpdate()
