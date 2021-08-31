@@ -3,7 +3,7 @@ import re
 import pandas as pd
 from app import cache
 
-from .fetch_data import fetch_table, return_sub_df_or_none
+from .fetch_data import fetch_table, return_sub_df_or_none, reverse_df
 
 
 # cis can be a str or a list
@@ -114,5 +114,4 @@ def get_erreur_med_gravite(cis):
 
 
 def get_publications(cis: str):
-    df = return_sub_df_or_none(fetch_table("publications", "cis"), cis)
-    return df[::-1]
+    return reverse_df(return_sub_df_or_none(fetch_table("publications", "cis"), cis))

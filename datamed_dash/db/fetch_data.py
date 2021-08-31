@@ -2,6 +2,7 @@ import app
 import pandas as pd
 
 from . import utils
+from typing import Optional
 
 
 @app.cache.memoize(3000)
@@ -44,3 +45,10 @@ def as_series(df):
 
 def get_df_len(df):
     return len(df.index)
+
+
+def reverse_df(df: Optional[pd.DataFrame]):
+    if df is None:
+        return df
+    else:
+        return df[::-1]

@@ -1,5 +1,5 @@
 import urllib
-from typing import Tuple
+from typing import Tuple, Optional
 from urllib.parse import urlparse
 
 import dash
@@ -100,7 +100,9 @@ def EffetsIndesirablesContent(sub_code: str = "") -> Component:
                         EIRepartitionGraviteGraphBox(df_gravite, PIE_COLORS_SUBSTANCE),
                         Box(
                             [
-                                html.H4("Précision sur les déclarations d'effets indésirables"),
+                                html.H4(
+                                    "Précision sur les déclarations d'effets indésirables"
+                                ),
                                 html.Div(
                                     [
                                         html.Img(
@@ -175,14 +177,9 @@ def get_has_link(series_spe: pd.Series) -> str:
     )
 
 
-def Publications(df: pd.DataFrame) -> str:
+def Publications(df: Optional[pd.DataFrame]) -> str:
     children = [
-        SectionRow(
-            html.H1(
-                "Publications de l'ANSM",
-                className="SectionTitle",
-            )
-        ),
+        SectionRow(html.H1("Publications de l'ANSM", className="SectionTitle",)),
     ]
     if df is None:
         children.append(
@@ -220,10 +217,7 @@ def Publications(df: pd.DataFrame) -> str:
                 )
             )
         children.append(Grid(children_grid, 1))
-    return TopicSection(
-        children,
-        id="publications",
-    )
+    return TopicSection(children, id="publications",)
 
 
 def Specialite(cis: str) -> Tuple[Component, html.Div]:
@@ -259,18 +253,12 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                             "id": "erreurs-medicamenteuses",
                             "label": "Erreurs médicamenteuses",
                         },
-                        {
-                            "id": "effets-indesirables",
-                            "label": "Effets indésirables",
-                        },
+                        {"id": "effets-indesirables", "label": "Effets indésirables",},
                         {
                             "id": "rupture-de-stock",
                             "label": "Historique des ruptures de stock",
                         },
-                        {
-                            "id": "publications",
-                            "label": "Publications",
-                        },
+                        {"id": "publications", "label": "Publications",},
                     ],
                     className="SideMenu",
                 ),
@@ -286,12 +274,7 @@ def Specialite(cis: str) -> Tuple[Component, html.Div]:
                                 pie_colors=PIE_COLORS_SPECIALITE,
                             ),
                             ErreursMedicamenteuses(
-                                df_init,
-                                df_ei,
-                                df_pop,
-                                df_cause,
-                                df_nat,
-                                df_gravite,
+                                df_init, df_ei, df_pop, df_cause, df_nat, df_gravite,
                             ),
                             EffetsIndesirables(df_sub),
                             RuptureDeStock(df_rup),
@@ -350,8 +333,7 @@ def Description(
                             ),
                             html.Span(
                                 "{} ({})".format(
-                                    series_atc.label.capitalize(),
-                                    series_atc.atc,
+                                    series_atc.label.capitalize(), series_atc.atc,
                                 ),
                                 className="Badge Badge-isSecondary normal-text",
                             ),
@@ -370,8 +352,7 @@ def Description(
                         [
                             ArticleTitle("Laboratoire"),
                             html.Span(
-                                series_spe.titulaires.title(),
-                                className="normal-text",
+                                series_spe.titulaires.title(), className="normal-text",
                             ),
                         ],
                     ),
@@ -471,10 +452,7 @@ def BoxListDenomination(df: pd.DataFrame):
         page_size=10,
         style_as_list_view=True,
         style_table={"overflowX": "auto"},
-        style_cell={
-            "height": "50px",
-            "backgroundColor": "#FFF",
-        },
+        style_cell={"height": "50px", "backgroundColor": "#FFF",},
         style_data={
             "fontSize": "14px",
             "fontWeight": "400",
@@ -520,10 +498,7 @@ def ErreursMedicamenteuses(
                                     className="regular-text",
                                 ),
                                 html.P(
-                                    [
-                                        html.B("Nourrisson : "),
-                                        "> 28 jours et < 2 ans",
-                                    ],
+                                    [html.B("Nourrisson : "), "> 28 jours et < 2 ans",],
                                     className="regular-text",
                                 ),
                                 html.P(
@@ -648,10 +623,7 @@ def ErreursMedicamenteuses(
                 ),
             ]
         )
-    return TopicSection(
-        children,
-        id="erreurs-medicamenteuses",
-    )
+    return TopicSection(children, id="erreurs-medicamenteuses",)
 
 
 def EffetsIndesirables(df: pd.DataFrame) -> Component:
