@@ -31,7 +31,10 @@ def Navbar() -> Component:
 
 
 @app.callback(
-    dd.Output("url", "href"), dd.Input("navbar", "url"), dd.Input("navbar", "value"),
+    dd.Output("url", "href"),
+    dd.Output("dash-side-effect-hidden-div", "data-input"),
+    dd.Input("navbar", "url"),
+    dd.Input("navbar", "value"),
 )
 def update_path(url, value):
     ctx = dash.callback_context
@@ -40,8 +43,8 @@ def update_path(url, value):
     if value:
         type = value["type"]
         index = value["value"]
-        return f"/apps/{type}?" + urlencode({"search": quote_plus(index)})
+        return f"/apps/{type}?" + urlencode({"search": quote_plus(index)}), None
     elif url:
-        return url
+        return url, None
     else:
         raise PreventUpdate()
