@@ -32,7 +32,7 @@ def Navbar() -> Component:
 
 @app.callback(
     dd.Output("url", "href"),
-    dd.Output("dash-side-effect-hidden-div", "children"),
+    dd.Output("dash-side-effect-hidden-div", "data-input"),
     dd.Input("navbar", "url"),
     dd.Input("navbar", "value"),
 )

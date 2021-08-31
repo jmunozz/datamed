@@ -56,11 +56,7 @@ from db import fetch_data, specialite, substance
 
 def to_search_bar_options(df: pd.DataFrame, type: str) -> List[Dict]:
     return [
-        {
-            "label": truncate_str(val),
-            "value": index,
-            "type": type,
-        }
+        {"label": truncate_str(val), "value": index, "type": type,}
         for index, val in df.nom.items()
     ]
 
@@ -91,12 +87,7 @@ def Usage(type: str, level: int):
             HoverTooltip(
                 [
                     html.P([html.B("Utilisation : "), UTILISATION[i]]),
-                    html.P(
-                        [
-                            html.B("Nombre de patients : "),
-                            nb_patients[i],
-                        ]
-                    ),
+                    html.P([html.B("Nombre de patients : "), nb_patients[i],]),
                 ],
                 target=f"UsageBarLevel{i}",
             ),
@@ -108,12 +99,7 @@ def Usage(type: str, level: int):
     ]
 
     if math.isnan(level) or level < 0 or level > 4:
-        return html.Div(
-            [
-                *bars,
-            ],
-            className="UsageContainer",
-        )
+        return html.Div([*bars,], className="UsageContainer",)
 
     pill_position_x = level * 24 + level * 8
     pill_position_y = bar_height[level] + 4
@@ -131,7 +117,7 @@ def Usage(type: str, level: int):
     )
 
 
-# this invisible component is used to perform side effects
+# this invisible component is used to perform side effects on both substance and spe page
 def SideEffects():
     return html.Div(id="dash-side-effect-hidden-div")
 
@@ -147,12 +133,7 @@ def SingleCurve(x: pd.Series, y: pd.Series, name: str, color: str) -> go.Scatter
         y=y,
         mode="lines",
         name=name,
-        line={
-            "shape": "spline",
-            "smoothing": 1,
-            "width": 4,
-            "color": color,
-        },
+        line={"shape": "spline", "smoothing": 1, "width": 4, "color": color,},
     )
 
 
@@ -387,10 +368,7 @@ def EMTooltip(tooltip_open=False):
 
 def SingleSection(title: str, children_list: List) -> Component:
     children = [Div(title, className="h3 mb-3")] + children_list
-    return Div(
-        children,
-        className="normal-text mb-5 text-justify",
-    )
+    return Div(children, className="normal-text mb-5 text-justify",)
 
 
 def FrontPageSectionPart(children, class_name=""):
@@ -434,9 +412,7 @@ def NoData(class_name="") -> html.Div:
                 className="img-fluid",
                 alt="Responsive image",
             ),
-            html.Div(
-                "Données insuffisantes pour affichage",
-            ),
+            html.Div("Données insuffisantes pour affichage",),
         ],
         className=class_name,
     )
@@ -456,19 +432,9 @@ def Tooltip() -> Component:
                                         "médicament, délivré en ",
                                         className="normal-text",
                                     ),
-                                    html.B(
-                                        html.Span(
-                                            "pharmacie de ville",
-                                        )
-                                    ),
-                                    html.Span(
-                                        " entre 2014 et 2018 et remboursé par ",
-                                    ),
-                                    html.B(
-                                        html.Span(
-                                            "l’Assurance Maladie.",
-                                        )
-                                    ),
+                                    html.B(html.Span("pharmacie de ville",)),
+                                    html.Span(" entre 2014 et 2018 et remboursé par ",),
+                                    html.B(html.Span("l’Assurance Maladie.",)),
                                     html.Span(
                                         " Pour plus d’informations, consultez : ",
                                     ),
@@ -505,14 +471,8 @@ def Tooltip() -> Component:
                             ),
                         ],
                     ),
-                    html.Div(
-                        [],
-                        className="text-justify mb-3",
-                    ),
-                    html.Div(
-                        [],
-                        className="mb-3",
-                    ),
+                    html.Div([], className="text-justify mb-3",),
+                    html.Div([], className="mb-3",),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -560,14 +520,8 @@ def HistoriqueRupturesTooltip():
                             ),
                         ],
                     ),
-                    html.Div(
-                        [],
-                        className="text-justify mb-3",
-                    ),
-                    html.Div(
-                        [],
-                        className="mb-3",
-                    ),
+                    html.Div([], className="text-justify mb-3",),
+                    html.Div([], className="mb-3",),
                 ],
                 isOpenOnFirstRender=True,
                 labelClass="InternalLink normal-text",
@@ -666,10 +620,7 @@ def PatientsTraites(
                 ),
             ]
         )
-    return TopicSection(
-        children,
-        id="patients-traites",
-    )
+    return TopicSection(children, id="patients-traites",)
 
 
 def Header(series_spe: pd.Series, type="specialite") -> Component:
@@ -755,10 +706,7 @@ def Header(series_spe: pd.Series, type="specialite") -> Component:
         html.Div(
             html.Div(
                 [
-                    html.Div(
-                        html.Img(src=icon_url),
-                        className="HeaderImg",
-                    ),
+                    html.Div(html.Img(src=icon_url), className="HeaderImg",),
                     html.Div(
                         [
                             H1(title),
@@ -818,7 +766,7 @@ def toggle_modal(n1, n2, is_open):
 
 @app.callback(
     dd.Output("url", "href"),
-    dd.Output("dash-side-effect-hidden-div", "children"),
+    dd.Output("dash-side-effect-hidden-div", "data-input"),
     dd.Input("search-bar", "value"),
 )
 def update_path(value):

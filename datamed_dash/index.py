@@ -1,3 +1,4 @@
+from apps.components.commons import SideEffects
 import os
 from urllib.parse import urlparse, unquote_plus
 
@@ -21,7 +22,9 @@ from apps import (
     app_contact,
 )
 
-app.layout = Div([dcc.Location(id="url", refresh=False), Div(id="page-content")])
+app.layout = Div(
+    [dcc.Location(id="url", refresh=False), Div(id="page-content"), SideEffects()]
+)
 
 USERNAME = os.environ["USERNAME"]
 PASSWORD = os.environ["PASSWORD"]
@@ -34,8 +37,8 @@ def noop():
 
 app.clientside_callback(
     ClientsideFunction(namespace="search_updated", function_name="scrollTop"),
-    Output("dash-side-effect-hidden-div", "aria-noop"),
-    Input("dash-side-effect-hidden-div", "children"),
+    Output("dash-side-effect-hidden-div", "data-output"),
+    Input("dash-side-effect-hidden-div", "data-input"),
 )
 
 
