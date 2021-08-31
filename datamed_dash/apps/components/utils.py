@@ -11,6 +11,10 @@ from app import app
 from apps.constants.misc import SEARCH_ITEM_MAX_LENGTH
 
 
+def Spinner():
+    return Div([Div(), Div()], className="lds-ripple")
+
+
 def SectionRow(children, withGutter=False):
     classes = ["SectionRow"]
     if withGutter:

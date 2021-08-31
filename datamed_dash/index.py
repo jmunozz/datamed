@@ -1,4 +1,5 @@
 from apps.components.commons import SideEffects
+from apps.components.utils import Spinner
 import os
 from urllib.parse import urlparse, unquote_plus
 
@@ -23,7 +24,12 @@ from apps import (
 )
 
 app.layout = Div(
-    [dcc.Location(id="url", refresh=False), Div(id="page-content"), SideEffects()]
+    [
+        dcc.Location(id="url", refresh=False),
+        Spinner(),
+        Div(id="page-content"),
+        SideEffects(),
+    ]
 )
 
 USERNAME = os.environ["USERNAME"]
