@@ -51,9 +51,13 @@ app.clientside_callback(
 @app.callback(Output("page-content", "children"), Input("url", "href"))
 def display_page(href):
 
+    print(href)
     parsed_url = urlparse(unquote_plus(href))
     pathname = parsed_url.path
-
+    hash = parsed_url.fragment
+    # Dirty fix to avoid page-content's children to update on anchor click.
+    if hash:
+        raise de.PreventUpdate()
     if pathname == "/apps/accueil":
         return app_frontpage.layout
     elif pathname == "/apps/specialite":
