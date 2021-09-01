@@ -20,7 +20,10 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                     [
                         FrontPageSectionFull(
                             [
-                                html.Img(src=app.get_asset_url("illu_searchbar.svg"), className="FrontPageSearchBarImg"),
+                                html.Img(
+                                    src=app.get_asset_url("illu_searchbar.svg"),
+                                    className="FrontPageSearchBarImg",
+                                ),
                                 html.H3("Trouvez des données autour du médicament"),
                                 SearchBar(),
                             ],
@@ -45,7 +48,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                         ),
                     ],
                     has_appendice=True,
-                    class_name="FrontPageSection-isColorWhite FrontPageSection-isBottomBoxShadowed FrontPageSection-hasAppendice",
+                    class_name="FrontPageSection-isColorWhite FrontPageSection-isBottomBoxShadowed FrontPageSection-hasAppendice FrontPageSection1",
                 ),
                 FrontPageSection(
                     [
@@ -72,7 +75,8 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             ],
                             class_name="Stack Stack-isVerticalCentered",
                         ),
-                    ]
+                    ],
+                    class_name="FrontPageSection2",
                 ),
                 FrontPageSection(
                     [
@@ -145,7 +149,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                             ]
                         )
                     ],
-                    class_name="FrontPageSection-isColor3 ",
+                    class_name="FrontPageSection-isColor3 FrontPageSection3",
                 ),
                 FrontPageSection(
                     [
