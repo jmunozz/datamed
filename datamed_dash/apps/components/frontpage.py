@@ -21,7 +21,7 @@ def FrontPage() -> Tuple[html.Div, html.Div]:
                         FrontPageSectionFull(
                             [
                                 html.Img(src=app.get_asset_url("illu_searchbar.svg"), className="FrontPageSearchBarImg"),
-                                html.H3("Trouvez des données autour du médicament"),
+                                html.H3("Trouvez des données autour du médicament ou d'une substance active"),
                                 SearchBar(),
                             ],
                             class_name="Stack Stack-isCentered Stack-isVerticalCentered",
